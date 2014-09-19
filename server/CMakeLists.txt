@@ -7,7 +7,7 @@ add_executable(${exe_name} ${src_dir})
 
 list( APPEND internal
     ${INTERNAL_PROJECT_NAME}_protocol
-    VTRC_CLIENT
+    VTRC_SERVER
     VTRC_COMMON
     )
 
