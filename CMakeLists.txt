@@ -37,6 +37,7 @@ if( VTRC_CXX11_ENABLED )
     find_package( Boost 1.50 COMPONENTS
                     system
                     thread
+                    program_options
                   REQUIRED)
 
     get_cmd_cxx11( VTRC_CXX_CMD )
@@ -49,6 +50,7 @@ else( )
                     thread
                     atomic
                     random
+                    program_options
                   REQUIRED)
 endif( )
 
@@ -59,4 +61,7 @@ include_directories( ${VTRC_INCLUDE_DIRS} )
 add_subdirectory( protocol )
 add_subdirectory( console-client )
 add_subdirectory( client-core )
-add_subdirectory( server )
+
+if( NOT WIN32 )
+    add_subdirectory( server )
+endif( )
