@@ -47,8 +47,7 @@ int main( int argc, const char **argv )
     po::variables_map vm( create_cmd_params( argc, argv, description ) );
 
     if( vm.count( "help" ) ) {
-        std::cout << "Usage: "
-                  << description;
+        std::cout << "Usage: " << description << "\n";
         return 0;
     }
 
