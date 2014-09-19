@@ -13,6 +13,9 @@ list( APPEND internal
     )
 
 include_directories( ${${INTERNAL_PROJECT_NAME}_protocol_INCLUDE_DIRS}  )
+include_directories( ${${INTERNAL_PROJECT_NAME}_client_core_INCLUDE_DIRS}  )
+
+message( "Core " ${${INTERNAL_PROJECT_NAME}_client_core_INCLUDE_DIRS} )
 
 message( "-- Seting up internal dependencies for " ${exe_name} )
 foreach( dep ${internal} )

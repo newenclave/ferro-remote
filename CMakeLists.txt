@@ -57,10 +57,12 @@ endif( )
 find_package( Protobuf REQUIRED)
 
 include_directories( ${VTRC_INCLUDE_DIRS} )
+include_directories( ${CMAKE_CURRENT_SOURCE_DIR} )
 
 add_subdirectory( protocol )
-add_subdirectory( console-client )
 add_subdirectory( client-core )
+
+add_subdirectory( console-client )
 
 if( NOT WIN32 )
     add_subdirectory( server )

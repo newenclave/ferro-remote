@@ -19,6 +19,7 @@ list( APPEND internal
     VTRC_COMMON
     )
 
+include_directories( ${CMAKE_CURRENT_SOURCE_DIR} )
 include_directories( ${${INTERNAL_PROJECT_NAME}_protocol_INCLUDE_DIRS}  )
 
 message( "-- Seting up internal dependencies for " ${exe_name} )
