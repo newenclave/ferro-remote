@@ -1,5 +1,4 @@
 
-
 aux_source_directory(. src_dir)
 
 set( exe_name ${INTERNAL_PROJECT_NAME}_client )
