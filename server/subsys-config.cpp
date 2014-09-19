@@ -8,11 +8,12 @@ namespace fr { namespace server { namespace subsys {
         const std::string subsys_name( "config" );
     }
 
-    config::config( application &app )
+    config::config( application *app )
     { }
 
     /// static
-    vtrc::shared_ptr<config> config::create( application &app )
+    vtrc::shared_ptr<config> config::create(application *app,
+                             const boost::program_options::variables_map &vm )
     {
         vtrc::shared_ptr<config> new_inst(new config(app));
         return new_inst;

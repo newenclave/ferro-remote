@@ -3,6 +3,11 @@
 
 #include "subsystem-iface.h"
 
+namespace boost {
+    namespace program_options {
+        class variables_map;
+    }
+}
 
 namespace fr { namespace server {
 
@@ -11,12 +16,15 @@ namespace fr { namespace server {
 namespace subsys {
 
     class config: public subsystem_iface {
+
     protected:
-        config( application &app );
+
+        config( application *app );
 
     public:
 
-        static vtrc::shared_ptr<config> create( application &app );
+        static vtrc::shared_ptr<config> create( application *app,
+                    const boost::program_options::variables_map &vm );
 
         const std::string &name( )  const;
 

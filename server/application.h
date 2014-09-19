@@ -41,6 +41,20 @@ namespace fr { namespace server {
             add_subsystem( typeid( T ), subsys );
         }
 
+        template <typename T, typename P1>
+        void add_subsystem( const P1 &p1 )
+        {
+            subsystem_sptr subsys ( T::create( this, p1 ) );
+            add_subsystem( typeid( T ), subsys );
+        }
+
+        template <typename T, typename P1, typename P2>
+        void add_subsystem( const P1 &p1, const P2 &p2 )
+        {
+            subsystem_sptr subsys ( T::create( this, p1, p2 ) );
+            add_subsystem( typeid( T ), subsys );
+        }
+
         template <typename T>
         T &subsystem( )
         {

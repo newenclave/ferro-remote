@@ -6,6 +6,8 @@
 #include "google/protobuf/descriptor.h"
 #include "boost/program_options.hpp"
 
+#include "subsys-list.hxx"
+
 namespace vserver = vtrc::server;
 namespace vcommon = vtrc::common;
 using namespace fr;
@@ -37,6 +39,15 @@ namespace {
         return vm;
     }
 
+    void init_subsystems( po::variables_map &vm, server::application &app )
+    {
+        using namespace server::subsys;
+        app.add_subsystem<config>( vm );
+
+        /// start all subsystems
+        app.start_all( );
+    }
+
 }
 
 int main( int argc, const char **argv )
@@ -47,12 +58,15 @@ int main( int argc, const char **argv )
     po::variables_map vm( create_cmd_params( argc, argv, description ) );
 
     if( vm.count( "help" ) ) {
-        std::cout << "Usage: " << description << "\n";
+        std::cout << "Usage: ferro_remote_server [options]\n"
+                  << description << "\n";
         return 0;
     }
 
     vcommon::pool_pair pp( 0 );
     server::application app( pp );
+
+    pp.get_io_pool( ).attach( ); /// RUN!
 
     pp.stop_all( );
     pp.join_all( );

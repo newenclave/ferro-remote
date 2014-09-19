@@ -8,7 +8,7 @@ endif(WIN32)
 
 cmake_minimum_required(VERSION 2.8)
 
-set( INTERNAL_PROJECT_NAME ferro-remote )
+set( INTERNAL_PROJECT_NAME ferro_remote )
 
 set( VTRC_IMPORT_CMAKE "${CMAKE_CURRENT_SOURCE_DIR}/../vtrc/vtrc-import.cmake")
 

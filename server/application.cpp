@@ -17,13 +17,19 @@ namespace fr { namespace server {
     };
 
     struct application::impl {
-        application          *parent_;
-        subsystem_comtrainer  subsystems_;
+
+        vtrc::common::pool_pair &pools_;
+        application             *parent_;
+        subsystem_comtrainer     subsystems_;
+
+        impl( vtrc::common::pool_pair &pools )
+            :pools_(pools)
+        { }
     };
 
     application::application( vtrc::common::pool_pair &pp )
         :vserver::application( pp )
-        ,impl_(new impl)
+        ,impl_(new impl(pp))
     {
         impl_->parent_ = this;
     }
@@ -45,7 +51,6 @@ namespace fr { namespace server {
             (*b)->start( );
         }
     }
-
 
     void application::stop_all( )
     {
