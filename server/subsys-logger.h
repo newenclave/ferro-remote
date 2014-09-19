@@ -1,6 +1,6 @@
 
-#if !defined( __VTRC_SUBSYS_LOGGER__ )
-#define       __VTRC_SUBSYS_LOGGER__
+#ifndef FR_SUBSYS_LOGGER_H
+#define FR_SUBSYS_LOGGER_H
 
 #include "subsystem-iface.h"
 

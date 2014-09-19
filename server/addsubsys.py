@@ -6,8 +6,8 @@ import os
 
 def header_file():
     """
-#if !defined( __VTRC_SUBSYS_%ss-name%__ )
-#define       __VTRC_SUBSYS_%ss-name%__
+#ifndef FR_SUBSYS_%ss-name%_H
+#define FR_SUBSYS_%ss-name%_H
 
 #include "subsystem-iface.h"
 
