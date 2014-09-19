@@ -1,5 +1,114 @@
 
-package fr.proto.fs;
+package fr.protocol.fs;
 
 option cc_generic_services = true;
+
+message handle {
+    optional uint32 value = 1;
+}
+
+message file_position {
+    optional uint64 position = 1;
+}
+
+message empty { }
+
+// fs directory operations;
+message handle_path {
+    optional handle  handle = 1;
+    optional string  path   = 2;
+}
+
+message element_info {
+    optional bool is_exist      = 1;
+    optional bool is_directory  = 2;
+    optional bool is_empty      = 3;
+    optional bool is_regular    = 4;
+    optional bool is_symlink    = 5;
+
+}
+
+message iterator_info {
+    optional handle     handle = 1;
+    optional string     path   = 2; // path
+    optional bool       end    = 3; // this is last one
+}
+
+service instance {
+
+    // open instance
+    rpc open( handle_path )        returns ( handle_path );
+
+    // change instance path
+    rpc cd  ( handle_path )        returns ( handle_path );
+
+    // get path by handle
+    rpc pwd ( handle_path )        returns ( handle_path );
+
+    // check if path exists
+    rpc exists( handle_path )      returns ( element_info );
+
+    // get file size
+    rpc file_size( handle_path )   returns ( file_position );
+
+    // get path info
+    rpc info( handle_path )        returns ( element_info );
+
+    // make directory
+    rpc mkdir( handle_path )       returns ( handle_path );
+
+    // del fs element
+    rpc del( handle_path )         returns ( handle_path );
+
+    // iterate directory
+    rpc iter_begin(  handle_path  ) returns( iterator_info );
+    rpc iter_next ( iterator_info ) returns( iterator_info );
+    rpc iter_info ( iterator_info ) returns( element_info  );
+    rpc iter_clone( iterator_info ) returns( iterator_info );
+
+    // close instance or iterator;
+    rpc close( handle ) returns ( empty );
+
+}
+
+message file_open_req {
+    optional string path = 1;
+    optional string mode = 2;
+}
+
+enum file_position_whence {
+    POS_SEEK_SET  = 0;
+    POS_SEEK_CUR  = 1;
+    POS_SEEK_END  = 2;
+}
+
+message file_set_position {
+    optional handle  hdl      = 1;
+    optional int64   position = 2;
+    optional uint32  whence   = 3;
+}
+
+message file_data_block {
+    optional handle  hdl     = 1;
+    optional bytes   data    = 2;
+    optional uint32  length  = 3;
+}
+
+
+// files operations
+service file {
+
+    rpc open(  file_open_req ) returns ( handle );
+
+    rpc tell( handle)             returns ( file_position );
+    rpc seek( file_set_position ) returns ( file_position );
+
+
+    rpc read(  file_data_block )  returns ( file_data_block );
+    rpc write( file_data_block )  returns ( file_data_block );
+
+    rpc flush( handle )        returns ( empty );
+
+    rpc close( handle)         returns ( empty );
+}
 
