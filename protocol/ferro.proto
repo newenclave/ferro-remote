@@ -1,0 +1,5 @@
+package ferro;
+option cc_generic_services = true;
+
+message empty { }
+
