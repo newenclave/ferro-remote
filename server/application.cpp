@@ -43,6 +43,7 @@ namespace fr { namespace server {
     {
         typedef subsys_vector::iterator iter_type;
         subsys_vector &vec(impl_->subsystems_.subsys_order_);
+
         for( iter_type b(vec.begin( )), e(vec.end( )); b!=e; ++b ) {
             (*b)->init( );
         }

@@ -48,6 +48,12 @@ namespace {
         app.start_all( );
     }
 
+    void usage( const po::options_description &dsc )
+    {
+        std::cout << "Usage: ferro_remote_server [options]\n"
+                  << dsc << "\n";
+    }
+
 }
 
 int main( int argc, const char **argv )
@@ -55,21 +61,37 @@ int main( int argc, const char **argv )
     po::options_description description("Allowed options");
     fill_options( description );
 
-    po::variables_map vm( create_cmd_params( argc, argv, description ) );
+    po::variables_map vm;
+    try {
+
+        vm = ( create_cmd_params( argc, argv, description ) );
+
+    } catch( const std::exception &ex ) {
+        std::cerr << "Command line error: " << ex.what( ) << "\n";
+        usage( description );
+        return 1;
+    }
 
     if( vm.count( "help" ) ) {
-        std::cout << "Usage: ferro_remote_server [options]\n"
-                  << description << "\n";
+        usage( description );
         return 0;
     }
 
-    vcommon::pool_pair pp( 0 );
-    server::application app( pp );
+    try {
 
-    pp.get_io_pool( ).attach( ); /// RUN!
+        vcommon::pool_pair pp( 0 );
+        server::application app( pp );
 
-    pp.stop_all( );
-    pp.join_all( );
+        init_subsystems( vm, app );
+
+        pp.get_io_pool( ).attach( ); /// RUN!
+
+        pp.stop_all( );
+        pp.join_all( );
+    } catch( const std::exception &ex ) {
+        std::cerr << "Application failed: " << ex.what( ) << "\n";
+        return 2;
+    }
 
     google::protobuf::ShutdownProtobufLibrary( );
     return 0;
