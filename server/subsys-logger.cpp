@@ -14,8 +14,7 @@ namespace fr { namespace server { namespace subsys {
     { }
 
     /// static
-    vtrc::shared_ptr<logger> logger::create(application *app,
-                             const boost::program_options::variables_map &vm )
+    vtrc::shared_ptr<logger> logger::create( application *app )
     {
         vtrc::shared_ptr<logger> new_inst(new logger(app));
         return new_inst;

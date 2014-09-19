@@ -11,12 +11,6 @@ def header_file():
 
 #include "subsystem-iface.h"
 
-namespace boost {
-    namespace program_options {
-        class variables_map;
-    }
-}
-
 namespace fr { namespace server {
 
     class application;
@@ -36,8 +30,7 @@ namespace subsys {
 
         ~%ss-name%( );
 
-        static vtrc::shared_ptr<%ss-name%> create( application *app,
-                    const boost::program_options::variables_map &vm );
+        static vtrc::shared_ptr<%ss-name%> create( application *app );
 
         const std::string &name( )  const;
 
@@ -71,8 +64,7 @@ namespace fr { namespace server { namespace subsys {
     { }
 
     /// static
-    vtrc::shared_ptr<%ss-name%> %ss-name%::create(application *app,
-                             const boost::program_options::variables_map &vm )
+    vtrc::shared_ptr<%ss-name%> %ss-name%::create( application *app )
     {
         vtrc::shared_ptr<%ss-name%> new_inst(new %ss-name%(app));
         return new_inst;

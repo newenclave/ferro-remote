@@ -1,7 +1,6 @@
 
 #include "subsys-config.h"
 
-
 namespace fr { namespace server { namespace subsys {
 
     namespace {
@@ -38,6 +37,5 @@ namespace fr { namespace server { namespace subsys {
     {
 
     }
-
 
 }}}
