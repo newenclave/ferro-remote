@@ -33,10 +33,35 @@ namespace fr { namespace server {
         delete impl_;
     }
 
+    void application::start_all( )
+    {
+        typedef subsys_vector::iterator iter_type;
+        subsys_vector &vec(impl_->subsystems_.subsys_order_);
+        for( iter_type b(vec.begin( )), e(vec.end( )); b!=e; ++b ) {
+            (*b)->init( );
+        }
+
+        for( iter_type b(vec.begin( )), e(vec.end( )); b!=e; ++b ) {
+            (*b)->start( );
+        }
+    }
+
+
+    void application::stop_all( )
+    {
+        typedef subsys_vector::reverse_iterator iter_type;
+        subsys_vector &vec(impl_->subsystems_.subsys_order_);
+
+        for( iter_type b(vec.rbegin( )), e(vec.rend( )); b!=e; ++b ) {
+            (*b)->stop( );
+        }
+    }
+
     void application::add_subsystem( const std::type_info &info,
                                      subsystem_sptr inst )
     {
-
+        impl_->subsystems_.subsys_[vcommon::rtti_wrapper(info)] = inst;
+        impl_->subsystems_.subsys_order_.push_back( inst );
     }
 
     subsystem_iface *application::subsystem( const std::type_info &info )

@@ -6,6 +6,7 @@ set( exe_name ${INTERNAL_PROJECT_NAME}_client )
 add_executable(${exe_name} ${src_dir})
 
 list( APPEND internal
+    ${INTERNAL_PROJECT_NAME}_client_core
     ${INTERNAL_PROJECT_NAME}_protocol
     VTRC_CLIENT
     VTRC_COMMON

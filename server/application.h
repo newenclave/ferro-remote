@@ -75,6 +75,9 @@ namespace fr { namespace server {
             return poly_downcast<const T *>( subsys );
         }
 
+        void start_all( );
+        void stop_all( );
+
     private:
 
         void add_subsystem( const std::type_info &info, subsystem_sptr inst );
