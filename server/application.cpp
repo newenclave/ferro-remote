@@ -119,9 +119,9 @@ namespace fr { namespace server {
         }
     }
 
+    ///
     //// services
     ///
-
     void application::register_service_creator( const std::string &name,
                                                 service_getter_type &func )
     {
@@ -144,7 +144,8 @@ namespace fr { namespace server {
         }
     }
 
-    /////// parent calls
+    ///
+    //// parent calls
     ///
     void application::configure_session( vcommon::connection_iface* connection,
                                          vtrc_rpc::session_options &opts )
