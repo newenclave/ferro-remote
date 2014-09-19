@@ -1,0 +1,6 @@
+
+package fr.proto.fs;
+
+option cc_generic_services = true;
+
+
