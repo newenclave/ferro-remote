@@ -57,11 +57,19 @@ namespace fr { namespace server { namespace subsys {
         const std::string subsys_name( "%ss-name%" );
     }
 
+    struct %ss-name%::impl {
+
+    };
+
+
     %ss-name%::%ss-name%( application *app )
+        :impl_(new impl)
     { }
 
     %ss-name%::~%ss-name%( )
-    { }
+    {
+        delete impl_;
+    }
 
     /// static
     vtrc::shared_ptr<%ss-name%> %ss-name%::create( application *app )

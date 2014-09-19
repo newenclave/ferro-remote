@@ -53,6 +53,8 @@ namespace fr { namespace server {
 
         void unregister_service_creator( const std::string &name );
 
+        void quit( );
+
     public: // subsystems
 
         template <typename T>

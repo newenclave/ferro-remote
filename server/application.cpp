@@ -61,6 +61,12 @@ namespace fr { namespace server {
         delete impl_;
     }
 
+    void application::quit( )
+    {
+        stop_all( );
+        impl_->pools_.stop_all( );
+    }
+
     void application::start_all( )
     {
         typedef subsys_vector::iterator iter_type;

@@ -87,9 +87,6 @@ int main( int argc, const char **argv )
 
         pp.get_io_pool( ).attach( ); /// RUN!
 
-        app.stop_all( );
-
-        pp.stop_all( );
         pp.join_all( );
 
     } catch( const std::exception &ex ) {

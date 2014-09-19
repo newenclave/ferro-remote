@@ -1,17 +1,28 @@
 
 #include "subsys-logger.h"
 
+#include "application.h"
+
 namespace fr { namespace server { namespace subsys {
 
     namespace {
         const std::string subsys_name( "logger" );
     }
 
+    struct logger::impl {
+        application *app_;
+    };
+
     logger::logger( application *app )
-    { }
+        :impl_(new impl)
+    {
+        impl_->app_ = app;
+    }
 
     logger::~logger( )
-    { }
+    {
+        delete impl_;
+    }
 
     /// static
     vtrc::shared_ptr<logger> logger::create( application *app )
