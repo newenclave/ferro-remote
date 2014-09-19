@@ -17,6 +17,9 @@ namespace subsys {
 
     class config: public subsystem_iface {
 
+        struct  impl;
+        impl   *impl_;
+
     protected:
 
         config( application *app );
