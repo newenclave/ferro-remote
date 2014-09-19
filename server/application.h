@@ -5,8 +5,11 @@
 #include "vtrc-common/vtrc-signal-declaration.h"
 #include "vtrc-common/vtrc-pool-pair.h"
 #include "vtrc-common/vtrc-rtti-wrapper.h"
+#include "vtrc-common/vtrc-connection-iface.h"
 
 #include "subsystem-iface.h"
+
+#include "vtrc-function.h"
 
 #include <assert.h>
 
@@ -20,6 +23,17 @@ namespace fr { namespace server {
 
     public:
 
+        typedef vtrc::common::rpc_service_wrapper service_wrapper;
+        typedef vtrc::shared_ptr<service_wrapper> service_wrapper_sptr;
+
+        ///
+        /// func( app, connection )
+        ///
+        typedef vtrc::function<
+            service_wrapper_sptr ( fr::server::application *,
+                                   vtrc::common::connection_iface_wptr )
+        > service_getter_type;
+
         application( vtrc::common::pool_pair &pp );
         ~application( );
 
@@ -31,6 +45,13 @@ namespace fr { namespace server {
             assert( dynamic_cast<Tgt>(x) == x );  // logic error ?
             return static_cast<Tgt>(x);
         }
+
+    public: // services
+
+        void register_service_creator( const std::string &name,
+                                       service_getter_type &func );
+
+        void unregister_service_creator( const std::string &name );
 
     public: // subsystems
 
@@ -97,6 +118,17 @@ namespace fr { namespace server {
         void add_subsystem( const std::type_info &info, subsystem_sptr inst );
         subsystem_iface *subsystem( const std::type_info &info );
         const subsystem_iface *subsystem( const std::type_info &info ) const;
+
+        void configure_session( vtrc::common::connection_iface *connection,
+                                vtrc_rpc::session_options &opts );
+
+        service_wrapper_sptr get_service_by_name(
+                                      vtrc::common::connection_iface* c,
+                                      const std::string &service_name );
+
+        std::string get_session_key( vtrc::common::connection_iface* c,
+                                     const std::string &id);
+
     };
 
 }}

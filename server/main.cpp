@@ -88,6 +88,7 @@ int main( int argc, const char **argv )
 
         pp.stop_all( );
         pp.join_all( );
+
     } catch( const std::exception &ex ) {
         std::cerr << "Application failed: " << ex.what( ) << "\n";
         return 2;
