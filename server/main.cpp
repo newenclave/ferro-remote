@@ -32,10 +32,12 @@ namespace {
                 .options(desc)
                 //.allow_unregistered( )
                 .run( ));
-        po::store(parsed, vm);
-        po::notify(vm);
+        po::store( parsed, vm );
+        po::notify( vm);
         return vm;
-    }}
+    }
+
+}
 
 int main( int argc, const char **argv )
 {
