@@ -8,7 +8,7 @@ namespace boost { namespace program_options {
 
 }}
 
-namespace fr { namespace console_client {
+namespace fr { namespace cc {
 
     struct command_iface {
 

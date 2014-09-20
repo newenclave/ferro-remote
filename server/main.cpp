@@ -21,7 +21,7 @@ namespace {
         desc.add_options( )
             ("help,?",   "help message")
             ("server,s", po::value< std::vector< std::string> >( ),
-                    "endpoint name; <tcp address>:<port> or <pipe/file name>")
+                    "endpoint name; <tcp address>:<port> or <file name>")
             ;
     }
 
