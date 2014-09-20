@@ -85,8 +85,8 @@ namespace fr {  namespace client { namespace core {
             case CONN_PIPE:
                 client_->connect( ci->server_ );
                 break;
-            case CONN_TCP:
 
+            case CONN_TCP:
                 client_->connect( ci->server_, ci->port_ );
                 break;
 
