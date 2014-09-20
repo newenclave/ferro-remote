@@ -2,7 +2,6 @@
 #include <iomanip>
 
 #include "client-core/fr-client.h"
-#include "command-iface.h"
 #include "cmd-list.h"
 
 #include "boost/program_options.hpp"
