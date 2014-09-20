@@ -3,11 +3,9 @@
 
 #include "subsystem-iface.h"
 
-namespace boost {
-    namespace program_options {
-        class variables_map;
-    }
-}
+namespace boost { namespace program_options {
+    class variables_map;
+}}
 
 namespace fr { namespace server {
 
