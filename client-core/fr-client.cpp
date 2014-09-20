@@ -1,5 +1,5 @@
 
-#include "fr-client.h"
+#include "client-core/fr-client.h"
 
 #include "vtrc-client/vtrc-client.h"
 #include "vtrc-mutex.h"

@@ -1,5 +1,7 @@
 #include "command-iface.h"
 
+#include "interfaces/IOS.h"
+
 namespace fr { namespace cc { namespace cmd {
 
     namespace {

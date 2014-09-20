@@ -11,6 +11,7 @@ cmake_minimum_required(VERSION 2.8)
 set( INTERNAL_PROJECT_NAME ferro_remote )
 
 set( VTRC_IMPORT_CMAKE "${CMAKE_CURRENT_SOURCE_DIR}/../vtrc/vtrc-import.cmake")
+set( FR_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/include")
 
 if( VTRC_IMPORT )
     set( VTRC_IMPORT_CMAKE ${VTRC_IMPORT} )
@@ -58,6 +59,7 @@ find_package( Protobuf REQUIRED)
 
 include_directories( ${VTRC_INCLUDE_DIRS} )
 include_directories( ${CMAKE_CURRENT_SOURCE_DIR} )
+include_directories( ${FR_INCLUDE_DIRS} )
 
 add_subdirectory( protocol )
 add_subdirectory( client-core )
