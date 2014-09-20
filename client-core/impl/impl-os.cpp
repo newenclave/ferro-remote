@@ -15,7 +15,6 @@ namespace fr { namespace client { namespace interfaces {
         typedef os_proto::instance_Stub               stub_type;
         typedef vtrc::common::stub_wrapper<stub_type> client_type;
         typedef vtrc::common::rpc_channel             rpc_channel;
-        typedef vtrc::shared_ptr<rpc_channel>         rpc_channel_sptr;
 
         class os_impl: public os::iface {
 
@@ -24,7 +23,7 @@ namespace fr { namespace client { namespace interfaces {
         public:
 
             os_impl( core::client_core &cl )
-                :client_(rpc_channel_sptr(cl.create_channel( )))
+                :client_(cl.create_channel( ), true)
             { }
 
             void execute( const std::string &cmd )
