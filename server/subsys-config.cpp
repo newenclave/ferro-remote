@@ -1,6 +1,8 @@
 
 #include "subsys-config.h"
 
+#include "boost/program_options.hpp"
+
 namespace fr { namespace server { namespace subsys {
 
     namespace {
@@ -15,6 +17,7 @@ namespace fr { namespace server { namespace subsys {
                              const boost::program_options::variables_map &vm )
     {
         vtrc::shared_ptr<config> new_inst(new config(app));
+
         return new_inst;
     }
 
