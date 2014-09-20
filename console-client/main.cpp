@@ -105,6 +105,11 @@ namespace {
                   << "Options:\n" << desc << "\n";
     }
 
+
+    void connect_success( boost::system::error_code const &err )
+    {
+        std::cout << err.message( ) << "\n";
+    }
 }
 
 int main( int argc, const char **argv ) try
@@ -135,11 +140,11 @@ int main( int argc, const char **argv ) try
         return 0;
     }
 
-    if( !current_command.get( ) ) {
-        std::cout << "Invalid command '<empty>'\n";
-        show_init_help( desc, cm );
-        return 2;
-    }
+//    if( !current_command.get( ) ) {
+//        std::cout << "Invalid command '<empty>'\n";
+//        show_init_help( desc, cm );
+//        return 2;
+//    }
 
     std::string server( vm.count("server")
                         ? vm["server"].as<std::string>( )
@@ -156,8 +161,10 @@ int main( int argc, const char **argv ) try
     fr::client::core::client client(*pp);
 
     client.connect( server );
+    //client.async_connect( server, connect_success );
+    //client.disconnect(  );
 
-    current_command->exec( vm, client );
+    //current_command->exec( vm, client );
 
     pp->get_io_pool( ).attach( );
 
