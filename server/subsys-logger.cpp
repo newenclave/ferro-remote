@@ -51,6 +51,11 @@ namespace fr { namespace server { namespace subsys {
 
     }
 
+    void logger::set_level(logger::log_level_type lt)
+    {
+
+    }
+
 }}}
 
     

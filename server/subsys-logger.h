@@ -21,15 +21,25 @@ namespace subsys {
 
     public:
 
+        enum log_level_type {
+             level_none = 0
+            ,level_info
+            ,level_warning
+            ,level_debug
+        };
+
         ~logger( );
 
         static vtrc::shared_ptr<logger> create( application *app );
 
         const std::string &name( )  const;
 
-        void init( )  ;
-        void start( ) ;
-        void stop( )  ;
+        void init( );
+        void start( );
+        void stop( );
+
+    public:
+        void set_level( log_level_type lt );
     };
 
 }}}

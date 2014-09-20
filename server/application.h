@@ -40,7 +40,7 @@ namespace fr { namespace server {
     private:
 
         template <class Tgt, class Src>
-        static Tgt * poly_downcast ( Src * x )
+        static Tgt poly_downcast ( Src * x )
         {
             assert( dynamic_cast<Tgt>(x) == x );  // logic error ?
             return static_cast<Tgt>(x);

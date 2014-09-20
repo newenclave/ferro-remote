@@ -20,9 +20,12 @@ namespace subsys {
 
     protected:
 
-        config( application *app );
+        config(application *app,
+               const boost::program_options::variables_map &vm);
 
     public:
+
+        ~config( );
 
         static vtrc::shared_ptr<config> create( application *app,
                     const boost::program_options::variables_map &vm );
@@ -33,6 +36,7 @@ namespace subsys {
         void start( ) ;
         void stop( )  ;
 
+        boost::program_options::variables_map const &variables( ) const;
     };
 
 }}}

@@ -46,6 +46,8 @@ namespace {
         app.add_subsystem<logger>( );
         app.add_subsystem<os>( );
 
+        app.add_subsystem<listeners>( );
+
         /// start all subsystems
         app.start_all( );
     }
