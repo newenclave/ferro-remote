@@ -28,7 +28,7 @@ namespace fr { namespace cc { namespace cmd {
 
             std::string help( ) const
             {
-                return std::string( );
+                return std::string( "" );
             }
 
             std::string desc( ) const

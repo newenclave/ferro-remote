@@ -2,6 +2,7 @@
 #define FR_COMMAND_IFACE_H
 
 #include "vtrc-memory.h"
+#include <string>
 
 namespace boost { namespace program_options {
 
