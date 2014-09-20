@@ -88,7 +88,7 @@ namespace fr { namespace server {
         }
 
 #else
-        template <typename T, typename... Args >
+        template <typename T, typename ... Args >
         void add_subsystem( Args & ... pars )
         {
             subsystem_sptr subsys ( T::create( this, pars ... ) );
