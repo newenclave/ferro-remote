@@ -48,6 +48,7 @@ namespace subsys {
 
 def source_file():
     """
+#include "application.h"
 #include "subsys-%ss-name%.h"
 
 
@@ -55,15 +56,25 @@ namespace fr { namespace server { namespace subsys {
 
     namespace {
         const std::string subsys_name( "%ss-name%" );
+
+        application::service_wrapper_sptr create_service(
+                                          fr::server::application *,
+                                          vtrc::common::connection_iface_wptr)
+        {
+            return application::service_wrapper_sptr( );
+        }
     }
 
     struct %ss-name%::impl {
-
+        application *app_;
+        impl( application *app )
+            :app_(app)
+        { }
     };
 
 
     %ss-name%::%ss-name%( application *app )
-        :impl_(new impl)
+        :impl_(new impl(app))
     { }
 
     %ss-name%::~%ss-name%( )
