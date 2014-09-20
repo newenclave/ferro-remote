@@ -43,7 +43,6 @@ namespace {
     {
         using namespace server::subsys;
         app.add_subsystem<config>( vm );
-        app.add_subsystem<logger>( );
         app.add_subsystem<os>( );
 
         app.add_subsystem<listeners>( );

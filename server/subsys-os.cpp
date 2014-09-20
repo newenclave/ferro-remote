@@ -1,7 +1,6 @@
 
 #include "application.h"
 #include "subsys-os.h"
-#include "subsys-logger.h"
 
 #include "protocol/os.pb.h"
 #include "vtrc-common/vtrc-closure-holder.h"
@@ -51,8 +50,7 @@ namespace fr { namespace server { namespace subsys {
 
     struct os::impl {
 
-        application     *app_;
-        subsys::logger  *logger_;
+        application  *app_;
 
         impl( application *app )
             :app_(app)
@@ -83,7 +81,7 @@ namespace fr { namespace server { namespace subsys {
 
     void os::init( )
     {
-        impl_->logger_ = &impl_->app_->subsystem<subsys::logger>( );
+
     }
 
     void os::start( )
