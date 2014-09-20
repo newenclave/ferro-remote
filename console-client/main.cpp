@@ -189,7 +189,7 @@ int main( int argc, const char **argv ) try
 
     pool_pair_sptr pp(pp_from_cmd( vm ));
 
-    fr::client::core::client client(*pp);
+    fr::client::core::client_core client(*pp);
 
     client.connect( server );
 

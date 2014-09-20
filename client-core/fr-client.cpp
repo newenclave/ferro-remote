@@ -52,7 +52,7 @@ namespace fr {  namespace client { namespace core {
         }
     }
 
-    struct client::impl {
+    struct client_core::impl {
 
         vclient::vtrc_client_sptr client_;
         connect_info_sptr         last_connection_;
@@ -96,7 +96,7 @@ namespace fr {  namespace client { namespace core {
             };
         }
 
-        void async_connect( client::async_closure_func &func )
+        void async_connect( client_core::async_closure_func &func )
         {
             connect_info_sptr ci(get_info( ));
             switch( ci->name_ ) {
@@ -117,56 +117,56 @@ namespace fr {  namespace client { namespace core {
         }
     };
 
-    client::client( vtrc::common::pool_pair &pp )
+    client_core::client_core( vtrc::common::pool_pair &pp )
         :impl_(new impl(pp))
     {
 
     }
 
-    client::~client(  )
+    client_core::~client_core(  )
     {
         delete impl_;
     }
 
-    void client::connect( const std::string &server )
+    void client_core::connect( const std::string &server )
     {
         impl_->set_new_info( server, false );
         impl_->connect( );
     }
 
-    void client::connect( const std::string &server, bool tcp_nowait )
+    void client_core::connect( const std::string &server, bool tcp_nowait )
     {
         impl_->set_new_info( server, tcp_nowait );
         impl_->connect( );
     }
 
-    void client::async_connect( const std::string &server,
+    void client_core::async_connect( const std::string &server,
                                 async_closure_func f )
     {
         impl_->set_new_info( server, false );
         impl_->async_connect( f );
     }
 
-    void client::async_connect( const std::string &server,
+    void client_core::async_connect( const std::string &server,
                                 bool tcp_nowait, async_closure_func f )
     {
         impl_->set_new_info( server, tcp_nowait );
         impl_->async_connect( f );
     }
 
-    void client::reconnect( )
+    void client_core::reconnect( )
     {
         impl_->client_->disconnect( );
         impl_->connect( );
     }
 
-    void client::async_reconnect( async_closure_func f )
+    void client_core::async_reconnect( async_closure_func f )
     {
         impl_->client_->disconnect( );
         impl_->async_connect( f );
     }
 
-    void client::disconnect( )
+    void client_core::disconnect( )
     {
         impl_->client_->disconnect( );
     }

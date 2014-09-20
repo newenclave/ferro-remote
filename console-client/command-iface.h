@@ -14,8 +14,7 @@ namespace boost { namespace program_options {
 namespace fr {
 
 namespace client { namespace core {
-    class client;
-
+    class client_core;
 }}
 
 namespace cc {
@@ -27,7 +26,7 @@ namespace cc {
         virtual const char *name( ) const = 0;
 
         virtual void exec( boost::program_options::variables_map &vm,
-                           client::core::client &client ) = 0;
+                           client::core::client_core &client ) = 0;
 
         virtual void add_options(
                 boost::program_options::options_description &desc ) = 0;

@@ -13,15 +13,15 @@ namespace boost { namespace system {
 
 namespace fr {  namespace client { namespace core {
 
-    class client {
+    class client_core {
 
         struct  impl;
         impl   *impl_;
 
     public:
 
-        client( vtrc::common::pool_pair &pp );
-        ~client(  );
+        client_core( vtrc::common::pool_pair &pp );
+        ~client_core(  );
 
     public:
 

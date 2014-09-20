@@ -6,6 +6,7 @@ namespace fr { namespace cc { namespace cmd {
     namespace {
 
         namespace po = boost::program_options;
+        namespace core = client::core;
 
         const char *cmd_name = "gpio";
 
@@ -16,7 +17,7 @@ namespace fr { namespace cc { namespace cmd {
                 return cmd_name;
             }
 
-            void exec( po::variables_map &vm, client::core::client &client )
+            void exec( po::variables_map &vm, core::client_core &client )
             {
 
             }
