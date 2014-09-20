@@ -154,7 +154,7 @@ namespace fr { namespace server {
     //// parent calls
     ///
     void application::configure_session( vcommon::connection_iface* connection,
-                                         vtrc_rpc::session_options &opts )
+                                         vtrc::rpc::session_options &opts )
     {
 
     }

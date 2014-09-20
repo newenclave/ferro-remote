@@ -1,5 +1,16 @@
+
 package fr.protocol;
 option cc_generic_services = true;
 
 message empty { }
+
+service internal {
+
+    /// call and wait answer
+    rpc ping(empty) returns (empty);
+
+    /// send as event
+    rpc ping_event(empty) returns (empty);
+    rpc pong_event(empty) returns (empty);
+}
 

@@ -141,11 +141,9 @@ int main( int argc, const char **argv ) try
         return 2;
     }
 
-    std::string server;
-
-    if( vm.count("server") ) {
-        server = vm["server"].as<std::string>( );
-    }
+    std::string server( vm.count("server")
+                        ? vm["server"].as<std::string>( )
+                        : "");
 
     if( server.empty( ) ) {
         std::cout << "Invalid server '<empty>'\n";

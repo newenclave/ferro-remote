@@ -140,7 +140,7 @@ namespace fr { namespace server {
         const subsystem_iface *subsystem( const std::type_info &info ) const;
 
         void configure_session( vtrc::common::connection_iface *connection,
-                                vtrc_rpc::session_options &opts );
+                                vtrc::rpc::session_options &opts );
 
         service_wrapper_sptr get_service_by_name(
                                       vtrc::common::connection_iface* c,
