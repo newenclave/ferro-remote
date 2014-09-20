@@ -7,6 +7,8 @@
 #include "boost/program_options.hpp"
 #include "boost/system/error_code.hpp"
 
+#include "google/protobuf/descriptor.h"
+
 namespace po = boost::program_options;
 
 namespace vcommon = vtrc::common;
@@ -203,6 +205,8 @@ int main( int argc, const char **argv ) try
 
     pp->stop_all( );
     pp->join_all( );
+
+    google::protobuf::ShutdownProtobufLibrary( );
 
     return 0;
 
