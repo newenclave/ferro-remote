@@ -1,6 +1,7 @@
 
 #include <vector>
 #include <algorithm>
+#include <iostream>
 
 #include "application.h"
 #include "subsys-listeners.h"
