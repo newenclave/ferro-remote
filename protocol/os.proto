@@ -1,0 +1,15 @@
+
+
+package fr.protocol.os;
+
+option cc_generic_services = true;
+
+message execute_req {
+    optional string cmd  = 1;
+}
+
+message execute_res { }
+
+service instance {
+   rpc execute( execute_req ) returns ( execute_res );
+}
