@@ -3,6 +3,7 @@ set( lib_name ${INTERNAL_PROJECT_NAME}_client_core )
 
 list( APPEND src_dirs
         .
+        ./impl
         ${FR_INCLUDE_DIRS}/client-core
         ${FR_INCLUDE_DIRS}/client-core/interfaces
     )

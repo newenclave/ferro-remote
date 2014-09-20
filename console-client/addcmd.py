@@ -7,6 +7,7 @@ import os
 def source_file():
     """
 #include "command-iface.h"
+//#include "boost/program_options.hpp"
 
 namespace fr { namespace cc { namespace cmd {
 
@@ -31,7 +32,12 @@ namespace fr { namespace cc { namespace cmd {
 
             void add_options( po::options_description &desc )
             {
-
+                /// reserver as common
+                /// "help,h" "command,c" "server,s"
+                /// "io-pool-size,i" "rpc-pool-size,r" "only-pool,o"
+                //desc.add_options( )
+                ///  ("cmd1,C",   "desc")
+                ///  ( "cnd2,D", po::value<std::string>( ), "desc" )
             }
 
             std::string help( ) const

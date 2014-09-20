@@ -11,6 +11,10 @@ namespace boost { namespace system {
     class error_code;
 }}
 
+namespace vtrc { namespace common {
+    class rpc_channel;
+}}
+
 namespace fr {  namespace client { namespace core {
 
     class client_core {
@@ -45,6 +49,10 @@ namespace fr {  namespace client { namespace core {
         void reconnect( );
         void async_reconnect( async_closure_func f );
         void disconnect( );
+
+        vtrc::common::rpc_channel *create_channel( );
+        vtrc::common::rpc_channel *create_channel( unsigned flags );
+
     };
 
 }}}

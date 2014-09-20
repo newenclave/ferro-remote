@@ -7,6 +7,7 @@ namespace fr { namespace cc { namespace cmd {
 
     namespace fs   { command_sptr create( ); }
     namespace gpio { command_sptr create( ); }
+    namespace os   { command_sptr create( ); }
 
 }}}
 

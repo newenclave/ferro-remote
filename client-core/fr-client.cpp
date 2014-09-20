@@ -171,4 +171,14 @@ namespace fr {  namespace client { namespace core {
         impl_->client_->disconnect( );
     }
 
+    vtrc::common::rpc_channel *client_core::create_channel( )
+    {
+        return impl_->client_->create_channel( );
+    }
+
+    vtrc::common::rpc_channel *client_core::create_channel( unsigned flags )
+    {
+        return impl_->client_->create_channel( flags );
+    }
+
 }}}

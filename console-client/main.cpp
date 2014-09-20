@@ -25,6 +25,7 @@ namespace {
     {
         m.insert( cmd( fr::cc::cmd::fs::create( ) ) );
         m.insert( cmd( fr::cc::cmd::gpio::create( ) ) );
+        m.insert( cmd( fr::cc::cmd::os::create( ) ) );
     }
 
     void fill_common_options( po::options_description &desc )
@@ -196,11 +197,12 @@ int main( int argc, const char **argv ) try
     vm = parse_command( argc, argv, current_command, desc );
 
     //client.async_connect( server, connect_success );
-    client.disconnect(  );
+    client.connect( server );
 
     current_command->exec( vm, client );
 
-    pp->get_io_pool( ).attach( );
+    pp->stop_all( );
+    pp->join_all( );
 
     return 0;
 
