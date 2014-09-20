@@ -28,6 +28,7 @@ namespace fr { namespace server { namespace subsys {
                 if( -1 == res ) {
                     throw vtrc::common::exception( errno );
                 }
+
             }
         public:
             static const std::string &name( )
@@ -37,7 +38,7 @@ namespace fr { namespace server { namespace subsys {
         };
 
         application::service_wrapper_sptr create_service(
-                                          fr::server::application *,
+                                          fr::server::application *app,
                                           vtrc::common::connection_iface_wptr)
         {
             vtrc::shared_ptr<os_proto_impl>
