@@ -44,6 +44,7 @@ namespace {
         using namespace server::subsys;
         app.add_subsystem<config>( vm );
         app.add_subsystem<logger>( );
+        app.add_subsystem<os>( );
 
         /// start all subsystems
         app.start_all( );
