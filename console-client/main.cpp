@@ -85,9 +85,24 @@ int main( int argc, const char **argv )
 
     command_map cm;
 
+    fr::cc::command_sptr current_command;
+
+    if( vm.count( "command" ) ) {
+        std::string c(vm["command"].as<std::string>( ));
+        command_map::iterator f(cm.find( c ));
+        if( f == cm.end( ) ) {
+            std::cout << "Invalid command '" << c << "'\n";
+            show_init_help( desc, cm );
+            return 1;
+        } else {
+            current_command = f->second;
+        }
+    }
+
     if( vm.count("help") ) {
-        show_init_help( desc, cm );
-        return 1;
+        current_command.get( ) ? show_command_help( current_command )
+                               : show_init_help( desc, cm );
+        return 0;
     }
 
     return 0;
