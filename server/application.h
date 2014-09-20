@@ -49,7 +49,7 @@ namespace fr { namespace server {
     public: // services
 
         void register_service_creator( const std::string &name,
-                                       service_getter_type &func );
+                                       service_getter_type func );
 
         void unregister_service_creator( const std::string &name );
 

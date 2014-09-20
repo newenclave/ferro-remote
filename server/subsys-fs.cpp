@@ -13,10 +13,16 @@ namespace fr { namespace server { namespace subsys {
         const std::string subsys_name( "fs" );
 
         class proto_fs_impl: public fr::protocol::fs::instance {
+
         public:
             proto_fs_impl( fr::server::application *app,
                            vcomm::connection_iface_wptr )
             { }
+
+            static const std::string &name( )
+            {
+                return fr::protocol::fs::instance::descriptor( )->full_name( );
+            }
         };
 
         class proto_file_impl: public fr::protocol::fs::file {
@@ -26,6 +32,10 @@ namespace fr { namespace server { namespace subsys {
                            vcomm::connection_iface_wptr )
             { }
 
+            static const std::string &name( )
+            {
+                return fr::protocol::fs::file::descriptor( )->full_name( );
+            }
         };
 
         application::service_wrapper_sptr create_fs_inst(
@@ -80,14 +90,17 @@ namespace fr { namespace server { namespace subsys {
 
     void fs::start( )
     {
-
+        impl_->app_->register_service_creator(
+                    proto_fs_impl::name( ), create_fs_inst );
+        impl_->app_->register_service_creator(
+                    proto_file_impl::name( ), create_file_inst );
     }
 
     void fs::stop( )
     {
-
+        impl_->app_->unregister_service_creator(proto_fs_impl::name( ));
+        impl_->app_->unregister_service_creator(proto_file_impl::name( ));
     }
-
 
 }}}
 
