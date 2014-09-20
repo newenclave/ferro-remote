@@ -64,3 +64,5 @@ set(${lib_name}_INCLUDE_DIRS
     ${CONFIG_FILES_DIRECTORY}
     PARENT_SCOPE
 )
+
+set(${lib_name}_LIBRARIES ${${lib_name}_LOCATION} PARENT_SCOPE)

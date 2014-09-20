@@ -5,12 +5,16 @@
 #include "command-iface.h"
 
 #include "boost/program_options.hpp"
+#include "boost/system/error_code.hpp"
 
 namespace po = boost::program_options;
+
+namespace vcommon = vtrc::common;
 
 namespace {
 
     typedef std::map<std::string, fr::cc::command_sptr> command_map;
+    typedef vtrc::shared_ptr<vcommon::pool_pair> pool_pair_sptr;
 
     void fill_common_options( po::options_description &desc )
     {
@@ -29,7 +33,32 @@ namespace {
             ("rpc-pool-size,r", po::value<unsigned>( ),
                     "threads for rpc calls; default = 1")
 
+            ("only-pool,o", "use io pool for io operations and rpc calls")
+
             ;
+    }
+
+    pool_pair_sptr pp_from_cmd( const po::variables_map &vm )
+    {
+        bool use_only_pool = !!vm.count( "only-pool" );
+
+        unsigned io_size = vm.count( "io-pool-size" )
+                ? vm["io-pool-size"].as<unsigned>( )
+                : ( use_only_pool ? 0 : 1 );
+
+        unsigned rpc_size = vm.count( "rpc-pool-size" )
+                ? vm["rpc-pool-size"].as<unsigned>( )
+                : 1;
+
+        if( (rpc_size < 1) && !use_only_pool) {
+            throw std::runtime_error( "rpc-pool-size must be at least 1" );
+        }
+
+        if( use_only_pool ) {
+            return vtrc::make_shared<vcommon::pool_pair>( io_size );
+        } else {
+            return vtrc::make_shared<vcommon::pool_pair>( io_size, rpc_size );
+        }
     }
 
     po::variables_map parse_common( int argc, const char **argv,
@@ -75,9 +104,10 @@ namespace {
                   << " [opts]\n"
                   << "Options:\n" << desc << "\n";
     }
+
 }
 
-int main( int argc, const char **argv )
+int main( int argc, const char **argv ) try
 {    
     po::options_description desc("Allowed options");
     fill_common_options( desc );
@@ -105,5 +135,37 @@ int main( int argc, const char **argv )
         return 0;
     }
 
+    if( !current_command.get( ) ) {
+        std::cout << "Invalid command '<empty>'\n";
+        show_init_help( desc, cm );
+        return 2;
+    }
+
+    std::string server;
+
+    if( vm.count("server") ) {
+        server = vm["server"].as<std::string>( );
+    }
+
+    if( server.empty( ) ) {
+        std::cout << "Invalid server '<empty>'\n";
+        show_init_help( desc, cm );
+        return 3;
+    }
+
+    pool_pair_sptr pp(pp_from_cmd( vm ));
+
+    fr::client::core::client client(*pp);
+
+    client.connect( server );
+
+    current_command->exec( vm, client );
+
+    pp->get_io_pool( ).attach( );
+
     return 0;
+
+} catch( const std::exception &ex ) {
+    std::cerr << "General client error: " << ex.what( ) << "\n";
+    return 10;
 }
