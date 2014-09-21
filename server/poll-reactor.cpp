@@ -123,6 +123,7 @@ namespace fr { namespace server {
 
         void stop( )
         {
+            std::cout << "Send stop event\n";
             eventfd_write( stop_event_.hdl( ), 1 );
         }
 
@@ -152,7 +153,9 @@ namespace fr { namespace server {
         {
             del_fd_from_epoll( poll_fd_.hdl( ), fd );
             vtrc::unique_shared_lock lck(react_lock_);
+            std::cout << "Erase fd " << react_.size( ) << "\n";
             react_.erase( fd );
+            std::cout << "Erase fd " << react_.size( ) << "\n";
         }
 
         size_t count( ) const
