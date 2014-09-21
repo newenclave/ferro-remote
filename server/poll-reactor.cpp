@@ -123,8 +123,8 @@ namespace fr { namespace server {
 
         void stop( )
         {
-            std::cout << "Send stop event\n";
-            eventfd_write( stop_event_.hdl( ), 1 );
+            int res = eventfd_write( stop_event_.hdl( ), 1 );
+            std::cout << "Send stop event " << res << errno << "\n";
         }
 
         void add_fd( int fd, unsigned flags, reaction_callback cb )
