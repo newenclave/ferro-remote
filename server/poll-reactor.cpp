@@ -219,7 +219,7 @@ namespace fr { namespace server {
 
     size_t poll_reactor::count( ) const
     {
-
+        return impl_->count( );
     }
 
     size_t poll_reactor::run_one( )
