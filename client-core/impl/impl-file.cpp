@@ -67,6 +67,47 @@ namespace fr { namespace client { namespace interfaces {
                 client_.call_request( &stub_type::flush, &hdl_ );
             }
 
+            size_t read( void *data, size_t length ) const override
+            {
+                if( 0 == length ) {
+                    return 0;
+                }
+                fproto::file_data_block req_res;
+
+                req_res.mutable_hdl( )->set_value( hdl_.value( ) );
+                req_res.set_length( length );
+
+                client_.call( &stub_type::read, &req_res, &req_res );
+
+                if( req_res.data( ).size( ) == 0 ) {
+                    return 0;
+                }
+
+                if( length > req_res.data( ).size( ) ) {
+                    length = req_res.data( ).size( );
+                }
+
+                memcpy( data, &req_res.data( )[0], length );
+
+                return length;
+            }
+
+            size_t write( const void *data, size_t length ) const  override
+            {
+                if( 0 == length ) {
+                    return 0;
+                }
+                if( length > 44000 ) {
+                    length = 44000;
+                }
+                fproto::file_data_block req_res;
+                req_res.mutable_hdl( )->set_value( hdl_.value( ) );
+                req_res.set_data( data, length );
+                client_.call( &stub_type::write, &req_res, &req_res );
+
+                return req_res.length( );
+            }
+
         };
     }
 
