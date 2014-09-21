@@ -2,6 +2,7 @@
 #define FR_POLLREACTOR_H
 
 #include "vtrc-function.h"
+#include <stddef.h>
 
 namespace fr { namespace server {
 

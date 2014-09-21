@@ -123,6 +123,9 @@ namespace fr { namespace server { namespace subsys {
     void reactor::start( ) try
     {
         int fd = open( "/sys/class/gpio/gpio3/value", O_RDONLY );
+
+        impl_->start_thread( );
+
         impl_->reactor_.add_fd( fd,  EPOLLIN | EPOLLET | EPOLLPRI,
                                 vtrc::bind( change_print, fd ));
     } catch ( const std::exception &ex ) {
