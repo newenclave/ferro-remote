@@ -3,4 +3,9 @@ package fr.protocol.gpio;
 
 option cc_generic_services = true;
 
-service instance {  }
+message export_req { }
+message export_res { }
+
+service instance {
+    rpc gpio_export ( export_req ) returns ( export_res );
+}

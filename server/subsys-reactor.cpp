@@ -27,8 +27,6 @@ namespace fr { namespace server { namespace subsys {
         typedef vtrc::shared_ptr<vtrc::thread> thread_sptr;
     }
 
-
-
     struct reactor::impl {
 
         application         *app_;
