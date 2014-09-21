@@ -76,17 +76,13 @@ namespace fr { namespace server { namespace subsys {
 
         void stop_thread( )
         {
-            std::cout << "STOP 1!\n";
             if( !thread_ ) {
                 return;
             }
-            std::cout << "STOP 2!\n";
-
             reactor_.stop( );
-            std::cout << "STOP 3!\n";
-
             if( thread_->joinable( ) ) {
                 thread_->join( );
+                thread_.reset( );
                 running_ = false;
             }
         }
@@ -151,17 +147,17 @@ namespace fr { namespace server { namespace subsys {
 
     void reactor::stop( )
     {
-
+        impl_->stop_thread( );
     }
 
-    void add_fd( int fd, unsigned flags, reaction_callback cb )
+    void reactor::add_fd( int fd, unsigned flags, reaction_callback cb )
     {
-
+        impl_->reactor_.add_fd( fd, flags, cb );
     }
 
-    void del_fd( int fd )
+    void reactor::del_fd( int fd )
     {
-
+        impl_->reactor_.del_fd( fd );
     }
 
 }}}
