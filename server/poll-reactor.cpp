@@ -109,7 +109,8 @@ namespace fr { namespace server {
         fd_holder           stop_event_;
         fd_holder           poll_fd_;
         reaction_map        react_;
-        vtrc::shared_mutex  react_lock_;
+
+        mutable vtrc::shared_mutex  react_lock_;
 
         impl( )
             :stop_event_(create_event( ))
@@ -151,6 +152,12 @@ namespace fr { namespace server {
             del_fd_from_epoll( poll_fd_.hdl( ), fd );
             vtrc::unique_shared_lock lck(react_lock_);
             react_.erase( fd );
+        }
+
+        size_t count( ) const
+        {
+            vtrc::shared_lock slck(react_lock_);
+            return react_.size( );
         }
 
         size_t run_one( )
@@ -203,6 +210,11 @@ namespace fr { namespace server {
     void poll_reactor::del_fd( int fd )
     {
         impl_->del_fd( fd );
+    }
+
+    size_t poll_reactor::count( ) const
+    {
+
     }
 
     size_t poll_reactor::run_one( )

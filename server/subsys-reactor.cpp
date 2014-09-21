@@ -96,6 +96,9 @@ namespace fr { namespace server { namespace subsys {
             if( count_ > 20 ) {
                 std::cout << "STOP!\n";
                 reactor_.del_fd( fd );
+                if( 0 == reactor_.count( ) ) {
+                    stop_thread( );
+                }
             }
         }
 
