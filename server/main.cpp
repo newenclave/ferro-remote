@@ -45,6 +45,7 @@ namespace {
         app.add_subsystem<config>( vm );
         app.add_subsystem<os>( );
         app.add_subsystem<fs>( );
+        app.add_subsystem<reactor>( );
 
         app.add_subsystem<listeners>( );
 

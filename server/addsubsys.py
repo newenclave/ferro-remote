@@ -50,7 +50,6 @@ def source_file():
     """
 #include "application.h"
 #include "subsys-%ss-name%.h"
-#include "subsys-logger.h"
 
 namespace fr { namespace server { namespace subsys {
 
@@ -68,7 +67,6 @@ namespace fr { namespace server { namespace subsys {
     struct %ss-name%::impl {
 
         application     *app_;
-        subsys::logger  *logger_;
 
         impl( application *app )
             :app_(app)
@@ -111,7 +109,7 @@ namespace fr { namespace server { namespace subsys {
 
     void %ss-name%::init( )
     {
-        impl_->logger_ = &impl_->app_->subsystem<subsys::logger>( );
+
     }
 
     void %ss-name%::start( )
