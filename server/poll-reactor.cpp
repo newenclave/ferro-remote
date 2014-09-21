@@ -184,6 +184,9 @@ namespace fr { namespace server {
                 std::cout << "Exit event rcved!\n";
                 return 0;
             } else {
+                if( rcvd[0].events | EPOLLERR ) {
+                    std::cout << "Got EPOLLERR!\n";
+                }
                 handle_reaction *react =
                         static_cast<handle_reaction *>(rcvd[0].data.ptr);
                 if( react ) {
