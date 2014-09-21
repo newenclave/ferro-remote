@@ -172,6 +172,8 @@ namespace fr { namespace server {
                 vcomm::throw_system_error( errno, "epoll_wait" );
             }
 
+            std::cout << "Got " << count << " " << rcvd[0].data.fd
+                      << " events\n";
             if( rcvd[0].data.fd == stop_event_.hdl( ) ) {
                 std::cout << "Exit event rcved!\n";
                 return 0;
