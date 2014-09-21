@@ -47,21 +47,21 @@ namespace fr { namespace server {
                 close( fd_ );
             }
 
-            static vtrc::uint64_t lseek_ret( off_t res )
+            static vtrc::int64_t lseek_ret( off_t res )
             {
                 errno_error::errno_assert( static_cast<off_t>(-1) != res,
                                            "lseek" );
-                return static_cast<vtrc::uint64_t>(res);
+                return static_cast<vtrc::int64_t>(res);
             }
 
-            vtrc::uint64_t seek( vtrc::int64_t offset,
+            vtrc::int64_t seek( vtrc::int64_t offset,
                                  seek_whence whence )
             {
                 off_t res = lseek( fd_, static_cast<off_t>(offset), whence );
                 return lseek_ret( res );
             }
 
-            vtrc::uint64_t tell( ) const
+            vtrc::int64_t tell( ) const
             {
                 off_t res = lseek( fd_, 0, SEEK_CUR );
                 return lseek_ret( res );

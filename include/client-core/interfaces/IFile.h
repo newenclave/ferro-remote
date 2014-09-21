@@ -2,6 +2,7 @@
 #define FR_INTERFACE_FILE_H
 
 #include <string>
+#include <stdint.h>
 
 namespace fr { namespace client {
 
@@ -42,8 +43,16 @@ namespace interfaces { namespace file {
         };
     }
 
+    enum seek_whence {
+         POS_SEEK_SET = 0
+        ,POS_SEEK_CUR = 1
+        ,POS_SEEK_END = 2
+    };
+
     struct iface {
         virtual ~iface( ) { }
+        virtual int64_t seek( int64_t pos, seek_whence whence ) const = 0;
+        virtual int64_t tell( ) const = 0;
     };
 
     typedef iface* iface_ptr;

@@ -1,5 +1,10 @@
 
+#include "interfaces/IFile.h"
 #include "command-iface.h"
+
+#include "boost/program_options.hpp"
+
+#include "vtrc-memory.h"
 
 namespace fr { namespace cc { namespace cmd {
 
@@ -24,7 +29,12 @@ namespace fr { namespace cc { namespace cmd {
 
             void add_options( po::options_description &desc )
             {
-
+                /// reserver as common
+                /// "help,h" "command,c" "server,s"
+                /// "io-pool-size,i" "rpc-pool-size,r" "only-pool,o"
+//                desc.add_options( )
+//                    ("path,p", po::value<std::string>( ), "path to file")
+//                    ;
             }
 
             std::string help( ) const

@@ -33,8 +33,8 @@ namespace fr { namespace client { namespace interfaces {
 
         struct file_impl: public file::iface {
 
-            client_type    client_;
-            fproto::handle hdl_;
+            mutable client_type    client_;
+            fproto::handle         hdl_;
 
             file_impl( core::client_core &ccore,
                        const std::string &path,
@@ -43,6 +43,24 @@ namespace fr { namespace client { namespace interfaces {
                 ,hdl_(open_file(client_, path, flags, mode))
             { }
 
+            int64_t seek( int64_t pos, file::seek_whence whence ) const override
+            {
+                fproto::file_set_position   req;
+                fproto::file_position       res;
+                req.mutable_hdl( )->set_value( hdl_.value( ) );
+                req.set_position( pos );
+                req.set_whence( whence );
+                client_.call( &stub_type::seek, &req, &res );
+
+                return res.position( );
+            }
+
+            int64_t tell( ) const override
+            {
+                fproto::file_position res;
+                client_.call( &stub_type::tell, &hdl_, &res );
+                return res.position( );
+            }
         };
     }
 

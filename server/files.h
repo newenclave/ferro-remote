@@ -18,9 +18,9 @@ namespace fr { namespace server {
 
         virtual ~file_iface( ) { }
 
-        virtual vtrc::uint64_t seek( vtrc::int64_t offset,
+        virtual vtrc::int64_t seek( vtrc::int64_t offset,
                                      seek_whence whence ) = 0;
-        virtual vtrc::uint64_t tell( ) const = 0;
+        virtual vtrc::int64_t tell( ) const = 0;
 
         virtual size_t write( const void *data, size_t length ) = 0;
         virtual size_t read(        void *data, size_t length ) = 0;

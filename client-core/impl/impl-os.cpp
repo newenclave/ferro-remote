@@ -18,7 +18,7 @@ namespace fr { namespace client { namespace interfaces {
 
         class os_impl: public os::iface {
 
-            client_type client_;
+            mutable client_type client_;
 
         public:
 
@@ -26,7 +26,7 @@ namespace fr { namespace client { namespace interfaces {
                 :client_(cl.create_channel( ), true)
             { }
 
-            void execute( const std::string &cmd )
+            void execute( const std::string &cmd ) const override
             {
                 os_proto::execute_req req;
                 req.set_cmd( cmd );
