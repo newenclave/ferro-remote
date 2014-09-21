@@ -89,15 +89,17 @@ namespace fr { namespace server { namespace subsys {
         {
             lseek( fd, 0, SEEK_SET );
             char b = 0;
-            read( fd, &b, 1 );
-            std::cout << "read: " << b << "\n";
+            ssize_t res = read( fd, &b, 1 );
+            std::cout << "read: " << b << " " << res << "\n";
             count_ += (b - '0');
+
             if( count_ > 20 ) {
-                reactor_.del_fd( fd );
-                if( 0 == reactor_.count( ) ) {
-                    std::cout << "STOP!\n";
-                    stop_thread( );
-                }
+                close( fd );
+//                reactor_.del_fd( fd );
+//                if( 0 == reactor_.count( ) ) {
+//                    std::cout << "STOP!\n";
+//                    stop_thread( );
+//                }
             }
         }
 
