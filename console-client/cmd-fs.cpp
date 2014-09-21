@@ -1,3 +1,4 @@
+#include <iostream>
 
 #include "interfaces/IFile.h"
 #include "command-iface.h"
