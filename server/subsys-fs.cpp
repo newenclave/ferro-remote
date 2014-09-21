@@ -87,7 +87,7 @@ namespace fr { namespace server { namespace subsys {
                 case proto::fs::open_file_values::IXOTH:
                     res = S_IXOTH; break;
                 default:
-                    throw vcomm::throw_system_error( EINVAL, "Bad mode value" );
+                    vcomm::throw_system_error( EINVAL, "Bad mode value" );
             }
             return res;
         }
