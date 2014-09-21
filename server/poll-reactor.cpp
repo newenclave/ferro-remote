@@ -189,6 +189,7 @@ namespace fr { namespace server {
                 if( react ) {
                     react->call_( );
                 }
+                return 1;
             }
         }
 
