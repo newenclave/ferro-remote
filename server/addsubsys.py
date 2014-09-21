@@ -73,6 +73,18 @@ namespace fr { namespace server { namespace subsys {
         impl( application *app )
             :app_(app)
         { }
+
+        void reg_creator( const std::string &name,
+                          application::service_getter_type func )
+        {
+            app_->register_service_creator( name, func );
+        }
+
+        void unreg_creator( const std::string &name )
+        {
+            app_->unregister_service_creator( name );
+        }
+
     };
 
 
