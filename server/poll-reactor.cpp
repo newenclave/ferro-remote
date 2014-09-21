@@ -129,6 +129,8 @@ namespace fr { namespace server {
 
         void add_fd( int fd, unsigned flags, reaction_callback cb )
         {
+            std::cout << "Add " << fd << "\n";
+
             vtrc::upgradable_lock lck(react_lock_);
 
             reaction_map::iterator f(react_.find(fd));
