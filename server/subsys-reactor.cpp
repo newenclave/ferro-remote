@@ -42,6 +42,7 @@ namespace fr { namespace server { namespace subsys {
             running_ = true;
             while( 1 ) try {
                 while( reactor_.run_one( ) ) { }
+                std::cout << "Exit thtead!\n";
                 return;
             } catch( ... ) {
                 ;;;
