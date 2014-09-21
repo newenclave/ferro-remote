@@ -34,6 +34,7 @@ namespace fr { namespace server {
 
     namespace file {
         file_ptr create( std::string const &path, int flags );
+        file_ptr create( std::string const &path, int flags, mode_t mode );
     }
 
 }}

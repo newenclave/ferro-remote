@@ -22,12 +22,24 @@ namespace fr { namespace server {
             return fd;
         }
 
+        int open_wrapper( const char *path, int flags, mode_t mode )
+        {
+            int fd = open( path, flags, mode );
+            errno_error::errno_assert( -1 != fd, "open" );
+            return fd;
+        }
+
         struct file_impl: public file_iface {
 
             int fd_;
 
             file_impl( std::string const &path, vtrc::uint32_t flags )
                 :fd_(open_wrapper(path.c_str( ), flags))
+            { }
+
+            file_impl( std::string const &path,
+                       vtrc::uint32_t flags, mode_t mode )
+                :fd_(open_wrapper(path.c_str( ), flags, mode))
             { }
 
             ~file_impl( )
@@ -87,6 +99,12 @@ namespace fr { namespace server {
         {
             return new file_impl( path, flags );
         }
+
+        file_ptr create( std::string const &path, int flags, mode_t mode )
+        {
+            return new file_impl( path, flags, mode );
+        }
+
     }
 
 }}

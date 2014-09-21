@@ -71,9 +71,39 @@ service instance {
 
 }
 
+message open_file_values {
+    enum flags {
+        RDONLY      =        0;
+        WRONLY      =       01;
+        RDWR        =       02;
+        CREAT       =     0100;
+        EXCL        =     0200;
+        APPEND      =    02000;
+        NONBLOCK    =    04000;
+        ASYNC       =   020000;
+        SYNC        = 04010000;
+    }
+
+    enum mode {
+        IRWXU  = 00700;
+        IRUSR  = 00400;
+        IWUSR  = 00200;
+        IXUSR  = 00100;
+        IRWXG  = 00070;
+        IRGRP  = 00040;
+        IWGRP  = 00020;
+        IXGRP  = 00010;
+        IRWXO  = 00007;
+        IROTH  = 00004;
+        IWOTH  = 00002;
+        IXOTH  = 00001;
+    }
+}
+
 message file_open_req {
-    optional string path = 1;
-    optional string mode = 2;
+    optional string path  = 1;
+    optional uint32 flags = 2; // see open_file_values.flags
+    optional uint32 mode  = 3; // see open_file_values.mode
 }
 
 enum file_position_whence {
