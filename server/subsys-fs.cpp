@@ -130,7 +130,7 @@ namespace fr { namespace server { namespace subsys {
 
             inline vtrc::uint32_t next_id( )
             {
-                return index_++;
+                return ++index_;
             }
 
         private:
@@ -159,10 +159,10 @@ namespace fr { namespace server { namespace subsys {
                 return f->second;
             }
 
-            void open(::google::protobuf::RpcController* controller,
+            void open(::google::protobuf::RpcController* /*controller*/,
                          const ::fr::protocol::fs::file_open_req* request,
                          ::fr::protocol::fs::handle* response,
-                         ::google::protobuf::Closure* done) override
+                         ::google::protobuf::Closure* done ) override
             {
                 vcomm::closure_holder holder(done);
 
@@ -176,7 +176,7 @@ namespace fr { namespace server { namespace subsys {
                 response->set_value( add_file( new_file ) );
             }
 
-            void tell(::google::protobuf::RpcController* controller,
+            void tell(::google::protobuf::RpcController* /*controller*/,
                          const ::fr::protocol::fs::handle* request,
                          ::fr::protocol::fs::file_position* response,
                          ::google::protobuf::Closure* done) override
@@ -200,7 +200,7 @@ namespace fr { namespace server { namespace subsys {
                 return server::file_iface::F_SEEK_SET;
             }
 
-            void seek(::google::protobuf::RpcController* controller,
+            void seek(::google::protobuf::RpcController* /*controller*/,
                          const ::fr::protocol::fs::file_set_position* request,
                          ::fr::protocol::fs::file_position* response,
                          ::google::protobuf::Closure* done) override
@@ -212,7 +212,7 @@ namespace fr { namespace server { namespace subsys {
                                           value_to_enum(request->whence( )) ) );
             }
 
-            void read(::google::protobuf::RpcController* controller,
+            void read(::google::protobuf::RpcController* /*controller*/,
                          const ::fr::protocol::fs::file_data_block* request,
                          ::fr::protocol::fs::file_data_block* response,
                          ::google::protobuf::Closure* done) override
@@ -235,28 +235,39 @@ namespace fr { namespace server { namespace subsys {
 
             }
 
-            void write(::google::protobuf::RpcController* controller,
+            void write(::google::protobuf::RpcController* /*controller*/,
                          const ::fr::protocol::fs::file_data_block* request,
                          ::fr::protocol::fs::file_data_block* response,
                          ::google::protobuf::Closure* done) override
             {
                 vcomm::closure_holder holder(done);
+                file_sptr f(get_file( request->hdl( ).value( ) ));
+
+                if( request->data( ).size( ) == 0 ) {
+                    response->set_length( 0 );
+                } else {
+                    response->set_length( f->write( &request->data( )[0],
+                                                 request->data( ).size( ) ) );
+                }
             }
 
-            void flush(::google::protobuf::RpcController* controller,
+            void flush(::google::protobuf::RpcController* /*controller*/,
                          const ::fr::protocol::fs::handle* request,
-                         ::fr::protocol::fs::empty* response,
+                         ::fr::protocol::fs::empty* /*response*/,
                          ::google::protobuf::Closure* done) override
             {
                 vcomm::closure_holder holder(done);
+                file_sptr f(get_file( request->value( ) ));
+                f->flush( );
             }
 
             void close(::google::protobuf::RpcController* controller,
                          const ::fr::protocol::fs::handle* request,
-                         ::fr::protocol::fs::empty* response,
+                         ::fr::protocol::fs::empty* /*response*/,
                          ::google::protobuf::Closure* done) override
             {
                 vcomm::closure_holder holder(done);
+                del_file( request->value( ) );
             }
 
         };
