@@ -1,0 +1,6 @@
+
+package fr.protocol.gpio;
+
+option cc_generic_services = true;
+
+service instance {  }
