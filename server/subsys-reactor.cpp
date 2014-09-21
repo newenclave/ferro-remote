@@ -41,7 +41,11 @@ namespace fr { namespace server { namespace subsys {
         {
             running_ = true;
             while( 1 ) try {
+                size_t count = 1;
                 while( reactor_.run_one( ) )  { }
+                if( 0 == count ) {
+                    return;
+                }
             } catch( ... ) {
                 ;;;
             }

@@ -1,6 +1,7 @@
 #include "poll-reactor.h"
 
 #include <map>
+#include <iostream>
 #include <sys/epoll.h>
 #include <sys/eventfd.h>
 #include <unistd.h>
@@ -169,6 +170,7 @@ namespace fr { namespace server {
             }
 
             if( rcvd[0].data.fd == stop_event_.hdl( ) ) {
+                std::cout << "Exit event rcved!\n";
                 return 0;
             } else {
                 handle_reaction *react =
