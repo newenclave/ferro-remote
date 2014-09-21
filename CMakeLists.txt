@@ -39,6 +39,7 @@ if( VTRC_CXX11_ENABLED )
                     system
                     thread
                     program_options
+                    filesystem
                   REQUIRED)
 
     get_cmd_cxx11( VTRC_CXX_CMD )
@@ -52,6 +53,7 @@ else( )
                     atomic
                     random
                     program_options
+                    filesystem
                   REQUIRED)
 endif( )
 
