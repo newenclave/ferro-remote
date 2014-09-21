@@ -35,6 +35,7 @@ namespace fr { namespace server { namespace subsys {
         poll_reactor         reactor_;
         thread_sptr          thread_;
         bool                 running_;
+        size_t               count_;
 
         void reactor_thread( )
         {
@@ -49,6 +50,7 @@ namespace fr { namespace server { namespace subsys {
         impl( application *app )
             :app_(app)
             ,running_(false)
+            ,count_(0)
         { }
 
         void reg_creator( const std::string &name,
@@ -83,6 +85,20 @@ namespace fr { namespace server { namespace subsys {
                 running_ = false;
             }
         }
+
+        void change_print( int fd )
+        {
+            lseek( fd, 0, SEEK_SET );
+            char b = 0;
+            read( fd, &b, 1 );
+            std::cout << "read: " << b << "\n";
+            count_ += (b - '0');
+            if( count_ > 20 ) {
+                std::cout << "STOP!\n";
+                reactor_.del_fd( fd );
+            }
+        }
+
     };
 
 
@@ -107,14 +123,6 @@ namespace fr { namespace server { namespace subsys {
         return subsys_name;
     }
 
-    static void change_print( int fd )
-    {
-        lseek( fd, 0, SEEK_SET );
-        char b = 0;
-        read( fd, &b, 1 );
-        std::cout << "read: " << b << "\n";
-    }
-
     void reactor::init( )
     {
 
@@ -127,7 +135,8 @@ namespace fr { namespace server { namespace subsys {
         impl_->start_thread( );
 
         impl_->reactor_.add_fd( fd,  EPOLLIN | EPOLLET | EPOLLPRI,
-                                vtrc::bind( change_print, fd ));
+                                vtrc::bind( &impl::change_print, impl_, fd ));
+
     } catch ( const std::exception &ex ) {
         std::cout << "error read: " << ex.what( ) << "\n";
     }
