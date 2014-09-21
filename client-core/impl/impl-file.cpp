@@ -1,0 +1,65 @@
+
+#include "interfaces/IFile.h"
+#include "protocol/fs.pb.h"
+
+#include "client-core/fr-client.h"
+
+#include "vtrc-common/vtrc-stub-wrapper.h"
+#include "vtrc-common/vtrc-rpc-channel.h"
+
+namespace fr { namespace client { namespace interfaces {
+
+    namespace {
+
+        namespace fproto = protocol::fs;
+        namespace vcomm = vtrc::common;
+        typedef vcomm::rpc_channel* channel_ptr;
+
+        typedef fproto::file::Stub              stub_type;
+        typedef vcomm::stub_wrapper<stub_type>  client_type;
+
+        fproto::handle open_file( client_type &cl, const std::string &path,
+                                  unsigned flags, unsigned mode )
+        {
+            fproto::file_open_req req;
+            fproto::handle        res;
+            req.set_path( path );
+            req.set_flags( flags );
+            req.set_mode( mode );
+            cl.call( &stub_type::open, &req, &res );
+
+            return res;
+        }
+
+        struct file_impl: public file::iface {
+
+            client_type    client_;
+            fproto::handle hdl_;
+
+            file_impl( core::client_core &ccore,
+                       const std::string &path,
+                       unsigned flags, unsigned mode )
+                :client_(ccore.create_channel( ), true)
+                ,hdl_(open_file(client_, path, flags, mode))
+            { }
+
+        };
+    }
+
+
+    namespace file {
+        iface_ptr create( core::client_core &cl,
+                          const std::string &path, unsigned  flags )
+        {
+            return new file_impl( cl, path, flags, 0 );
+        }
+
+        iface_ptr create( core::client_core &cl,
+                          const std::string &path,
+                          unsigned flags, unsigned mode )
+        {
+            return new file_impl( cl, path, flags, mode );
+        }
+    }
+
+}}}
