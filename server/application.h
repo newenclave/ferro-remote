@@ -89,7 +89,7 @@ namespace fr { namespace server {
 
 #else
         template <typename T, typename ... Args >
-        void add_subsystem( Args & ... pars )
+        void add_subsystem( const Args & ... pars )
         {
             subsystem_sptr subsys ( T::create( this, pars ... ) );
             add_subsystem( typeid( T ), subsys );
@@ -136,8 +136,14 @@ namespace fr { namespace server {
     private:
 
         void add_subsystem( const std::type_info &info, subsystem_sptr inst );
+
+        /* === nothrow === */
+        /*
+         * returns NULL if not found
+        */
         subsystem_iface *subsystem( const std::type_info &info );
         const subsystem_iface *subsystem( const std::type_info &info ) const;
+        /* =============== */
 
         void configure_session( vtrc::common::connection_iface *connection,
                                 vtrc::rpc::session_options &opts );
