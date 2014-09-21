@@ -79,11 +79,15 @@ namespace fr { namespace server { namespace subsys {
 
         void stop_thread( )
         {
+            std::cout << "STOP 1!\n";
             if( !thread_ ) {
                 return;
             }
+            std::cout << "STOP 2!\n";
 
             reactor_.stop( );
+            std::cout << "STOP 3!\n";
+
             if( thread_->joinable( ) ) {
                 thread_->join( );
                 running_ = false;
@@ -98,9 +102,9 @@ namespace fr { namespace server { namespace subsys {
             std::cout << "read: " << b << "\n";
             count_ += (b - '0');
             if( count_ > 20 ) {
-                std::cout << "STOP!\n";
                 reactor_.del_fd( fd );
                 if( 0 == reactor_.count( ) ) {
+                    std::cout << "STOP!\n";
                     stop_thread( );
                 }
             }
