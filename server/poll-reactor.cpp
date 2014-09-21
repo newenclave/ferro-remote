@@ -43,8 +43,8 @@ namespace fr { namespace server {
                 :fd_(fd)
             { }
 
-            fd_holder                   fd_;
-            vtrc::function<void (void)> call_;
+            fd_holder         fd_;
+            reaction_callback call_;
 
         };
 
@@ -184,14 +184,10 @@ namespace fr { namespace server {
                 std::cout << "Exit event rcved!\n";
                 return 0;
             } else {
-                if( rcvd[0].events & EPOLLERR ) {
-                    std::cout << "Got EPOLLERR!\n";
-                } else {
-                    handle_reaction *react =
-                            static_cast<handle_reaction *>(rcvd[0].data.ptr);
-                    if( react ) {
-                        react->call_( );
-                    }
+                handle_reaction *react =
+                        static_cast<handle_reaction *>(rcvd[0].data.ptr);
+                if( react ) {
+                    react->call_( rcvd[0].events );
                 }
                 return 1;
             }
@@ -220,9 +216,9 @@ namespace fr { namespace server {
         delete impl_;
     }
 
-    void poll_reactor::add_fd( int fd, unsigned flags, reaction_callback cb )
+    void poll_reactor::add_fd(int fd, unsigned events, reaction_callback cb )
     {
-        impl_->add_fd( fd, flags, cb );
+        impl_->add_fd( fd, events, cb );
     }
 
     void poll_reactor::del_fd( int fd )

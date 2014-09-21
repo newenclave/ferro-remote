@@ -85,7 +85,7 @@ namespace fr { namespace server { namespace subsys {
             }
         }
 
-        void change_print( int fd )
+        void change_print( int fd, unsigned events )
         {
             lseek( fd, 0, SEEK_SET );
             char b = 0;
@@ -139,7 +139,8 @@ namespace fr { namespace server { namespace subsys {
         impl_->start_thread( );
 
         impl_->reactor_.add_fd( fd,  EPOLLIN | EPOLLET | EPOLLPRI,
-                                vtrc::bind( &impl::change_print, impl_, fd ));
+                                vtrc::bind( &impl::change_print, impl_, fd,
+                                            vtrc::placeholders::_1 ));
 
     } catch ( const std::exception &ex ) {
         std::cout << "error read: " << ex.what( ) << "\n";

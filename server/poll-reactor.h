@@ -6,7 +6,7 @@
 
 namespace fr { namespace server {
 
-    typedef vtrc::function<void ( )> reaction_callback;
+    typedef vtrc::function<void (unsigned)> reaction_callback;
 
     class poll_reactor {
         struct   impl;
@@ -17,7 +17,7 @@ namespace fr { namespace server {
         poll_reactor( );
         ~poll_reactor( );
 
-        void add_fd( int fd, unsigned flags, reaction_callback cb );
+        void add_fd( int fd, unsigned events, reaction_callback cb );
         void del_fd( int fd );
 
         size_t count( ) const;
