@@ -24,7 +24,6 @@ namespace fr { namespace server { namespace subsys {
         namespace vcomm = vtrc::common;
         namespace proto = fr::protocol;
 
-
         int flags_to_native( vtrc::uint32_t value )
         {
             int flags = 0;

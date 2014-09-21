@@ -4,6 +4,8 @@
 #include <errno.h>
 #include <string.h>
 
+#include "vtrc-common/vtrc-exception.h"
+
 namespace fr { namespace server {
 
     struct errno_error {
@@ -16,7 +18,7 @@ namespace fr { namespace server {
             }
             oss << "errno = " << errno
                 << " (" << strerror( errno ) << ")";
-            throw std::runtime_error( oss.str( ) );
+            vtrc::common::throw_system_error( errno, oss.str( ) );
         }
 
         static void errno_assert( bool cond, const char *func = NULL )
