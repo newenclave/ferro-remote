@@ -152,6 +152,7 @@ namespace fr { namespace server { namespace subsys {
 
     void reactor::add_fd( int fd, unsigned flags, reaction_callback cb )
     {
+        impl_->start_thread( );
         impl_->reactor_.add_fd( fd, flags, cb );
     }
 
