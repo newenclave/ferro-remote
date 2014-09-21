@@ -61,6 +61,12 @@ namespace fr { namespace client { namespace interfaces {
                 client_.call( &stub_type::tell, &hdl_, &res );
                 return res.position( );
             }
+
+            void flush( ) const override
+            {
+                client_.call_request( &stub_type::flush, &hdl_ );
+            }
+
         };
     }
 

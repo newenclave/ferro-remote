@@ -53,6 +53,7 @@ namespace interfaces { namespace file {
         virtual ~iface( ) { }
         virtual int64_t seek( int64_t pos, seek_whence whence ) const = 0;
         virtual int64_t tell( ) const = 0;
+        virtual void flush( ) const = 0;
     };
 
     typedef iface* iface_ptr;
