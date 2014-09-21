@@ -59,37 +59,36 @@ namespace fr { namespace server { namespace subsys {
         {
             mode_t res = 0;
 
-            static const struct {
-                vtrc::uint32_t p;
-                mode_t         n;
-            } values_map[ ] = {
-                { proto::fs::open_file_values::IRWXU, S_IRWXU },
-                { proto::fs::open_file_values::IRUSR, S_IRUSR },
-                { proto::fs::open_file_values::IWUSR, S_IWUSR },
-                { proto::fs::open_file_values::IXUSR, S_IXUSR },
-                { proto::fs::open_file_values::IRWXG, S_IRWXG },
-                { proto::fs::open_file_values::IRGRP, S_IRGRP },
-                { proto::fs::open_file_values::IWGRP, S_IWGRP },
-                { proto::fs::open_file_values::IXGRP, S_IXGRP },
-                { proto::fs::open_file_values::IRWXO, S_IRWXO },
-                { proto::fs::open_file_values::IROTH, S_IROTH },
-                { proto::fs::open_file_values::IWOTH, S_IWOTH },
-                { proto::fs::open_file_values::IXOTH, S_IXOTH },
-            };
-
-            if( value & values_map[ 0].p ) { res |= values_map[ 0].n; }
-            if( value & values_map[ 1].p ) { res |= values_map[ 1].n; }
-            if( value & values_map[ 2].p ) { res |= values_map[ 2].n; }
-            if( value & values_map[ 3].p ) { res |= values_map[ 3].n; }
-            if( value & values_map[ 4].p ) { res |= values_map[ 4].n; }
-            if( value & values_map[ 5].p ) { res |= values_map[ 5].n; }
-            if( value & values_map[ 6].p ) { res |= values_map[ 6].n; }
-            if( value & values_map[ 7].p ) { res |= values_map[ 7].n; }
-            if( value & values_map[ 8].p ) { res |= values_map[ 8].n; }
-            if( value & values_map[ 9].p ) { res |= values_map[ 9].n; }
-            if( value & values_map[10].p ) { res |= values_map[10].n; }
-            if( value & values_map[11].p ) { res |= values_map[11].n; }
-
+            switch( value ) {
+                case 0:
+                    res = 0; break;
+                case proto::fs::open_file_values::IRWXU:
+                    res = S_IRWXU; break;
+                case proto::fs::open_file_values::IRUSR:
+                    res = S_IRUSR; break;
+                case proto::fs::open_file_values::IWUSR:
+                    res = S_IWUSR; break;
+                case proto::fs::open_file_values::IXUSR:
+                    res = S_IXUSR; break;
+                case proto::fs::open_file_values::IRWXG:
+                    res = S_IRWXG; break;
+                case proto::fs::open_file_values::IRGRP:
+                    res = S_IRGRP; break;
+                case proto::fs::open_file_values::IWGRP:
+                    res = S_IWGRP; break;
+                case proto::fs::open_file_values::IXGRP:
+                    res = S_IXGRP; break;
+                case proto::fs::open_file_values::IRWXO:
+                    res = S_IRWXO; break;
+                case proto::fs::open_file_values::IROTH:
+                    res = S_IROTH; break;
+                case proto::fs::open_file_values::IWOTH:
+                    res = S_IWOTH;
+                case proto::fs::open_file_values::IXOTH:
+                    res = S_IXOTH; break;
+                default:
+                    throw vcomm::throw_system_error( EINVAL, "Bad mode value" );
+            }
             return res;
         }
 
