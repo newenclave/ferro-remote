@@ -54,8 +54,11 @@ namespace fr { namespace server {
             epoll_event epv;
 
             epv.events   = flags;
-            epv.data.fd  = fd;
-            epv.data.ptr = react;
+            if( !react ) {
+                epv.data.fd = fd;
+            } else {
+                epv.data.ptr = react;
+            }
 
             return epoll_ctl( ep, EPOLL_CTL_ADD, fd, &epv );
         }
@@ -79,7 +82,7 @@ namespace fr { namespace server {
 
         int create_epoll( int stop_event )
         {
-            int res = epoll_create( 5 );
+            int res = epoll_create( 64 );
             if( -1 == res ) {
                 vcomm::throw_system_error( errno, "epoll_create" );
             }
@@ -169,13 +172,14 @@ namespace fr { namespace server {
         size_t run_one( )
         {
             epoll_event rcvd[1] = {0};
-            int count = epoll_wait( poll_fd_.hdl( ), rcvd, 1, -1);
+            int count = epoll_wait( poll_fd_.hdl( ), &rcvd[0], 1, -1);
             if( -1 == count ) {
                 vcomm::throw_system_error( errno, "epoll_wait" );
             }
 
             std::cout << "Got " << count << " " << rcvd[0].data.fd
                       << " events\n";
+
             if( rcvd[0].data.fd == stop_event_.hdl( ) ) {
                 std::cout << "Exit event rcved!\n";
                 return 0;
