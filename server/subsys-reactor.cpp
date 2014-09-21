@@ -40,12 +40,12 @@ namespace fr { namespace server { namespace subsys {
         void reactor_thread( )
         {
             running_ = true;
+            size_t count = 0;
             while( 1 ) try {
-                size_t count = 1;
-                while( reactor_.run_one( ) )  { }
-                if( 0 == count ) {
-                    return;
+                while( reactor_.run_one( ) ) {
+                    ++count;
                 }
+                return;
             } catch( ... ) {
                 ;;;
             }
