@@ -104,6 +104,7 @@ namespace fr {  namespace client { namespace core {
             case CONN_PIPE:
                 client_->async_connect( ci->server_, func );
                 break;
+
             case CONN_TCP:
 
                 client_->async_connect( ci->server_, ci->port_, func );
