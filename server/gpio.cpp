@@ -55,6 +55,9 @@ namespace fr { namespace server {
         {
             int fd = open( path.c_str( ), O_WRONLY );
             errno_error::errno_assert( fd != -1, "open" );
+
+            std::cout << "write to file " << path << ":" << fd << "\n";
+
             int res = write( res, data, length );
 
             if( -1 == res ) {
@@ -121,7 +124,7 @@ namespace fr { namespace server {
     void gpio_inst::unexp( ) const
     {
         write_to_file( gpio_unexport_path,
-                       impl_->id_lit_.c_str( ), impl_->id_lit_.size( ) );
+                       impl_->id_lit_.c_str( ), impl_->id_lit_.size( ) + 1 );
 
     }
 
