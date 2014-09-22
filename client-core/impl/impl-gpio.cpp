@@ -81,14 +81,13 @@ namespace fr { namespace client { namespace interfaces {
                 return res.value( );
             }
 
-            void  set_value( unsigned value ) const override
+            void set_value( unsigned value ) const override
             {
                 gproto::setup_req req;
                 req.mutable_hdl( )->set_value( hdl_ );
                 req.mutable_setup( )->set_value( value );
                 client_.call_request( &stub_type::setup, &req );
             }
-
 
         };
     }

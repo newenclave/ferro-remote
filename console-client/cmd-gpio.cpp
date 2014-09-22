@@ -1,5 +1,5 @@
 
-#include "interfaces/IFile.h"
+#include "interfaces/IGPIO.h"
 #include "command-iface.h"
 
 #include "boost/program_options.hpp"
@@ -24,7 +24,9 @@ namespace fr { namespace cc { namespace cmd {
 
             void exec( po::variables_map &vm, core::client_core &client )
             {
-
+                client::interfaces::gpio::iface_ptr ptr =
+                        client::interfaces::gpio::create_output( client,
+                                                                 22, 0 ) ;
             }
 
             void add_options( po::options_description &desc )
