@@ -3,9 +3,49 @@ package fr.protocol.gpio;
 
 option cc_generic_services = true;
 
+message handle {
+    optional uint32 value = 1;
+}
+
+message empty { }
+
+enum direction_type {
+    DIRECT_IN   = 0;
+    DIRECT_OUT  = 1;
+}
+
+enum edge_type {
+    EDGE_NONE       =  0;
+    EDGE_RISING     =  1;
+    EDGE_FALLING    =  2;
+    EDGE_BOTH       =  3;
+}
+
+message setup_data {
+    optional uint32 direction   = 1;
+    optional uint32 edge        = 2;
+    optional uint32 value       = 3;
+}
+
+message open_req {
+    optional uint32     gpio_id     = 1;
+    optional bool       exp         = 2; /// export at open
+    optional setup_data setup       = 3; /// setup info. only if export == true
+}
+
+message open_res {
+    optional handle hdl    = 1;
+    optional bool   exists = 2;
+}
+
 message export_req { }
 message export_res { }
 
 service instance {
-    rpc gpio_export ( export_req ) returns ( export_res );
+    rpc open    ( open_req )   returns ( handle );
+    rpc exp     ( export_req ) returns ( export_res );
+    rpc setup   ( export_req ) returns ( setup_data );
+    rpc unexp   ( export_req ) returns ( export_res );
+    rpc close   ( handle )     returns ( empty );
 }
+
