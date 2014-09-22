@@ -146,6 +146,7 @@ namespace fr { namespace server {
     {
         std::ostringstream oss;
         oss << impl_->path_ << "/" << direction_name;
+        std::cout << "Dir path: " << oss.str( ) << "\n";
 
         write_to_file( oss.str( ),
                        direct_index[val].c_str( ), direct_index[val].size( ) );
