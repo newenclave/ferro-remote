@@ -85,11 +85,8 @@ namespace fr { namespace server { namespace subsys {
     void gpio::start( )
     {
         impl_->reg_creator( gpio_impl::name( ),  create_service );
-        std::cout << __LINE__ << "\n";
         gpio_inst i(74);
-        std::cout << __LINE__ << "\n";
         i.exp(  );
-        std::cout << __LINE__ << "\n";
         i.set_direction( server::gpio::DIRECT_OUT );
         std::cout << __LINE__ << "\n";
         i.set_value( 1 );

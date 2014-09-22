@@ -1,5 +1,7 @@
 
 #include <sstream>
+#include <iostream>
+
 #include <stdlib.h>
 #include <fcntl.h>
 
@@ -128,6 +130,7 @@ namespace fr { namespace server {
         std::ostringstream oss;
 
         oss << impl_->path_ << "/" << direction_name;
+        std::cout << "Dir path: " << oss.str( ) << "\n";
 
         std::string pos = read_from_file( oss.str( ) );
         if( pos == direct_index[gpio::DIRECT_IN] ) {
