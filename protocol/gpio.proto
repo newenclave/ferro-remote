@@ -42,10 +42,10 @@ message export_req { }
 message export_res { }
 
 service instance {
-    rpc open    ( open_req )   returns ( handle );
-    rpc exp     ( export_req ) returns ( export_res );
-    rpc setup   ( export_req ) returns ( setup_data );
-    rpc unexp   ( export_req ) returns ( export_res );
-    rpc close   ( handle )     returns ( empty );
+    rpc open  ( open_req )   returns ( handle );
+    rpc exp   ( export_req ) returns ( export_res ); // unable to use 'export':(
+    rpc setup ( export_req ) returns ( setup_data );
+    rpc unexp ( export_req ) returns ( export_res );
+    rpc close ( handle )     returns ( empty );
 }
 
