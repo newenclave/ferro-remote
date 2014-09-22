@@ -14,14 +14,19 @@ namespace fr { namespace client { namespace interfaces {
     namespace {
 
         namespace vcomm = vtrc::common;
+        namespace gproto = protocol::gpio;
 
-        typedef protocol::gpio::instance::Stub stub_type;
+        typedef gproto::instance::Stub stub_type;
         typedef vcomm::stub_wrapper<stub_type> client_type;
 
-        vtrc::uint32_t open_instance( client_type &cl )
+        vtrc::uint32_t open_instance( client_type &cl, unsigned gpio_id )
         {
 
         }
+
+        vtrc::uint32_t open_setup_inst( client_type &cl, unsigned gpio_id,
+                                        gproto::setup_data &setup )
+        {}
 
         struct gpio_impl: public gpio::iface {
 
