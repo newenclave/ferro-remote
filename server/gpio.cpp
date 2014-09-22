@@ -115,7 +115,7 @@ namespace fr { namespace server {
     void gpio_inst::exp( ) const
     {
         write_to_file( gpio_export_path,
-                       impl_->id_lit_.c_str( ), impl_->id_lit_.size( ) );
+                       impl_->id_lit_.c_str( ), impl_->id_lit_.size( ) + 1 );
     }
 
     void gpio_inst::unexp( ) const
@@ -130,7 +130,6 @@ namespace fr { namespace server {
         std::ostringstream oss;
 
         oss << impl_->path_ << "/" << direction_name;
-        std::cout << "Dir path: " << oss.str( ) << "\n";
 
         std::string pos = read_from_file( oss.str( ) );
         if( pos == direct_index[gpio::DIRECT_IN] ) {
@@ -146,7 +145,6 @@ namespace fr { namespace server {
     {
         std::ostringstream oss;
         oss << impl_->path_ << "/" << direction_name;
-        std::cout << "Dir path: " << oss.str( ) << "\n";
 
         write_to_file( oss.str( ),
                        direct_index[val].c_str( ), direct_index[val].size( ) );
