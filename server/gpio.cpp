@@ -53,29 +53,25 @@ namespace fr { namespace server {
         void write_to_file( const std::string &path,
                             const char *data, size_t length )
         {
-            int fd = open( path.c_str( ), O_WRONLY );
-            errno_error::errno_assert( fd != -1, "open" );
+            file_keeper fd( open( path.c_str( ), O_WRONLY ) );
+            errno_error::errno_assert( fd.hdl( ) != -1, "open" );
 
-            int res = write( fd, data, length );
-
-            if( -1 == res ) {
-                close( fd );
-                errno_error::throw_error( "write" );
-            }
-            close( fd );
+            int res = write( fd.hdl( ), data, length );
+            errno_error::errno_assert( res != -1, "write" );
         }
 
         std::string read_from_file( const std::string &path )
         {
             char buf[256];
-            int fd = open( path.c_str( ), O_RDONLY );
-            errno_error::errno_assert( fd != -1, "open" );
-            int res = read( fd, buf, 256 );
-            if( -1 == res ) {
-                close( fd );
-                errno_error::throw_error( "read" );
-            }
-            close( fd );
+
+            file_keeper fd( open( path.c_str( ), O_RDONLY ) );
+
+            errno_error::errno_assert( fd.hdl( ) != -1, "open" );
+
+            int res = read( fd.hdl( ), buf, 256 );
+
+            errno_error::errno_assert( res != -1, "read" );
+
             return std::string( buf, buf + res );
         }
 

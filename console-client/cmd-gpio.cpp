@@ -37,10 +37,10 @@ namespace fr { namespace cc { namespace cmd {
                 ptr->export_device( );
                 ptr->set_direction( igpio::DIRECT_OUT );
 
-                for( int i = 0; i<10; ++i ) {
+                for( int i = 0; i<10000; ++i ) {
                     ptr->set_value( i % 2 );
-                    usleep( 40000 );
-                    std::cout << "Value: " << ptr->value( ) << "\n";
+                    usleep( 1000000 ); // sec
+                    //std::cout << "Value: " << ptr->value( ) << "\n";
                 }
                 ptr->set_value( 0 );
                 time_point stop = vtrc::chrono::high_resolution_clock::now( );
