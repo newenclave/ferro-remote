@@ -1,10 +1,12 @@
 
+#include <iostream>
 #include "interfaces/IGPIO.h"
 #include "command-iface.h"
 
 #include "boost/program_options.hpp"
 
 #include "vtrc-memory.h"
+#include "vtrc-chrono.h"
 
 namespace fr { namespace cc { namespace cmd {
 
@@ -13,6 +15,7 @@ namespace fr { namespace cc { namespace cmd {
         namespace po = boost::program_options;
         namespace core = client::core;
 
+        typedef vtrc::chrono::high_resolution_clock::time_point time_point;
         namespace igpio = client::interfaces::gpio;
 
         const char *cmd_name = "gpio";
@@ -29,7 +32,12 @@ namespace fr { namespace cc { namespace cmd {
                 vtrc::unique_ptr<igpio::iface> ptr
                                     (igpio::create_output( client, 22, 1 ) );
                 //sleep( 5 );
+                time_point start = vtrc::chrono::high_resolution_clock::now( );
                 ptr->set_value( 0 );
+                time_point stop = vtrc::chrono::high_resolution_clock::now( );
+                std::cout << vtrc::chrono::duration_cast<
+                             vtrc::chrono::microseconds>( stop - start ).count( )
+                             << "\n";
             }
 
             void add_options( po::options_description &desc )
