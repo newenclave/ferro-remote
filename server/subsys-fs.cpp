@@ -678,8 +678,8 @@ namespace fr { namespace server { namespace subsys {
 
     void fs::stop( )
     {
-        impl_->app_->unregister_service_creator( proto_fs_impl::name( ) );
-        impl_->app_->unregister_service_creator( proto_file_impl::name( ) );
+        impl_->unreg_creator( proto_fs_impl::name( ) );
+        impl_->unreg_creator( proto_file_impl::name( ) );
     }
 
 }}}
