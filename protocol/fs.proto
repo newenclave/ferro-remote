@@ -19,6 +19,22 @@ message handle_path {
     optional string  path   = 2;
 }
 
+message element_stat {  /* man 2 stat */
+    optional uint64     dev     =  1; /* ID of device containing file */
+    optional uint64     ino     =  2; /* inode number */
+    optional uint32     mode    =  3; /* protection */
+    optional uint64     nlink   =  4; /* number of hard links */
+    optional uint32     uid     =  5; /* user ID of owner */
+    optional uint32     gid     =  6; /* group ID of owner */
+    optional uint64     rdev    =  7; /* device ID (if special file) */
+    optional uint64     size    =  8; /* total size, in bytes */
+    optional uint32     blksize =  9; /* blocksize for filesystem I/O */
+    optional uint64     blocks  = 10; /* number of 512B blocks allocated */
+    optional uint64     atime   = 11; /* time of last access */
+    optional uint64     mtime   = 12; /* time of last modification */
+    optional uint64     ctime   = 13; /* time of last status change */
+}
+
 message element_info {
     optional bool is_exist      = 1;
     optional bool is_directory  = 2;
@@ -53,6 +69,9 @@ service instance {
 
     // get path info
     rpc info( handle_path )        returns ( element_info );
+
+    // get path stat
+    rpc get_stat( handle_path )    returns ( element_stat );
 
     // make directory
     rpc mkdir( handle_path )       returns ( handle_path );

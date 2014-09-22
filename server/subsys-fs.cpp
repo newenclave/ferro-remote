@@ -8,6 +8,9 @@
 #include "files.h"
 
 #include <fcntl.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <unistd.h>
 
 #include "vtrc-common/vtrc-closure-holder.h"
 #include "vtrc-common/vtrc-mutex-typedefs.h"
@@ -97,6 +100,7 @@ namespace fr { namespace server { namespace subsys {
 
         typedef std::map<vtrc::uint32_t, bfs::path>               path_map;
         typedef std::map<vtrc::uint32_t, bfs::directory_iterator> iterator_map;
+
 
         class proto_fs_impl: public fr::protocol::fs::instance {
 
@@ -223,12 +227,63 @@ namespace fr { namespace server { namespace subsys {
                 response->set_position( bfs::file_size( p ) );
             }
 
+            void fill_info( bfs::path const &p,
+                            proto::fs::element_info* response )
+            {
+                bool is_exists = bfs::exists( p );
+                response->set_is_exist( is_exists );
+                if( is_exists ) {
+                    bool is_dir = bfs::is_directory( p );
+                    response->set_is_symlink( bfs::is_symlink( p ) );
+                    response->set_is_directory( is_dir );
+                    if( is_dir )
+                        response->set_is_empty( bfs::is_empty( p ) );
+                    else
+                        response->set_is_empty(true);
+                    response->set_is_regular( bfs::is_regular_file( p ) );
+                }
+            }
+
             void info(::google::protobuf::RpcController* /*controller*/,
                          const ::fr::protocol::fs::handle_path* request,
                          ::fr::protocol::fs::element_info* response,
                          ::google::protobuf::Closure* done) override
             {
                 vcomm::closure_holder holder(done);
+                vtrc::uint32_t hdl;
+                bfs::path p( path_from_request( request, hdl ) );
+                fill_info( p, response );
+            }
+
+            void get_stat(::google::protobuf::RpcController* /*controller*/,
+                         const ::fr::protocol::fs::handle_path* request,
+                         ::fr::protocol::fs::element_stat* response,
+                         ::google::protobuf::Closure* done) override
+            {
+                vcomm::closure_holder holder(done);
+                vtrc::uint32_t hdl;
+                bfs::path p( path_from_request( request, hdl ) );
+
+                struct stat ss = { 0 };
+                int res = ::stat( p.string( ).c_str( ), &ss );
+                if( -1 == res ) {
+                    vcomm::throw_system_error( errno, "::stat" );
+                }
+
+                response->set_atime( ss.st_atime );
+                response->set_mtime( ss.st_mtime );
+                response->set_ctime( ss.st_ctime );
+                response->set_blocks( ss.st_blocks );
+                response->set_blksize( ss.st_blksize );
+                response->set_size( ss.st_size );
+                response->set_rdev( ss.st_rdev );
+                response->set_gid( ss.st_gid );
+                response->set_uid( ss.st_uid );
+                response->set_nlink( ss.st_nlink );
+                response->set_mode( ss.st_mode );
+                response->set_ino( ss.st_ino );
+                response->set_dev( ss.st_dev );
+
             }
 
             void mkdir(::google::protobuf::RpcController* /*controller*/,
@@ -237,6 +292,10 @@ namespace fr { namespace server { namespace subsys {
                          ::google::protobuf::Closure* done) override
             {
                 vcomm::closure_holder holder(done);
+                vtrc::uint32_t hdl;
+                bfs::path p( path_from_request( request, hdl ) );
+                bfs::create_directories( p );
+                response->mutable_handle( )->set_value( hdl );
             }
 
             void del(::google::protobuf::RpcController* /*controller*/,
@@ -245,6 +304,36 @@ namespace fr { namespace server { namespace subsys {
                          ::google::protobuf::Closure* done) override
             {
                 vcomm::closure_holder holder(done);
+                vtrc::uint32_t hdl = 0;
+                bfs::path p(path_from_request( request, hdl ));
+                bfs::remove( p );
+                response->mutable_handle( )->set_value( hdl );
+            }
+
+            void fill_iter_info( const bfs::directory_iterator &iter,
+                                 vtrc::uint32_t hdl,
+                                 proto::fs::iterator_info* response)
+            {
+                response->mutable_handle( )->set_value( hdl );
+                response->set_end( iter == bfs::directory_iterator( ));
+                if( !response->end( ) ) {
+                    response->set_path( iter->path( ).string( ) );
+                }
+            }
+
+            bfs::directory_iterator &get_iter_unsafe( vtrc::uint32_t hdl )
+            {
+                iterator_map::iterator f( iters_.find( hdl ) );
+                if( f == iters_.end( ) ) {
+                    vcomm::throw_system_error( EINVAL, "Bad iterator handle" );
+                }
+                return f->second;
+            }
+
+            bfs::directory_iterator &get_iter( vtrc::uint32_t hdl )
+            {
+                vtrc::shared_lock l( iters_lock_ );
+                return get_iter_unsafe( hdl );
             }
 
             void iter_begin(::google::protobuf::RpcController* /*controller*/,
@@ -253,6 +342,16 @@ namespace fr { namespace server { namespace subsys {
                          ::google::protobuf::Closure* done) override
             {
                 vcomm::closure_holder holder(done);
+
+                vtrc::uint32_t hdl;
+                bfs::path p(path_from_request( request, hdl ));
+
+                bfs::directory_iterator new_iterator(p);
+                vtrc::uint32_t iter_hdl = next_index( );
+
+                vtrc::unique_shared_lock usl( iters_lock_);
+                iters_.insert( std::make_pair( iter_hdl, new_iterator ) );
+                fill_iter_info(new_iterator, iter_hdl, response);
             }
 
             void iter_next(::google::protobuf::RpcController* /*controller*/,
@@ -261,6 +360,13 @@ namespace fr { namespace server { namespace subsys {
                          ::google::protobuf::Closure* done) override
             {
                 vcomm::closure_holder holder(done);
+
+                vtrc::uint32_t hdl( request->handle( ).value( ) );
+                vtrc::shared_lock usl( iters_lock_ );
+
+                bfs::directory_iterator &iter( get_iter_unsafe( hdl ) );
+                ++iter;
+                fill_iter_info( iter, hdl, response );
             }
 
             void iter_info(::google::protobuf::RpcController* /*controller*/,
@@ -269,6 +375,9 @@ namespace fr { namespace server { namespace subsys {
                          ::google::protobuf::Closure* done) override
             {
                 vcomm::closure_holder holder(done);
+                vtrc::uint32_t hdl( request->handle( ).value( ) );
+                bfs::directory_iterator iter( get_iter( hdl ) );
+                fill_info( iter->path( ), response );
             }
 
             void iter_clone(::google::protobuf::RpcController* /*controller*/,
@@ -277,6 +386,14 @@ namespace fr { namespace server { namespace subsys {
                          ::google::protobuf::Closure* done) override
             {
                 vcomm::closure_holder holder(done);
+
+                vtrc::uint32_t hdl( request->handle( ).value( ) );
+                bfs::directory_iterator iter(get_iter( hdl ));
+                vtrc::uint32_t new_hdl = next_index( );
+                fill_iter_info( iter, hdl, response );
+
+                vtrc::unique_shared_lock usl( iters_lock_ );
+                iters_.insert( std::make_pair( new_hdl, iter ) );
             }
 
             void close(::google::protobuf::RpcController*   /*controller*/,
