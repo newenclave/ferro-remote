@@ -89,6 +89,72 @@ namespace fr { namespace client { namespace interfaces {
                 client_.call_request( &stub_type::setup, &req );
             }
 
+            void export_device( ) const override
+            {
+                gproto::export_req req;
+                req.mutable_hdl( )->set_value( hdl_ );
+                client_.call_request( &stub_type::exp, &req );
+            }
+
+            void unexport_device( ) const override
+            {
+                gproto::export_req req;
+                req.mutable_hdl( )->set_value( hdl_ );
+                client_.call_request( &stub_type::unexp, &req );
+            }
+
+            gpio::direction_type direction( ) const override
+            {
+                gproto::info_req    req;
+                gproto::setup_data  res;
+
+                req.mutable_hdl( )->set_value( hdl_ );
+                req.set_with_direction( true );
+                client_.call( &stub_type::info, &req, &res );
+
+                return res.direction( ) == gpio::DIRECT_IN
+                        ? gpio::DIRECT_IN
+                        : gpio::DIRECT_OUT;
+            }
+
+            void set_direction( gpio::direction_type value ) const override
+            {
+                gproto::setup_req req;
+                req.mutable_hdl( )->set_value( hdl_ );
+                req.mutable_setup( )->set_direction( value );
+                client_.call_request( &stub_type::setup, &req );
+            }
+
+            gpio::edge_type edge( ) const override
+            {
+                gproto::info_req    req;
+                gproto::setup_data  res;
+
+                req.mutable_hdl( )->set_value( hdl_ );
+                req.set_with_edge( true );
+                client_.call( &stub_type::info, &req, &res );
+
+                switch (res.edge( )) {
+                case gpio::EDGE_NONE:
+                    return gpio::EDGE_NONE;
+                case gpio::EDGE_FALLING:
+                    return gpio::EDGE_FALLING;
+                case gpio::EDGE_RISING:
+                    return gpio::EDGE_RISING;
+                case gpio::EDGE_BOTH:
+                    return gpio::EDGE_BOTH;
+                }
+                return gpio::EDGE_NONE;
+            }
+
+            void set_edge( gpio::edge_type value ) const override
+            {
+                gproto::setup_req req;
+                req.mutable_hdl( )->set_value( hdl_ );
+                req.mutable_setup( )->set_edge( value );
+                client_.call_request( &stub_type::setup, &req );
+            }
+
         };
     }
 

@@ -26,6 +26,16 @@ namespace interfaces { namespace gpio {
 
         virtual unsigned value( ) const = 0;
         virtual void  set_value( unsigned value ) const = 0;
+
+        virtual void export_device( ) const = 0;
+        virtual void unexport_device( ) const = 0;
+
+        virtual direction_type direction( ) const = 0;
+        virtual void set_direction( direction_type value ) const = 0;
+
+        virtual edge_type edge( ) const = 0;
+        virtual void set_edge( edge_type value ) const = 0;
+
     };
 
     typedef iface* iface_ptr;
