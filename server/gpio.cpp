@@ -219,7 +219,7 @@ namespace fr { namespace server {
         write_to_file( oss.str( ), data, 2 );
     }
 
-    file_keeper_sptr gpio_helper::open_value_for_read( ) const
+    int gpio_helper::open_value_for_read( ) const
     {
         std::ostringstream oss;
         oss << impl_->path_ << "/" << value_name;
@@ -227,7 +227,7 @@ namespace fr { namespace server {
         if( -1 == res ) {
             vcomm::throw_system_error( errno, "open" );
         }
-        return vtrc::make_shared<file_keeper>( res );
+        return res;
     }
 
 }}
