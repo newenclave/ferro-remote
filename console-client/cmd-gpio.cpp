@@ -13,6 +13,8 @@ namespace fr { namespace cc { namespace cmd {
         namespace po = boost::program_options;
         namespace core = client::core;
 
+        namespace igpio = client::interfaces::gpio;
+
         const char *cmd_name = "gpio";
 
         struct impl: public command_iface {
@@ -24,9 +26,10 @@ namespace fr { namespace cc { namespace cmd {
 
             void exec( po::variables_map &vm, core::client_core &client )
             {
-                client::interfaces::gpio::iface_ptr ptr =
-                        client::interfaces::gpio::create_output( client,
-                                                                 22, 0 ) ;
+                vtrc::unique_ptr<igpio::iface> ptr
+                                    (igpio::create_output( client, 22, 1 ) );
+                //sleep( 5 );
+                ptr->set_value( 0 );
             }
 
             void add_options( po::options_description &desc )
