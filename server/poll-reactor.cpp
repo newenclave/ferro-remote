@@ -132,8 +132,6 @@ namespace fr { namespace server {
 
         void add_fd( int fd, unsigned flags, reaction_callback cb )
         {
-            std::cout << "Add " << fd << "\n";
-
             vtrc::upgradable_lock lck(react_lock_);
 
             reaction_map::iterator f(react_.find(fd));
@@ -145,13 +143,11 @@ namespace fr { namespace server {
 
                 new_react->call_ = cb;
 
-                int res = add_fd_to_epoll( poll_fd_.hdl( ),
-                                           fd, flags, new_react.get( ) );
+                int res = add_fd_to_epoll( poll_fd_.hdl( ), fd, flags, NULL );
 
                 errno_error::errno_assert( -1 != res, "epoll_ctl" );
                 vtrc::upgrade_to_unique utl(lck);
-                react_[fd] = new_react;
-
+                react_.insert( std::make_pair( fd, new_react ) );
 
             } else {
                 f->second->call_ = cb;
@@ -164,9 +160,7 @@ namespace fr { namespace server {
         {
             del_fd_from_epoll( poll_fd_.hdl( ), fd );
             vtrc::unique_shared_lock lck(react_lock_);
-            std::cout << "Erase fd " << react_.size( ) << "\n";
             react_.erase( fd );
-            std::cout << "Erase fd " << react_.size( ) << "\n";
         }
 
         size_t count( ) const
@@ -175,26 +169,27 @@ namespace fr { namespace server {
             return react_.size( );
         }
 
+        void make_callback( int fd, unsigned events )
+        {
+            vtrc::shared_lock slck(react_lock_);
+            reaction_map::iterator f(react_.find( fd ));
+            if( f != react_.end( ) ){
+                f->second->call_( events );
+            }
+        }
+
         size_t run_one( )
         {
-            epoll_event rcvd[1] = {0};
-            int count = epoll_wait( poll_fd_.hdl( ), &rcvd[0], 1, -1);
-            if( -1 == count ) {
-                vcomm::throw_system_error( errno, "epoll_wait" );
-            }
+            epoll_event rcvd[1] = { 0 };
 
-            std::cout << "Got " << count << " " << rcvd[0].data.fd
-                      << " events\n";
+            int count = epoll_wait( poll_fd_.hdl( ), &rcvd[0], 1, -1);
+
+            errno_error::errno_assert( -1 != count, "epoll_wait" );
 
             if( rcvd[0].data.fd == stop_event_.hdl( ) ) {
-                std::cout << "Exit event rcved!\n";
                 return 0;
             } else {
-                handle_reaction *react =
-                        static_cast<handle_reaction *>(rcvd[0].data.ptr);
-                if( react ) {
-                    react->call_( rcvd[0].events );
-                }
+                make_callback( rcvd[0].data.fd, rcvd[0].events );
                 return 1;
             }
         }
