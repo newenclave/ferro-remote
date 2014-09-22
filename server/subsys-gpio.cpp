@@ -99,7 +99,7 @@ namespace fr { namespace server { namespace subsys {
 
             void open(::google::protobuf::RpcController* /*controller*/,
                          const ::fr::protocol::gpio::open_req* request,
-                         ::fr::protocol::gpio::handle* response,
+                         ::fr::protocol::gpio::open_res* response,
                          ::google::protobuf::Closure* done) override
             {
                 vcomm::closure_holder holder(done);
@@ -115,14 +115,14 @@ namespace fr { namespace server { namespace subsys {
                     }
                     gpio_setup( ng, request->setup( ) );
                 }
-                response->set_value( newid );
+                response->mutable_hdl( )->set_value( newid );
                 vtrc::unique_shared_lock lck( gpio_lock_ );
                 gpio_.insert( std::make_pair( newid, ng ) );
             }
 
             void exp(::google::protobuf::RpcController* /*controller*/,
                          const ::fr::protocol::gpio::export_req* request,
-                         ::fr::protocol::gpio::export_res* /*response*/,
+                         ::fr::protocol::gpio::empty* /*response*/,
                          ::google::protobuf::Closure* done) override
             {
                 vcomm::closure_holder holder(done);
@@ -144,12 +144,34 @@ namespace fr { namespace server { namespace subsys {
 
             void unexp(::google::protobuf::RpcController* /*controller*/,
                          const ::fr::protocol::gpio::export_req* request,
-                         ::fr::protocol::gpio::export_res* /*response*/,
+                         ::fr::protocol::gpio::empty* /*response*/,
                          ::google::protobuf::Closure* done) override
             {
                 vcomm::closure_holder holder(done);
                 gpio_sptr g( gpio_by_index(request->hdl( ).value( ) ) );
                 g->unexp( );
+            }
+
+            void info(::google::protobuf::RpcController* controller,
+                         const ::fr::protocol::gpio::info_req* request,
+                         ::fr::protocol::gpio::setup_data* response,
+                         ::google::protobuf::Closure* done) override
+            {
+                vcomm::closure_holder holder(done);
+                gpio_sptr g( gpio_by_index(request->hdl( ).value( ) ) );
+
+                if( request->with_value( ) ) {
+                    response->set_value( g->value( ) );
+                }
+
+                if( request->with_direction( ) ) {
+                    response->set_direction( g->direction( ) );
+                }
+
+                if( request->with_edge( ) ) {
+                    response->set_edge( g->edge( ) );
+                }
+
             }
 
             void close(::google::protobuf::RpcController* /*controller*/,

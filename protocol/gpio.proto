@@ -47,13 +47,22 @@ message export_req {
     optional handle hdl    = 1;
 }
 
-message export_res { }
+message info_req {
+    optional handle hdl          = 1;
+    optional bool with_value     = 2;
+    optional bool with_direction = 3;
+    optional bool with_edge      = 4;
+}
+
 
 service instance {
-    rpc open  ( open_req )   returns ( handle );
-    rpc exp   ( export_req ) returns ( export_res ); // unable to use 'export':(
+    rpc open  ( open_req )   returns ( open_res );
+    rpc exp   ( export_req ) returns ( empty );  // unable to use 'export':(
     rpc setup ( setup_req )  returns ( empty );
-    rpc unexp ( export_req ) returns ( export_res );
+    rpc unexp ( export_req ) returns ( empty );
+
+    rpc info  ( info_req )   returns ( setup_data );
+
     rpc close ( handle )     returns ( empty );
 }
 
