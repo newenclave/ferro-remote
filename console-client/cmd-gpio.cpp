@@ -30,12 +30,17 @@ namespace fr { namespace cc { namespace cmd {
             void exec( po::variables_map &vm, core::client_core &client )
             {
                 vtrc::unique_ptr<igpio::iface> ptr
-                                    (igpio::create_output( client, 22, 1 ) );
+                                    ( igpio::create( client, 22 ) );
                 //sleep( 5 );
                 time_point start = vtrc::chrono::high_resolution_clock::now( );
-                for( int i = 0; i<1000; ++i ) {
+
+                ptr->export_device( );
+                ptr->set_direction( igpio::DIRECT_OUT );
+
+                for( int i = 0; i<10; ++i ) {
                     ptr->set_value( i % 2 );
                     usleep( 40000 );
+                    std::cout << "Value: " << ptr->value( ) << "\n";
                 }
                 ptr->set_value( 0 );
                 time_point stop = vtrc::chrono::high_resolution_clock::now( );
