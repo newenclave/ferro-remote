@@ -50,12 +50,12 @@ namespace fr { namespace server {
 
         };
 
-        int add_fd_to_epoll( int ep, int fd, uint32_t flags,
+        int add_fd_to_epoll( int ep, int fd, uint32_t events,
                              handle_reaction *react )
         {
             epoll_event epv;
 
-            epv.events   = flags;
+            epv.events   = events;
             if( !react ) {
                 epv.data.fd = fd;
             } else {
@@ -65,11 +65,11 @@ namespace fr { namespace server {
             return epoll_ctl( ep, EPOLL_CTL_ADD, fd, &epv );
         }
 
-        int modify_fd_epoll( int ep, int fd, uint32_t flags )
+        int modify_fd_epoll( int ep, int fd, uint32_t events )
         {
             epoll_event epv;
 
-            epv.events   = flags;
+            epv.events   = events;
             epv.data.fd  = fd;
 
             return epoll_ctl( ep, EPOLL_CTL_MOD, fd, &epv );
@@ -130,7 +130,7 @@ namespace fr { namespace server {
             std::cout << "Send stop event " << res << errno << "\n";
         }
 
-        void add_fd( int fd, unsigned flags, reaction_callback cb )
+        void add_fd( int fd, unsigned events, reaction_callback cb )
         {
             vtrc::upgradable_lock lck(react_lock_);
 
@@ -143,7 +143,7 @@ namespace fr { namespace server {
 
                 new_react->call_ = cb;
 
-                int res = add_fd_to_epoll( poll_fd_.hdl( ), fd, flags, NULL );
+                int res = add_fd_to_epoll( poll_fd_.hdl( ), fd, events, NULL );
 
                 errno_error::errno_assert( -1 != res, "epoll_ctl" );
                 vtrc::upgrade_to_unique utl(lck);
@@ -151,7 +151,7 @@ namespace fr { namespace server {
 
             } else {
                 f->second->call_ = cb;
-                int res = modify_fd_epoll( poll_fd_.hdl( ), fd, flags );
+                int res = modify_fd_epoll( poll_fd_.hdl( ), fd, events );
                 errno_error::errno_assert( -1 != res, "epoll_ctl" );
             }
         }
@@ -180,16 +180,16 @@ namespace fr { namespace server {
 
         size_t run_one( )
         {
-            epoll_event rcvd[1] = { 0 };
+            epoll_event rcvd = { 0 };
 
-            int count = epoll_wait( poll_fd_.hdl( ), &rcvd[0], 1, -1);
+            int count = epoll_wait( poll_fd_.hdl( ), &rcvd, 1, -1);
 
             errno_error::errno_assert( -1 != count, "epoll_wait" );
 
-            if( rcvd[0].data.fd == stop_event_.hdl( ) ) {
+            if( rcvd.data.fd == stop_event_.hdl( ) ) {
                 return 0;
             } else {
-                make_callback( rcvd[0].data.fd, rcvd[0].events );
+                make_callback( rcvd.data.fd, rcvd.events );
                 return 1;
             }
         }

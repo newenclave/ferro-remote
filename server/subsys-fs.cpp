@@ -15,6 +15,8 @@
 #include "vtrc-atomic.h"
 #include "vtrc-common/vtrc-exception.h"
 
+#include "boost/filesystem.hpp"
+
 namespace fr { namespace server { namespace subsys {
 
     namespace {
@@ -91,11 +93,223 @@ namespace fr { namespace server { namespace subsys {
             return res;
         }
 
+        namespace bfs = boost::filesystem;
+
+        typedef std::map<vtrc::uint32_t, bfs::path>               path_map;
+        typedef std::map<vtrc::uint32_t, bfs::directory_iterator> iterator_map;
+
         class proto_fs_impl: public fr::protocol::fs::instance {
+
+            path_map            path_;
+            vtrc::shared_mutex  path_lock_;
+
+            iterator_map        iters_;
+            vtrc::shared_mutex  iters_lock_;
+
+            vtrc::atomic<vtrc::uint32_t>  handle_;
+
+            inline vtrc::uint32_t next_index( )
+            {
+                return ++handle_;
+            }
+
+
+            bfs::path path_from_request( const proto::fs::handle_path* request,
+                                        vtrc::uint32_t &hdl )
+            {
+                bfs::path p(request->path( ));
+
+                if( !request->has_handle( ) || p.is_absolute( ) ) {
+                    /// ok. new instance requested
+                    p.normalize( );
+                    hdl = next_index( );
+
+                } else {
+
+                    /// old path must be used
+                    hdl = request->handle( ).value( );
+
+                    vtrc::shared_lock l( path_lock_ );
+                    path_map::const_iterator f( path_.find( hdl ) );
+
+                    if( f == path_.end( ) ) {
+                        vcomm::throw_system_error( EINVAL, "Bad fs handle" );
+                    }
+                    p = f->second;
+                    p /= request->path( );
+                    p.normalize( );
+                }
+                return p;
+            }
+
+            void open(::google::protobuf::RpcController* /*controller*/,
+                         const ::fr::protocol::fs::handle_path* request,
+                         ::fr::protocol::fs::handle_path* response,
+                         ::google::protobuf::Closure* done) override
+            {
+                vcomm::closure_holder holder(done);
+
+                vtrc::uint32_t hdl;
+                bfs::path p(path_from_request( request, hdl ));
+
+                {
+                    vtrc::unique_shared_lock l( path_lock_ );
+                    path_.insert( std::make_pair( hdl, p ) );
+                }
+
+                response->mutable_handle( )->set_value( hdl );
+                response->set_path( p.string( ) );
+
+            }
+
+            void cd(::google::protobuf::RpcController* /*controller*/,
+                         const ::fr::protocol::fs::handle_path* request,
+                         ::fr::protocol::fs::handle_path* response,
+                         ::google::protobuf::Closure* done) override
+            {
+                vcomm::closure_holder holder(done);
+
+                vtrc::upgradable_lock ul( path_lock_ );
+
+                vtrc::uint32_t hdl( request->handle( ).value( ) );
+
+                path_map::iterator f( path_.find( hdl ) );
+
+                if( f == path_.end( ) ) {
+                    vcomm::throw_system_error( EINVAL, "Bad fs handle" );
+                }
+
+                bfs::path p(f->second / request->path( ));
+                p.normalize( );
+
+                /// set new path
+                vtrc::upgrade_to_unique utul( ul );
+                f->second = p;
+            }
+
+            void pwd(::google::protobuf::RpcController* /*controller*/,
+                         const ::fr::protocol::fs::handle_path* request,
+                         ::fr::protocol::fs::handle_path* response,
+                         ::google::protobuf::Closure* done) override
+            {
+                vcomm::closure_holder holder(done);
+                vtrc::uint32_t hdl;
+                bfs::path p(path_from_request( request, hdl ));
+                response->set_path( p.string( ) );
+            }
+
+            void exists(::google::protobuf::RpcController* /*controller*/,
+                         const ::fr::protocol::fs::handle_path* request,
+                         ::fr::protocol::fs::element_info* response,
+                         ::google::protobuf::Closure* done) override
+            {
+                vcomm::closure_holder holder(done);
+                vtrc::uint32_t hdl;
+
+                bfs::path p( path_from_request( request, hdl ) );
+                response->set_is_exist( bfs::exists( p ) );
+            }
+
+            void file_size(::google::protobuf::RpcController* /*controller*/,
+                         const ::fr::protocol::fs::handle_path* request,
+                         ::fr::protocol::fs::file_position* response,
+                         ::google::protobuf::Closure* done) override
+            {
+                vcomm::closure_holder holder(done);
+
+                vtrc::uint32_t hdl;
+                bfs::path p( path_from_request( request, hdl ) );
+
+                response->set_position( bfs::file_size( p ) );
+            }
+
+            void info(::google::protobuf::RpcController* /*controller*/,
+                         const ::fr::protocol::fs::handle_path* request,
+                         ::fr::protocol::fs::element_info* response,
+                         ::google::protobuf::Closure* done) override
+            {
+                vcomm::closure_holder holder(done);
+            }
+
+            void mkdir(::google::protobuf::RpcController* /*controller*/,
+                         const ::fr::protocol::fs::handle_path* request,
+                         ::fr::protocol::fs::handle_path* response,
+                         ::google::protobuf::Closure* done) override
+            {
+                vcomm::closure_holder holder(done);
+            }
+
+            void del(::google::protobuf::RpcController* /*controller*/,
+                         const ::fr::protocol::fs::handle_path* request,
+                         ::fr::protocol::fs::handle_path* response,
+                         ::google::protobuf::Closure* done) override
+            {
+                vcomm::closure_holder holder(done);
+            }
+
+            void iter_begin(::google::protobuf::RpcController* /*controller*/,
+                         const ::fr::protocol::fs::handle_path* request,
+                         ::fr::protocol::fs::iterator_info* response,
+                         ::google::protobuf::Closure* done) override
+            {
+                vcomm::closure_holder holder(done);
+            }
+
+            void iter_next(::google::protobuf::RpcController* /*controller*/,
+                         const ::fr::protocol::fs::iterator_info* request,
+                         ::fr::protocol::fs::iterator_info* response,
+                         ::google::protobuf::Closure* done) override
+            {
+                vcomm::closure_holder holder(done);
+            }
+
+            void iter_info(::google::protobuf::RpcController* /*controller*/,
+                         const ::fr::protocol::fs::iterator_info* request,
+                         ::fr::protocol::fs::element_info* response,
+                         ::google::protobuf::Closure* done) override
+            {
+                vcomm::closure_holder holder(done);
+            }
+
+            void iter_clone(::google::protobuf::RpcController* /*controller*/,
+                         const ::fr::protocol::fs::iterator_info* request,
+                         ::fr::protocol::fs::iterator_info* response,
+                         ::google::protobuf::Closure* done) override
+            {
+                vcomm::closure_holder holder(done);
+            }
+
+            void close(::google::protobuf::RpcController*   /*controller*/,
+                         const ::fr::protocol::fs::handle*    request,
+                         ::fr::protocol::fs::empty*         /*response*/,
+                         ::google::protobuf::Closure* done) override
+            {
+                vcomm::closure_holder holder(done);
+
+                {
+                    vtrc::upgradable_lock ul( path_lock_ );
+                    path_map::iterator f( path_.find( request->value( ) ) );
+                    if( f != path_.end( ) ) {
+                        vtrc::upgrade_to_unique uul( ul );
+                        path_.erase( f );
+                        return;
+                    }
+                }
+
+                {
+                    vtrc::upgradable_lock ul( iters_lock_ );
+                    iterator_map::iterator f( iters_.find( request->value( )));
+                    if( f != iters_.end( ) ) {
+                        vtrc::upgrade_to_unique uul( ul );
+                        iters_.erase( f );
+                    }
+                }
+            }
 
         public:
             proto_fs_impl( fr::server::application * /*app*/,
                            vcomm::connection_iface_wptr /*cl*/ )
+                :handle_(100)
             { }
 
             static const std::string &name( )
