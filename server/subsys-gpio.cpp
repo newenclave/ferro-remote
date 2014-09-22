@@ -1,3 +1,4 @@
+#include <iostream>
 
 #include "application.h"
 #include "subsys-gpio.h"
