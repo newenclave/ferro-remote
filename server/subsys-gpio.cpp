@@ -88,11 +88,9 @@ namespace fr { namespace server { namespace subsys {
         gpio_inst i(50);
         i.exp(  );
         i.set_direction( server::gpio::DIRECT_OUT );
-        std::cout << __LINE__ << "\n";
         i.set_value( 1 );
-        std::cout << __LINE__ << "\n";
+        sleep(2);
         i.unexp( );
-        std::cout << __LINE__ << "\n";
     }
 
     void gpio::stop( )

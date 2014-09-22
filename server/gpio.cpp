@@ -190,10 +190,11 @@ namespace fr { namespace server {
 
     void gpio_inst::set_value( unsigned val ) const
     {
-        char data = char(val + '0');
+        char data[2] = {0};
+        data[0] = char(val + '0');
         std::ostringstream oss;
         oss << impl_->path_ << "/" << value_name;
-        write_to_file( oss.str( ), &data, 1 );
+        write_to_file( oss.str( ), data, 2 );
     }
 
 }}
