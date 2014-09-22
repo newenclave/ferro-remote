@@ -270,19 +270,19 @@ namespace fr { namespace server { namespace subsys {
                     vcomm::throw_system_error( errno, "::stat" );
                 }
 
-                response->set_atime( ss.st_atime );
-                response->set_mtime( ss.st_mtime );
-                response->set_ctime( ss.st_ctime );
-                response->set_blocks( ss.st_blocks );
-                response->set_blksize( ss.st_blksize );
-                response->set_size( ss.st_size );
-                response->set_rdev( ss.st_rdev );
-                response->set_gid( ss.st_gid );
-                response->set_uid( ss.st_uid );
-                response->set_nlink( ss.st_nlink );
-                response->set_mode( ss.st_mode );
-                response->set_ino( ss.st_ino );
-                response->set_dev( ss.st_dev );
+                response->set_atime(    ss.st_atime     );
+                response->set_mtime(    ss.st_mtime     );
+                response->set_ctime(    ss.st_ctime     );
+                response->set_blocks(   ss.st_blocks    );
+                response->set_blksize(  ss.st_blksize   );
+                response->set_size(     ss.st_size      );
+                response->set_rdev(     ss.st_rdev      );
+                response->set_gid(      ss.st_gid       );
+                response->set_uid(      ss.st_uid       );
+                response->set_nlink(    ss.st_nlink     );
+                response->set_mode(     ss.st_mode      );
+                response->set_ino(      ss.st_ino       );
+                response->set_dev(      ss.st_dev       );
 
             }
 
