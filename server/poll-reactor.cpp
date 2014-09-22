@@ -13,6 +13,7 @@
 
 #include "vtrc-memory.h"
 #include "vtrc-common/vtrc-mutex-typedefs.h"
+#include "file-keeper.h"
 
 namespace fr { namespace server {
 
@@ -20,32 +21,13 @@ namespace fr { namespace server {
 
         namespace vcomm = vtrc::common;
 
-        struct fd_holder {
-
-            int id_;
-
-            fd_holder( int fd )
-                :id_(fd)
-            { }
-
-            ~fd_holder( )
-            {
-                close( id_ );
-            }
-
-            int hdl( )
-            {
-                return id_;
-            }
-        };
-
         struct handle_reaction {
 
             handle_reaction( int fd )
                 :fd_(fd)
             { }
 
-            fd_holder         fd_;
+            file_keeper       fd_;
             reaction_callback call_;
 
         };
@@ -110,9 +92,9 @@ namespace fr { namespace server {
 
     struct poll_reactor::impl {
 
-        fd_holder           stop_event_;
-        fd_holder           poll_fd_;
-        reaction_map        react_;
+        file_keeper    stop_event_;
+        file_keeper    poll_fd_;
+        reaction_map   react_;
 
         mutable vtrc::shared_mutex  react_lock_;
 
