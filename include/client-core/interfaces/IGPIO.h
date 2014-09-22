@@ -11,7 +11,12 @@ namespace interfaces { namespace gpio {
 
     struct iface {
         virtual ~iface( ) { }
+        virtual bool exists( ) const = 0;
     };
+
+    typedef iface* iface_ptr;
+
+    iface_ptr create( core::client_core &cl, unsigned gpio_id );
 
 }}}}
 
