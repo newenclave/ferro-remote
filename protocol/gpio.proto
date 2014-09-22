@@ -27,10 +27,15 @@ message setup_data {
     optional uint32 value       = 3;
 }
 
+message setup_req {
+    optional handle hdl       = 1;
+    optional setup_data setup = 2;
+}
+
 message open_req {
-    optional uint32     gpio_id     = 1;
-    optional bool       exp         = 2; /// export at open
-    optional setup_data setup       = 3; /// setup info. only if export == true
+    optional uint32     gpio_id = 1;
+    optional bool       exp     = 2; /// export at open
+    optional setup_data setup   = 3; /// setup info. only if export == true
 }
 
 message open_res {
@@ -38,13 +43,16 @@ message open_res {
     optional bool   exists = 2;
 }
 
-message export_req { }
+message export_req {
+    optional handle hdl    = 1;
+}
+
 message export_res { }
 
 service instance {
     rpc open  ( open_req )   returns ( handle );
     rpc exp   ( export_req ) returns ( export_res ); // unable to use 'export':(
-    rpc setup ( export_req ) returns ( setup_data );
+    rpc setup ( setup_req )  returns ( empty );
     rpc unexp ( export_req ) returns ( export_res );
     rpc close ( handle )     returns ( empty );
 }

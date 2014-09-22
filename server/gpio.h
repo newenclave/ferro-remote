@@ -20,12 +20,15 @@ namespace fr { namespace server {
         };
     }
 
-    class gpio_inst {
+    class gpio_helper {
+
         struct  impl;
         impl   *impl_;
+
     public:
-        gpio_inst( unsigned id );
-        ~gpio_inst(  );
+
+        gpio_helper( unsigned id );
+        ~gpio_helper(  );
 
         bool exists( ) const;
         unsigned id( ) const;

@@ -81,52 +81,74 @@ namespace fr { namespace server {
 
     }
 
-    struct gpio_inst::impl {
+    struct gpio_helper::impl {
 
-        unsigned    id_;
-        std::string id_lit_;
-        std::string path_;
+        unsigned     id_;
+        std::string  id_lit_;
+        std::string  path_;
+        mutable bool own_export_;
 
         impl( unsigned id )
             :id_(id)
             ,id_lit_(id_to_string(id_))
             ,path_(make_gpio_path(id_))
+            ,own_export_(false)
         { }
+
+        void exp( ) const
+        {
+            write_to_file( gpio_export_path,
+                           id_lit_.c_str( ), id_lit_.size( ) + 1 );
+            own_export_ = true;
+        }
+
+        void unexp( ) const
+        {
+            write_to_file( gpio_unexport_path,
+                           id_lit_.c_str( ), id_lit_.size( ) + 1 );
+            own_export_ = false;
+        }
+
+        ~impl( ) try {
+            if( own_export_ ) {
+                unexp( );
+            }
+        } catch ( ... ) {
+            ;;;
+        }
+
     };
 
-    gpio_inst::gpio_inst( unsigned id )
+    gpio_helper::gpio_helper( unsigned id )
         :impl_(new impl(id))
     { }
 
-    gpio_inst::~gpio_inst( )
+    gpio_helper::~gpio_helper( )
     {
         delete impl_;
     }
 
-    bool gpio_inst::exists( ) const
+    bool gpio_helper::exists( ) const
     {
         return bfs::exists( impl_->path_ );
     }
 
-    unsigned gpio_inst::id( ) const
+    unsigned gpio_helper::id( ) const
     {
         impl_->id_;
     }
 
-    void gpio_inst::exp( ) const
+    void gpio_helper::exp( ) const
     {
-        write_to_file( gpio_export_path,
-                       impl_->id_lit_.c_str( ), impl_->id_lit_.size( ) + 1 );
+        impl_->exp( );
     }
 
-    void gpio_inst::unexp( ) const
+    void gpio_helper::unexp( ) const
     {
-        write_to_file( gpio_unexport_path,
-                       impl_->id_lit_.c_str( ), impl_->id_lit_.size( ) + 1 );
-
+        impl_->unexp( );
     }
 
-    gpio::direction_type gpio_inst::direction( ) const
+    gpio::direction_type gpio_helper::direction( ) const
     {
         std::ostringstream oss;
 
@@ -142,7 +164,7 @@ namespace fr { namespace server {
         }
     }
 
-    void  gpio_inst::set_direction( gpio::direction_type val ) const
+    void  gpio_helper::set_direction( gpio::direction_type val ) const
     {
         std::ostringstream oss;
         oss << impl_->path_ << "/" << direction_name;
@@ -151,7 +173,7 @@ namespace fr { namespace server {
                        direct_index[val].c_str( ), direct_index[val].size( ) );
     }
 
-    gpio::edge_type gpio_inst::edge( ) const
+    gpio::edge_type gpio_helper::edge( ) const
     {
         std::ostringstream oss;
         oss << impl_->path_ << "/" << edge_name;
@@ -170,7 +192,7 @@ namespace fr { namespace server {
         }
     }
 
-    void  gpio_inst::set_edge( gpio::edge_type val ) const
+    void  gpio_helper::set_edge( gpio::edge_type val ) const
     {
         std::ostringstream oss;
         oss << impl_->path_ << "/" << edge_name;
@@ -178,7 +200,7 @@ namespace fr { namespace server {
                        edge_index[val].c_str( ), edge_index[val].size( ) );
     }
 
-    unsigned gpio_inst::value( ) const
+    unsigned gpio_helper::value( ) const
     {
         std::ostringstream oss;
         oss << impl_->path_ << "/" << value_name;
@@ -188,7 +210,7 @@ namespace fr { namespace server {
         return pos[0] - '0';
     }
 
-    void gpio_inst::set_value( unsigned val ) const
+    void gpio_helper::set_value( unsigned val ) const
     {
         char data[2] = {0};
         data[0] = char(val + '0');
