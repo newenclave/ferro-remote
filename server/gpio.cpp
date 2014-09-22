@@ -126,7 +126,9 @@ namespace fr { namespace server {
     gpio::direction_type gpio_inst::direction( ) const
     {
         std::ostringstream oss;
-        oss << impl_->id_lit_ << "/" << direction_name;
+
+        oss << impl_->path_ << "/" << direction_name;
+
         std::string pos = read_from_file( oss.str( ) );
         if( pos == direct_index[gpio::DIRECT_IN] ) {
             return gpio::DIRECT_IN;
@@ -140,7 +142,8 @@ namespace fr { namespace server {
     void  gpio_inst::set_direction( gpio::direction_type val ) const
     {
         std::ostringstream oss;
-        oss << impl_->id_lit_ << "/" << direction_name;
+        oss << impl_->path_ << "/" << direction_name;
+
         write_to_file( oss.str( ),
                        direct_index[val].c_str( ), direct_index[val].size( ) );
     }
@@ -148,7 +151,7 @@ namespace fr { namespace server {
     gpio::edge_type gpio_inst::edge( ) const
     {
         std::ostringstream oss;
-        oss << impl_->id_lit_ << "/" << edge_name;
+        oss << impl_->path_ << "/" << edge_name;
 
         std::string pos = read_from_file( oss.str( ) );
         if( pos == edge_index[gpio::EDGE_NONE] ) {
@@ -167,7 +170,7 @@ namespace fr { namespace server {
     void  gpio_inst::set_edge( gpio::edge_type val ) const
     {
         std::ostringstream oss;
-        oss << impl_->id_lit_ << "/" << edge_name;
+        oss << impl_->path_ << "/" << edge_name;
         write_to_file( oss.str( ),
                        edge_index[val].c_str( ), edge_index[val].size( ) );
     }
@@ -175,7 +178,7 @@ namespace fr { namespace server {
     unsigned gpio_inst::value( ) const
     {
         std::ostringstream oss;
-        oss << impl_->id_lit_ << "/" << value_name;
+        oss << impl_->path_ << "/" << value_name;
 
         std::string pos = read_from_file( oss.str( ) );
         assert( pos[0] == '0' || pos[0] == '1' );
@@ -186,7 +189,7 @@ namespace fr { namespace server {
     {
         char data = char(val + '0');
         std::ostringstream oss;
-        oss << impl_->id_lit_ << "/" << value_name;
+        oss << impl_->path_ << "/" << value_name;
         write_to_file( oss.str( ), &data, 1 );
     }
 
