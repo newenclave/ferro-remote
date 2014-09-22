@@ -13,6 +13,8 @@ namespace fr { namespace server {
 
     namespace {
 
+        namespace vcomm = vtrc::common;
+
         const std::string direct_index[ ] = {
             std::string( "in" ), std::string( "out" )
         };
@@ -123,32 +125,69 @@ namespace fr { namespace server {
 
     gpio::direction_type gpio_inst::direction( ) const
     {
-
+        std::ostringstream oss;
+        oss << impl_->id_lit_ << "/" << direction_name;
+        std::string pos = read_from_file( oss.str( ) );
+        if( pos == direct_index[gpio::DIRECT_IN] ) {
+            return gpio::DIRECT_IN;
+        } else if( pos == direct_index[gpio::DIRECT_OUT] ) {
+            return gpio::DIRECT_OUT;
+        } else {
+            vcomm::throw_system_error( EINVAL, pos.c_str( ) );
+        }
     }
 
     void  gpio_inst::set_direction( gpio::direction_type val ) const
     {
-
+        std::ostringstream oss;
+        oss << impl_->id_lit_ << "/" << direction_name;
+        write_to_file( oss.str( ),
+                       direct_index[val].c_str( ), direct_index[val].size( ) );
     }
 
     gpio::edge_type gpio_inst::edge( ) const
     {
+        std::ostringstream oss;
+        oss << impl_->id_lit_ << "/" << edge_name;
 
+        std::string pos = read_from_file( oss.str( ) );
+        if( pos == edge_index[gpio::EDGE_NONE] ) {
+            return gpio::EDGE_NONE;
+        } else if( pos == edge_index[gpio::EDGE_RISING] ) {
+            return gpio::EDGE_RISING;
+        } else if( pos == edge_index[gpio::EDGE_FALLING] ) {
+            return gpio::EDGE_FALLING;
+        } else if( pos == edge_index[gpio::EDGE_BOTH] ) {
+            return gpio::EDGE_BOTH;
+        } else {
+            vcomm::throw_system_error( EINVAL, pos.c_str( ) );
+        }
     }
 
     void  gpio_inst::set_edge( gpio::edge_type val ) const
     {
-
+        std::ostringstream oss;
+        oss << impl_->id_lit_ << "/" << edge_name;
+        write_to_file( oss.str( ),
+                       edge_index[val].c_str( ), edge_index[val].size( ) );
     }
 
     unsigned gpio_inst::value( ) const
     {
+        std::ostringstream oss;
+        oss << impl_->id_lit_ << "/" << value_name;
 
+        std::string pos = read_from_file( oss.str( ) );
+        assert( pos[0] == '0' || pos[0] == '1' );
+        return pos[0] - '0';
     }
 
     void gpio_inst::set_value( unsigned val ) const
     {
-
+        char data = char(val + '0');
+        std::ostringstream oss;
+        oss << impl_->id_lit_ << "/" << value_name;
+        write_to_file( oss.str( ), &data, 1 );
     }
 
 }}

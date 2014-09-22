@@ -5,6 +5,8 @@
 
 #include "protocol/gpio.pb.h"
 
+#include "gpio.h"
+
 namespace fr { namespace server { namespace subsys {
 
     namespace {
@@ -82,6 +84,11 @@ namespace fr { namespace server { namespace subsys {
     void gpio::start( )
     {
         impl_->reg_creator( gpio_impl::name( ),  create_service );
+        gpio_inst i(74);
+        i.exp(  );
+        i.set_direction( server::gpio::DIRECT_OUT );
+        i.set_value( 1 );
+        i.unexp( );
     }
 
     void gpio::stop( )
