@@ -24,6 +24,8 @@ namespace interfaces { namespace gpio {
     struct iface {
         virtual ~iface( ) { }
 
+        virtual unsigned id( ) const = 0;
+
         virtual unsigned value( ) const = 0;
         virtual void  set_value( unsigned value ) const = 0;
 

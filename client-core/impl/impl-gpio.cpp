@@ -70,6 +70,11 @@ namespace fr { namespace client { namespace interfaces {
                 hdl_ = open_setup_inst( client_, id_, setup );
             }
 
+            unsigned id( ) const
+            {
+                return id_;
+            }
+
             unsigned value( ) const override
             {
                 gproto::info_req    req;
