@@ -33,6 +33,10 @@ namespace fr { namespace cc { namespace cmd {
                                     (igpio::create_output( client, 22, 1 ) );
                 //sleep( 5 );
                 time_point start = vtrc::chrono::high_resolution_clock::now( );
+                for( int i = 0; i<1000; ++i ) {
+                    ptr->set_value( i % 2 );
+                    usleep( 40000 );
+                }
                 ptr->set_value( 0 );
                 time_point stop = vtrc::chrono::high_resolution_clock::now( );
                 std::cout << vtrc::chrono::duration_cast<
