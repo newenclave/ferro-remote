@@ -3,6 +3,7 @@
 
 #include <errno.h>
 #include <string.h>
+#include <sstream>
 
 #include "vtrc-common/vtrc-exception.h"
 

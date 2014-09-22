@@ -7,6 +7,8 @@
 #include <unistd.h>
 #include <stdint.h>
 
+#include "errno-check.h"
+
 #include "vtrc-common/vtrc-exception.h"
 
 #include "vtrc-memory.h"
@@ -83,12 +85,10 @@ namespace fr { namespace server {
         int create_epoll( int stop_event )
         {
             int res = epoll_create( 64 );
+            errno_error::errno_assert( -1 != res, "epoll_create" );
+
+            res = add_fd_to_epoll( res, stop_event, EPOLLIN | EPOLLET, NULL );
             if( -1 == res ) {
-                vcomm::throw_system_error( errno, "epoll_create" );
-            }
-            if( -1 == add_fd_to_epoll( res, stop_event,
-                                       EPOLLIN | EPOLLET, NULL ) )
-            {
                 close( res );
                 vcomm::throw_system_error( errno, "epoll_ctl" );
             }
@@ -142,15 +142,21 @@ namespace fr { namespace server {
 
                 handle_reaction_sptr new_react(
                             vtrc::make_shared<handle_reaction>(fd));
+
                 new_react->call_ = cb;
 
-                vtrc::upgrade_to_unique utl(lck);
+                int res = add_fd_to_epoll( poll_fd_.hdl( ),
+                                           fd, flags, new_react.get( ) );
 
+                errno_error::errno_assert( -1 != res, "epoll_ctl" );
+                vtrc::upgrade_to_unique utl(lck);
                 react_[fd] = new_react;
-                add_fd_to_epoll( poll_fd_.hdl( ), fd, flags, new_react.get( ) );
+
+
             } else {
                 f->second->call_ = cb;
-                modify_fd_epoll( poll_fd_.hdl( ), fd, flags );
+                int res = modify_fd_epoll( poll_fd_.hdl( ), fd, flags );
+                errno_error::errno_assert( -1 != res, "epoll_ctl" );
             }
         }
 
