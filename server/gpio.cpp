@@ -56,9 +56,7 @@ namespace fr { namespace server {
             int fd = open( path.c_str( ), O_WRONLY );
             errno_error::errno_assert( fd != -1, "open" );
 
-            std::cout << "write to file " << path << ":" << fd << "\n";
-
-            int res = write( res, data, length );
+            int res = write( fd, data, length );
 
             if( -1 == res ) {
                 close( fd );
@@ -72,7 +70,7 @@ namespace fr { namespace server {
             char buf[256];
             int fd = open( path.c_str( ), O_RDONLY );
             errno_error::errno_assert( fd != -1, "open" );
-            int res = read( res, buf, 256 );
+            int res = read( fd, buf, 256 );
             if( -1 == res ) {
                 close( fd );
                 errno_error::throw_error( "read" );
