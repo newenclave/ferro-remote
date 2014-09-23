@@ -96,7 +96,7 @@ namespace fr { namespace server { namespace subsys {
                 for( gpio_map::iterator b(gpio_.begin( )), e(gpio_.end( ));
                      b != e; ++b )
                 {
-                    reactor_.del_fd( b->value_fd( ) );
+                    reactor_.del_fd( b->second->value_fd( ) );
                 }
 
             } catch( ... ) { }
