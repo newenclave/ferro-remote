@@ -224,7 +224,7 @@ namespace fr { namespace server {
 
     int gpio_helper::open_value_for_read( ) const
     {
-        int res = open( impl_->value_path_.c_str( ), O_RDONLY | O_NONBLOCK );
+        int res = open( impl_->value_path_.c_str( ), O_RDWR | O_NONBLOCK );
         if( -1 == res ) {
             vcomm::throw_system_error( errno, "open" );
         }
