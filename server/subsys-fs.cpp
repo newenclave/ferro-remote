@@ -318,7 +318,9 @@ namespace fr { namespace server { namespace subsys {
                 response->mutable_hdl( )->set_value( hdl );
                 response->set_end( iter == bfs::directory_iterator( ));
                 if( !response->end( ) ) {
-                    response->set_path( iter->path( ).string( ) );
+                    std::string path( iter->path( ).string( ) );
+                    response->set_path( path );
+                    fill_info( path, response->mutable_info( ) );
                 }
             }
 
