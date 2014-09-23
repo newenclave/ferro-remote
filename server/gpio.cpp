@@ -67,21 +67,26 @@ namespace fr { namespace server {
             errno_error::errno_assert( res != -1, "write" );
         }
 
-        std::string read_from_file( const std::string &path )
+        std::string read_from_file( int fd )
         {
             static const size_t buffer_length = 32;
 
             std::vector<char> buf( buffer_length );
 
-            file_keeper fd( open( path.c_str( ), O_RDONLY ) );
-
-            errno_error::errno_assert( fd.hdl( ) != -1, "open" );
-
-            int res = read( fd.hdl( ), &buf[0], buffer_length );
+            int res = read( fd, &buf[0], buffer_length );
 
             errno_error::errno_assert( res != -1, "read" );
 
             return std::string( &buf[0] );
+        }
+
+        std::string read_from_file( const std::string &path )
+        {
+            file_keeper fd( open( path.c_str( ), O_RDONLY ) );
+
+            errno_error::errno_assert( fd.hdl( ) != -1, "open" );
+
+            return read_from_file( fd.hdl( ) );
         }
 
         bool check_name( const std::string &test, const std::string &templ )
@@ -229,7 +234,7 @@ namespace fr { namespace server {
 
     unsigned gpio_helper::value( ) const
     {
-        std::string pos = read_from_file( impl_->value_path_ );
+        std::string pos = read_from_file( value_fd( ) );
         assert( pos[0] == '0' || pos[0] == '1' );
         return pos[0] - '0';
     }
