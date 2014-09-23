@@ -51,8 +51,7 @@ namespace interfaces { namespace filesystem {
 
     struct directory_iterator_impl;
 
-    class directory_iterator: public directory_iterator_traits
-    {
+    class directory_iterator: public directory_iterator_traits {
 
         directory_iterator_impl *impl_;
 
