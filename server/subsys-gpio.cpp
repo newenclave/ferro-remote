@@ -40,6 +40,7 @@ namespace fr { namespace server { namespace subsys {
         typedef vtrc::shared_ptr<vcomm::rpc_channel> rpc_channel_sptr;
 
         typedef vtrc::shared_ptr<server::gpio_helper> gpio_sptr;
+        typedef vtrc::weak_ptr<server::gpio_helper> gpio_wptr;
 
         typedef std::map<vtrc::uint32_t, gpio_sptr> gpio_map;
 
@@ -221,13 +222,15 @@ namespace fr { namespace server { namespace subsys {
 
             void value_changed( vtrc::uint32_t hdl,
                                 unsigned events,
-                                int fd, gpio_sptr gpio,
+                                int fd, gpio_wptr &weak_gpio,
                                 vcomm::connection_iface_wptr cli ) try
             {
                 vcomm::connection_iface_sptr lck( cli.lock( ) );
                 if( !lck ) {
                     return;
                 }
+
+                gpio_sptr gpio( weak_gpio.lock( ) );
 
                 std::string          err;
                 unsigned             error_code;
@@ -265,13 +268,12 @@ namespace fr { namespace server { namespace subsys {
                 gpio_sptr g( gpio_by_index( request->value( ) ) );
 
                 int fd = g->open_value_for_read( );
-                std::cout << "Open hdl: " << fd << "\n";
 
                 server::reaction_callback
                         cb( vtrc::bind( &gpio_impl::value_changed, this,
                                          request->value( ),
                                          vtrc::placeholders::_1,
-                                         fd, g, client_) );
+                                         fd, gpio_wptr(g), client_) );
 
                 reactor_.add_fd( fd, EPOLLET | EPOLLPRI, cb );
                 std::cout << "add ok: " << fd << "\n";
