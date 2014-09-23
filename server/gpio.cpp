@@ -226,6 +226,7 @@ namespace fr { namespace server {
     {
         int res = open( impl_->value_path_.c_str( ), O_RDWR | O_NONBLOCK );
         std::cout << "Open failed: " << errno
+                  << " " << res
                   << " " << impl_->value_path_.c_str( )
                   << "\n";
 
