@@ -84,6 +84,13 @@ namespace fr { namespace server {
             return std::string( &buf[0] );
         }
 
+        bool check_name( const std::string &test, const std::string &templ )
+        {
+            size_t max = test.size( ) > templ.size( )
+                       ? templ.size( ) : test.size( );
+            return (memcmp( test.c_str( ), templ.c_str( ), max ) == 0);
+        }
+
     }
 
     struct gpio_helper::impl {
@@ -164,9 +171,9 @@ namespace fr { namespace server {
 
         std::string pos = read_from_file( oss.str( ) );
 
-        if( pos == direct_index[gpio::DIRECT_IN] ) {
+        if( check_name(pos, direct_index[gpio::DIRECT_IN]) ) {
             return gpio::DIRECT_IN;
-        } else if( pos == direct_index[gpio::DIRECT_OUT] ) {
+        } else if( check_name(pos, direct_index[gpio::DIRECT_OUT]) ) {
             return gpio::DIRECT_OUT;
         } else {
             vcomm::throw_system_error( EINVAL, pos.c_str( ) );
@@ -190,13 +197,13 @@ namespace fr { namespace server {
 
         std::string pos = read_from_file( oss.str( ) );
 
-        if( pos == edge_index[gpio::EDGE_NONE] ) {
+        if( check_name(pos, edge_index[gpio::EDGE_NONE]) ) {
             return gpio::EDGE_NONE;
-        } else if( pos == edge_index[gpio::EDGE_RISING] ) {
+        } else if( check_name(pos, edge_index[gpio::EDGE_RISING]) ) {
             return gpio::EDGE_RISING;
-        } else if( pos == edge_index[gpio::EDGE_FALLING] ) {
+        } else if( check_name(pos, edge_index[gpio::EDGE_FALLING]) ) {
             return gpio::EDGE_FALLING;
-        } else if( pos == edge_index[gpio::EDGE_BOTH] ) {
+        } else if( check_name(pos, edge_index[gpio::EDGE_BOTH]) ) {
             return gpio::EDGE_BOTH;
         } else {
             vcomm::throw_system_error( EINVAL, pos.c_str( ) );
