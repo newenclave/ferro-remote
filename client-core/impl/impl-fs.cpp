@@ -11,7 +11,6 @@
 
 namespace fr { namespace client { namespace interfaces {
 
-
     namespace {
 
         namespace vcomm = vtrc::common;
