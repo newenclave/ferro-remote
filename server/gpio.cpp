@@ -18,12 +18,12 @@ namespace fr { namespace server {
         namespace vcomm = vtrc::common;
 
         const std::string direct_index[ ] = {
-            std::string( "in" ), std::string( "out" )
+            std::string( "in\n" ), std::string( "out\n" )
         };
 
         const std::string edge_index[ ] = {
-            std::string( "none" ),    std::string( "rising" ),
-            std::string( "falling" ), std::string( "both" )
+            std::string( "none\n" ),    std::string( "rising\n" ),
+            std::string( "falling\n" ), std::string( "both\n" )
         };
 
         namespace bfs = boost::filesystem;
@@ -215,7 +215,8 @@ namespace fr { namespace server {
         std::ostringstream oss;
         oss << impl_->path_ << "/" << edge_name;
         write_to_file( oss.str( ),
-                       edge_index[val].c_str( ), edge_index[val].size( ) + 1 );
+                       edge_index[val].c_str( ),
+                       edge_index[val].size( ) + 1 );
     }
 
     unsigned gpio_helper::value( ) const
