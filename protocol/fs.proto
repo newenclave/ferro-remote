@@ -154,9 +154,9 @@ service file {
     rpc read(  file_data_block )  returns ( file_data_block );
     rpc write( file_data_block )  returns ( file_data_block );
 
-    rpc flush( handle )        returns ( empty );
+    rpc flush( handle )  returns ( empty );
 
-    rpc close( handle)         returns ( empty );
+    rpc close( handle)   returns ( empty );
 
 }
 
