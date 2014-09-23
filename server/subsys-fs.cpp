@@ -123,7 +123,7 @@ namespace fr { namespace server { namespace subsys {
             {
                 bfs::path p(request->path( ));
 
-                if( !request->has_handle( ) || p.is_absolute( ) ) {
+                if( !request->has_hdl( ) || p.is_absolute( ) ) {
                     /// ok. new instance requested
                     p.normalize( );
                     hdl = next_index( );
@@ -131,7 +131,7 @@ namespace fr { namespace server { namespace subsys {
                 } else {
 
                     /// old path must be used
-                    hdl = request->handle( ).value( );
+                    hdl = request->hdl( ).value( );
 
                     vtrc::shared_lock l( path_lock_ );
                     path_map::const_iterator f( path_.find( hdl ) );
@@ -161,7 +161,7 @@ namespace fr { namespace server { namespace subsys {
                     path_.insert( std::make_pair( hdl, p ) );
                 }
 
-                response->mutable_handle( )->set_value( hdl );
+                response->mutable_hdl( )->set_value( hdl );
                 response->set_path( p.string( ) );
 
             }
@@ -175,7 +175,7 @@ namespace fr { namespace server { namespace subsys {
 
                 vtrc::upgradable_lock ul( path_lock_ );
 
-                vtrc::uint32_t hdl( request->handle( ).value( ) );
+                vtrc::uint32_t hdl( request->hdl( ).value( ) );
 
                 path_map::iterator f( path_.find( hdl ) );
 
@@ -186,6 +186,7 @@ namespace fr { namespace server { namespace subsys {
                 bfs::path p(f->second / request->path( ));
                 p.normalize( );
 
+                response->set_path( p.string( ) );
                 /// set new path
                 vtrc::upgrade_to_unique utul( ul );
                 f->second = p;
@@ -295,7 +296,7 @@ namespace fr { namespace server { namespace subsys {
                 vtrc::uint32_t hdl;
                 bfs::path p( path_from_request( request, hdl ) );
                 bfs::create_directories( p );
-                response->mutable_handle( )->set_value( hdl );
+                response->mutable_hdl( )->set_value( hdl );
             }
 
             void del(::google::protobuf::RpcController* /*controller*/,
@@ -307,14 +308,14 @@ namespace fr { namespace server { namespace subsys {
                 vtrc::uint32_t hdl = 0;
                 bfs::path p(path_from_request( request, hdl ));
                 bfs::remove( p );
-                response->mutable_handle( )->set_value( hdl );
+                response->mutable_hdl( )->set_value( hdl );
             }
 
             void fill_iter_info( const bfs::directory_iterator &iter,
                                  vtrc::uint32_t hdl,
                                  proto::fs::iterator_info* response)
             {
-                response->mutable_handle( )->set_value( hdl );
+                response->mutable_hdl( )->set_value( hdl );
                 response->set_end( iter == bfs::directory_iterator( ));
                 if( !response->end( ) ) {
                     response->set_path( iter->path( ).string( ) );
@@ -361,7 +362,7 @@ namespace fr { namespace server { namespace subsys {
             {
                 vcomm::closure_holder holder(done);
 
-                vtrc::uint32_t hdl( request->handle( ).value( ) );
+                vtrc::uint32_t hdl( request->hdl( ).value( ) );
                 vtrc::shared_lock usl( iters_lock_ );
 
                 bfs::directory_iterator &iter( get_iter_unsafe( hdl ) );
@@ -375,7 +376,7 @@ namespace fr { namespace server { namespace subsys {
                          ::google::protobuf::Closure* done) override
             {
                 vcomm::closure_holder holder(done);
-                vtrc::uint32_t hdl( request->handle( ).value( ) );
+                vtrc::uint32_t hdl( request->hdl( ).value( ) );
                 bfs::directory_iterator iter( get_iter( hdl ) );
                 fill_info( iter->path( ), response );
             }
@@ -387,7 +388,7 @@ namespace fr { namespace server { namespace subsys {
             {
                 vcomm::closure_holder holder(done);
 
-                vtrc::uint32_t hdl( request->handle( ).value( ) );
+                vtrc::uint32_t hdl( request->hdl( ).value( ) );
                 bfs::directory_iterator iter(get_iter( hdl ));
                 vtrc::uint32_t new_hdl = next_index( );
                 fill_iter_info( iter, hdl, response );

@@ -13,6 +13,7 @@ namespace interfaces { namespace filesystem {
 
     struct iface {
         virtual ~iface( ) { }
+        virtual bool exists( const std::string &path ) const = 0;
     };
 
     typedef iface* iface_ptr;

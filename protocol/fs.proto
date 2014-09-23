@@ -15,7 +15,7 @@ message empty { }
 
 // fs directory operations;
 message handle_path {
-    optional handle  handle = 1;
+    optional handle  hdl    = 1;
     optional string  path   = 2;
 }
 
@@ -45,9 +45,9 @@ message element_info {
 }
 
 message iterator_info {
-    optional handle     handle = 1;
-    optional string     path   = 2; // path
-    optional bool       end    = 3; // this is the last one
+    optional handle     hdl  = 1;
+    optional string     path = 2; // path
+    optional bool       end  = 3; // this is the last one
 }
 
 service instance {
