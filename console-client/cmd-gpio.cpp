@@ -32,17 +32,11 @@ namespace fr { namespace cc { namespace cmd {
                 vtrc::unique_ptr<igpio::iface> ptr
                                     ( igpio::create( client, 3 ) );
 
-                std::cout << "stage 1\n";
                 ptr->export_device( );
-                std::cout << "stage 2\n";
                 ptr->set_direction( igpio::DIRECT_IN );
-                std::cout << "stage 3\n";
                 ptr->set_edge( igpio::EDGE_BOTH );
-                std::cout << "stage 4\n";
                 ptr->register_for_change( );
-                std::cout << "stage 5\n";
-
-                sleep( 20 );
+                sleep( 15 );
             }
 
             void add_options( po::options_description &desc )
