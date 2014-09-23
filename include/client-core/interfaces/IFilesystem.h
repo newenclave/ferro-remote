@@ -72,10 +72,7 @@ namespace interfaces { namespace filesystem {
         bool operator == (const directory_iterator& rhs) const;
         bool operator != (const directory_iterator& rhs) const;
 
-        const value_type& operator *( );
         const value_type& operator *( ) const;
-
-        const value_type* operator -> ( );
         const value_type* operator -> ( ) const;
 
         const info_data &info( ) const;

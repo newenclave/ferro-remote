@@ -23,6 +23,7 @@ namespace filesystem {
 
     struct directory_iterator_impl {
 
+
         vtrc::shared_ptr<vcomm::rpc_channel> channel_;
 
         mutable client_type   client_;
@@ -96,6 +97,8 @@ namespace filesystem {
         }
     };
 
+    typedef directory_iterator::value_type iterator_value_type;
+
     directory_iterator::directory_iterator(directory_iterator_impl *impl )
         :impl_(impl)
     { }
@@ -151,26 +154,13 @@ namespace filesystem {
         return !(operator == ( r ));
     }
 
-    const directory_iterator::value_type& directory_iterator::operator *( )
+    const iterator_value_type& directory_iterator::operator *( ) const
     {
         if( !impl_ ) throw std::runtime_error( "Bad iterator" );
         return impl_->val_;
     }
 
-    const directory_iterator::value_type&
-                                      directory_iterator::operator *( ) const
-    {
-        if( !impl_ ) throw std::runtime_error( "Bad iterator" );
-        return impl_->val_;
-    }
-
-    const directory_iterator::value_type* directory_iterator::operator -> ( )
-    {
-        return &(operator *( ));
-    }
-
-    const directory_iterator::value_type*
-                                    directory_iterator::operator -> ( ) const
+    const iterator_value_type* directory_iterator::operator -> ( ) const
     {
         return &(operator *( ));
     }
