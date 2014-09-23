@@ -1,6 +1,8 @@
 #ifndef FR_INTERFACE_FILESYSTEM_H
 #define FR_INTERFACE_FILESYSTEM_H
 
+#include <string>
+
 namespace fr { namespace client {
 
 namespace core {

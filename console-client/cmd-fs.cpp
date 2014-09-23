@@ -31,8 +31,7 @@ namespace fr { namespace cc { namespace cmd {
                     vtrc::unique_ptr<fiface::iface>
                             f(fiface::create( client, p,
                                               fiface::flags::RDONLY ));
-                    f->seek( 0, fiface::POS_SEEK_END );
-                    std::cout << f->tell(  ) << "\n";
+                    std::cout << f->seek( 0, fiface::POS_SEEK_END ) << "\n";
                 }
             }
 
