@@ -128,6 +128,7 @@ namespace fr { namespace server {
                 int res = add_fd_to_epoll( poll_fd_.hdl( ), fd, events, NULL );
 
                 std::cout << "add failed: " << errno
+                          << " " << poll_fd_.hdl( )
                           << " " << res
                           << "\n";
 
