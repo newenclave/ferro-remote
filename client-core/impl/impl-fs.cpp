@@ -30,15 +30,12 @@ namespace filesystem {
         vtrc::uint32_t        hdl_;
         iterator_value        val_;
         bool                  end_;
-        mutable info_data     info_;
-        mutable bool          info_clean_;
 
         directory_iterator_impl( const vtrc::shared_ptr<vcomm::rpc_channel> &c,
               const fproto::iterator_info &info )
             :channel_(c)
             ,client_(channel_)
             ,hdl_(info.hdl( ).value( ))
-            ,info_clean_(false)
         {
             copy_data( info );
         }
@@ -47,7 +44,6 @@ namespace filesystem {
         {
             val_.path   = info.path( );
             end_        = info.end( );
-            info_clean_ = false;
         }
 
         directory_iterator_impl *clone( ) const
@@ -80,21 +76,6 @@ namespace filesystem {
             return val_;
         }
 
-        const info_data &info( ) const
-        {
-            if( !info_clean_ ) {
-                fproto::iterator_info req;
-                fproto::element_info  res;
-                client_.call( &stub_type::iter_info, &req, &res );
-                info_.is_directory = res.is_directory( );
-                info_.is_exist     = res.is_exist( );
-                info_.is_empty     = res.is_empty( );
-                info_.is_regular   = res.is_regular( );
-                info_.is_symlink   = res.is_symlink( );
-                info_clean_        = true;
-            }
-            return info_;
-        }
     };
 
     typedef directory_iterator::value_type iterator_value_type;
