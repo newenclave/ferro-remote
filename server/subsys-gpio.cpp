@@ -238,6 +238,8 @@ namespace fr { namespace server { namespace subsys {
                     response->set_edge( g->edge( ) );
                 }
 
+                std::cout << response->DebugString( ) << "\n";
+
             }
 
             void close(::google::protobuf::RpcController* /*controller*/,
