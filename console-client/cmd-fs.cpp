@@ -33,8 +33,9 @@ namespace fr { namespace cc { namespace cmd {
                     std::string p(vm["path"].as<std::string>( ));
                     vtrc::unique_ptr<fs::iface> i( fs::create( cl, p ) );
                     for( auto &d: *i ) {
-                        std::cout << d.path << "\n";
+                        std::cout << d.path << "\t";
                     }
+                    std::cout << "\n";
                 }
             }
 

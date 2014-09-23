@@ -50,6 +50,13 @@ namespace fr { namespace server {
             return oss.str( );
         }
 
+        std::string value_path_string( unsigned id )
+        {
+            std::ostringstream oss;
+            oss << make_gpio_path( id ) << "/" << value_name;
+            return oss.str( );
+        }
+
         void write_to_file( const std::string &path,
                             const char *data, size_t length )
         {
@@ -82,28 +89,31 @@ namespace fr { namespace server {
     struct gpio_helper::impl {
 
         unsigned     id_;
-        std::string  id_lit_;
         std::string  path_;
+        std::string  value_path_;
         mutable bool own_export_;
 
         impl( unsigned id )
             :id_(id)
-            ,id_lit_(id_to_string(id_))
             ,path_(make_gpio_path(id_))
+            ,value_path_(value_path_string(id_))
             ,own_export_(false)
         { }
 
         void exp( ) const
         {
+            std::string id_lit(id_to_string(id_));
+
             write_to_file( gpio_export_path,
-                           id_lit_.c_str( ), id_lit_.size( ) + 1 );
+                           id_lit.c_str( ), id_lit.size( ) + 1 );
             own_export_ = true;
         }
 
         void unexp( ) const
         {
+            std::string id_lit(id_to_string(id_));
             write_to_file( gpio_unexport_path,
-                           id_lit_.c_str( ), id_lit_.size( ) + 1 );
+                           id_lit.c_str( ), id_lit.size( ) + 1 );
             own_export_ = false;
         }
 
@@ -200,10 +210,7 @@ namespace fr { namespace server {
 
     unsigned gpio_helper::value( ) const
     {
-        std::ostringstream oss;
-        oss << impl_->path_ << "/" << value_name;
-
-        std::string pos = read_from_file( oss.str( ) );
+        std::string pos = read_from_file( impl_->value_path_ );
         assert( pos[0] == '0' || pos[0] == '1' );
         return pos[0] - '0';
     }
@@ -212,16 +219,12 @@ namespace fr { namespace server {
     {
         char data[2] = {0};
         data[0] = char(val + '0');
-        std::ostringstream oss;
-        oss << impl_->path_ << "/" << value_name;
-        write_to_file( oss.str( ), data, 2 );
+        write_to_file( impl_->value_path_, data, 2 );
     }
 
     int gpio_helper::open_value_for_read( ) const
     {
-        std::ostringstream oss;
-        oss << impl_->path_ << "/" << value_name;
-        int res = open( oss.str( ).c_str( ), O_RDONLY );
+        int res = open( impl_->value_path_.c_str( ), O_RDONLY );
         if( -1 == res ) {
             vcomm::throw_system_error( errno, "open" );
         }
