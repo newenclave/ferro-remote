@@ -111,6 +111,7 @@ namespace fr { namespace server {
         {
             std::string id_lit(id_to_string(id_));
 
+            std::cout << "export " << id_ << "\n";
             write_to_file( gpio_export_path,
                            id_lit.c_str( ), id_lit.size( ) + 1 );
             own_export_ = true;
@@ -126,6 +127,7 @@ namespace fr { namespace server {
 
         ~impl( ) try {
             if( own_export_ ) {
+                std::cout << "Unexport " << id_ << "\n";
                 unexp( );
             }
         } catch ( ... ) {
