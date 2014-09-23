@@ -1,4 +1,6 @@
 
+#include <stdexcept>
+
 #include "client-core/interfaces/IFilesystem.h"
 
 #include "protocol/fs.pb.h"
