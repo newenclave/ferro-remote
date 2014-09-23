@@ -28,9 +28,9 @@ namespace fr { namespace server {
 
         namespace bfs = boost::filesystem;
 
-        const std::string gpio_sysfs_path(      "/sys/class/gpio" );
-        const std::string gpio_export_path(     "/sys/class/gpio/export" );
-        const std::string gpio_unexport_path(   "/sys/class/gpio/unexport" );
+        const std::string gpio_sysfs_path   ( "/sys/class/gpio"          );
+        const std::string gpio_export_path  ( "/sys/class/gpio/export"   );
+        const std::string gpio_unexport_path( "/sys/class/gpio/unexport" );
 
         const std::string value_name(     "value" );
         const std::string direction_name( "direction" );
