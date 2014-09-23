@@ -99,19 +99,20 @@ namespace fr { namespace server {
         std::string  path_;
         std::string  value_path_;
         mutable bool own_export_;
+        int          value_fd_;
 
         impl( unsigned id )
             :id_(id)
             ,path_(make_gpio_path(id_))
             ,value_path_(value_path_string(id_))
             ,own_export_(false)
+            ,value_fd_(-1)
         { }
 
         void exp( ) const
         {
             std::string id_lit(id_to_string(id_));
 
-            std::cout << "export " << id_ << "\n";
             write_to_file( gpio_export_path,
                            id_lit.c_str( ), id_lit.size( ) + 1 );
             own_export_ = true;
@@ -126,13 +127,17 @@ namespace fr { namespace server {
         }
 
         ~impl( ) try {
+            if( -1 != value_fd_ ) {
+                close( value_fd_ );
+            }
             if( own_export_ ) {
-                std::cout << "Unexport " << id_ << "\n";
                 unexp( );
             }
         } catch ( ... ) {
             ;;;
         }
+
+
 
     };
 
@@ -238,11 +243,14 @@ namespace fr { namespace server {
 
     int gpio_helper::open_value_for_read( ) const
     {
+        if( impl_->value_fd_ == -1  ) {
         int res = open( impl_->value_path_.c_str( ), O_RDONLY | O_NONBLOCK );
-        if( -1 == res ) {
-            vcomm::throw_system_error( errno, "open" );
+            if( -1 == res ) {
+                vcomm::throw_system_error( errno, "open" );
+            }
+            impl_->value_fd_ = res;
         }
-        return res;
+        return impl_->value_fd_;
     }
 
 }}
