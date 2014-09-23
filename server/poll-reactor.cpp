@@ -75,7 +75,7 @@ namespace fr { namespace server {
                 close( fd );
                 vcomm::throw_system_error( errno, "epoll_ctl" );
             }
-            return res;
+            return fd;
         }
 
         int create_event(  )
