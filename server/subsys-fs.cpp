@@ -101,7 +101,6 @@ namespace fr { namespace server { namespace subsys {
         typedef std::map<vtrc::uint32_t, bfs::path>               path_map;
         typedef std::map<vtrc::uint32_t, bfs::directory_iterator> iterator_map;
 
-
         class proto_fs_impl: public fr::protocol::fs::instance {
 
             path_map            path_;
@@ -320,7 +319,6 @@ namespace fr { namespace server { namespace subsys {
                 if( !response->end( ) ) {
                     std::string path( iter->path( ).string( ) );
                     response->set_path( path );
-                    fill_info( path, response->mutable_info( ) );
                 }
             }
 
@@ -354,7 +352,7 @@ namespace fr { namespace server { namespace subsys {
 
                 vtrc::unique_shared_lock usl( iters_lock_);
                 iters_.insert( std::make_pair( iter_hdl, new_iterator ) );
-                fill_iter_info(new_iterator, iter_hdl, response);
+                fill_iter_info( new_iterator, iter_hdl, response );
             }
 
             void iter_next(::google::protobuf::RpcController* /*controller*/,

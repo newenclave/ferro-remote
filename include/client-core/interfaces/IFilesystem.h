@@ -37,11 +37,50 @@ namespace interfaces { namespace filesystem {
         bool is_symlink;
     };
 
-    struct directory_iterator {
-        virtual ~directory_iterator( ) { }
+    struct iterator_value {
+        std::string path;
     };
 
-    typedef directory_iterator * directory_iterator_ptr;
+    inline bool operator == ( const iterator_value &l, const iterator_value &r )
+    { return  l.path == r.path; }
+
+
+    typedef std::iterator < std::input_iterator_tag,
+                            iterator_value
+                          > directory_iterator_traits;
+
+    struct directory_iterator_impl;
+
+    class directory_iterator: public directory_iterator_traits
+    {
+
+        directory_iterator_impl *impl_;
+
+    public:
+
+        directory_iterator( directory_iterator_impl *impl );
+
+        typedef directory_iterator_traits::value_type value_type;
+
+        directory_iterator( );
+
+        directory_iterator& operator = ( directory_iterator &other );
+        ~directory_iterator( );
+
+        directory_iterator& operator++( );
+        directory_iterator& operator++ ( int );
+
+        bool operator == (const directory_iterator& rhs) const;
+        bool operator != (const directory_iterator& rhs) const;
+
+        const value_type& operator *( );
+        const value_type& operator *( ) const;
+
+        const value_type* operator -> ( );
+        const value_type* operator -> ( ) const;
+
+        const info_data &info( ) const;
+    };
 
     struct iface {
 
@@ -60,13 +99,13 @@ namespace interfaces { namespace filesystem {
         virtual void mkdir( const std::string &path ) const = 0;
         virtual void del( const std::string &path )   const = 0;
 
+        virtual directory_iterator begin( ) const = 0;
+        virtual directory_iterator end( ) const = 0;
+
     };
 
     typedef iface* iface_ptr;
     iface_ptr create( core::client_core &cl, const std::string &path );
-
-    directory_iterator_ptr directory_begin( core::client_core &cl,
-                                            const std::string &path );
 
 
 }}}}

@@ -12,12 +12,171 @@
 namespace fr { namespace client { namespace interfaces {
 
     namespace {
-
         namespace vcomm = vtrc::common;
         namespace fproto = protocol::fs;
 
-        typedef fproto::instance::Stub    stub_type;
+        typedef fproto::instance::Stub          stub_type;
         typedef vcomm::stub_wrapper<stub_type>  client_type;
+    }
+
+namespace filesystem {
+
+    struct directory_iterator_impl {
+
+        vtrc::shared_ptr<vcomm::rpc_channel> channel_;
+
+        mutable client_type   client_;
+        vtrc::uint32_t        hdl_;
+        iterator_value        val_;
+        bool                  end_;
+        mutable info_data     info_;
+        mutable bool          info_clean_;
+
+        directory_iterator_impl( const vtrc::shared_ptr<vcomm::rpc_channel> &c,
+              const fproto::iterator_info &info )
+            :channel_(c)
+            ,client_(channel_)
+            ,hdl_(info.hdl( ).value( ))
+            ,info_clean_(false)
+        {
+            copy_data( info );
+        }
+
+        void copy_data( const fproto::iterator_info &info )
+        {
+            val_.path   = info.path( );
+            end_        = info.end( );
+            info_clean_ = false;
+        }
+
+        directory_iterator_impl *clone( ) const
+        {
+            fproto::iterator_info req_res;
+            client_.call( &stub_type::iter_clone, &req_res, &req_res );
+            return new directory_iterator_impl( channel_, req_res );
+        }
+
+        void next( )
+        {
+            fproto::iterator_info req_res;
+            req_res.mutable_hdl( )->set_value( hdl_ );
+            client_.call( &stub_type::iter_next, &req_res, &req_res );
+            copy_data( req_res );
+        }
+
+        bool end( ) const
+        {
+            return end_;
+        }
+
+        iterator_value &get( )
+        {
+            return val_;
+        }
+
+        const iterator_value &get( ) const
+        {
+            return val_;
+        }
+
+        const info_data &info( ) const
+        {
+            if( !info_clean_ ) {
+                fproto::iterator_info req;
+                fproto::element_info  res;
+                client_.call( &stub_type::iter_info, &req, &res );
+                info_.is_directory = res.is_directory( );
+                info_.is_exist     = res.is_exist( );
+                info_.is_empty     = res.is_empty( );
+                info_.is_regular   = res.is_regular( );
+                info_.is_symlink   = res.is_symlink( );
+                info_clean_ = true;
+            }
+            return info_;
+        }
+    };
+
+    directory_iterator::directory_iterator(directory_iterator_impl *impl )
+        :impl_(impl)
+    { }
+
+    directory_iterator::directory_iterator( )
+        :impl_(NULL)
+    { }
+
+    directory_iterator::~directory_iterator( )
+    {
+        if( impl_ ) {
+            delete impl_;
+        }
+    }
+
+    directory_iterator&
+            directory_iterator::operator = ( directory_iterator &other )
+    {
+        directory_iterator_impl * new_impl =
+                        other.impl_ ? other.impl_->clone( ) : NULL;
+        if( impl_ ) {
+            delete impl_;
+        }
+        impl_ = new_impl;
+        return *this;
+    }
+
+    directory_iterator& directory_iterator::operator ++ ( )
+    {
+        impl_->next( );
+        return *this;
+    }
+
+    directory_iterator& directory_iterator::operator++ ( int )
+    {
+        impl_->next( );
+        return *this;
+    }
+
+    bool directory_iterator::operator == (const directory_iterator& r) const
+    {
+        if( NULL == r.impl_ ) {
+            return impl_->end( );
+        }  else if( impl_->end( ) ) {
+            return r.impl_->end( );
+        } else {
+            return impl_->get( ) == r.impl_->get( );
+        }
+    }
+
+    bool directory_iterator::operator != (const directory_iterator& r) const
+    {
+        return !(operator == ( r ));
+    }
+
+    const directory_iterator::value_type& directory_iterator::operator *( )
+    {
+        if( !impl_ ) throw std::runtime_error( "Bad iterator" );
+        return impl_->val_;
+    }
+
+    const directory_iterator::value_type&
+                                      directory_iterator::operator *( ) const
+    {
+        if( !impl_ ) throw std::runtime_error( "Bad iterator" );
+        return impl_->val_;
+    }
+
+    const directory_iterator::value_type* directory_iterator::operator -> ( )
+    {
+        return &(operator *( ));
+    }
+
+    const directory_iterator::value_type*
+                                    directory_iterator::operator -> ( ) const
+    {
+        return &(operator *( ));
+    }
+}
+
+    namespace {
 
         vtrc::uint32_t open_fs_inst( client_type &cl, const std::string &path )
         {
@@ -30,12 +189,14 @@ namespace fr { namespace client { namespace interfaces {
 
         struct fs_impl: public filesystem::iface {
 
+            vtrc::shared_ptr<vcomm::rpc_channel> channel_;
             mutable client_type client_;
             std::string         path_;
             vtrc::uint32_t      hdl_;
 
             fs_impl( core::client_core &cl, const std::string &path )
-                :client_(cl.create_channel( ), true)
+                :channel_(cl.create_channel( ))
+                ,client_(channel_)
                 ,path_(path)
                 ,hdl_(open_fs_inst(client_, path_))
             { }
@@ -143,6 +304,23 @@ namespace fr { namespace client { namespace interfaces {
                 client_.call_request( &stub_type::del, &req );
             }
 
+            filesystem::directory_iterator begin( ) const override
+            {
+                fproto::handle_path     req;
+                fproto::iterator_info   res;
+                req.mutable_hdl( )->set_value( hdl_ );
+
+                client_.call( &stub_type::iter_begin, &req, &res );
+
+                return filesystem::directory_iterator(
+                   new filesystem::directory_iterator_impl( channel_, res ));
+            }
+
+            filesystem::directory_iterator end( ) const override
+            {
+                return filesystem::directory_iterator( );
+            }
+
         };
     }
 
@@ -151,13 +329,6 @@ namespace fr { namespace client { namespace interfaces {
         {
             return new fs_impl( cl, path );
         }
-
-        directory_iterator_ptr directory_begin( core::client_core &cl,
-                                                const std::string &path )
-        {
-
-        }
-
     }
 
 }}}

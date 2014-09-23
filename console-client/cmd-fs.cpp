@@ -1,11 +1,13 @@
 #include <iostream>
 
 #include "interfaces/IFile.h"
+#include "interfaces/IFilesystem.h"
 #include "command-iface.h"
 
 #include "boost/program_options.hpp"
 
 #include "interfaces/IOS.h"
+#include "vtrc-common/vtrc-exception.h"
 
 namespace fr { namespace cc { namespace cmd {
 
@@ -13,7 +15,8 @@ namespace fr { namespace cc { namespace cmd {
 
         namespace po = boost::program_options;
         namespace core = client::core;
-        namespace fiface = client::interfaces::file;
+        namespace fiface = client::interfaces::filesystem;
+        namespace fs = client::interfaces::filesystem;
 
         const char *cmd_name = "fs";
 
@@ -24,14 +27,14 @@ namespace fr { namespace cc { namespace cmd {
                 return cmd_name;
             }
 
-            void exec( po::variables_map &vm, core::client_core &client )
+            void exec( po::variables_map &vm, core::client_core &cl )
             {
                 if( vm.count( "path" ) ) {
                     std::string p(vm["path"].as<std::string>( ));
-                    vtrc::unique_ptr<fiface::iface>
-                            f(fiface::create( client, p,
-                                              fiface::flags::RDONLY ));
-                    std::cout << f->seek( 0, fiface::POS_SEEK_END ) << "\n";
+                    vtrc::unique_ptr<fs::iface> i( fs::create( cl, p ) );
+                    for( auto &d: *i ) {
+                        std::cout << d.path << "\n";
+                    }
                 }
             }
 
