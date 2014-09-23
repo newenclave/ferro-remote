@@ -234,7 +234,6 @@ namespace fr { namespace server {
     unsigned gpio_helper::value( ) const
     {
         std::string pos = read_from_file( value_fd( ) );
-        std::cout << "Value: " << pos << "\n";
         assert( pos[0] == '0' || pos[0] == '1' );
         return pos[0] - '0';
     }
