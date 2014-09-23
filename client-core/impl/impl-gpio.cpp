@@ -1,5 +1,5 @@
 
-#include "interfaces/IGPIO.h"
+#include "client-core/interfaces/IGPIO.h"
 #include "protocol/gpio.pb.h"
 
 #include "client-core/fr-client.h"

@@ -1,5 +1,5 @@
 
-#include "interfaces/IFile.h"
+#include "client-core/interfaces/IFile.h"
 #include "protocol/fs.pb.h"
 
 #include "client-core/fr-client.h"

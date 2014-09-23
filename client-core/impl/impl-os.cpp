@@ -1,5 +1,5 @@
 
-#include "interfaces/IOS.h"
+#include "client-core/interfaces/IOS.h"
 #include "protocol/os.pb.h"
 
 #include "client-core/fr-client.h"
