@@ -13,7 +13,7 @@ namespace core {
 namespace interfaces { namespace filesystem {
 
 
-    struct path_stat {          /*            man 2 stat            */
+    struct stat_data {          /*            man 2 stat            */
         vtrc::uint64_t dev;     /* ID of device containing file     */
         vtrc::uint64_t ino;     /* inode number                     */
         vtrc::uint32_t mode;    /* protection                       */
@@ -32,7 +32,7 @@ namespace interfaces { namespace filesystem {
     struct iface {
         virtual ~iface( ) { }
         virtual bool exists( const std::string &path ) const = 0;
-        virtual bool stat( const std::string &path, path_stat &data ) const = 0;
+        virtual bool stat( const std::string &path, stat_data &data ) const = 0;
     };
 
     typedef iface* iface_ptr;

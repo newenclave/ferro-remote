@@ -70,7 +70,7 @@ namespace fr { namespace client { namespace interfaces {
 #define SET_STAT_FIELD( data, stat, field ) data.field = stat.field( )
 
             bool stat( const std::string &path,
-                       filesystem::path_stat &data ) const override
+                       filesystem::stat_data &data ) const override
             {
                 fproto::handle_path     req;
                 fill_request( req, path );
