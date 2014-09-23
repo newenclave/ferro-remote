@@ -263,6 +263,7 @@ namespace fr { namespace server { namespace subsys {
                 }
 
                 events.on_state_change( NULL, &req, NULL, NULL );
+                std::cout << "Send Ok\n";
 
             } catch( ... ) { ;;; }
 

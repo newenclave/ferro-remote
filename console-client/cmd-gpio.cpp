@@ -42,7 +42,7 @@ namespace fr { namespace cc { namespace cmd {
                 ptr->register_for_change( );
                 std::cout << "stage 5\n";
 
-                sleep( 30 );
+                sleep( 20 );
             }
 
             void add_options( po::options_description &desc )
