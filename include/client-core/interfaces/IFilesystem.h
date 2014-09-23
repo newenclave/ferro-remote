@@ -67,7 +67,7 @@ namespace interfaces { namespace filesystem {
         directory_iterator& operator = ( directory_iterator &other );
         ~directory_iterator( );
 
-        directory_iterator& operator++( );
+        directory_iterator& operator++ ( );
         directory_iterator& operator++ ( int );
 
         bool operator == (const directory_iterator& rhs) const;
