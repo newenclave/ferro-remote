@@ -38,7 +38,7 @@ namespace fr { namespace cc { namespace cmd {
                 ptr->set_direction( igpio::DIRECT_IN );
                 std::cout << "3\n";
                 ptr->set_edge( igpio::EDGE_BOTH );
-                std::cout << "4\n";
+                std::cout << "4 " << ptr->value( ) << "\n";
                 ptr->register_for_change( );
                 std::cout << "5\n";
 

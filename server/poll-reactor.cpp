@@ -127,6 +127,10 @@ namespace fr { namespace server {
 
                 int res = add_fd_to_epoll( poll_fd_.hdl( ), fd, events, NULL );
 
+                std::cout << "add failed: " << errno
+                          << " " << res
+                          << "\n";
+
                 errno_error::errno_assert( -1 != res, "epoll_ctl" );
                 vtrc::upgrade_to_unique utl(lck);
                 react_.insert( std::make_pair( fd, new_react ) );
