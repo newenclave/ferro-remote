@@ -136,9 +136,6 @@ namespace fr { namespace server {
             if( -1 != value_fd_ ) {
                 close( value_fd_ );
             }
-            if( own_export_ ) {
-                unexp( );
-            }
         } catch ( ... ) {
             ;;;
         }
@@ -219,7 +216,6 @@ namespace fr { namespace server {
         } else {
             vcomm::throw_system_error( EINVAL, pos.c_str( ) );
         }
-
     }
 
     void  gpio_helper::set_edge( gpio::edge_type val ) const
