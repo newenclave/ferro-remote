@@ -197,6 +197,9 @@ namespace fr { namespace server {
 
         std::string pos = read_from_file( oss.str( ) );
 
+        std::cout << "Edge as: " << pos
+                  << " " << pos.size( ) << "\n";
+
         if( check_name(pos, edge_index[gpio::EDGE_NONE]) ) {
             return gpio::EDGE_NONE;
         } else if( check_name(pos, edge_index[gpio::EDGE_RISING]) ) {
@@ -208,6 +211,7 @@ namespace fr { namespace server {
         } else {
             vcomm::throw_system_error( EINVAL, pos.c_str( ) );
         }
+
     }
 
     void  gpio_helper::set_edge( gpio::edge_type val ) const
