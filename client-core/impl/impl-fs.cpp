@@ -68,8 +68,7 @@ namespace fr { namespace client { namespace interfaces {
             }
 
 #define SET_STAT_FIELD( data, stat, field ) data.field = stat.field( )
-
-            bool stat( const std::string &path,
+            void stat( const std::string &path,
                        filesystem::stat_data &data ) const override
             {
                 fproto::handle_path     req;
@@ -92,7 +91,58 @@ namespace fr { namespace client { namespace interfaces {
                 SET_STAT_FIELD( data, res, ctime   );
 
             }
+
+            void info( const std::string &path,
+                       filesystem::info_data &data ) const
+            {
+                fproto::handle_path     req;
+                fill_request( req, path );
+                fproto::element_info    res;
+                client_.call( &stub_type::info, &req, &res );
+
+                SET_STAT_FIELD( data, res, is_exist );
+                SET_STAT_FIELD( data, res, is_directory );
+                SET_STAT_FIELD( data, res, is_empty );
+                SET_STAT_FIELD( data, res, is_regular );
+                SET_STAT_FIELD( data, res, is_symlink );
+            }
 #undef SET_STAT_FIELD
+
+            vtrc::uint64_t file_size( const std::string &path ) const override
+            {
+                fproto::handle_path   req;
+                fill_request( req, path );
+                fproto::file_position res;
+                client_.call( &stub_type::file_size, &req, &res );
+                return res.position( );
+            }
+
+            void cd( const std::string &path ) override
+            {
+                fproto::handle_path   req;
+                fill_request( req, path );
+                client_.call( &stub_type::cd, &req, &req );
+                path_.assign( req.path( ) );
+            }
+
+            const std::string &pwd(  ) const override
+            {
+                return path_;
+            }
+
+            void mkdir( const std::string &path ) const override
+            {
+                fproto::handle_path   req;
+                fill_request( req, path );
+                client_.call_request( &stub_type::mkdir, &req );
+            }
+
+            void del( const std::string &path ) const override
+            {
+                fproto::handle_path   req;
+                fill_request( req, path );
+                client_.call_request( &stub_type::del, &req );
+            }
 
         };
     }
@@ -102,6 +152,13 @@ namespace fr { namespace client { namespace interfaces {
         {
             return new fs_impl( cl, path );
         }
+
+        directory_iterator_ptr directory_begin( core::client_core &cl,
+                                                const std::string &path )
+        {
+
+        }
+
     }
 
 }}}
