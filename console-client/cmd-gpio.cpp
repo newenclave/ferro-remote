@@ -40,7 +40,7 @@ namespace fr { namespace cc { namespace cmd {
                 ptr->set_edge( igpio::EDGE_BOTH );
                 std::cout << "4 "
                           << " " << ptr->value( )
-                          << " " << ptr->edge( )
+                          << " " << ptr->direction( )
                           << "\n";
                 ptr->register_for_change( );
                 std::cout << "5\n";

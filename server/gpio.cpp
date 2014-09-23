@@ -187,6 +187,9 @@ namespace fr { namespace server {
         oss << impl_->path_ << "/" << edge_name;
 
         std::string pos = read_from_file( oss.str( ) );
+
+        std::cout << "Edge: " << pos << "\n";
+
         if( pos == edge_index[gpio::EDGE_NONE] ) {
             return gpio::EDGE_NONE;
         } else if( pos == edge_index[gpio::EDGE_RISING] ) {
