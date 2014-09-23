@@ -54,8 +54,8 @@ message info_req {
     optional bool with_edge      = 4;
 }
 
-
 service instance {
+
     rpc open  ( open_req )   returns ( open_res );
     rpc exp   ( export_req ) returns ( empty );  // unable to use 'export':(
     rpc setup ( setup_req )  returns ( empty );
@@ -64,5 +64,19 @@ service instance {
     rpc info  ( info_req )   returns ( setup_data );
 
     rpc close ( handle )     returns ( empty );
+
+    //// change value signal
+    rpc register_for_change( handle ) returns ( empty );
+    rpc unregister_for_change( handle ) returns ( empty );
 }
 
+message change_state {
+    optional handle hdl         = 1;
+    optional uint32 new_value   = 2;
+    optional uint32 error       = 3;
+    optional string error_text  = 4;
+}
+
+service events {
+    rpc on_state_change( change_state ) returns ( empty );
+}

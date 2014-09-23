@@ -160,6 +160,13 @@ namespace fr { namespace client { namespace interfaces {
                 client_.call_request( &stub_type::setup, &req );
             }
 
+            void register_for_change( ) const override
+            {
+                gproto::handle req;
+                req.set_value( hdl_ );
+                client_.call_request( &stub_type::register_for_change, &req );
+            }
+
         };
     }
 

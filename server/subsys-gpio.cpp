@@ -1,4 +1,6 @@
+#include <iostream>
 #include <map>
+#include <sys/epoll.h>
 
 #include "application.h"
 #include "subsys-gpio.h"
@@ -13,8 +15,12 @@
 #include "vtrc-stdint.h"
 #include "vtrc-atomic.h"
 #include "vtrc-memory.h"
+#include "vtrc-function.h"
+#include "vtrc-bind.h"
 
 #include "vtrc-common/vtrc-mutex-typedefs.h"
+
+#include "vtrc-server/vtrc-channels.h"
 
 #include "errno-check.h"
 
@@ -23,8 +29,15 @@ namespace fr { namespace server { namespace subsys {
     namespace {
 
         const std::string subsys_name( "gpio" );
+
         namespace gproto = fr::protocol::gpio;
         namespace vcomm = vtrc::common;
+        namespace vserv = vtrc::server;
+
+        typedef gproto::events::Stub events_stub_type;
+
+        using vserv::channels::unicast::create_event_channel;
+        typedef vtrc::shared_ptr<vcomm::rpc_channel> rpc_channel_sptr;
 
         typedef vtrc::shared_ptr<server::gpio_helper> gpio_sptr;
 
@@ -60,9 +73,62 @@ namespace fr { namespace server { namespace subsys {
 
         class gpio_impl: public gproto::instance {
 
-            gpio_map                     gpio_;
-            vtrc::shared_mutex           gpio_lock_;
-            vtrc::atomic<vtrc::uint32_t> index_;
+            gpio_map                             gpio_;
+            vtrc::shared_mutex                   gpio_lock_;
+            vtrc::atomic<vtrc::uint32_t>         index_;
+            vtrc::common::connection_iface_wptr  client_;
+            rpc_channel_sptr                     event_channel_;
+            subsys::reactor                     &reactor_;
+
+        public:
+
+            gpio_impl( fr::server::application *app,
+                       vcomm::connection_iface_wptr cli )
+                :index_(100)
+                ,client_(cli)
+                ,event_channel_(create_event_channel(client_.lock( )))
+                ,reactor_(app->subsystem<subsys::reactor>( ))
+            { }
+
+            ~gpio_impl( )
+            { }
+
+            void value_changed( vtrc::uint32_t hdl,
+                                unsigned events,
+                                int fd, gpio_sptr gpio,
+                                vcomm::connection_iface_wptr cli ) try
+            {
+                vcomm::connection_iface_sptr lck( cli.lock( ) );
+                if( !lck ) {
+                    return;
+                }
+
+                std::string          err;
+                unsigned             error_code;
+                events_stub_type     events(event_channel_.get( ));
+                gproto::change_state req;
+
+                try {
+
+                    req.set_new_value( gpio->value( ) );
+
+                    std::cout << "New change for " << gpio->id( )
+                                 << " = " << req.new_value( )
+                                 << "\n";
+
+                } catch( const std::exception &ex ) {
+                    error_code = errno;
+                    err.assign( ex.what( ) );
+                }
+
+                if( !err.empty( ) ) {
+                    req.set_error( error_code );
+                    req.set_error_text( err );
+                }
+
+                events.on_state_change( NULL, &req, NULL, NULL );
+
+            } catch( ... ) { ;;; }
 
             inline vtrc::uint32_t next_index( )
             {
@@ -188,12 +254,34 @@ namespace fr { namespace server { namespace subsys {
                 }
             }
 
-        public:
+            void register_for_change(::google::protobuf::RpcController*,
+                         const ::fr::protocol::gpio::handle* request,
+                         ::fr::protocol::gpio::empty* /*response*/,
+                         ::google::protobuf::Closure* done) override
+            {
+                vcomm::closure_holder holder(done);
+                gpio_sptr g( gpio_by_index( request->value( ) ) );
+                int fd = g->open_value_for_read( );
 
-            gpio_impl( fr::server::application */*app*/,
-                       vtrc::common::connection_iface_wptr /*cli*/ )
-                :index_(100)
-            { }
+                server::reaction_callback
+                        cb( vtrc::bind( &gpio_impl::value_changed, this,
+                                         request->value( ),
+                                         vtrc::placeholders::_1,
+                                         fd, g, client_) );
+
+                reactor_.add_fd( fd, EPOLLIN | EPOLLET | EPOLLPRI, cb );
+            }
+
+            void unregister_for_change(::google::protobuf::RpcController*,
+                         const ::fr::protocol::gpio::handle* request,
+                         ::fr::protocol::gpio::empty* /*response*/,
+                         ::google::protobuf::Closure* done) override
+            {
+                vcomm::closure_holder holder(done);
+
+            }
+
+        public:
 
             static const std::string &name( )
             {

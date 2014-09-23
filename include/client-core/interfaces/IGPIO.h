@@ -38,6 +38,9 @@ namespace interfaces { namespace gpio {
         virtual edge_type edge( ) const = 0;
         virtual void set_edge( edge_type value ) const = 0;
 
+        /// to do fix
+        virtual void register_for_change( ) const = 0;
+
     };
 
     typedef iface* iface_ptr;
