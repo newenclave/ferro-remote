@@ -250,7 +250,7 @@ namespace fr { namespace server {
     int gpio_helper::value_fd( ) const
     {
         if( impl_->value_fd_ == -1  ) {
-        int res = open( impl_->value_path_.c_str( ), O_RDONLY | O_NONBLOCK );
+        int res = open( impl_->value_path_.c_str( ), O_RDONLY );
             if( -1 == res ) {
                 vcomm::throw_system_error( errno, "open" );
             }
