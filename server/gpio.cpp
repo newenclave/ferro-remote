@@ -81,7 +81,7 @@ namespace fr { namespace server {
 
             errno_error::errno_assert( res != -1, "read" );
 
-            return std::string( buf.begin( ), buf.begin( ) + res );
+            return std::string( &buf[0] );
         }
 
     }
