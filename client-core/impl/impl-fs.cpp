@@ -123,7 +123,7 @@ namespace filesystem {
         return *this;
     }
 
-    directory_iterator& directory_iterator::operator ++ ( )
+    directory_iterator& directory_iterator::operator++ ( )
     {
         impl_->next( );
         return *this;
