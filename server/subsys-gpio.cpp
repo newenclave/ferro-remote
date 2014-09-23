@@ -261,7 +261,9 @@ namespace fr { namespace server { namespace subsys {
             {
                 vcomm::closure_holder holder(done);
                 gpio_sptr g( gpio_by_index( request->value( ) ) );
+
                 int fd = g->open_value_for_read( );
+                std::cout << "Open hdl: " << fd << "\n";
 
                 server::reaction_callback
                         cb( vtrc::bind( &gpio_impl::value_changed, this,
@@ -270,6 +272,7 @@ namespace fr { namespace server { namespace subsys {
                                          fd, g, client_) );
 
                 reactor_.add_fd( fd, EPOLLIN | EPOLLET | EPOLLPRI, cb );
+                std::cout << "add ok: " << fd << "\n";
             }
 
             void unregister_for_change(::google::protobuf::RpcController*,
