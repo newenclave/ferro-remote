@@ -241,7 +241,7 @@ namespace fr { namespace server {
         write_to_file( impl_->value_path_, data, 2 );
     }
 
-    int gpio_helper::open_value_for_read( ) const
+    int gpio_helper::value_fd( ) const
     {
         if( impl_->value_fd_ == -1  ) {
         int res = open( impl_->value_path_.c_str( ), O_RDONLY | O_NONBLOCK );

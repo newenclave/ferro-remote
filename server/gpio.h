@@ -46,7 +46,7 @@ namespace fr { namespace server {
         unsigned value( ) const;
         void set_value( unsigned val ) const;
 
-        int open_value_for_read( ) const;
+        int value_fd( ) const;
 
     };
 

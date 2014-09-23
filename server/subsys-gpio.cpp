@@ -91,8 +91,15 @@ namespace fr { namespace server { namespace subsys {
                 ,reactor_(app->subsystem<subsys::reactor>( ))
             { }
 
-            ~gpio_impl( )
-            { }
+            ~gpio_impl( ) try {
+
+                for( gpio_map::iterator b(gpio_.begin( )), e(gpio_.end( ));
+                     b != e; ++b )
+                {
+                    reactor_.del_fd( b->second->value_fd( ) );
+                }
+
+            } catch( ... ) { }
 
             inline vtrc::uint32_t next_index( )
             {
@@ -267,7 +274,7 @@ namespace fr { namespace server { namespace subsys {
                 vcomm::closure_holder holder(done);
                 gpio_sptr g( gpio_by_index( request->value( ) ) );
 
-                int fd = g->open_value_for_read( );
+                int fd = g->value_fd( );
 
                 server::reaction_callback
                         cb( vtrc::bind( &gpio_impl::value_changed, this,
@@ -276,7 +283,6 @@ namespace fr { namespace server { namespace subsys {
                                          fd, gpio_wptr(g), client_) );
 
                 reactor_.add_fd( fd, EPOLLET | EPOLLPRI, cb );
-                std::cout << "add ok: " << fd << "\n";
             }
 
             void unregister_for_change(::google::protobuf::RpcController*,
@@ -284,8 +290,11 @@ namespace fr { namespace server { namespace subsys {
                          ::fr::protocol::gpio::empty* /*response*/,
                          ::google::protobuf::Closure* done) override
             {
-                vcomm::closure_holder holder(done);
 
+                vcomm::closure_holder holder(done);
+                gpio_sptr g( gpio_by_index( request->value( ) ) );
+                int fd = g->value_fd( );
+                reactor_.del_fd( fd );
             }
 
         public:
