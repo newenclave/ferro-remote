@@ -93,43 +93,6 @@ namespace fr { namespace server { namespace subsys {
             ~gpio_impl( )
             { }
 
-            void value_changed( vtrc::uint32_t hdl,
-                                unsigned events,
-                                int fd, gpio_sptr gpio,
-                                vcomm::connection_iface_wptr cli ) try
-            {
-                vcomm::connection_iface_sptr lck( cli.lock( ) );
-                if( !lck ) {
-                    return;
-                }
-
-                std::string          err;
-                unsigned             error_code;
-                events_stub_type     events(event_channel_.get( ));
-                gproto::change_state req;
-
-                try {
-
-                    req.set_new_value( gpio->value( ) );
-
-                    std::cout << "New change for " << gpio->id( )
-                                 << " = " << req.new_value( )
-                                 << "\n";
-
-                } catch( const std::exception &ex ) {
-                    error_code = errno;
-                    err.assign( ex.what( ) );
-                }
-
-                if( !err.empty( ) ) {
-                    req.set_error( error_code );
-                    req.set_error_text( err );
-                }
-
-                events.on_state_change( NULL, &req, NULL, NULL );
-
-            } catch( ... ) { ;;; }
-
             inline vtrc::uint32_t next_index( )
             {
                 return ++index_;
@@ -255,6 +218,43 @@ namespace fr { namespace server { namespace subsys {
                     gpio_.erase( f );
                 }
             }
+
+            void value_changed( vtrc::uint32_t hdl,
+                                unsigned events,
+                                int fd, gpio_sptr gpio,
+                                vcomm::connection_iface_wptr cli ) try
+            {
+                vcomm::connection_iface_sptr lck( cli.lock( ) );
+                if( !lck ) {
+                    return;
+                }
+
+                std::string          err;
+                unsigned             error_code;
+                events_stub_type     events(event_channel_.get( ));
+                gproto::change_state req;
+
+                try {
+
+                    req.set_new_value( gpio->value( ) );
+
+                    std::cout << "New change for " << gpio->id( )
+                                 << " = " << req.new_value( )
+                                 << "\n";
+
+                } catch( const std::exception &ex ) {
+                    error_code = errno;
+                    err.assign( ex.what( ) );
+                }
+
+                if( !err.empty( ) ) {
+                    req.set_error( error_code );
+                    req.set_error_text( err );
+                }
+
+                events.on_state_change( NULL, &req, NULL, NULL );
+
+            } catch( ... ) { ;;; }
 
             void register_for_change(::google::protobuf::RpcController*,
                          const ::fr::protocol::gpio::handle* request,

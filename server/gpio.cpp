@@ -150,7 +150,7 @@ namespace fr { namespace server {
 
     unsigned gpio_helper::id( ) const
     {
-        impl_->id_;
+        return impl_->id_;
     }
 
     void gpio_helper::exp( ) const
