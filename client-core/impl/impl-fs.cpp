@@ -1,5 +1,5 @@
 
-#include "client-core/interfaces/IFs.h"
+#include "client-core/interfaces/IFilesystem.h"
 
 #include "protocol/fs.pb.h"
 
@@ -13,6 +13,7 @@ namespace fr { namespace client { namespace interfaces {
 
 
     namespace {
+
         namespace vcomm = vtrc::common;
         namespace fproto = protocol::fs;
 
@@ -65,6 +66,33 @@ namespace fr { namespace client { namespace interfaces {
                 client_.call( &stub_type::exists, &req, &res );
                 return res.is_exist( );
             }
+
+#define SET_STAT_FIELD( data, stat, field ) data.field = stat.field( )
+
+            bool stat( const std::string &path,
+                       filesystem::path_stat &data ) const override
+            {
+                fproto::handle_path     req;
+                fill_request( req, path );
+                fproto::element_stat    res;
+                client_.call( &stub_type::get_stat, &req, &res );
+
+                SET_STAT_FIELD( data, res, dev     );
+                SET_STAT_FIELD( data, res, ino     );
+                SET_STAT_FIELD( data, res, mode    );
+                SET_STAT_FIELD( data, res, nlink   );
+                SET_STAT_FIELD( data, res, uid     );
+                SET_STAT_FIELD( data, res, gid     );
+                SET_STAT_FIELD( data, res, rdev    );
+                SET_STAT_FIELD( data, res, size    );
+                SET_STAT_FIELD( data, res, blksize );
+                SET_STAT_FIELD( data, res, blocks  );
+                SET_STAT_FIELD( data, res, atime   );
+                SET_STAT_FIELD( data, res, mtime   );
+                SET_STAT_FIELD( data, res, ctime   );
+
+            }
+#undef SET_STAT_FIELD
 
         };
     }
