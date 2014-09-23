@@ -197,9 +197,6 @@ namespace fr { namespace server {
 
         std::string pos = read_from_file( oss.str( ) );
 
-        std::cout << "Edge as: " << pos
-                  << " " << pos.size( ) << "\n";
-
         if( check_name(pos, edge_index[gpio::EDGE_NONE]) ) {
             return gpio::EDGE_NONE;
         } else if( check_name(pos, edge_index[gpio::EDGE_RISING]) ) {
@@ -239,7 +236,7 @@ namespace fr { namespace server {
 
     int gpio_helper::open_value_for_read( ) const
     {
-        int res = open( impl_->value_path_.c_str( ), O_RDWR | O_NONBLOCK );
+        int res = open( impl_->value_path_.c_str( ), O_RDONLY | O_NONBLOCK );
         if( -1 == res ) {
             vcomm::throw_system_error( errno, "open" );
         }
