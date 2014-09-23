@@ -271,7 +271,7 @@ namespace fr { namespace server { namespace subsys {
                                          vtrc::placeholders::_1,
                                          fd, g, client_) );
 
-                reactor_.add_fd( fd, EPOLLIN | EPOLLET | EPOLLPRI, cb );
+                reactor_.add_fd( fd, EPOLLET | EPOLLPRI, cb );
                 std::cout << "add ok: " << fd << "\n";
             }
 
