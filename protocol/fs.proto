@@ -143,7 +143,6 @@ message file_data_block {
     optional uint32  length  = 3;
 }
 
-
 // files operations
 service file {
 
@@ -152,12 +151,12 @@ service file {
     rpc tell( handle)             returns ( file_position );
     rpc seek( file_set_position ) returns ( file_position );
 
-
     rpc read(  file_data_block )  returns ( file_data_block );
     rpc write( file_data_block )  returns ( file_data_block );
 
     rpc flush( handle )        returns ( empty );
 
     rpc close( handle)         returns ( empty );
+
 }
 
