@@ -163,9 +163,6 @@ namespace fr { namespace server {
         oss << impl_->path_ << "/" << direction_name;
 
         std::string pos = read_from_file( oss.str( ) );
-        std::cout << "Dire: " << pos
-                  << " " << pos.size( )
-                  << "\n";
 
         if( pos == direct_index[gpio::DIRECT_IN] ) {
             return gpio::DIRECT_IN;
@@ -182,7 +179,8 @@ namespace fr { namespace server {
         oss << impl_->path_ << "/" << direction_name;
 
         write_to_file( oss.str( ),
-                       direct_index[val].c_str( ), direct_index[val].size( ) );
+                       direct_index[val].c_str( ),
+                       direct_index[val].size( ) + 1 );
     }
 
     gpio::edge_type gpio_helper::edge( ) const
@@ -191,10 +189,6 @@ namespace fr { namespace server {
         oss << impl_->path_ << "/" << edge_name;
 
         std::string pos = read_from_file( oss.str( ) );
-
-        std::cout << "Edge: " << pos
-                  << " " << pos.size( )
-                  << "\n";
 
         if( pos == edge_index[gpio::EDGE_NONE] ) {
             return gpio::EDGE_NONE;
@@ -214,7 +208,7 @@ namespace fr { namespace server {
         std::ostringstream oss;
         oss << impl_->path_ << "/" << edge_name;
         write_to_file( oss.str( ),
-                       edge_index[val].c_str( ), edge_index[val].size( ) );
+                       edge_index[val].c_str( ), edge_index[val].size( ) + 1 );
     }
 
     unsigned gpio_helper::value( ) const
