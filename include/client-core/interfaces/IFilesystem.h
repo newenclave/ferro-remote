@@ -80,6 +80,7 @@ namespace interfaces { namespace filesystem {
         const value_type* operator -> ( ) const;
 
         const info_data &info( ) const;
+
     };
 
     struct iface {

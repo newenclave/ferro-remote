@@ -90,7 +90,7 @@ namespace filesystem {
                 info_.is_empty     = res.is_empty( );
                 info_.is_regular   = res.is_regular( );
                 info_.is_symlink   = res.is_symlink( );
-                info_clean_ = true;
+                info_clean_        = true;
             }
             return info_;
         }
