@@ -163,6 +163,10 @@ namespace fr { namespace server {
         oss << impl_->path_ << "/" << direction_name;
 
         std::string pos = read_from_file( oss.str( ) );
+        std::cout << "Dire: " << pos
+                  << " " << pos.size( )
+                  << "\n";
+
         if( pos == direct_index[gpio::DIRECT_IN] ) {
             return gpio::DIRECT_IN;
         } else if( pos == direct_index[gpio::DIRECT_OUT] ) {
@@ -188,7 +192,9 @@ namespace fr { namespace server {
 
         std::string pos = read_from_file( oss.str( ) );
 
-        std::cout << "Edge: " << pos << "\n";
+        std::cout << "Edge: " << pos
+                  << " " << pos.size( )
+                  << "\n";
 
         if( pos == edge_index[gpio::EDGE_NONE] ) {
             return gpio::EDGE_NONE;
