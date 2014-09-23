@@ -66,12 +66,13 @@ namespace fr { namespace server {
 
         int create_epoll( int stop_event )
         {
-            int res = epoll_create( 64 );
-            errno_error::errno_assert( -1 != res, "epoll_create" );
+            int fd = epoll_create( 64 );
+            errno_error::errno_assert( -1 != fd, "epoll_create" );
 
-            res = add_fd_to_epoll( res, stop_event, EPOLLIN | EPOLLET, NULL );
+            int res = add_fd_to_epoll( fd, stop_event,
+                                       EPOLLIN | EPOLLET, NULL );
             if( -1 == res ) {
-                close( res );
+                close( fd );
                 vcomm::throw_system_error( errno, "epoll_ctl" );
             }
             return res;
@@ -101,9 +102,7 @@ namespace fr { namespace server {
         impl( )
             :stop_event_(create_event( ))
             ,poll_fd_(create_epoll(stop_event_.hdl( )))
-        {
-            std::cout << "EPOLL " << poll_fd_.hdl( ) << "\n";
-        }
+        { }
 
         ~impl( )
         { }
@@ -111,7 +110,6 @@ namespace fr { namespace server {
         void stop( )
         {
             int res = eventfd_write( stop_event_.hdl( ), 1 );
-            std::cout << "Send stop event " << res << errno << "\n";
         }
 
         void add_fd( int fd, unsigned events, reaction_callback cb )
