@@ -101,7 +101,9 @@ namespace fr { namespace server {
         impl( )
             :stop_event_(create_event( ))
             ,poll_fd_(create_epoll(stop_event_.hdl( )))
-        { }
+        {
+            std::cout << "EPOLL " << poll_fd_.hdl( ) << "\n";
+        }
 
         ~impl( )
         { }
