@@ -62,17 +62,19 @@ namespace fr { namespace server {
 
         std::string read_from_file( const std::string &path )
         {
-            char buf[256];
+            static const size_t buffer_length = 32;
+
+            std::vector<char> buf( buffer_length );
 
             file_keeper fd( open( path.c_str( ), O_RDONLY ) );
 
             errno_error::errno_assert( fd.hdl( ) != -1, "open" );
 
-            int res = read( fd.hdl( ), buf, 256 );
+            int res = read( fd.hdl( ), &buf[0], buffer_length );
 
             errno_error::errno_assert( res != -1, "read" );
 
-            return std::string( buf, buf + res );
+            return std::string( buf.begin( ), buf.begin( ) + res );
         }
 
     }
