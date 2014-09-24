@@ -154,9 +154,12 @@ namespace fr { namespace server {
         void make_callback( int fd, unsigned events )
         {
             vtrc::shared_lock slck(react_lock_);
-            reaction_map::iterator f(react_.find( fd ));
+            reaction_map::iterator f( react_.find( fd ) );
             if( f != react_.end( ) ){
-                f->second->call_( events );
+                bool res = f->second->call_( events );
+                if( !res ) {
+                    del_fd( fd );
+                }
             }
         }
 

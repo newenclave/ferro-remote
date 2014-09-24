@@ -229,7 +229,14 @@ namespace fr { namespace server {
 
     unsigned gpio_helper::value( ) const
     {
-        std::string pos = read_from_file( value_fd( ) );
+        std::string pos = read_from_file( impl_->value_path_ );
+        assert( pos[0] == '0' || pos[0] == '1' );
+        return pos[0] - '0';
+    }
+
+    unsigned gpio_helper::value( int fd )
+    {
+        std::string pos = read_from_file( fd );
         assert( pos[0] == '0' || pos[0] == '1' );
         return pos[0] - '0';
     }
@@ -244,7 +251,9 @@ namespace fr { namespace server {
     int gpio_helper::value_fd( ) const
     {
         if( impl_->value_fd_ == -1  ) {
-            int res = open( impl_->value_path_.c_str( ), O_RDONLY );
+            int res = open( impl_->value_path_.c_str( ),
+                                                      O_RDONLY | O_NONBLOCK );
+
             if( -1 == res ) {
                 vcomm::throw_system_error( errno, "open" );
             }
