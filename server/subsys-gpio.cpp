@@ -264,7 +264,7 @@ namespace fr { namespace server { namespace subsys {
                     req.set_error_text( err );
                 }
 
-                //events.on_state_change( NULL, &req, NULL, NULL );
+                events.on_state_change( NULL, &req, NULL, NULL );
 
                 return success;
 
