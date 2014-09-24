@@ -76,8 +76,8 @@ namespace fr { namespace server {
                 application::service_wrapper_impl
                     ::get_method( const std::string &name ) const
     {
-        const application::service_wrapper_impl::method_type * m =
-                        super_type::find_method( name );
+        const method_type* m = super_type::find_method( name );
+
 //        if( m ) {
 //            std::cout << "Cleint call " << m->full_name( ) << "\n";
 //        }
