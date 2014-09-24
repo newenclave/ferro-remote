@@ -85,24 +85,6 @@ namespace fr { namespace server { namespace subsys {
             }
         }
 
-        void change_print( int fd, unsigned events )
-        {
-            lseek( fd, 0, SEEK_SET );
-            char b = 0;
-            ssize_t res = read( fd, &b, 1 );
-            std::cout << "read: " << b << " " << res << "\n";
-            count_ += (b - '0');
-
-            if( count_ > 20 ) {
-                close( fd );
-//                reactor_.del_fd( fd );
-//                if( 0 == reactor_.count( ) ) {
-//                    std::cout << "STOP!\n";
-//                    stop_thread( );
-//                }
-            }
-        }
-
     };
 
 
@@ -132,18 +114,9 @@ namespace fr { namespace server { namespace subsys {
 
     }
 
-    void reactor::start( ) try
+    void reactor::start( )
     {
-//        int fd = open( "/sys/class/gpio/gpio3/value", O_RDONLY );
 
-//        impl_->start_thread( );
-
-//        impl_->reactor_.add_fd( fd,  EPOLLIN | EPOLLET | EPOLLPRI,
-//                                vtrc::bind( &impl::change_print, impl_, fd,
-//                                            vtrc::placeholders::_1 ));
-
-    } catch ( const std::exception &ex ) {
-        std::cout << "error read: " << ex.what( ) << "\n";
     }
 
     void reactor::stop( )
