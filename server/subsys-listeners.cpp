@@ -81,6 +81,7 @@ namespace fr { namespace server { namespace subsys {
 
         impl( application *app )
             :app_(app)
+            ,counter_(0)
         { }
 
 
