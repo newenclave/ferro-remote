@@ -1,11 +1,15 @@
 #include "application.h"
 
 #include <map>
+
+#include <iostream>
 #include <vector>
 #include <sstream>
 #include <stdexcept>
 
 #include "vtrc-mutex.h"
+
+#include "google/protobuf/descriptor.h"
 
 namespace fr { namespace server {
 
@@ -13,8 +17,8 @@ namespace fr { namespace server {
     namespace vcomm = vtrc::common;
     namespace gpb   = google::protobuf;
 
-    typedef std::map<vtrc::common::rtti_wrapper, subsystem_sptr> subsys_map;
-    typedef std::vector<subsystem_sptr>                          subsys_vector;
+    typedef std::map<vcomm::rtti_wrapper, subsystem_sptr> subsys_map;
+    typedef std::vector<subsystem_sptr>                   subsys_vector;
 
     typedef std::map<std::string, application::service_getter_type> service_map;
 
@@ -52,16 +56,6 @@ namespace fr { namespace server {
 
 //////// service
 
-//    application::service_wrapper_impl::service_wrapper_impl( application *app,
-//                                   vcomm::connection_iface_wptr c,
-//                                   gpb::Service *serv)
-//        :vcomm::rpc_service_wrapper( serv )
-//        ,app_(app)
-//        ,client_(c)
-//    {
-
-//    }
-
     application::service_wrapper_impl::service_wrapper_impl( application *app,
                               vcomm::connection_iface_wptr c,
                               vtrc::shared_ptr<gpb::Service> serv)
@@ -78,13 +72,18 @@ namespace fr { namespace server {
     }
 
     const
-    application::service_wrapper_impl::method_type
-        *application::service_wrapper_impl
+    application::service_wrapper_impl::method_type *
+                application::service_wrapper_impl
                     ::get_method( const std::string &name ) const
     {
+        const application::service_wrapper_impl::method_type * m =
+                        super_type::find_method( name );
+//        if( m ) {
+//            std::cout << "Cleint call " << m->full_name( ) << "\n";
+//        }
 
+        return m;
     }
-
 
 ///
 
