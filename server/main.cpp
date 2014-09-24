@@ -22,6 +22,15 @@ namespace {
             ("help,?",   "help message")
             ("server,s", po::value< std::vector< std::string> >( ),
                     "endpoint name; <tcp address>:<port> or <file name>")
+
+            ("io-pool-size,i",  po::value<unsigned>( ),
+                    "threads for io operations; default = 1")
+
+            ("rpc-pool-size,r", po::value<unsigned>( ),
+                    "threads for rpc calls; default = 1")
+
+            ("only-pool,o", "use io pool for io operations and rpc calls")
+
             ;
     }
 
@@ -86,7 +95,22 @@ int main( int argc, const char **argv )
 
     try {
 
-        vcommon::pool_pair pp( 0 );
+        bool use_only_pool = !!vm.count( "only-pool" );
+
+        unsigned io_size = vm.count( "io-pool-size" )
+                ? vm["io-pool-size"].as<unsigned>( )
+                : ( use_only_pool ? 0 : 1 );
+
+        unsigned rpc_size = vm.count( "rpc-pool-size" )
+                ? vm["rpc-pool-size"].as<unsigned>( )
+                : 1;
+
+        if( (rpc_size < 1) && !use_only_pool) {
+            throw std::runtime_error( "rpc-pool-size must be at least 1" );
+        }
+
+        vcommon::pool_pair pp( io_size, rpc_size );
+
         server::application app( pp );
 
         init_subsystems( vm, app );

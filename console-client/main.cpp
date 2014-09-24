@@ -194,8 +194,6 @@ int main( int argc, const char **argv ) try
 
     fr::client::core::client_core client(*pp);
 
-    client.connect( server );
-
     vm = parse_command( argc, argv, current_command, desc );
 
     //client.async_connect( server, connect_success );
