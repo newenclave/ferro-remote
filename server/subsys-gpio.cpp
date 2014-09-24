@@ -227,18 +227,19 @@ namespace fr { namespace server { namespace subsys {
                 }
             }
 
-            void value_changed( vtrc::uint32_t hdl,
+            bool value_changed( vtrc::uint32_t hdl,
                                 unsigned events,
                                 int fd, gpio_wptr &weak_gpio,
                                 vcomm::connection_iface_wptr cli ) try
             {
                 vcomm::connection_iface_sptr lck( cli.lock( ) );
                 if( !lck ) {
-                    return;
+                    return false;
                 }
 
                 gpio_sptr gpio( weak_gpio.lock( ) );
 
+                bool success = true;
                 std::string          err;
                 unsigned             error_code;
                 events_stub_type     events(event_channel_.get( ));
@@ -255,15 +256,18 @@ namespace fr { namespace server { namespace subsys {
                 } catch( const std::exception &ex ) {
                     error_code = errno;
                     err.assign( ex.what( ) );
+                    success = false;
                 }
 
-                if( !err.empty( ) ) {
+                if( !success ) {
                     req.set_error( error_code );
                     req.set_error_text( err );
                 }
 
                 events.on_state_change( NULL, &req, NULL, NULL );
                 std::cout << "Send Ok\n";
+
+                return success;
 
             } catch( ... ) { ;;; }
 

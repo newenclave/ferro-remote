@@ -6,7 +6,7 @@
 
 namespace fr { namespace server {
 
-    typedef vtrc::function<void (unsigned)> reaction_callback;
+    typedef vtrc::function<bool (unsigned)> reaction_callback;
 
     class poll_reactor {
         struct   impl;

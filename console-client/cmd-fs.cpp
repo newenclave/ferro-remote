@@ -13,10 +13,9 @@ namespace fr { namespace cc { namespace cmd {
 
     namespace {
 
-        namespace po = boost::program_options;
-        namespace core = client::core;
-        namespace fiface = client::interfaces::filesystem;
-        namespace fs = client::interfaces::filesystem;
+        namespace po    = boost::program_options;
+        namespace core  = client::core;
+        namespace fs    = client::interfaces::filesystem;
 
         const char *cmd_name = "fs";
 
@@ -29,11 +28,11 @@ namespace fr { namespace cc { namespace cmd {
 
             void exec( po::variables_map &vm, core::client_core &cl )
             {
-                if( vm.count( "path" ) ) {
-                    std::string p(vm["path"].as<std::string>( ));
+                if( vm.count( "list" ) ) {
+                    std::string p(vm["list"].as<std::string>( ));
                     vtrc::unique_ptr<fs::iface> i( fs::create( cl, p ) );
                     for( auto &d: *i ) {
-                        std::cout << d.path << "\t";
+                        std::cout << d.path << "\n";
                     }
                     std::cout << "\n";
                 }
@@ -45,7 +44,7 @@ namespace fr { namespace cc { namespace cmd {
                 /// "help,h" "command,c" "server,s"
                 /// "io-pool-size,i" "rpc-pool-size,r" "only-pool,o"
                 desc.add_options( )
-                    ("path,p", po::value<std::string>( ), "path to file")
+                    ("list,l", po::value<std::string>( ), "show directory list")
                     ;
             }
 

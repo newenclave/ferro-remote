@@ -60,7 +60,7 @@ namespace fr { namespace server {
         void write_to_file( const std::string &path,
                             const char *data, size_t length )
         {
-            file_keeper fd( open( path.c_str( ), O_WRONLY ) );
+            file_keeper fd( open( path.c_str( ), O_WRONLY | O_SYNC ) );
             errno_error::errno_assert( fd.hdl( ) != -1, "open" );
 
             int res = write( fd.hdl( ), data, length );
@@ -244,7 +244,7 @@ namespace fr { namespace server {
     int gpio_helper::value_fd( ) const
     {
         if( impl_->value_fd_ == -1  ) {
-        int res = open( impl_->value_path_.c_str( ), O_RDONLY );
+            int res = open( impl_->value_path_.c_str( ), O_RDONLY );
             if( -1 == res ) {
                 vcomm::throw_system_error( errno, "open" );
             }
