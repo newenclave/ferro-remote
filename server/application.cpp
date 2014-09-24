@@ -9,8 +9,9 @@
 
 namespace fr { namespace server {
 
-    namespace vserver = vtrc::server;
-    namespace vcommon = vtrc::common;
+    namespace vserv = vtrc::server;
+    namespace vcomm = vtrc::common;
+    namespace gpb   = google::protobuf;
 
     typedef std::map<vtrc::common::rtti_wrapper, subsystem_sptr> subsys_map;
     typedef std::vector<subsystem_sptr>                          subsys_vector;
@@ -36,7 +37,7 @@ namespace fr { namespace server {
         { }
 
         application::service_wrapper_sptr get_service( const std::string &name,
-                            vcommon::connection_iface_wptr &connection )
+                            vcomm::connection_iface_wptr &connection )
         {
             vtrc::lock_guard<vtrc::mutex> lck( services_lock_ );
             service_map::iterator f(services_.find( name ));
@@ -49,8 +50,54 @@ namespace fr { namespace server {
         }
     };
 
+//////// service
+
+//    application::service_wrapper_impl::service_wrapper_impl( application *app,
+//                                   vcomm::connection_iface_wptr c,
+//                                   gpb::Service *serv)
+//        :vcomm::rpc_service_wrapper( serv )
+//        ,app_(app)
+//        ,client_(c)
+//    {
+
+//    }
+
+    application::service_wrapper_impl::service_wrapper_impl( application *app,
+                              vcomm::connection_iface_wptr c,
+                              vtrc::shared_ptr<gpb::Service> serv)
+        :vcomm::rpc_service_wrapper( serv )
+        ,app_(app)
+        ,client_(c)
+    {
+
+    }
+
+    application::service_wrapper_impl::~service_wrapper_impl( )
+    {
+
+    }
+
+    const
+    application::service_wrapper_impl::method_type
+        *application::service_wrapper_impl
+                    ::get_method( const std::string &name ) const
+    {
+
+    }
+
+
+///
+
+    application::service_wrapper_sptr
+        application::wrap_service( application *app,
+                                   vcomm::connection_iface_wptr cl,
+                                   service_wrapper_impl::service_sptr serv )
+    {
+        return vtrc::make_shared<application::service_wrapper>( app, cl, serv );
+    }
+
     application::application( vtrc::common::pool_pair &pp )
-        :vserver::application( pp )
+        :vserv::application( pp )
         ,impl_(new impl(pp))
     {
         impl_->parent_ = this;
@@ -94,7 +141,7 @@ namespace fr { namespace server {
     void application::add_subsystem( const std::type_info &info,
                                      subsystem_sptr inst )
     {
-        impl_->subsystems_.subsys_[vcommon::rtti_wrapper(info)] = inst;
+        impl_->subsystems_.subsys_[vcomm::rtti_wrapper(info)] = inst;
         impl_->subsystems_.subsys_order_.push_back( inst );
     }
 
@@ -102,7 +149,7 @@ namespace fr { namespace server {
     {
         subsys_map::iterator f( impl_->subsystems_
                                .subsys_
-                               .find( vcommon::rtti_wrapper(info) ) );
+                               .find( vcomm::rtti_wrapper(info) ) );
 
         if( f == impl_->subsystems_.subsys_.end( ) ) {
             return NULL;
@@ -116,7 +163,7 @@ namespace fr { namespace server {
     {
         subsys_map::const_iterator f( impl_->subsystems_
                                       .subsys_
-                                      .find( vcommon::rtti_wrapper(info) ) );
+                                      .find( vcomm::rtti_wrapper(info) ) );
 
         if( f == impl_->subsystems_.subsys_.end( ) ) {
             return NULL;
@@ -153,21 +200,21 @@ namespace fr { namespace server {
     ///
     //// parent calls
     ///
-    void application::configure_session( vcommon::connection_iface* connection,
+    void application::configure_session( vcomm::connection_iface* connection,
                                          vtrc::rpc::session_options &opts )
     {
 
     }
 
-    vtrc::shared_ptr<vcommon::rpc_service_wrapper>
-         application::get_service_by_name(vcommon::connection_iface* c,
-                                          const std::string &service_name )
+    application::parent_service_sptr
+        application::get_service_by_name ( vcomm::connection_iface* c,
+                                           const std::string &service_name )
     {
-        vcommon::connection_iface_wptr wp(c->weak_from_this( ));
+        vcomm::connection_iface_wptr wp(c->weak_from_this( ));
         return impl_->get_service( service_name, wp );
     }
 
-    std::string application::get_session_key( vcommon::connection_iface* c,
+    std::string application::get_session_key( vcomm::connection_iface* c,
                                                const std::string &id)
     {
         return std::string( );

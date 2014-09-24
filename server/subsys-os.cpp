@@ -38,14 +38,13 @@ namespace fr { namespace server { namespace subsys {
         };
 
         application::service_wrapper_sptr create_service(
-                                          fr::server::application *app,
-                                          vtrc::common::connection_iface_wptr)
+                                      fr::server::application *app,
+                                      vtrc::common::connection_iface_wptr cl )
         {
             vtrc::shared_ptr<os_proto_impl>
                                     inst(vtrc::make_shared<os_proto_impl>( ));
 
-            return application::service_wrapper_sptr(
-                        new application::service_wrapper(inst) );
+            return application::wrap_service( app, cl, inst );
         }
     }
 

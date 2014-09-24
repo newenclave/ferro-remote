@@ -23,7 +23,41 @@ namespace fr { namespace server {
 
     public:
 
-        typedef vtrc::common::rpc_service_wrapper service_wrapper;
+        class service_wrapper_impl: public vtrc::common::rpc_service_wrapper {
+
+            application *app_;
+            vtrc::common::connection_iface_wptr client_;
+
+            typedef vtrc::common::rpc_service_wrapper super_type;
+
+        public:
+
+            typedef super_type::service_type service_type;
+            typedef super_type::service_ptr  service_ptr;
+            typedef super_type::service_sptr service_sptr;
+
+            typedef super_type::method_type  method_type;
+
+//            service_wrapper_impl( application *app,
+//                                  vtrc::common::connection_iface_wptr c,
+//                                  service_type *serv );
+
+            service_wrapper_impl( application *app,
+                                  vtrc::common::connection_iface_wptr c,
+                                  service_sptr serv );
+
+            ~service_wrapper_impl( );
+
+        protected:
+
+            const method_type *get_method ( const std::string &name ) const;
+
+        };
+
+        typedef vtrc::common::rpc_service_wrapper     parent_service_type;
+        typedef vtrc::shared_ptr<parent_service_type> parent_service_sptr;
+
+        typedef service_wrapper_impl service_wrapper;
         typedef vtrc::shared_ptr<service_wrapper> service_wrapper_sptr;
 
         ///
@@ -34,7 +68,14 @@ namespace fr { namespace server {
                                    vtrc::common::connection_iface_wptr )
         > service_getter_type;
 
+        static service_wrapper_sptr wrap_service ( application *app,
+                                    vtrc::common::connection_iface_wptr c,
+                                    service_wrapper_impl::service_sptr serv );
+
+    public:
+
         application( vtrc::common::pool_pair &pp );
+
         ~application( );
 
     private:
@@ -148,7 +189,7 @@ namespace fr { namespace server {
         void configure_session( vtrc::common::connection_iface *connection,
                                 vtrc::rpc::session_options &opts );
 
-        service_wrapper_sptr get_service_by_name(
+        parent_service_sptr get_service_by_name(
                                       vtrc::common::connection_iface* c,
                                       const std::string &service_name );
 

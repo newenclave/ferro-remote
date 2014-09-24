@@ -609,8 +609,7 @@ namespace fr { namespace server { namespace subsys {
             vtrc::shared_ptr<proto_fs_impl>
                     inst(vtrc::make_shared<proto_fs_impl>( app, cl ));
 
-            return application::service_wrapper_sptr(
-                    vtrc::make_shared<application::service_wrapper>( inst ) );
+            return application::wrap_service( app, cl, inst );
         }
 
         application::service_wrapper_sptr create_file_inst(
@@ -620,8 +619,7 @@ namespace fr { namespace server { namespace subsys {
             vtrc::shared_ptr<proto_file_impl>
                     inst(vtrc::make_shared<proto_file_impl>( app, cl ) );
 
-            return application::service_wrapper_sptr(
-                   vtrc::make_shared<application::service_wrapper>( inst ) );
+            return application::wrap_service( app, cl, inst );
         }
 
     }
