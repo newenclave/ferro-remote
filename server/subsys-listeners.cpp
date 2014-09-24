@@ -10,11 +10,15 @@
 
 #include "vtrc-server/vtrc-listener-tcp.h"
 #include "vtrc-server/vtrc-listener-local.h"
+#include "vtrc-common/vtrc-connection-iface.h"
+
 #include "vtrc-mutex.h"
+#include "vtrc-bind.h"
+#include "vtrc-atomic.h"
 
 #include "boost/lexical_cast.hpp"
 #include "boost/program_options.hpp"
-#include "vtrc-bind.h"
+#include "boost/system/error_code.hpp"
 
 namespace fr { namespace server { namespace subsys {
 
@@ -23,6 +27,8 @@ namespace fr { namespace server { namespace subsys {
         namespace po = boost::program_options;
 
         namespace vserv = vtrc::server;
+        namespace vcomm = vtrc::common;
+
         typedef vtrc::server::listener_sptr listener_sptr;
         typedef std::vector<listener_sptr>  listener_vector;
 
@@ -71,13 +77,60 @@ namespace fr { namespace server { namespace subsys {
 
         listener_vector  listenrs_;
 
+        vtrc::atomic<size_t> counter_;
+
         impl( application *app )
             :app_(app)
         { }
 
+
+        void on_new_connection( vserv::listener *l,
+                                const vcomm::connection_iface *c )
+        {
+            std::cout << "New connection: "
+                      << "\n\tep:     " << l->name( )
+                      << "\n\tclient: " << c->name( )
+                      << "\n\ttotal:  " << ++counter_
+                      << "\n"
+                        ;
+        }
+
+        void on_stop_connection( vserv::listener *l,
+                                 const vcomm::connection_iface *c )
+        {
+            std::cout << "Close connection: "
+                      << c->name( )
+                      << "; count: " << --counter_
+                      << "\n";
+        }
+
+        void on_accept_failed( vserv::listener *l,
+                               unsigned retry_to,
+                               const boost::system::error_code &code )
+        {
+            std::cout << "Accept failed at " << l->name( )
+                      << " due to '" << code.message( ) << "'\n";
+            //start_retry_accept( l->shared_from_this( ), retry_to );
+        }
+
+
         void add_listener( const std::string &name )
         {
             listener_sptr list(listener_from_string( name, *app_ ));
+
+            list->on_new_connection_connect(
+                   vtrc::bind( &impl::on_new_connection, this,
+                               list.get( ), vtrc::placeholders::_1 ));
+
+            list->on_stop_connection_connect(
+                   vtrc::bind( &impl::on_stop_connection, this,
+                               list.get( ), vtrc::placeholders::_1 ));
+
+            list->on_accept_failed_connect(
+                   vtrc::bind( &impl::on_accept_failed, this,
+                               list.get( ), 0,
+                               vtrc::placeholders::_1 ) );
+
             listenrs_.push_back(list);
         }
 
