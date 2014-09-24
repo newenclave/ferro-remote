@@ -320,7 +320,7 @@ namespace fr { namespace server { namespace subsys {
             vtrc::shared_ptr<gpio_impl>
                     inst(vtrc::make_shared<gpio_impl>( app, cl ));
 
-            return application::wrap_service( app, cl, inst );
+            return app->wrap_service( cl, inst );
         }
     }
 

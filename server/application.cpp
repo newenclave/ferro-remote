@@ -89,11 +89,10 @@ namespace fr { namespace server {
 ///
 
     application::service_wrapper_sptr
-        application::wrap_service( application *app,
-                                   vcomm::connection_iface_wptr cl,
+        application::wrap_service(vcomm::connection_iface_wptr cl,
                                    service_wrapper_impl::service_sptr serv )
     {
-        return vtrc::make_shared<application::service_wrapper>( app, cl, serv );
+        return vtrc::make_shared<application::service_wrapper>(this, cl, serv);
     }
 
     application::application( vtrc::common::pool_pair &pp )

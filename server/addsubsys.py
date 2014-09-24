@@ -51,15 +51,20 @@ def source_file():
 #include "application.h"
 #include "subsys-%ss-name%.h"
 
+//#include "vtrc-memory.h"
+
 namespace fr { namespace server { namespace subsys {
 
     namespace {
         const std::string subsys_name( "%ss-name%" );
 
         application::service_wrapper_sptr create_service(
-                                          fr::server::application *,
-                                          vtrc::common::connection_iface_wptr)
+                                      fr::server::application * /*app*/,
+                                      vtrc::common::connection_iface_wptr cl )
         {
+            ///vtrc::shared_ptr<impl_type_here>
+            ///        inst(vtrc::make_shared<impl_type_here>( app, cl ));
+
             return application::service_wrapper_sptr( );
         }
     }

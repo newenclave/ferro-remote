@@ -44,7 +44,7 @@ namespace fr { namespace server { namespace subsys {
             vtrc::shared_ptr<os_proto_impl>
                                     inst(vtrc::make_shared<os_proto_impl>( ));
 
-            return application::wrap_service( app, cl, inst );
+            return app->wrap_service( cl, inst );
         }
     }
 

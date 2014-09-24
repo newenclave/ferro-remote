@@ -68,7 +68,7 @@ namespace fr { namespace server {
                                    vtrc::common::connection_iface_wptr )
         > service_getter_type;
 
-        static service_wrapper_sptr wrap_service ( application *app,
+        service_wrapper_sptr wrap_service (
                                     vtrc::common::connection_iface_wptr c,
                                     service_wrapper_impl::service_sptr serv );
 
