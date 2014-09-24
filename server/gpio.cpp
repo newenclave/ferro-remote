@@ -234,7 +234,7 @@ namespace fr { namespace server {
         return pos[0] - '0';
     }
 
-    unsigned gpio_helper::value( int fd )
+    unsigned gpio_helper::value_by_fd( int fd )
     {
         std::string pos = read_from_file( fd );
         assert( pos[0] == '0' || pos[0] == '1' );

@@ -43,7 +43,7 @@ namespace fr { namespace server {
         gpio::edge_type edge( ) const;
         void  set_edge( gpio::edge_type val ) const;
 
-        static unsigned value( int fd );
+        static unsigned value_by_fd( int fd );
         unsigned value( ) const;
         void set_value( unsigned val ) const;
 

@@ -233,11 +233,15 @@ namespace fr { namespace server { namespace subsys {
                                 vcomm::connection_iface_wptr cli ) try
             {
                 vcomm::connection_iface_sptr lck( cli.lock( ) );
+                std::cout << __LINE__ << "\n";
                 if( !lck ) {
+                    std::cout << __LINE__ << "\n";
                     return false;
                 }
 
+                std::cout << __LINE__ << "\n";
                 gpio_sptr gpio( weak_gpio.lock( ) );
+                std::cout << __LINE__ << "\n";
 
                 bool success = true;
                 std::string          err;
@@ -247,24 +251,31 @@ namespace fr { namespace server { namespace subsys {
 
                 try {
 
-                    req.set_new_value( gpio->value( ) );
+                    std::cout << __LINE__ << "\n";
+                    req.set_new_value( gpio->value_by_fd( ) );
 
+                    std::cout << __LINE__ << "\n";
                     std::cout << "New change for " << gpio->id( )
                                  << " = " << req.new_value( )
                                  << "\n";
+                    std::cout << __LINE__ << "\n";
 
                 } catch( const std::exception &ex ) {
+                    std::cout << __LINE__ << "\n";
                     error_code = errno;
                     err.assign( ex.what( ) );
                     success = false;
                 }
+                std::cout << __LINE__ << "\n";
 
                 if( !success ) {
+                    std::cout << __LINE__ << "\n";
                     req.set_error( error_code );
                     req.set_error_text( err );
                 }
-
+                std::cout << __LINE__ << "\n";
                 events.on_state_change( NULL, &req, NULL, NULL );
+                std::cout << __LINE__ << "\n";
 
                 return success;
 

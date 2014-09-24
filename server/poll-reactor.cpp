@@ -145,6 +145,12 @@ namespace fr { namespace server {
             react_.erase( fd );
         }
 
+        void del_fd_unsafe( int fd )
+        {
+            del_fd_from_epoll( poll_fd_.hdl( ), fd );
+            react_.erase( fd );
+        }
+
         size_t count( ) const
         {
             vtrc::shared_lock slck(react_lock_);
@@ -153,12 +159,13 @@ namespace fr { namespace server {
 
         void make_callback( int fd, unsigned events )
         {
-            vtrc::shared_lock slck(react_lock_);
+            vtrc::upgradable_lock slck(react_lock_);
             reaction_map::iterator f( react_.find( fd ) );
             if( f != react_.end( ) ){
                 bool res = f->second->call_( events );
                 if( !res ) {
-                    del_fd( fd );
+                    vtrc::upgrade_to_unique utu(slck);
+                    del_fd_unsafe( fd );
                 }
             }
         }
