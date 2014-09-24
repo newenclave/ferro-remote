@@ -264,8 +264,7 @@ namespace fr { namespace server { namespace subsys {
                     req.set_error_text( err );
                 }
 
-                events.on_state_change( NULL, &req, NULL, NULL );
-                std::cout << "Send Ok\n";
+                //events.on_state_change( NULL, &req, NULL, NULL );
 
                 return success;
 
