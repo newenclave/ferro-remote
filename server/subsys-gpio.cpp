@@ -252,7 +252,7 @@ namespace fr { namespace server { namespace subsys {
                 try {
 
                     std::cout << __LINE__ << "\n";
-                    req.set_new_value( gpio->value_by_fd( ) );
+                    req.set_new_value( gpio->value_by_fd( fd ) );
 
                     std::cout << __LINE__ << "\n";
                     std::cout << "New change for " << gpio->id( )
