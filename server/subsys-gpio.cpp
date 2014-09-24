@@ -96,7 +96,9 @@ namespace fr { namespace server { namespace subsys {
                 for( gpio_map::iterator b(gpio_.begin( )), e(gpio_.end( ));
                      b != e; ++b )
                 {
-                    reactor_.del_fd( b->second->value_fd( ) );
+                    if( b->second->value_opened( ) ) {
+                        reactor_.del_fd( b->second->value_fd( ) );
+                    }
                     std::cout << "del " << b->second->value_fd( ) << "\n";
                 }
 
@@ -222,7 +224,10 @@ namespace fr { namespace server { namespace subsys {
                 vcomm::closure_holder holder(done);
                 vtrc::upgradable_lock ulck( gpio_lock_ );
                 gpio_map::iterator f( gpio_.find( request->value( ) ) );
-                if( f!= gpio_.end( ) ) {
+                if( f != gpio_.end( ) ) {
+                    if( f->second->value_opened( ) ) {
+                        reactor_.del_fd( f->second->value_fd( ) );
+                    }
                     vtrc::upgrade_to_unique utl(ulck);
                     gpio_.erase( f );
                 }

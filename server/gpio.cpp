@@ -262,5 +262,10 @@ namespace fr { namespace server {
         return impl_->value_fd_;
     }
 
+    bool gpio_helper::value_opened( ) const
+    {
+        return impl_->value_fd_ != -1;
+    }
+
 }}
 
