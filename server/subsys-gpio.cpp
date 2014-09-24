@@ -233,7 +233,7 @@ namespace fr { namespace server { namespace subsys {
                                 vcomm::connection_iface_wptr cli ) try
             {
                 vcomm::connection_iface_sptr lck( cli.lock( ) );
-                std::cout << __LINE__ << "\n";
+                std::cout << "----->" << __LINE__ << "\n";
                 if( !lck ) {
                     std::cout << __LINE__ << "\n";
                     return false;
@@ -275,7 +275,7 @@ namespace fr { namespace server { namespace subsys {
                 }
                 std::cout << __LINE__ << "\n";
                 events.on_state_change( NULL, &req, NULL, NULL );
-                std::cout << __LINE__ << "\n";
+                std::cout << "<----" << __LINE__ << "\n";
 
                 return success;
 
