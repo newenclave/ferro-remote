@@ -54,7 +54,7 @@ namespace fr { namespace server {
         }
     };
 
-//////// service
+//////// service wrapper
 
     application::service_wrapper_impl::service_wrapper_impl( application *app,
                               vcomm::connection_iface_wptr c,
