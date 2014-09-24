@@ -16,11 +16,11 @@ namespace fr { namespace server { namespace subsys {
 
         const std::string subsys_name( "os" );
 
-        class os_proto_impl: public fr::protocol::os::instance {
+        class os_proto_impl: public fr::proto::os::instance {
 
             void execute(::google::protobuf::RpcController* controller,
-                         const ::fr::protocol::os::execute_req* request,
-                         ::fr::protocol::os::execute_res* response,
+                         const ::fr::proto::os::execute_req* request,
+                         ::fr::proto::os::execute_res* response,
                          ::google::protobuf::Closure* done)
             {
                 vcomm::closure_holder holder(done);
@@ -33,7 +33,7 @@ namespace fr { namespace server { namespace subsys {
         public:
             static const std::string &name( )
             {
-                return fr::protocol::os::instance::descriptor( )->full_name( );
+                return fr::proto::os::instance::descriptor( )->full_name( );
             }
         };
 

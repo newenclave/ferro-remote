@@ -27,7 +27,7 @@ namespace fr { namespace server { namespace subsys {
         const std::string subsys_name( "fs" );
 
         namespace vcomm = vtrc::common;
-        namespace proto = fr::protocol;
+        namespace proto = fr::proto;
 
         int flags_to_native( vtrc::uint32_t value )
         {
@@ -101,7 +101,7 @@ namespace fr { namespace server { namespace subsys {
         typedef std::map<vtrc::uint32_t, bfs::path>               path_map;
         typedef std::map<vtrc::uint32_t, bfs::directory_iterator> iterator_map;
 
-        class proto_fs_impl: public fr::protocol::fs::instance {
+        class proto_fs_impl: public fr::proto::fs::instance {
 
             path_map            path_;
             vtrc::shared_mutex  path_lock_;
@@ -146,8 +146,8 @@ namespace fr { namespace server { namespace subsys {
             }
 
             void open(::google::protobuf::RpcController* /*controller*/,
-                         const ::fr::protocol::fs::handle_path* request,
-                         ::fr::protocol::fs::handle_path* response,
+                         const ::fr::proto::fs::handle_path* request,
+                         ::fr::proto::fs::handle_path* response,
                          ::google::protobuf::Closure* done) override
             {
                 vcomm::closure_holder holder(done);
@@ -166,8 +166,8 @@ namespace fr { namespace server { namespace subsys {
             }
 
             void cd(::google::protobuf::RpcController* /*controller*/,
-                         const ::fr::protocol::fs::handle_path* request,
-                         ::fr::protocol::fs::handle_path* response,
+                         const ::fr::proto::fs::handle_path* request,
+                         ::fr::proto::fs::handle_path* response,
                          ::google::protobuf::Closure* done) override
             {
                 vcomm::closure_holder holder(done);
@@ -192,8 +192,8 @@ namespace fr { namespace server { namespace subsys {
             }
 
             void pwd(::google::protobuf::RpcController* /*controller*/,
-                         const ::fr::protocol::fs::handle_path* request,
-                         ::fr::protocol::fs::handle_path* response,
+                         const ::fr::proto::fs::handle_path* request,
+                         ::fr::proto::fs::handle_path* response,
                          ::google::protobuf::Closure* done) override
             {
                 vcomm::closure_holder holder(done);
@@ -203,8 +203,8 @@ namespace fr { namespace server { namespace subsys {
             }
 
             void exists(::google::protobuf::RpcController* /*controller*/,
-                         const ::fr::protocol::fs::handle_path* request,
-                         ::fr::protocol::fs::element_info* response,
+                         const ::fr::proto::fs::handle_path* request,
+                         ::fr::proto::fs::element_info* response,
                          ::google::protobuf::Closure* done) override
             {
                 vcomm::closure_holder holder(done);
@@ -215,8 +215,8 @@ namespace fr { namespace server { namespace subsys {
             }
 
             void file_size(::google::protobuf::RpcController* /*controller*/,
-                         const ::fr::protocol::fs::handle_path* request,
-                         ::fr::protocol::fs::file_position* response,
+                         const ::fr::proto::fs::handle_path* request,
+                         ::fr::proto::fs::file_position* response,
                          ::google::protobuf::Closure* done) override
             {
                 vcomm::closure_holder holder(done);
@@ -245,8 +245,8 @@ namespace fr { namespace server { namespace subsys {
             }
 
             void info(::google::protobuf::RpcController* /*controller*/,
-                         const ::fr::protocol::fs::handle_path* request,
-                         ::fr::protocol::fs::element_info* response,
+                         const ::fr::proto::fs::handle_path* request,
+                         ::fr::proto::fs::element_info* response,
                          ::google::protobuf::Closure* done) override
             {
                 vcomm::closure_holder holder(done);
@@ -256,8 +256,8 @@ namespace fr { namespace server { namespace subsys {
             }
 
             void get_stat(::google::protobuf::RpcController* /*controller*/,
-                         const ::fr::protocol::fs::handle_path* request,
-                         ::fr::protocol::fs::element_stat* response,
+                         const ::fr::proto::fs::handle_path* request,
+                         ::fr::proto::fs::element_stat* response,
                          ::google::protobuf::Closure* done) override
             {
                 vcomm::closure_holder holder(done);
@@ -287,8 +287,8 @@ namespace fr { namespace server { namespace subsys {
             }
 
             void mkdir(::google::protobuf::RpcController* /*controller*/,
-                         const ::fr::protocol::fs::handle_path* request,
-                         ::fr::protocol::fs::handle_path* response,
+                         const ::fr::proto::fs::handle_path* request,
+                         ::fr::proto::fs::handle_path* response,
                          ::google::protobuf::Closure* done) override
             {
                 vcomm::closure_holder holder(done);
@@ -299,8 +299,8 @@ namespace fr { namespace server { namespace subsys {
             }
 
             void del(::google::protobuf::RpcController* /*controller*/,
-                         const ::fr::protocol::fs::handle_path* request,
-                         ::fr::protocol::fs::handle_path* response,
+                         const ::fr::proto::fs::handle_path* request,
+                         ::fr::proto::fs::handle_path* response,
                          ::google::protobuf::Closure* done) override
             {
                 vcomm::closure_holder holder(done);
@@ -338,8 +338,8 @@ namespace fr { namespace server { namespace subsys {
             }
 
             void iter_begin(::google::protobuf::RpcController* /*controller*/,
-                         const ::fr::protocol::fs::handle_path* request,
-                         ::fr::protocol::fs::iterator_info* response,
+                         const ::fr::proto::fs::handle_path* request,
+                         ::fr::proto::fs::iterator_info* response,
                          ::google::protobuf::Closure* done) override
             {
                 vcomm::closure_holder holder(done);
@@ -356,8 +356,8 @@ namespace fr { namespace server { namespace subsys {
             }
 
             void iter_next(::google::protobuf::RpcController* /*controller*/,
-                         const ::fr::protocol::fs::iterator_info* request,
-                         ::fr::protocol::fs::iterator_info* response,
+                         const ::fr::proto::fs::iterator_info* request,
+                         ::fr::proto::fs::iterator_info* response,
                          ::google::protobuf::Closure* done) override
             {
                 vcomm::closure_holder holder(done);
@@ -371,8 +371,8 @@ namespace fr { namespace server { namespace subsys {
             }
 
             void iter_info(::google::protobuf::RpcController* /*controller*/,
-                         const ::fr::protocol::fs::iterator_info* request,
-                         ::fr::protocol::fs::element_info* response,
+                         const ::fr::proto::fs::iterator_info* request,
+                         ::fr::proto::fs::element_info* response,
                          ::google::protobuf::Closure* done) override
             {
                 vcomm::closure_holder holder(done);
@@ -382,8 +382,8 @@ namespace fr { namespace server { namespace subsys {
             }
 
             void iter_clone(::google::protobuf::RpcController* /*controller*/,
-                         const ::fr::protocol::fs::iterator_info* request,
-                         ::fr::protocol::fs::iterator_info* response,
+                         const ::fr::proto::fs::iterator_info* request,
+                         ::fr::proto::fs::iterator_info* response,
                          ::google::protobuf::Closure* done) override
             {
                 vcomm::closure_holder holder(done);
@@ -398,8 +398,8 @@ namespace fr { namespace server { namespace subsys {
             }
 
             void close(::google::protobuf::RpcController*   /*controller*/,
-                         const ::fr::protocol::fs::handle*    request,
-                         ::fr::protocol::fs::empty*         /*response*/,
+                         const ::fr::proto::fs::handle*    request,
+                         ::fr::proto::fs::empty*         /*response*/,
                          ::google::protobuf::Closure* done) override
             {
                 vcomm::closure_holder holder(done);
@@ -432,11 +432,11 @@ namespace fr { namespace server { namespace subsys {
 
             static const std::string &name( )
             {
-                return fr::protocol::fs::instance::descriptor( )->full_name( );
+                return fr::proto::fs::instance::descriptor( )->full_name( );
             }
         };
 
-        class proto_file_impl: public fr::protocol::fs::file {
+        class proto_file_impl: public fr::proto::fs::file {
 
             typedef vtrc::shared_ptr<server::file_iface> file_sptr;
             typedef std::map<vtrc::uint32_t, file_sptr>  file_map;
@@ -455,7 +455,7 @@ namespace fr { namespace server { namespace subsys {
 
             static const std::string &name( )
             {
-                return fr::protocol::fs::file::descriptor( )->full_name( );
+                return fr::proto::fs::file::descriptor( )->full_name( );
             }
 
             inline vtrc::uint32_t next_id( )
@@ -490,8 +490,8 @@ namespace fr { namespace server { namespace subsys {
             }
 
             void open(::google::protobuf::RpcController* /*controller*/,
-                         const ::fr::protocol::fs::file_open_req* request,
-                         ::fr::protocol::fs::handle* response,
+                         const ::fr::proto::fs::file_open_req* request,
+                         ::fr::proto::fs::handle* response,
                          ::google::protobuf::Closure* done ) override
             {
                 vcomm::closure_holder holder(done);
@@ -507,8 +507,8 @@ namespace fr { namespace server { namespace subsys {
             }
 
             void tell(::google::protobuf::RpcController* /*controller*/,
-                         const ::fr::protocol::fs::handle* request,
-                         ::fr::protocol::fs::file_position* response,
+                         const ::fr::proto::fs::handle* request,
+                         ::fr::proto::fs::file_position* response,
                          ::google::protobuf::Closure* done) override
             {
                 vcomm::closure_holder holder(done);
@@ -531,8 +531,8 @@ namespace fr { namespace server { namespace subsys {
             }
 
             void seek(::google::protobuf::RpcController* /*controller*/,
-                         const ::fr::protocol::fs::file_set_position* request,
-                         ::fr::protocol::fs::file_position* response,
+                         const ::fr::proto::fs::file_set_position* request,
+                         ::fr::proto::fs::file_position* response,
                          ::google::protobuf::Closure* done) override
             {
                 vcomm::closure_holder holder(done);
@@ -543,8 +543,8 @@ namespace fr { namespace server { namespace subsys {
             }
 
             void read(::google::protobuf::RpcController* /*controller*/,
-                         const ::fr::protocol::fs::file_data_block* request,
-                         ::fr::protocol::fs::file_data_block* response,
+                         const ::fr::proto::fs::file_data_block* request,
+                         ::fr::proto::fs::file_data_block* response,
                          ::google::protobuf::Closure* done) override
             {
                 vcomm::closure_holder holder(done);
@@ -566,8 +566,8 @@ namespace fr { namespace server { namespace subsys {
             }
 
             void write(::google::protobuf::RpcController* /*controller*/,
-                         const ::fr::protocol::fs::file_data_block* request,
-                         ::fr::protocol::fs::file_data_block* response,
+                         const ::fr::proto::fs::file_data_block* request,
+                         ::fr::proto::fs::file_data_block* response,
                          ::google::protobuf::Closure* done) override
             {
                 vcomm::closure_holder holder(done);
@@ -582,8 +582,8 @@ namespace fr { namespace server { namespace subsys {
             }
 
             void flush(::google::protobuf::RpcController* /*controller*/,
-                         const ::fr::protocol::fs::handle* request,
-                         ::fr::protocol::fs::empty* /*response*/,
+                         const ::fr::proto::fs::handle* request,
+                         ::fr::proto::fs::empty* /*response*/,
                          ::google::protobuf::Closure* done) override
             {
                 vcomm::closure_holder holder(done);
@@ -592,8 +592,8 @@ namespace fr { namespace server { namespace subsys {
             }
 
             void close(::google::protobuf::RpcController* controller,
-                         const ::fr::protocol::fs::handle* request,
-                         ::fr::protocol::fs::empty* /*response*/,
+                         const ::fr::proto::fs::handle* request,
+                         ::fr::proto::fs::empty* /*response*/,
                          ::google::protobuf::Closure* done) override
             {
                 vcomm::closure_holder holder(done);

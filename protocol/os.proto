@@ -1,6 +1,6 @@
 
 
-package fr.protocol.os;
+package fr.proto.os;
 
 option cc_generic_services = true;
 

@@ -11,8 +11,8 @@ namespace fr { namespace client { namespace interfaces {
 
     namespace {
 
-        namespace fproto = protocol::fs;
-        namespace vcomm = vtrc::common;
+        namespace fproto = proto::fs;
+        namespace vcomm  = vtrc::common;
         typedef vcomm::rpc_channel* channel_ptr;
 
         typedef fproto::file::Stub              stub_type;

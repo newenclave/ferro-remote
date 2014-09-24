@@ -30,9 +30,9 @@ namespace fr { namespace server { namespace subsys {
 
         const std::string subsys_name( "gpio" );
 
-        namespace gproto = fr::protocol::gpio;
-        namespace vcomm = vtrc::common;
-        namespace vserv = vtrc::server;
+        namespace gproto = fr::proto::gpio;
+        namespace vcomm  = vtrc::common;
+        namespace vserv  = vtrc::server;
 
         typedef gproto::events::Stub events_stub_type;
 
@@ -138,8 +138,8 @@ namespace fr { namespace server { namespace subsys {
             }
 
             void open(::google::protobuf::RpcController* /*controller*/,
-                         const ::fr::protocol::gpio::open_req* request,
-                         ::fr::protocol::gpio::open_res* response,
+                         const ::fr::proto::gpio::open_req* request,
+                         ::fr::proto::gpio::open_res* response,
                          ::google::protobuf::Closure* done) override
             {
                 vcomm::closure_holder holder(done);
@@ -161,8 +161,8 @@ namespace fr { namespace server { namespace subsys {
             }
 
             void exp(::google::protobuf::RpcController* /*controller*/,
-                         const ::fr::protocol::gpio::export_req* request,
-                         ::fr::protocol::gpio::empty* /*response*/,
+                         const ::fr::proto::gpio::export_req* request,
+                         ::fr::proto::gpio::empty* /*response*/,
                          ::google::protobuf::Closure* done) override
             {
                 vcomm::closure_holder holder(done);
@@ -173,8 +173,8 @@ namespace fr { namespace server { namespace subsys {
             }
 
             void setup(::google::protobuf::RpcController* /*controller*/,
-                         const ::fr::protocol::gpio::setup_req* request,
-                         ::fr::protocol::gpio::empty* /*response*/,
+                         const ::fr::proto::gpio::setup_req* request,
+                         ::fr::proto::gpio::empty* /*response*/,
                          ::google::protobuf::Closure* done) override
             {
                 vcomm::closure_holder holder(done);
@@ -183,8 +183,8 @@ namespace fr { namespace server { namespace subsys {
             }
 
             void unexp(::google::protobuf::RpcController* /*controller*/,
-                         const ::fr::protocol::gpio::export_req* request,
-                         ::fr::protocol::gpio::empty* /*response*/,
+                         const ::fr::proto::gpio::export_req* request,
+                         ::fr::proto::gpio::empty* /*response*/,
                          ::google::protobuf::Closure* done) override
             {
                 vcomm::closure_holder holder(done);
@@ -193,8 +193,8 @@ namespace fr { namespace server { namespace subsys {
             }
 
             void info(::google::protobuf::RpcController* controller,
-                         const ::fr::protocol::gpio::info_req* request,
-                         ::fr::protocol::gpio::setup_data* response,
+                         const ::fr::proto::gpio::info_req* request,
+                         ::fr::proto::gpio::setup_data* response,
                          ::google::protobuf::Closure* done) override
             {
                 vcomm::closure_holder holder(done);
@@ -217,8 +217,8 @@ namespace fr { namespace server { namespace subsys {
             }
 
             void close(::google::protobuf::RpcController* /*controller*/,
-                         const ::fr::protocol::gpio::handle* request,
-                         ::fr::protocol::gpio::empty* response,
+                         const ::fr::proto::gpio::handle* request,
+                         ::fr::proto::gpio::empty* response,
                          ::google::protobuf::Closure* done) override
             {
                 vcomm::closure_holder holder(done);
@@ -275,8 +275,8 @@ namespace fr { namespace server { namespace subsys {
             } catch( ... ) { ;;; }
 
             void register_for_change(::google::protobuf::RpcController*,
-                         const ::fr::protocol::gpio::handle* request,
-                         ::fr::protocol::gpio::empty* /*response*/,
+                         const ::fr::proto::gpio::handle* request,
+                         ::fr::proto::gpio::empty* /*response*/,
                          ::google::protobuf::Closure* done) override
             {
                 vcomm::closure_holder holder(done);
@@ -294,8 +294,8 @@ namespace fr { namespace server { namespace subsys {
             }
 
             void unregister_for_change(::google::protobuf::RpcController*,
-                         const ::fr::protocol::gpio::handle* request,
-                         ::fr::protocol::gpio::empty* /*response*/,
+                         const ::fr::proto::gpio::handle* request,
+                         ::fr::proto::gpio::empty* /*response*/,
                          ::google::protobuf::Closure* done) override
             {
 

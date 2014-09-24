@@ -14,7 +14,7 @@ namespace fr { namespace client { namespace interfaces {
     namespace {
 
         namespace vcomm = vtrc::common;
-        namespace gproto = protocol::gpio;
+        namespace gproto = proto::gpio;
 
         typedef gproto::instance::Stub stub_type;
         typedef vcomm::stub_wrapper<stub_type> client_type;

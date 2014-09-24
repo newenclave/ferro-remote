@@ -14,8 +14,8 @@
 namespace fr { namespace client { namespace interfaces {
 
     namespace {
-        namespace vcomm = vtrc::common;
-        namespace fproto = protocol::fs;
+        namespace vcomm  = vtrc::common;
+        namespace fproto = proto::fs;
 
         typedef fproto::instance::Stub          stub_type;
         typedef vcomm::stub_wrapper<stub_type>  client_type;
@@ -24,7 +24,6 @@ namespace fr { namespace client { namespace interfaces {
 namespace filesystem {
 
     struct directory_iterator_impl {
-
 
         vtrc::shared_ptr<vcomm::rpc_channel> channel_;
 

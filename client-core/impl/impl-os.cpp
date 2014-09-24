@@ -11,8 +11,8 @@ namespace fr { namespace client { namespace interfaces {
 
     namespace {
 
-        namespace os_proto = fr::protocol::os;
-        typedef os_proto::instance_Stub               stub_type;
+        namespace oproto = fr::proto::os;
+        typedef oproto::instance::Stub                stub_type;
         typedef vtrc::common::stub_wrapper<stub_type> client_type;
         typedef vtrc::common::rpc_channel             rpc_channel;
 
@@ -28,7 +28,7 @@ namespace fr { namespace client { namespace interfaces {
 
             void execute( const std::string &cmd ) const override
             {
-                os_proto::execute_req req;
+                oproto::execute_req req;
                 req.set_cmd( cmd );
                 client_.call_request( &stub_type::execute, &req );
             }
