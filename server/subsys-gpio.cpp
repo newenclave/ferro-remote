@@ -318,7 +318,7 @@ namespace fr { namespace server { namespace subsys {
                                       vtrc::common::connection_iface_wptr cl )
         {
             vtrc::shared_ptr<gpio_impl>
-                    inst(vtrc::make_shared<gpio_impl>( app, cl ));
+                    inst( vtrc::make_shared<gpio_impl>( app, cl ) );
 
             return app->wrap_service( cl, inst );
         }
@@ -345,7 +345,6 @@ namespace fr { namespace server { namespace subsys {
         }
 
     };
-
 
     gpio::gpio( application *app )
         :impl_(new impl(app))
@@ -375,7 +374,9 @@ namespace fr { namespace server { namespace subsys {
 
     void gpio::start( )
     {
-        impl_->reg_creator( gpio_impl::name( ),  create_service );
+        if( server::gpio::available( ) ) {
+            impl_->reg_creator( gpio_impl::name( ),  create_service );
+        }
     }
 
     void gpio::stop( )

@@ -8,6 +8,7 @@
 #include "gpio.h"
 
 #include "boost/filesystem.hpp"
+#include "boost/system/error_code.hpp"
 
 #include "errno-check.h"
 
@@ -16,6 +17,7 @@ namespace fr { namespace server {
     namespace {
 
         namespace vcomm = vtrc::common;
+        namespace bsys  = boost::system;
 
         const std::string direct_index[ ] = {
             std::string( "in\n" ), std::string( "out\n" )
@@ -97,6 +99,14 @@ namespace fr { namespace server {
             return (memcmp( test.c_str( ), templ.c_str( ), max ) == 0);
         }
 
+    }
+
+    namespace gpio {
+        bool available( )
+        {
+            bsys::error_code ec;
+            return bfs::exists( gpio_sysfs_path, ec );
+        }
     }
 
     struct gpio_helper::impl {

@@ -19,6 +19,8 @@ namespace fr { namespace server {
             ,EDGE_FALLING  = 2
             ,EDGE_BOTH     = 3
         };
+
+        bool available( );
     }
 
     class gpio_helper {
