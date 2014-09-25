@@ -19,70 +19,70 @@ namespace fr { namespace client { namespace interfaces {
 
         typedef fproto::instance::Stub          stub_type;
         typedef vcomm::stub_wrapper<stub_type>  client_type;
+
+        struct dir_iter_impl: public filesystem::directory_iterator_impl {
+
+            vtrc::shared_ptr<vcomm::rpc_channel> channel_;
+
+            mutable client_type         client_;
+            vtrc::uint32_t              hdl_;
+            filesystem::iterator_value  val_;
+            bool                        end_;
+
+            dir_iter_impl( const vtrc::shared_ptr<vcomm::rpc_channel> &c,
+                           const fproto::iterator_info &info )
+                :channel_(c)
+                ,client_(channel_)
+                ,hdl_(info.hdl( ).value( ))
+            {
+                copy_data( info );
+            }
+
+            void copy_data( const fproto::iterator_info &info )
+            {
+                val_.path   = info.path( );
+                end_        = info.end( );
+            }
+
+            directory_iterator_impl *clone( ) const
+            {
+                return clone_impl( );
+            }
+
+            dir_iter_impl *clone_impl( ) const
+            {
+                fproto::iterator_info req_res;
+                client_.call( &stub_type::iter_clone, &req_res, &req_res );
+                return new dir_iter_impl( channel_, req_res );
+            }
+
+            void next( )
+            {
+                fproto::iterator_info req_res;
+                req_res.mutable_hdl( )->set_value( hdl_ );
+                client_.call( &stub_type::iter_next, &req_res, &req_res );
+                copy_data( req_res );
+            }
+
+            bool end( ) const
+            {
+                return end_;
+            }
+
+            filesystem::iterator_value &get( )
+            {
+                return val_;
+            }
+
+            const filesystem::iterator_value &get( ) const
+            {
+                return val_;
+            }
+
+        };
     }
 
 namespace filesystem {
-
-    struct dir_iter_impl: public directory_iterator_impl {
-
-        vtrc::shared_ptr<vcomm::rpc_channel> channel_;
-
-        mutable client_type   client_;
-        vtrc::uint32_t        hdl_;
-        iterator_value        val_;
-        bool                  end_;
-
-        dir_iter_impl( const vtrc::shared_ptr<vcomm::rpc_channel> &c,
-                       const fproto::iterator_info &info )
-            :channel_(c)
-            ,client_(channel_)
-            ,hdl_(info.hdl( ).value( ))
-        {
-            copy_data( info );
-        }
-
-        void copy_data( const fproto::iterator_info &info )
-        {
-            val_.path   = info.path( );
-            end_        = info.end( );
-        }
-
-        directory_iterator_impl *clone( ) const
-        {
-            return clone_impl( );
-        }
-
-        dir_iter_impl *clone_impl( ) const
-        {
-            fproto::iterator_info req_res;
-            client_.call( &stub_type::iter_clone, &req_res, &req_res );
-            return new dir_iter_impl( channel_, req_res );
-        }
-
-        void next( )
-        {
-            fproto::iterator_info req_res;
-            req_res.mutable_hdl( )->set_value( hdl_ );
-            client_.call( &stub_type::iter_next, &req_res, &req_res );
-            copy_data( req_res );
-        }
-
-        bool end( ) const
-        {
-            return end_;
-        }
-
-        iterator_value &get( )
-        {
-            return val_;
-        }
-
-        const iterator_value &get( ) const
-        {
-            return val_;
-        }
-
-    };
 
     typedef directory_iterator::value_type iterator_value_type;
 
@@ -290,7 +290,7 @@ namespace filesystem {
                 client_.call( &stub_type::iter_begin, &req, &res );
 
                 return filesystem::directory_iterator(
-                   new filesystem::dir_iter_impl( channel_, res ));
+                                  new dir_iter_impl( channel_, res ));
             }
 
             filesystem::directory_iterator end( ) const override
