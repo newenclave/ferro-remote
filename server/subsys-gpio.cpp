@@ -91,8 +91,8 @@ namespace fr { namespace server { namespace subsys {
                 ,reactor_(app->subsystem<subsys::reactor>( ))
             { }
 
-            ~gpio_impl( ) try {
-
+            ~gpio_impl( ) try
+            {
                 for( gpio_map::iterator b(gpio_.begin( )), e(gpio_.end( ));
                      b != e; ++b )
                 {
@@ -133,7 +133,7 @@ namespace fr { namespace server { namespace subsys {
 
                 if( setup.has_value( ) ) {
                     unsigned val = setup.value( );
-                    ng->set_value( val != 0 ? 1 : 0 );
+                    ng->set_value( !!val );
                 }
             }
 
