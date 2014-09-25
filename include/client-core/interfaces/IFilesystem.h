@@ -41,6 +41,17 @@ namespace interfaces { namespace filesystem {
         std::string path;
     };
 
+    struct directory_iterator_impl {
+
+        virtual ~directory_iterator_impl( ) { }
+        virtual void next( ) = 0;
+        virtual bool end( )  const = 0;
+        virtual directory_iterator_impl *clone( ) const = 0;
+
+        virtual iterator_value &get( ) = 0;
+        virtual const iterator_value &get( ) const = 0;
+    };
+
     inline bool operator == ( const iterator_value &l, const iterator_value &r )
     { return  l.path == r.path; }
 
@@ -49,7 +60,6 @@ namespace interfaces { namespace filesystem {
                             iterator_value
                           > directory_iterator_traits;
 
-    struct directory_iterator_impl;
 
     class directory_iterator: public directory_iterator_traits {
 

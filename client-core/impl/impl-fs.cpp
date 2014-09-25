@@ -23,7 +23,7 @@ namespace fr { namespace client { namespace interfaces {
 
 namespace filesystem {
 
-    struct directory_iterator_impl {
+    struct dir_iter_impl: public directory_iterator_impl {
 
         vtrc::shared_ptr<vcomm::rpc_channel> channel_;
 
@@ -32,8 +32,8 @@ namespace filesystem {
         iterator_value        val_;
         bool                  end_;
 
-        directory_iterator_impl( const vtrc::shared_ptr<vcomm::rpc_channel> &c,
-              const fproto::iterator_info &info )
+        dir_iter_impl( const vtrc::shared_ptr<vcomm::rpc_channel> &c,
+                       const fproto::iterator_info &info )
             :channel_(c)
             ,client_(channel_)
             ,hdl_(info.hdl( ).value( ))
@@ -49,9 +49,14 @@ namespace filesystem {
 
         directory_iterator_impl *clone( ) const
         {
+            return clone_impl( );
+        }
+
+        dir_iter_impl *clone_impl( ) const
+        {
             fproto::iterator_info req_res;
             client_.call( &stub_type::iter_clone, &req_res, &req_res );
-            return new directory_iterator_impl( channel_, req_res );
+            return new dir_iter_impl( channel_, req_res );
         }
 
         void next( )
@@ -139,7 +144,7 @@ namespace filesystem {
     const iterator_value_type& directory_iterator::operator *( ) const
     {
         if( !impl_ ) throw std::runtime_error( "Bad iterator" );
-        return impl_->val_;
+        return impl_->get( );
     }
 
     const iterator_value_type* directory_iterator::operator -> ( ) const
@@ -285,7 +290,7 @@ namespace filesystem {
                 client_.call( &stub_type::iter_begin, &req, &res );
 
                 return filesystem::directory_iterator(
-                   new filesystem::directory_iterator_impl( channel_, res ));
+                   new filesystem::dir_iter_impl( channel_, res ));
             }
 
             filesystem::directory_iterator end( ) const override
