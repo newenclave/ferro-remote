@@ -537,7 +537,7 @@ namespace fr { namespace server { namespace subsys {
                 int   flags = flags_to_native(request->flags( ));
 
                 if( (flags & O_CREAT) && (0 == mode) ) {
-                    mode = S_IRWXU;
+                    mode = S_IRUSR | S_IWUSR;
                 }
 
                 file_sptr new_file( (mode == 0)

@@ -72,8 +72,7 @@ namespace fr { namespace cc { namespace cmd {
             {
                 vtrc::unique_ptr<fsf::iface> impl(
                           fsf::create( cl, remote_path,
-                                    fsf::flags::WRONLY | fsf::flags::CREAT,
-                                    fsf::mode::IRWXU ) );
+                                    fsf::flags::WRONLY | fsf::flags::CREAT ) );
 
                 std::ifstream inp( local_path );
                 std::vector<char> buf(4096);
