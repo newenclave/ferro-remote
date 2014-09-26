@@ -309,14 +309,17 @@ namespace fr { namespace server { namespace subsys {
 
                 int fd = g->value_fd( );
 
+                vtrc::uint32_t opid = reactor_.next_op_id( );
+
                 server::reaction_callback
                         cb( vtrc::bind( &gpio_impl::value_changed, this,
                                          vtrc::placeholders::_1,
                                          value_data( hdl, fd, g,
-                                                     reactor_.next_op_id( )),
+                                                     opid ),
                                          client_) );
 
                 reactor_.add_fd( fd, EPOLLET | EPOLLPRI, cb );
+                response->set_async_op_id( opid );
             }
 
             void unregister(::google::protobuf::RpcController* /*controller*/,
