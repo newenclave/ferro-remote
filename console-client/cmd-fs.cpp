@@ -53,13 +53,13 @@ namespace fr { namespace cc { namespace cmd {
                                 const std::string &local_path,
                                 core::client_core &cl )
             {
-                vtrc::unique_ptr<fsf::iface> impl(
+                vtrc::unique_ptr<fsf::iface> iimpl(
                           fsf::create( cl, remote_path, fsf::flags::RDONLY ) );
 
                 std::ofstream out(local_path, std::ofstream::out);
                 std::vector<char> buf(4096);
                 size_t total = 0;
-                while( size_t r = impl->read( &buf[0], buf.size( ) ) ) {
+                while( size_t r = iimpl->read( &buf[0], buf.size( ) ) ) {
                     out.write( &buf[0], r );
                     total += r;
                 }
@@ -70,7 +70,7 @@ namespace fr { namespace cc { namespace cmd {
                               const std::string &remote_path,
                               core::client_core &cl )
             {
-                vtrc::unique_ptr<fsf::iface> impl(
+                vtrc::unique_ptr<fsf::iface> iimpl(
                           fsf::create( cl, remote_path,
                                     fsf::flags::WRONLY | fsf::flags::CREAT ) );
 
@@ -80,7 +80,7 @@ namespace fr { namespace cc { namespace cmd {
                 while( size_t w = inp.readsome( &buf[0], buf.size( ) ) ) {
                     size_t pos = 0;
                     while( pos != w ) {
-                        pos += impl->write( &buf[pos], w - pos );
+                        pos += iimpl->write( &buf[pos], w - pos );
                     }
                     total += w;
                 }

@@ -617,8 +617,13 @@ namespace fr { namespace server { namespace subsys {
                 if( request->data( ).size( ) == 0 ) {
                     response->set_length( 0 );
                 } else {
-                    response->set_length( f->write( &request->data( )[0],
-                                                 request->data( ).size( ) ) );
+                    size_t total = request->data( ).size( );
+                    size_t pos = 0;
+                    while ( pos != total ) {
+                        pos += f->write( &request->data( )[pos], total - pos);
+                    }
+
+                    response->set_length( total );
                 }
             }
 
