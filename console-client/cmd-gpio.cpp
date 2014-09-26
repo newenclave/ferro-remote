@@ -61,8 +61,8 @@ namespace fr { namespace cc { namespace cmd {
                 }
             }
 
-            iface_list get_outputs( po::variables_map &vm,
-                                    core::client_core &cli )
+            static iface_list get_outputs( po::variables_map &vm,
+                                           core::client_core &cli )
             {
                 iface_list outputs;
 
