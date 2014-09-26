@@ -66,6 +66,28 @@ namespace fr { namespace cc { namespace cmd {
                 std::cout << total << " bytes downloaded\n";
             }
 
+            void upload_file( const std::string &local_path,
+                              const std::string &remote_path,
+                              core::client_core &cl )
+            {
+                vtrc::unique_ptr<fsf::iface> impl(
+                          fsf::create( cl, remote_path,
+                                    fsf::flags::WRONLY | fsf::flags::CREAT,
+                                    fsf::mode::IRWXU ) );
+
+                std::ifstream inp( local_path );
+                std::vector<char> buf(4096);
+                size_t total = 0;
+                while( size_t w = inp.readsome( &buf[0], buf.size( ) ) ) {
+                    size_t pos = 0;
+                    while( pos != w ) {
+                        pos += impl->write( &buf[pos], w - pos );
+                    }
+                    total += w;
+                }
+                std::cout << total << " bytes uploaded\n";
+            }
+
             void exec( po::variables_map &vm, core::client_core &cl )
             {
                 if( vm.count( "list" ) ) {
@@ -78,12 +100,21 @@ namespace fr { namespace cc { namespace cmd {
                 }
 
                 if( vm.count( "pull" ) ) {
-                    std::string r(vm["pull"].as<std::string>( ));
+                    std::string remote(vm["pull"].as<std::string>( ));
                     std::string o;
                     if( vm.count( "output" ) ) {
                         o = vm["output"].as<std::string>( );
                     }
-                    download_file( r, o, cl );
+                    download_file( remote, o, cl );
+
+                } else if( vm.count( "push" ) ) {
+
+                    std::string local(vm["push"].as<std::string>( ));
+                    std::string o;
+                    if( vm.count( "output" ) ) {
+                        o = vm["output"].as<std::string>( );
+                    }
+                    upload_file( local, o, cl );
                 }
 
                 if( vm.count( "wait" ) ) {

@@ -534,7 +534,11 @@ namespace fr { namespace server { namespace subsys {
                 vcomm::closure_holder holder(done);
 
                 mode_t mode =  mode_to_native(request->mode( ));
-                int flags   = flags_to_native(request->flags( ));
+                int   flags = flags_to_native(request->flags( ));
+
+                if( (flags & O_CREAT) && (0 == mode) ) {
+                    mode = S_IRWXU;
+                }
 
                 file_sptr new_file( (mode == 0)
                     ? fr::server::file::create( request->path( ), flags )
