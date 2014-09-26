@@ -177,7 +177,9 @@ int main( int argc, const char **argv ) try
         return 0;
     }
 
-    if( !current_command.get( ) ) {
+    bool quit(!!vm.count("quit"));
+
+    if( !current_command.get( ) && !quit ) {
         std::cout << "Invalid command '<empty>'\n";
         show_init_help( desc, cm );
         return 2;
@@ -198,12 +200,15 @@ int main( int argc, const char **argv ) try
 
     fr::client::core::client_core client(*pp);
 
-    vm = parse_command( argc, argv, current_command, desc );
+    if( !quit ) {
+        vm = parse_command( argc, argv, current_command, desc );
+    }
 
     //client.async_connect( server, connect_success );
     client.connect( server );
 
-    if( vm.count("quit") ) {
+    if( quit ) {
+        std::cout << "Quit remote\n";
         typedef fr::client::interfaces::internal::iface iiface;
         vtrc::unique_ptr<iiface> ii(fr::client
                                       ::interfaces
