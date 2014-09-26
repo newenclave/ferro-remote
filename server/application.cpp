@@ -166,6 +166,13 @@ namespace fr { namespace server {
 
     void application::stop_all( )
     {
+        typedef subsys_vector::reverse_iterator iter_type;
+        subsys_vector &vec(impl_->subsystems_.subsys_order_);
+
+        for( iter_type b(vec.rbegin( )), e(vec.rend( )); b!=e; ++b ) {
+            (*b)->stop( );
+        }
+
         {
             vtrc::lock_guard<vtrc::mutex> lck(impl_->services_lock_);
             impl_->services_.clear( );
@@ -174,12 +181,6 @@ namespace fr { namespace server {
         stop_all_clients( );
         get_clients( )->clear( );
 
-        typedef subsys_vector::reverse_iterator iter_type;
-        subsys_vector &vec(impl_->subsystems_.subsys_order_);
-
-        for( iter_type b(vec.rbegin( )), e(vec.rend( )); b!=e; ++b ) {
-            (*b)->stop( );
-        }
     }
 
     void application::add_subsystem( const std::type_info &info,
