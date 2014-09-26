@@ -5,7 +5,7 @@ option cc_generic_services = true;
 message empty { }
 
 service internal {
-
+    rpc exit_process( empty ) returns ( empty );
 }
 
 message error_data {

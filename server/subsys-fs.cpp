@@ -643,8 +643,6 @@ namespace fr { namespace server { namespace subsys {
             {
                 vcomm::connection_iface_sptr lock(cli.lock( ));
 
-                std::cout << "Event!!\n";
-
                 if( !lock ) {
                     data.reactor->del_fd( data.fd );
                     return false;

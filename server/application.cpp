@@ -8,8 +8,12 @@
 #include <stdexcept>
 
 #include "vtrc-mutex.h"
+#include "vtrc-bind.h"
 
 #include "google/protobuf/descriptor.h"
+#include "protocol/ferro.pb.h"
+
+#include "vtrc-common/vtrc-closure-holder.h"
 
 namespace fr { namespace server {
 
@@ -25,6 +29,38 @@ namespace fr { namespace server {
     struct subsystem_comtrainer {
         subsys_map      subsys_;
         subsys_vector   subsys_order_;
+    };
+
+    class internal_calls: public fr::proto::internal {
+        application *app_;
+    public:
+        internal_calls( application *app )
+            :app_(app)
+        { }
+
+        void exit_process(::google::protobuf::RpcController* controller,
+                          const ::fr::proto::empty* request,
+                          ::fr::proto::empty* response,
+                          ::google::protobuf::Closure* done) override
+        {
+            vcomm::closure_holder holder(done);
+            app_->quit( );
+        }
+
+        static const std::string &name( )
+        {
+            return fr::proto::internal::descriptor( )->full_name( );
+        }
+
+        static application::service_wrapper_sptr create_call_inst(
+                                      fr::server::application *app,
+                                      vtrc::common::connection_iface_wptr cl)
+        {
+            vtrc::shared_ptr<internal_calls>
+                    inst(vtrc::make_shared<internal_calls>( app ) );
+
+            return app->wrap_service( cl, inst );
+        }
     };
 
     struct application::impl {
@@ -62,9 +98,7 @@ namespace fr { namespace server {
         :vcomm::rpc_service_wrapper( serv )
         ,app_(app)
         ,client_(c)
-    {
-
-    }
+    { }
 
     application::service_wrapper_impl::~service_wrapper_impl( )
     {
@@ -91,7 +125,7 @@ namespace fr { namespace server {
         application::wrap_service(vcomm::connection_iface_wptr cl,
                                    service_wrapper_impl::service_sptr serv )
     {
-        return vtrc::make_shared<application::service_wrapper>(this, cl, serv);
+        return vtrc::make_shared<application::service_wrapper>(this, cl, serv);        
     }
 
     application::application( vtrc::common::pool_pair &pp )
@@ -99,6 +133,8 @@ namespace fr { namespace server {
         ,impl_(new impl(pp))
     {
         impl_->parent_ = this;
+        register_service_creator( internal_calls::name( ),
+                                  internal_calls::create_call_inst );
     }
 
     application::~application( )
