@@ -116,12 +116,12 @@ int main( int argc, const char **argv )
             pp.reset( new vcommon::pool_pair(io_size, rpc_size) );
         }
 
-        server::application app( pp );
+        server::application app( *pp );
 
         init_subsystems( vm, app );
 
-        pp.get_io_pool( ).attach( ); /// RUN!
-        pp.join_all( );
+        pp->get_io_pool( ).attach( ); /// RUN!
+        pp->join_all( );
 
     } catch( const std::exception &ex ) {
         std::cerr << "Application failed: " << ex.what( ) << "\n";
