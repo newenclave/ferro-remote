@@ -11,7 +11,7 @@ namespace fr { namespace client {
     /// void call( error_code, data, some_numeric_value )
     ///
     typedef vtrc::function<
-        void ( unsigned, const std::string &, vtrc::uint64_t )
+        void ( unsigned, const std::string & )
     > async_op_callback_type;
 
 }}

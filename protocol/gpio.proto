@@ -54,6 +54,10 @@ message info_req {
     optional bool with_edge      = 4;
 }
 
+message value_change_data {
+    optional uint32 new_value = 1;
+}
+
 service instance {
 
     rpc open  ( open_req )   returns ( open_res );

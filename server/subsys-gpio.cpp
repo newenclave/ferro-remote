@@ -265,14 +265,18 @@ namespace fr { namespace server { namespace subsys {
                 unsigned              error_code;
                 events_stub_type      events(event_channel_.get( ));
 
-                sproto::async_op_data op_data;
+                sproto::async_op_data       op_data;
+                gproto::value_change_data   vdat;
+
                 op_data.set_id( data.op_id );
 
                 try {
 
-                    op_data.set_value( gpio->value_by_fd( data.fd ) );
+                    vdat.set_new_value( gpio->value_by_fd( data.fd ) );
+                    op_data.set_data( vdat.SerializeAsString( ) );
+
                     std::cout << "New change for " << gpio->id( )
-                                 << " = " << op_data.value( )
+                                 << " = " << vdat.new_value( )
                                  << "\n";
 
                 } catch( const std::exception &ex ) {

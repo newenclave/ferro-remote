@@ -17,10 +17,8 @@ message async_op_data {
     optional uint32      id     = 1;
     optional error_data  error  = 2;
     optional bytes       data   = 3;
-    optional uint64      value  = 4;
 }
 
 service events {
     rpc async_op( async_op_data ) returns ( empty );
 }
-

@@ -126,7 +126,6 @@ namespace fr { namespace client { namespace interfaces {
 
             void event_handler( unsigned err,
                                 const std::string &data,
-                                vtrc::uint64_t,
                                 file::file_event_callback &cb )
             {
                 cb( err, data );
@@ -146,7 +145,7 @@ namespace fr { namespace client { namespace interfaces {
                             vtrc::bind( &file_impl::event_handler, this,
                                         vtrc::placeholders::_1,
                                         vtrc::placeholders::_2,
-                                        vtrc::placeholders::_3, cb ) );
+                                        cb ) );
 
                 core_.register_async_op( res.async_op_id( ), acb );
             }
