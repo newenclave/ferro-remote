@@ -32,17 +32,12 @@ namespace fr { namespace server {
 
         };
 
-        int add_fd_to_epoll( int ep, int fd, uint32_t events,
-                             handle_reaction *react )
+        int add_fd_to_epoll( int ep, int fd, uint32_t events )
         {
-            epoll_event epv;
+            epoll_event epv = {0};
 
-            epv.events   = events;
-            if( !react ) {
-                epv.data.fd = fd;
-            } else {
-                epv.data.ptr = react;
-            }
+            epv.events  = events;
+            epv.data.fd = fd;
 
             return epoll_ctl( ep, EPOLL_CTL_ADD, fd, &epv );
         }
@@ -67,10 +62,11 @@ namespace fr { namespace server {
         int create_epoll( int stop_event )
         {
             int fd = epoll_create( 64 );
+
             errno_error::errno_assert( -1 != fd, "epoll_create" );
 
-            int res = add_fd_to_epoll( fd, stop_event,
-                                       EPOLLIN | EPOLLET, NULL );
+            int res = add_fd_to_epoll( fd, stop_event, EPOLLIN | EPOLLET );
+
             if( -1 == res ) {
                 close( fd );
                 vcomm::throw_system_error( errno, "epoll_ctl" );
@@ -125,7 +121,7 @@ namespace fr { namespace server {
 
                 new_react->call_ = cb;
 
-                int res = add_fd_to_epoll( poll_fd_.hdl( ), fd, events, NULL );
+                int res = add_fd_to_epoll( poll_fd_.hdl( ), fd, events );
 
                 errno_error::errno_assert( -1 != res, "epoll_ctl" );
                 vtrc::upgrade_to_unique utl(lck);

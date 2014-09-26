@@ -455,15 +455,15 @@ namespace fr { namespace server { namespace subsys {
 
             typedef std::map<vtrc::uint32_t, file_sptr>  file_map;
 
-            vcomm::connection_iface_wptr client_;
-            file_map            files_;
-            vtrc::shared_mutex  files_lock_;
+            vcomm::connection_iface_wptr  client_;
+            file_map                      files_;
+            vtrc::shared_mutex            files_lock_;
 
-            vtrc::atomic<vtrc::uint32_t> index_;
-            subsys::reactor     &reactor_;
+            vtrc::atomic<vtrc::uint32_t>  index_;
+            subsys::reactor              &reactor_;
 
-            rpc_channel_sptr     event_channel_;
-            stub_type            events_;
+            rpc_channel_sptr              event_channel_;
+            stub_type                     events_;
 
         public:
 
@@ -477,14 +477,18 @@ namespace fr { namespace server { namespace subsys {
             { }
 
             ~proto_file_impl( ) try {
+                destroy_all( );
+            } catch( ... ) { }
 
+            void destroy_all( )
+            {
+                vtrc::unique_shared_lock lck( files_lock_ );
                 for( file_map::iterator b(files_.begin( )), e(files_.end( ));
                      b!=e; ++b)
                 {
                     reactor_.del_fd( b->second->handle( ) );
                 }
-
-            } catch( ... ) { }
+            }
 
             static const std::string &name( )
             {

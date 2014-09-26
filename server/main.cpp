@@ -69,7 +69,6 @@ namespace {
         std::cout << "Usage: ferro_remote_server [options]\n"
                   << dsc << "\n";
     }
-
 }
 
 int main( int argc, const char **argv )
@@ -116,6 +115,9 @@ int main( int argc, const char **argv )
         init_subsystems( vm, app );
 
         pp.get_io_pool( ).attach( ); /// RUN!
+
+        app.stop_all_clients( );
+        app.stop_all( );
 
         pp.join_all( );
 

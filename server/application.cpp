@@ -14,6 +14,7 @@
 #include "protocol/ferro.pb.h"
 
 #include "vtrc-common/vtrc-closure-holder.h"
+#include "vtrc-common/vtrc-connection-list.h"
 
 namespace fr { namespace server {
 
@@ -165,6 +166,14 @@ namespace fr { namespace server {
 
     void application::stop_all( )
     {
+        {
+            vtrc::lock_guard<vtrc::mutex> lck(impl_->services_lock_);
+            impl_->services_.clear( );
+        }
+
+        stop_all_clients( );
+        get_clients( )->clear( );
+
         typedef subsys_vector::reverse_iterator iter_type;
         subsys_vector &vec(impl_->subsystems_.subsys_order_);
 

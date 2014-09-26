@@ -2,6 +2,8 @@
 
 #include "interfaces/IFile.h"
 #include "interfaces/IFilesystem.h"
+#include "interfaces/IInternal.h"
+
 #include "command-iface.h"
 
 #include "boost/program_options.hpp"
@@ -18,6 +20,7 @@ namespace fr { namespace cc { namespace cmd {
         namespace core  = client::core;
         namespace fs    = client::interfaces::filesystem;
         namespace fsf   = client::interfaces::file;
+        namespace inter = client::interfaces::internal;
 
         const char *cmd_name = "fs";
 
@@ -61,7 +64,11 @@ namespace fr { namespace cc { namespace cmd {
 
                     sleep( 10 );
                 }
+                vtrc::unique_ptr<inter::iface> i( inter::create( cl ) );
+                i->exit_process( );
+
                 std::cout << "Exit unreg \n";
+
             }
 
             void add_options( po::options_description &desc )
