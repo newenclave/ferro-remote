@@ -2,7 +2,6 @@
 
 #include "interfaces/IFile.h"
 #include "interfaces/IFilesystem.h"
-#include "interfaces/IInternal.h"
 
 #include "command-iface.h"
 
@@ -30,7 +29,6 @@ namespace fr { namespace cc { namespace cmd {
         namespace core  = client::core;
         namespace fs    = client::interfaces::filesystem;
         namespace fsf   = client::interfaces::file;
-        namespace inter = client::interfaces::internal;
 
         const char *cmd_name = "fs";
 

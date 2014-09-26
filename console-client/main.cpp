@@ -8,6 +8,8 @@
 #include "boost/system/error_code.hpp"
 
 #include "google/protobuf/descriptor.h"
+#include "interfaces/IInternal.h"
+
 
 namespace po = boost::program_options;
 
@@ -48,6 +50,8 @@ namespace {
                     "threads for rpc calls; default = 1")
 
             ("only-pool,o", "use io pool for io operations and rpc calls")
+
+            ("quit,q", "quit the remote service")
 
             ;
     }
@@ -199,7 +203,16 @@ int main( int argc, const char **argv ) try
     //client.async_connect( server, connect_success );
     client.connect( server );
 
-    current_command->exec( vm, client );
+    if( vm.count("quit") ) {
+        typedef fr::client::interfaces::internal::iface iiface;
+        vtrc::unique_ptr<iiface> ii(fr::client
+                                      ::interfaces
+                                      ::internal::create( client ));
+        ii->exit_process( );
+
+    } else {
+        current_command->exec( vm, client );
+    }
 
     pp->stop_all( );
     pp->join_all( );
