@@ -220,7 +220,7 @@ namespace fr { namespace server {
     ///
     //// services
     ///
-    void application::register_service_creator(const std::string &name,
+    void application::register_service_creator( const std::string &name,
                                                 service_getter_type func )
     {
         vtrc::lock_guard<vtrc::mutex> lck(impl_->services_lock_);
