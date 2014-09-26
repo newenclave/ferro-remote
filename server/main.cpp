@@ -108,7 +108,13 @@ int main( int argc, const char **argv )
             throw std::runtime_error( "rpc-pool-size must be at least 1" );
         }
 
-        vcommon::pool_pair pp( io_size, rpc_size );
+        vtrc::unique_ptr<vcommon::pool_pair> pp;
+
+        if( use_only_pool ) {
+            pp.reset( new vcommon::pool_pair( io_size ) );
+        } else {
+            pp.reset( new vcommon::pool_pair(io_size, rpc_size) );
+        }
 
         server::application app( pp );
 
