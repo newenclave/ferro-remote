@@ -1,5 +1,7 @@
 
 #include <iostream>
+#include <vector>
+
 #include "interfaces/IGPIO.h"
 #include "command-iface.h"
 
@@ -33,50 +35,77 @@ namespace fr { namespace cc { namespace cmd {
 
         struct impl: public command_iface {
 
+
+            typedef vtrc::shared_ptr<igpio::iface> iface_sptr;
+            typedef std::vector<iface_sptr> iface_list;
+
             const char *name( ) const
             {
                 return cmd_name;
             }
 
-
             void event_cb( unsigned err, unsigned val,
-                           vtrc::shared_ptr<igpio::iface> out,
-                           unsigned gpio )
+                           iface_list &out, unsigned gpio )
             {
                 if( !err ) {
                     std::cout << "New value for "
                               << gpio << " = " << val << "\n";
-                    out->set_value( val );
+                    for( iface_list::iterator b(out.begin( )), e(out.end( ));
+                         b != e; ++b )
+                    {
+                        (*b)->set_value( val );
+                    }
+
                 } else {
                     std::cout << "Got " << err << " as error\n";
                 }
             }
 
-            void exec( po::variables_map &vm, core::client_core &client )
+            iface_list get_outputs( po::variables_map &vm,
+                                    core::client_core &cli )
+            {
+                iface_list outputs;
+
+                if( vm.count( "out" ) ) {
+                    typedef std::vector<unsigned> vec;
+                    vec out = vm["out"].as<std::vector<unsigned> >( );
+                    for( vec::iterator b(out.begin( )), e(out.end());
+                         b!=e; ++b )
+                    {
+                        iface_sptr out( igpio::create_output( cli, *b ) );
+                        outputs.push_back( out );
+                    }
+                }
+                return outputs;
+            }
+
+            void exec( po::variables_map &vm, core::client_core &cli )
             {
 
-                if( vm.count( "wait" ) ) {
+                if( vm.count( "in" ) ) {
 
-                    unsigned g(vm["wait"].as<unsigned>( ));
+                    unsigned inp(vm["in"].as<unsigned>( ));
+
                     unsigned to = vm.count( "timeout" )
                                 ? vm["timeout"].as<unsigned>( )
                                 : 0;
-                    vtrc::unique_ptr<igpio::iface> ptr
-                                        ( igpio::create( client, g ) );
 
-                    vtrc::shared_ptr<igpio::iface> out(
-                                            igpio::create_output( client, 22 ));
+                    iface_list outputs(get_outputs( vm, cli ));
+
+                    vtrc::unique_ptr<igpio::iface> ptr
+                                        ( igpio::create( cli, inp ) );
+
+                    ptr->export_device( );
+                    ptr->set_direction( igpio::DIRECT_IN );
+                    ptr->set_edge( igpio::EDGE_BOTH );
 
                     igpio::value_change_callback cb(vtrc::bind(
                                         &impl::event_cb, this,
                                         vtrc::placeholders::_1,
                                         vtrc::placeholders::_2,
-                                        out,
-                                        g ));
+                                        outputs,
+                                        inp ));
 
-                    ptr->export_device( );
-                    ptr->set_direction( igpio::DIRECT_IN );
-                    ptr->set_edge( igpio::EDGE_BOTH );
                     ptr->register_for_change( cb );
 
                     sleep( to );
@@ -90,7 +119,9 @@ namespace fr { namespace cc { namespace cmd {
                 /// "io-pool-size,i" "rpc-pool-size,r" "only-pool,o"
                 ///
                 desc.add_options( )
-                    ("wait,w", po::value<unsigned>( ), "wait gpio event")
+                    ("in,I", po::value<unsigned>( ), "wait input from...")
+                    ("out,O", po::value<std::vector<unsigned> >( ),
+                                                     "set output from IN")
                     ("timeout,t", po::value<unsigned>( ), "timeout for 'wait'"
                                                               "; seconds")
                     ;
