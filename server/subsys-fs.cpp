@@ -586,7 +586,7 @@ namespace fr { namespace server { namespace subsys {
             {
                 vcomm::closure_holder holder(done);
                 file_sptr f(get_file( request->hdl( ).value( ) ));
-                size_t max_block = request->data( ).size( );
+                size_t max_block = request->length( );
 
                 if( max_block > 44000 ) { /// protocol violation
                     max_block = 44000;

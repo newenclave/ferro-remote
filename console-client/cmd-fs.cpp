@@ -1,4 +1,5 @@
 #include <iostream>
+#include <fstream>
 
 #include "interfaces/IFile.h"
 #include "interfaces/IFilesystem.h"
@@ -48,6 +49,23 @@ namespace fr { namespace cc { namespace cmd {
                 }
             }
 
+            void download_file( const std::string &remote_path,
+                                const std::string &local_path,
+                                core::client_core &cl )
+            {
+                vtrc::unique_ptr<fsf::iface> impl(
+                          fsf::create( cl, remote_path, fsf::flags::RDONLY ) );
+
+                std::ofstream out(local_path, std::ofstream::out);
+                std::vector<char> buf(4096);
+                size_t total = 0;
+                while( size_t r = impl->read( &buf[0], buf.size( ) ) ) {
+                    out.write( &buf[0], r );
+                    total += r;
+                }
+                std::cout << total << " bytes downloaded\n";
+            }
+
             void exec( po::variables_map &vm, core::client_core &cl )
             {
                 if( vm.count( "list" ) ) {
@@ -57,6 +75,15 @@ namespace fr { namespace cc { namespace cmd {
                         std::cout << d.path << "\n";
                     }
                     std::cout << "\n";
+                }
+
+                if( vm.count( "pull" ) ) {
+                    std::string r(vm["pull"].as<std::string>( ));
+                    std::string o;
+                    if( vm.count( "output" ) ) {
+                        o = vm["output"].as<std::string>( );
+                    }
+                    download_file( r, o, cl );
                 }
 
                 if( vm.count( "wait" ) ) {
@@ -82,10 +109,19 @@ namespace fr { namespace cc { namespace cmd {
             void add_options( po::options_description &desc )
             {
                 /// reserver as common
-                /// "help,h" "command,c" "server,s"
-                /// "io-pool-size,i" "rpc-pool-size,r" "only-pool,o"
+                /// "help,h"
+                /// "command,c"
+                /// "server,s"
+                /// "io-pool-size,i"
+                /// "rpc-pool-size,r"
+                /// "only-pool,o"
                 desc.add_options( )
                     ("list,l", po::value<std::string>( ), "show directory list")
+
+                    ("pull,d", po::value<std::string>( ), "download file")
+                    ("push,u", po::value<std::string>( ), "upload file")
+                    ("output,O", po::value<std::string>( ), "output path/name")
+
                     ("wait,w", po::value<std::string>( ), "wait file event")
                     ("timeout,t", po::value<unsigned>( ), "timeout for 'wait'"
                                                           "; seconds")
