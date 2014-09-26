@@ -12,6 +12,16 @@
 #include "vtrc-common/vtrc-exception.h"
 #include "vtrc-bind.h"
 
+#ifdef _MSC_VER
+#include <windows.h>
+#define sleep_ Sleep /// milliseconds
+#define MILLISECONDS( x ) x
+#else
+#include <unistd.h>
+#define sleep_ usleep /// microseconds
+#define MILLISECONDS( x ) ((x) * 1000)
+#endif
+
 namespace fr { namespace cc { namespace cmd {
 
     namespace {
@@ -53,6 +63,11 @@ namespace fr { namespace cc { namespace cmd {
 
                 if( vm.count( "wait" ) ) {
                     std::string p(vm["wait"].as<std::string>( ));
+
+                    unsigned to = vm.count( "timeout" )
+                                ? vm["timeout"].as<unsigned>( )
+                                : 0;
+
                     vtrc::unique_ptr<fsf::iface> i(
                                 fsf::create( cl, p, fsf::flags::RDONLY ) );
 
@@ -62,13 +77,8 @@ namespace fr { namespace cc { namespace cmd {
                                                     vtrc::placeholders::_2 ));
                     i->register_for_events( cb );
 
-                    sleep( 10 );
+                    sleep_( MILLISECONDS(to) * 1000 );
                 }
-                vtrc::unique_ptr<inter::iface> i( inter::create( cl ) );
-                i->exit_process( );
-
-                std::cout << "Exit unreg \n";
-
             }
 
             void add_options( po::options_description &desc )
@@ -79,6 +89,8 @@ namespace fr { namespace cc { namespace cmd {
                 desc.add_options( )
                     ("list,l", po::value<std::string>( ), "show directory list")
                     ("wait,w", po::value<std::string>( ), "wait file event")
+                    ("timeout,t", po::value<unsigned>( ), "timeout for 'wait'"
+                                                          "; seconds")
                     ;
             }
 
