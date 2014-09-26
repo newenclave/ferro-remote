@@ -402,7 +402,7 @@ namespace fr { namespace server { namespace subsys {
         if( server::gpio::available( ) ) {
             impl_->reg_creator( gpio_impl::name( ),  create_service );
         } else {
-            std::cout << "GPIO was not found\n";
+            //std::cout << "GPIO was not found\n";
         }
     }
 

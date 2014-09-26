@@ -39,11 +39,14 @@ namespace fr { namespace cc { namespace cmd {
             }
 
 
-            void event_cb( unsigned err, unsigned gpio, unsigned val )
+            void event_cb( unsigned err, unsigned val,
+                           vtrc::shared_ptr<igpio::iface> out,
+                           unsigned gpio )
             {
                 if( !err ) {
                     std::cout << "New value for "
                               << gpio << " = " << val << "\n";
+                    out->set_value( val );
                 } else {
                     std::cout << "Got " << err << " as error\n";
                 }
@@ -51,7 +54,6 @@ namespace fr { namespace cc { namespace cmd {
 
             void exec( po::variables_map &vm, core::client_core &client )
             {
-
 
                 if( vm.count( "wait" ) ) {
 
@@ -62,10 +64,14 @@ namespace fr { namespace cc { namespace cmd {
                     vtrc::unique_ptr<igpio::iface> ptr
                                         ( igpio::create( client, g ) );
 
+                    vtrc::shared_ptr<igpio::iface> out(
+                                            igpio::create_output( client, 22 ));
+
                     igpio::value_change_callback cb(vtrc::bind(
                                         &impl::event_cb, this,
                                         vtrc::placeholders::_1,
                                         vtrc::placeholders::_2,
+                                        out,
                                         g ));
 
                     ptr->export_device( );
