@@ -462,8 +462,8 @@ namespace fr { namespace server { namespace subsys {
             vtrc::atomic<vtrc::uint32_t>  index_;
             subsys::reactor              &reactor_;
 
-            rpc_channel_sptr              event_channel_;
-            stub_type                     events_;
+            rpc_channel_sptr             event_channel_;
+            stub_type                    events_;
 
         public:
 

@@ -146,7 +146,6 @@ namespace fr { namespace server {
 
     void application::quit( )
     {
-        stop_all( );
         impl_->pools_.stop_all( );
     }
 

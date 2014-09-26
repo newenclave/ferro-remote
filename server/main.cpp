@@ -35,7 +35,7 @@ namespace {
     }
 
     po::variables_map create_cmd_params( int argc, const char **argv,
-                                         po::options_description const desc )
+                                         po::options_description const &desc )
     {
         po::variables_map vm;
         po::parsed_options parsed (
@@ -115,11 +115,9 @@ int main( int argc, const char **argv )
         init_subsystems( vm, app );
 
         pp.get_io_pool( ).attach( ); /// RUN!
-
-        app.stop_all_clients( );
-        app.stop_all( );
-
         pp.join_all( );
+
+        app.stop_all( );
 
     } catch( const std::exception &ex ) {
         std::cerr << "Application failed: " << ex.what( ) << "\n";
