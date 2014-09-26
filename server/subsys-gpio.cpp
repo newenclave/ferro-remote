@@ -275,10 +275,6 @@ namespace fr { namespace server { namespace subsys {
                     vdat.set_new_value( gpio->value_by_fd( data.fd ) );
                     op_data.set_data( vdat.SerializeAsString( ) );
 
-                    std::cout << "New change for " << gpio->id( )
-                                 << " = " << vdat.new_value( )
-                                 << "\n";
-
                 } catch( const std::exception &ex ) {
                     error_code = errno;
                     err.assign( ex.what( ) );

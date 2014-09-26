@@ -147,13 +147,11 @@ namespace fr {  namespace client { namespace core {
             vtrc::unique_shared_lock lck( cbi_->acb_lock_ );
             cb_map::iterator f(cbi_->acb_.find( request->id( ) ));
 
-            std::cout << "event " << request->id( );
             if( f != cbi_->acb_.end( ) ) {
-                std::cout << "found\n";
                 f->second( request->error( ).code( ),
                            request->data( ) );
             } else {
-                std::cout << "not found\n";
+                ///std::cout << "not found\n";
             }
         }
     };
