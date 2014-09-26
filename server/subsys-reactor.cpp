@@ -11,6 +11,8 @@
 #include <fcntl.h>
 #include <sys/epoll.h>
 
+#include "vtrc-atomic.h"
+
 namespace fr { namespace server { namespace subsys {
 
     namespace {
@@ -33,7 +35,9 @@ namespace fr { namespace server { namespace subsys {
         poll_reactor         reactor_;
         thread_sptr          thread_;
         bool                 running_;
-        size_t               count_;
+        vtrc::atomic<size_t> count_;
+        vtrc::atomic<size_t> id_;
+
 
         void reactor_thread( )
         {
@@ -50,6 +54,7 @@ namespace fr { namespace server { namespace subsys {
             :app_(app)
             ,running_(false)
             ,count_(0)
+            ,id_(100)
         { }
 
         void reg_creator( const std::string &name,
@@ -133,6 +138,11 @@ namespace fr { namespace server { namespace subsys {
     void reactor::del_fd( int fd )
     {
         impl_->reactor_.del_fd( fd );
+    }
+
+    size_t reactor::next_op_id( )
+    {
+        return ++impl_->id_;
     }
 
 }}}

@@ -12,7 +12,6 @@ namespace core {
 
 namespace interfaces { namespace filesystem {
 
-
     struct stat_data {          /*            man 2 stat            */
         vtrc::uint64_t dev;     /* ID of device containing file     */
         vtrc::uint64_t ino;     /* inode number                     */

@@ -6,6 +6,7 @@
 #include "subsys-gpio.h"
 #include "subsys-reactor.h"
 
+#include "protocol/ferro.pb.h"
 #include "protocol/gpio.pb.h"
 
 #include "gpio.h"
@@ -31,10 +32,12 @@ namespace fr { namespace server { namespace subsys {
         const std::string subsys_name( "gpio" );
 
         namespace gproto = fr::proto::gpio;
+        namespace sproto = fr::proto;
+
         namespace vcomm  = vtrc::common;
         namespace vserv  = vtrc::server;
 
-        typedef gproto::events::Stub events_stub_type;
+        typedef sproto::events::Stub events_stub_type;
 
         using vserv::channels::unicast::create_event_channel;
         typedef vtrc::shared_ptr<vcomm::rpc_channel> rpc_channel_sptr;
@@ -99,7 +102,6 @@ namespace fr { namespace server { namespace subsys {
                     if( b->second->value_opened( ) ) {
                         reactor_.del_fd( b->second->value_fd( ) );
                     }
-                    std::cout << "del " << b->second->value_fd( ) << "\n";
                 }
 
             } catch( ... ) { }
@@ -233,9 +235,22 @@ namespace fr { namespace server { namespace subsys {
                 }
             }
 
-            bool value_changed( vtrc::uint32_t hdl,
-                                unsigned events,
-                                int fd, gpio_wptr &weak_gpio,
+            struct value_data {
+                vtrc::uint32_t  hdl;
+                int             fd;
+                gpio_wptr       weak_gpio;
+                size_t          op_id;
+                value_data( vtrc::uint32_t h, int f,
+                            gpio_sptr &gpio,  size_t op )
+                    :hdl(h)
+                    ,fd(f)
+                    ,weak_gpio(gpio)
+                    ,op_id(op)
+                { }
+            };
+
+            bool value_changed( unsigned events,
+                                value_data &data,
                                 vcomm::connection_iface_wptr cli ) try
             {
                 vcomm::connection_iface_sptr lck( cli.lock( ) );
@@ -243,19 +258,21 @@ namespace fr { namespace server { namespace subsys {
                     return false;
                 }
 
-                gpio_sptr gpio( weak_gpio.lock( ) );
+                gpio_sptr gpio( data.weak_gpio.lock( ) );
 
-                bool success = true;
-                std::string          err;
-                unsigned             error_code;
-                events_stub_type     events(event_channel_.get( ));
-                gproto::change_state req;
+                bool                  success = true;
+                std::string           err;
+                unsigned              error_code;
+                events_stub_type      events(event_channel_.get( ));
+
+                sproto::async_op_data op_data;
+                op_data.set_id( data.op_id );
 
                 try {
 
-                    req.set_new_value( gpio->value_by_fd( fd ) );
+                    op_data.set_value( gpio->value_by_fd( data.fd ) );
                     std::cout << "New change for " << gpio->id( )
-                                 << " = " << req.new_value( )
+                                 << " = " << op_data.value( )
                                  << "\n";
 
                 } catch( const std::exception &ex ) {
@@ -265,18 +282,21 @@ namespace fr { namespace server { namespace subsys {
                 }
 
                 if( !success ) {
-                    req.set_error( error_code );
-                    req.set_error_text( err );
+                    op_data.mutable_error( )->set_code( error_code );
+                    op_data.mutable_error( )->set_text( err );
                 }
-                events.on_state_change( NULL, &req, NULL, NULL );
+
+                events.async_op( NULL, &op_data, NULL, NULL );
 
                 return success;
 
-            } catch( ... ) { ;;; }
+            } catch( ... ) {
+                return false;
+            }
 
             void register_for_change(::google::protobuf::RpcController*,
                          const ::fr::proto::gpio::handle* request,
-                         ::fr::proto::gpio::empty* /*response*/,
+                         ::fr::proto::gpio::empty*          /*response*/,
                          ::google::protobuf::Closure* done) override
             {
                 vcomm::closure_holder holder(done);
@@ -286,9 +306,11 @@ namespace fr { namespace server { namespace subsys {
 
                 server::reaction_callback
                         cb( vtrc::bind( &gpio_impl::value_changed, this,
-                                         request->value( ),
                                          vtrc::placeholders::_1,
-                                         fd, gpio_wptr(g), client_) );
+                                         value_data( request->value( ),
+                                                     fd, g,
+                                                     reactor_.next_op_id( )),
+                                        client_) );
 
                 reactor_.add_fd( fd, EPOLLET | EPOLLPRI, cb );
             }

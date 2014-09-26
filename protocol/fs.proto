@@ -142,6 +142,14 @@ message file_data_block {
     optional uint32  length  = 3;
 }
 
+message register_req {
+    optional handle  hdl = 1;
+}
+
+message register_res {
+    optional uint32  async_op_id  = 1;
+}
+
 // files operations
 service file {
 
@@ -154,6 +162,9 @@ service file {
     rpc write( file_data_block )  returns ( file_data_block );
 
     rpc flush( handle )  returns ( empty );
+
+    rpc register_for_events( register_req ) returns ( register_res );
+    rpc unregister ( register_req ) returns ( empty );
 
     rpc close( handle)   returns ( empty );
 

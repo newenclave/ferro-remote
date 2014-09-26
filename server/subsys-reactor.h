@@ -5,6 +5,8 @@
 #include "subsystem-iface.h"
 #include "poll-reactor.h"
 
+#include <sys/epoll.h>
+
 namespace fr { namespace server {
 
     class application;
@@ -34,6 +36,8 @@ namespace subsys {
 
         void add_fd( int fd, unsigned flags, reaction_callback cb );
         void del_fd( int fd );
+
+        size_t next_op_id( );
 
     };
 

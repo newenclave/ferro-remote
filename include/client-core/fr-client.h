@@ -7,6 +7,9 @@
 #include "vtrc-function.h"
 #include "vtrc-common/vtrc-closure.h"
 
+#include "vtrc-stdint.h"
+#include "interfaces/IAsyncOperation.h"
+
 namespace boost { namespace system {
     class error_code;
 }}
@@ -53,6 +56,8 @@ namespace fr {  namespace client { namespace core {
         vtrc::common::rpc_channel *create_channel( );
         vtrc::common::rpc_channel *create_channel( unsigned flags );
 
+        void register_async_op( size_t id, async_op_callback_type cb );
+        void unregister_async_op( size_t id );
     };
 
 }}}

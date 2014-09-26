@@ -1,6 +1,7 @@
 
 #include "subsys-fs.h"
 #include "protocol/fs.pb.h"
+#include "protocol/ferro.pb.h"
 
 #include "application.h"
 
@@ -14,11 +15,16 @@
 
 #include "vtrc-common/vtrc-closure-holder.h"
 #include "vtrc-common/vtrc-mutex-typedefs.h"
+#include "vtrc-server/vtrc-channels.h"
+
 
 #include "vtrc-atomic.h"
 #include "vtrc-common/vtrc-exception.h"
 
 #include "boost/filesystem.hpp"
+
+#include "subsys-reactor.h"
+#include "vtrc-bind.h"
 
 namespace fr { namespace server { namespace subsys {
 
@@ -100,6 +106,12 @@ namespace fr { namespace server { namespace subsys {
 
         typedef std::map<vtrc::uint32_t, bfs::path>               path_map;
         typedef std::map<vtrc::uint32_t, bfs::directory_iterator> iterator_map;
+
+        typedef proto::events::Stub stub_type;
+
+        using vtrc::server::channels::unicast::create_event_channel;
+
+        typedef vtrc::shared_ptr<vcomm::rpc_channel> rpc_channel_sptr;
 
         class proto_fs_impl: public fr::proto::fs::instance {
 
@@ -439,19 +451,40 @@ namespace fr { namespace server { namespace subsys {
         class proto_file_impl: public fr::proto::fs::file {
 
             typedef vtrc::shared_ptr<server::file_iface> file_sptr;
+            typedef vtrc::weak_ptr<server::file_iface>   file_wptr;
+
             typedef std::map<vtrc::uint32_t, file_sptr>  file_map;
 
+            vcomm::connection_iface_wptr client_;
             file_map            files_;
             vtrc::shared_mutex  files_lock_;
 
             vtrc::atomic<vtrc::uint32_t> index_;
+            subsys::reactor     &reactor_;
+
+            rpc_channel_sptr     event_channel_;
+            stub_type            events_;
 
         public:
 
-            proto_file_impl( fr::server::application * /*app*/,
-                             vcomm::connection_iface_wptr /*cli */)
-                :index_(100)
+            proto_file_impl( fr::server::application *app,
+                             vcomm::connection_iface_wptr &cli)
+                :client_(cli)
+                ,index_(100)
+                ,reactor_(app->subsystem<subsys::reactor>( ))
+                ,event_channel_(create_event_channel(client_.lock( )))
+                ,events_(event_channel_.get( ))
             { }
+
+            ~proto_file_impl( ) try {
+
+                for( file_map::iterator b(files_.begin( )), e(files_.end( ));
+                     b!=e; ++b)
+                {
+                    reactor_.del_fd( b->second->handle( ) );
+                }
+
+            } catch( ... ) { }
 
             static const std::string &name( )
             {
@@ -591,13 +624,96 @@ namespace fr { namespace server { namespace subsys {
                 f->flush( );
             }
 
+            struct value_data {
+                file_wptr        inst;
+                int              fd;
+                subsys::reactor *reactor;
+                size_t           op;
+                value_data( file_sptr &f, subsys::reactor *r, size_t o )
+                    :inst(f)
+                    ,fd(f->handle( ))
+                    ,reactor(r)
+                    ,op(o)
+                { }
+            };
+
+            bool event_handler( unsigned /*events*/,
+                                value_data &data,
+                                vcomm::connection_iface_wptr cli ) try
+            {
+                vcomm::connection_iface_sptr lock(cli.lock( ));
+
+                std::cout << "Event!!\n";
+
+                if( !lock ) {
+                    data.reactor->del_fd( data.fd );
+                    return false;
+                }
+
+                proto::async_op_data req;
+                req.set_id( data.op );
+
+                std::vector<char> buf(1024);
+                int res = ::read( data.fd, &buf[0], buf.size( ) );
+
+                if( -1 == res ) {
+                    req.mutable_error( )->set_code( errno );
+                    req.mutable_error( )->set_text( strerror(errno) );
+                } else {
+                    req.set_data( &buf[0], res );
+                }
+
+                events_.async_op( NULL, &req, NULL, NULL );
+                return true;
+
+            } catch( ... ) {
+                return false;
+            }
+
+            void register_for_events(::google::protobuf::RpcController* ,
+                         const ::fr::proto::fs::register_req* request,
+                         ::fr::proto::fs::register_res* response,
+                         ::google::protobuf::Closure* done) override
+            {
+                vcomm::closure_holder holder(done);
+                file_sptr f(get_file( request->hdl( ).value( ) ));
+
+                size_t op_id(reactor_.next_op_id( ));
+
+                server::reaction_callback
+                        cb( vtrc::bind( &proto_file_impl::event_handler, this,
+                                         vtrc::placeholders::_1,
+                                         value_data( f, &reactor_, op_id),
+                                        client_) );
+                reactor_.add_fd( f->handle( ),
+                                 EPOLLIN | EPOLLET | EPOLLPRI, cb );
+
+                response->set_async_op_id( op_id );
+            }
+
+            void unregister(::google::protobuf::RpcController* controller,
+                         const ::fr::proto::fs::register_req* request,
+                         ::fr::proto::fs::empty* response,
+                         ::google::protobuf::Closure* done) override
+            {
+                vcomm::closure_holder holder(done);
+                file_sptr f(get_file( request->hdl( ).value( ) ));
+                reactor_.del_fd( f->handle( ) );
+            }
+
             void close(::google::protobuf::RpcController* controller,
                          const ::fr::proto::fs::handle* request,
                          ::fr::proto::fs::empty* /*response*/,
                          ::google::protobuf::Closure* done) override
             {
                 vcomm::closure_holder holder(done);
-                del_file( request->value( ) );
+                vtrc::upgradable_lock lck( files_lock_ );
+                file_map::iterator f(files_.find( request->value( ) ));
+                if( f != files_.end( ) ) {
+                    reactor_.del_fd( f->second->handle( ) );
+                    vtrc::upgrade_to_unique utl(lck);
+                    files_.erase( f );
+                }
             }
 
         };
@@ -625,7 +741,8 @@ namespace fr { namespace server { namespace subsys {
     }
 
     struct fs::impl {
-        application *app_;
+
+        application     *app_;
         impl( application *app )
             :app_(app)
         { }

@@ -1,11 +1,15 @@
 
 #include "client-core/interfaces/IFile.h"
+#include "client-core/interfaces/IAsyncOperation.h"
+
 #include "protocol/fs.pb.h"
 
 #include "client-core/fr-client.h"
 
 #include "vtrc-common/vtrc-stub-wrapper.h"
 #include "vtrc-common/vtrc-rpc-channel.h"
+
+#include "vtrc-bind.h"
 
 namespace fr { namespace client { namespace interfaces {
 
@@ -33,15 +37,23 @@ namespace fr { namespace client { namespace interfaces {
 
         struct file_impl: public file::iface {
 
+            core::client_core     &core_;
             mutable client_type    client_;
             fproto::handle         hdl_;
 
             file_impl( core::client_core &ccore,
                        const std::string &path,
                        unsigned flags, unsigned mode )
-                :client_(ccore.create_channel( ), true)
+                :core_(ccore)
+                ,client_(core_.create_channel( ), true)
                 ,hdl_(open_file(client_, path, flags, mode))
             { }
+
+            ~file_impl( )  {
+                try {
+                    close_impl( );
+                } catch( ... ) {  }
+            }
 
             int64_t seek( int64_t pos, file::seek_whence whence ) const override
             {
@@ -106,6 +118,54 @@ namespace fr { namespace client { namespace interfaces {
                 client_.call( &stub_type::write, &req_res, &req_res );
 
                 return req_res.length( );
+            }
+
+            //unsigned, const std::string &, vtrc::uint64_t
+            // ->
+            // unsigned, const std::string data
+
+            void event_handler( unsigned err,
+                                const std::string &data,
+                                vtrc::uint64_t,
+                                file::file_event_callback &cb )
+            {
+                cb( err, data );
+            }
+
+            void register_for_events( file::file_event_callback cb )
+            {
+
+                fproto::register_req req;
+                fproto::register_res res;
+
+                req.mutable_hdl( )->set_value( hdl_.value( ) );
+
+                client_.call( &stub_type::register_for_events, &req, &res );
+
+                async_op_callback_type acb(
+                            vtrc::bind( &file_impl::event_handler, this,
+                                        vtrc::placeholders::_1,
+                                        vtrc::placeholders::_2,
+                                        vtrc::placeholders::_3, cb ) );
+
+                core_.register_async_op( res.async_op_id( ), acb );
+            }
+
+            void close_impl( )
+            {
+                client_.call_request( &stub_type::close, &hdl_ );
+            }
+
+            void unregister_impl( )
+            {
+                fproto::register_req req;
+                req.mutable_hdl( )->set_value( hdl_.value( ) );
+                client_.call_request( &stub_type::unregister, &req );
+            }
+
+            void unregister( )
+            {
+                unregister_impl( );
             }
 
         };

@@ -8,6 +8,7 @@
 
 #include "interfaces/IOS.h"
 #include "vtrc-common/vtrc-exception.h"
+#include "vtrc-bind.h"
 
 namespace fr { namespace cc { namespace cmd {
 
@@ -16,6 +17,7 @@ namespace fr { namespace cc { namespace cmd {
         namespace po    = boost::program_options;
         namespace core  = client::core;
         namespace fs    = client::interfaces::filesystem;
+        namespace fsf   = client::interfaces::file;
 
         const char *cmd_name = "fs";
 
@@ -24,6 +26,15 @@ namespace fr { namespace cc { namespace cmd {
             const char *name( ) const
             {
                 return cmd_name;
+            }
+
+            void event_cb( unsigned err, const std::string &data )
+            {
+                if( !err ) {
+                    std::cout << "Got " << data.size( ) << " bytes of data\n";
+                } else {
+                    std::cout << "Got " << err << " as error\n";
+                }
             }
 
             void exec( po::variables_map &vm, core::client_core &cl )
@@ -36,6 +47,21 @@ namespace fr { namespace cc { namespace cmd {
                     }
                     std::cout << "\n";
                 }
+
+                if( vm.count( "wait" ) ) {
+                    std::string p(vm["wait"].as<std::string>( ));
+                    vtrc::unique_ptr<fsf::iface> i(
+                                fsf::create( cl, p, fsf::flags::RDONLY ) );
+
+                    fsf::file_event_callback cb(vtrc::bind(
+                                                    &impl::event_cb, this,
+                                                    vtrc::placeholders::_1,
+                                                    vtrc::placeholders::_2 ));
+                    i->register_for_events( cb );
+
+                    sleep( 10 );
+                }
+                std::cout << "Exit unreg \n";
             }
 
             void add_options( po::options_description &desc )
@@ -45,6 +71,7 @@ namespace fr { namespace cc { namespace cmd {
                 /// "io-pool-size,i" "rpc-pool-size,r" "only-pool,o"
                 desc.add_options( )
                     ("list,l", po::value<std::string>( ), "show directory list")
+                    ("wait,w", po::value<std::string>( ), "wait file event")
                     ;
             }
 

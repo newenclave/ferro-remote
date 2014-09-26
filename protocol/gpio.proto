@@ -70,13 +70,3 @@ service instance {
     rpc unregister_for_change( handle ) returns ( empty );
 }
 
-message change_state {
-    optional handle hdl         = 1;
-    optional uint32 new_value   = 2;
-    optional uint32 error       = 3;
-    optional string error_text  = 4;
-}
-
-service events {
-    rpc on_state_change( change_state ) returns ( empty );
-}

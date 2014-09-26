@@ -3,6 +3,7 @@
 
 #include <string>
 #include <stdint.h>
+#include "vtrc-function.h"
 
 namespace fr { namespace client {
 
@@ -49,6 +50,10 @@ namespace interfaces { namespace file {
         ,POS_SEEK_END = 2
     };
 
+    typedef vtrc::function<
+            void (unsigned, const std::string &)
+    > file_event_callback;
+
     struct iface {
         virtual ~iface( ) { }
         virtual int64_t seek( int64_t pos, seek_whence whence ) const = 0;
@@ -58,6 +63,10 @@ namespace interfaces { namespace file {
 
         virtual size_t  read( void *data,       size_t length ) const = 0;
         virtual size_t write( const void *data, size_t length ) const = 0;
+
+        virtual void register_for_events( file_event_callback cb ) = 0;
+        virtual void unregister( ) = 0;
+
     };
 
     typedef iface* iface_ptr;
