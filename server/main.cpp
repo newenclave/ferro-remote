@@ -117,8 +117,6 @@ int main( int argc, const char **argv )
         pp.get_io_pool( ).attach( ); /// RUN!
         pp.join_all( );
 
-        app.stop_all( );
-
     } catch( const std::exception &ex ) {
         std::cerr << "Application failed: " << ex.what( ) << "\n";
         return 2;
