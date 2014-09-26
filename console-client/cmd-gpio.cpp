@@ -44,8 +44,8 @@ namespace fr { namespace cc { namespace cmd {
                 return cmd_name;
             }
 
-            void event_cb( unsigned err, unsigned val,
-                           iface_list &out, unsigned gpio )
+            static void event_cb( unsigned err, unsigned val,
+                                  iface_list &out, unsigned gpio )
             {
                 if( !err ) {
                     std::cout << "New value for "
@@ -100,7 +100,7 @@ namespace fr { namespace cc { namespace cmd {
                     ptr->set_edge( igpio::EDGE_BOTH );
 
                     igpio::value_change_callback cb(vtrc::bind(
-                                        &impl::event_cb, this,
+                                        &impl::event_cb,
                                         vtrc::placeholders::_1,
                                         vtrc::placeholders::_2,
                                         outputs,
