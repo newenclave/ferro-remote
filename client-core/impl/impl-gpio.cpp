@@ -1,5 +1,7 @@
 
 #include "client-core/interfaces/IGPIO.h"
+#include "client-core/interfaces/IAsyncOperation.h"
+
 #include "protocol/gpio.pb.h"
 
 #include "client-core/fr-client.h"
@@ -8,6 +10,7 @@
 #include "vtrc-common/vtrc-rpc-channel.h"
 
 #include "vtrc-stdint.h"
+#include "vtrc-bind.h"
 
 namespace fr { namespace client { namespace interfaces {
 
@@ -47,20 +50,23 @@ namespace fr { namespace client { namespace interfaces {
 
         struct gpio_impl: public gpio::iface {
 
+            core::client_core  &core_;
             unsigned            id_;
             mutable client_type client_;
             vtrc::uint32_t      hdl_;
 
             gpio_impl( core::client_core &cl, unsigned id )
-                :id_(id)
-                ,client_(cl.create_channel( ), true)
+                :core_(cl)
+                ,id_(id)
+                ,client_(core_.create_channel( ), true)
                 ,hdl_(open_instance( client_, id_ ))
             { }
 
             gpio_impl( core::client_core &cl, unsigned id,
                        gpio::direction_type dir, unsigned value )
-                :id_(id)
-                ,client_(cl.create_channel( ), true)
+                :core_(cl)
+                ,id_(id)
+                ,client_(core_.create_channel( ), true)
             {
                 gproto::setup_data setup;
                 setup.set_direction( dir );
@@ -68,6 +74,12 @@ namespace fr { namespace client { namespace interfaces {
                     setup.set_value( 1 );
                 }
                 hdl_ = open_setup_inst( client_, id_, setup );
+            }
+
+            ~gpio_impl( )  {
+                try {
+                    close_impl( );
+                } catch( ... ) {  }
             }
 
             unsigned id( ) const
@@ -160,11 +172,51 @@ namespace fr { namespace client { namespace interfaces {
                 client_.call_request( &stub_type::setup, &req );
             }
 
-            void register_for_change( ) const override
+            void event_handler( unsigned err,
+                                const std::string &data,
+                                gpio::value_change_callback &cb ) const
+            {
+                gproto::value_change_data vcd;
+                vcd.ParseFromString( data );
+                cb( err, vcd.new_value( ) );
+            }
+
+            void register_for_change(
+                    gpio::value_change_callback cb ) const override
+            {
+                gproto::register_req req;
+                gproto::register_res res;
+
+                req.mutable_hdl( )->set_value( hdl_ );
+
+                client_.call( &stub_type::register_for_change, &req, &res );
+
+                async_op_callback_type acb(
+                            vtrc::bind( &gpio_impl::event_handler, this,
+                                        vtrc::placeholders::_1,
+                                        vtrc::placeholders::_2,
+                                        cb ) );
+
+                core_.register_async_op( res.async_op_id( ), acb );
+            }
+
+            void unregister_impl( ) const
+            {
+                gproto::register_req req;
+                req.mutable_hdl( )->set_value( hdl_ );
+                client_.call_request( &stub_type::unregister, &req );
+            }
+
+            void unregister( ) const override
+            {
+
+            }
+
+            void close_impl( )
             {
                 gproto::handle req;
                 req.set_value( hdl_ );
-                client_.call_request( &stub_type::register_for_change, &req );
+                client_.call_request( &stub_type::close, &req );
             }
 
         };

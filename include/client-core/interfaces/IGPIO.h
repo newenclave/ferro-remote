@@ -1,6 +1,8 @@
 #ifndef FR_IGPIO_H
 #define FR_IGPIO_H
 
+#include "vtrc-function.h"
+
 namespace fr { namespace client {
 
 namespace core {
@@ -21,6 +23,13 @@ namespace interfaces { namespace gpio {
         ,EDGE_BOTH     = 3
     };
 
+    ///
+    /// error, new_state
+    ///
+    typedef vtrc::function<
+            void (unsigned, unsigned)
+    > value_change_callback;
+
     struct iface {
         virtual ~iface( ) { }
 
@@ -39,7 +48,8 @@ namespace interfaces { namespace gpio {
         virtual void set_edge( edge_type value ) const = 0;
 
         /// to do fix
-        virtual void register_for_change( ) const = 0;
+        virtual void register_for_change( value_change_callback cb ) const = 0;
+        virtual void unregister( ) const = 0;
 
     };
 

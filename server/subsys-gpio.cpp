@@ -298,35 +298,35 @@ namespace fr { namespace server { namespace subsys {
                 return false;
             }
 
-            void register_for_change(::google::protobuf::RpcController*,
-                         const ::fr::proto::gpio::handle* request,
-                         ::fr::proto::gpio::empty*          /*response*/,
+            void register_for_change(::google::protobuf::RpcController* ,
+                         const ::fr::proto::gpio::register_req* request,
+                         ::fr::proto::gpio::register_res* response,
                          ::google::protobuf::Closure* done) override
             {
                 vcomm::closure_holder holder(done);
-                gpio_sptr g( gpio_by_index( request->value( ) ) );
+                vtrc::uint32_t hdl(request->hdl( ).value( ));
+                gpio_sptr g( gpio_by_index( hdl ) );
 
                 int fd = g->value_fd( );
 
                 server::reaction_callback
                         cb( vtrc::bind( &gpio_impl::value_changed, this,
                                          vtrc::placeholders::_1,
-                                         value_data( request->value( ),
-                                                     fd, g,
+                                         value_data( hdl, fd, g,
                                                      reactor_.next_op_id( )),
-                                        client_) );
+                                         client_) );
 
                 reactor_.add_fd( fd, EPOLLET | EPOLLPRI, cb );
             }
 
-            void unregister_for_change(::google::protobuf::RpcController*,
-                         const ::fr::proto::gpio::handle* request,
-                         ::fr::proto::gpio::empty* /*response*/,
+            void unregister(::google::protobuf::RpcController* /*controller*/,
+                         const ::fr::proto::gpio::register_req* request,
+                         ::fr::proto::gpio::empty*             /*response*/,
                          ::google::protobuf::Closure* done) override
             {
 
                 vcomm::closure_holder holder(done);
-                gpio_sptr g( gpio_by_index( request->value( ) ) );
+                gpio_sptr g( gpio_by_index( request->hdl( ).value( ) ) );
                 int fd = g->value_fd( );
                 reactor_.del_fd( fd );
             }
@@ -402,6 +402,8 @@ namespace fr { namespace server { namespace subsys {
     {
         if( server::gpio::available( ) ) {
             impl_->reg_creator( gpio_impl::name( ),  create_service );
+        } else {
+            std::cout << "GPIO was not found\n";
         }
     }
 

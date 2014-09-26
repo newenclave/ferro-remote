@@ -58,6 +58,14 @@ message value_change_data {
     optional uint32 new_value = 1;
 }
 
+message register_req {
+    optional handle hdl          = 1;
+}
+
+message register_res {
+    optional uint32  async_op_id  = 1;
+}
+
 service instance {
 
     rpc open  ( open_req )   returns ( open_res );
@@ -70,7 +78,7 @@ service instance {
     rpc close ( handle )     returns ( empty );
 
     //// change value signal
-    rpc register_for_change( handle ) returns ( empty );
-    rpc unregister_for_change( handle ) returns ( empty );
+    rpc register_for_change( register_req ) returns ( register_res );
+    rpc unregister( register_req ) returns ( empty );
 }
 
