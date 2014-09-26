@@ -260,10 +260,10 @@ namespace fr { namespace server { namespace subsys {
 
                 gpio_sptr gpio( data.weak_gpio.lock( ) );
 
-                bool                  success = true;
-                std::string           err;
-                unsigned              error_code;
-                events_stub_type      events(event_channel_.get( ));
+                bool               success = true;
+                std::string        err;
+                unsigned           error_code;
+                events_stub_type   events(event_channel_.get( ));
 
                 sproto::async_op_data       op_data;
                 gproto::value_change_data   vdat;

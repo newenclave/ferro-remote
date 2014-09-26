@@ -8,7 +8,7 @@
 namespace fr { namespace client {
 
     ///
-    /// void call( error_code, data, some_numeric_value )
+    /// void call( error_code, data )
     ///
     typedef vtrc::function<
         void ( unsigned, const std::string & )

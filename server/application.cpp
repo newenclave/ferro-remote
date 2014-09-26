@@ -44,6 +44,7 @@ namespace fr { namespace server {
                           ::google::protobuf::Closure* done) override
         {
             vcomm::closure_holder holder(done);
+            std::cout << "Shutdown service ...\n";
             app_->quit( );
         }
 
