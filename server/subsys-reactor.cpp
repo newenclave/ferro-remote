@@ -70,7 +70,7 @@ namespace fr { namespace server { namespace subsys {
 
         void start_thread( )
         {
-            if( !thread_ ) {
+            if( !running_ ) {
                 thread_.reset(new vtrc::thread(
                                   vtrc::bind( &impl::reactor_thread, this ) ) );
                 running_ = true;
@@ -121,7 +121,7 @@ namespace fr { namespace server { namespace subsys {
 
     void reactor::start( )
     {
-
+        impl_->start_thread( );
     }
 
     void reactor::stop( )
@@ -131,7 +131,6 @@ namespace fr { namespace server { namespace subsys {
 
     void reactor::add_fd( int fd, unsigned flags, reaction_callback cb )
     {
-        impl_->start_thread( );
         impl_->reactor_.add_fd( fd, flags, cb );
     }
 
