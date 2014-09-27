@@ -58,7 +58,9 @@ namespace interfaces { namespace file {
 
     struct iface {
         virtual ~iface( ) { }
-        virtual vtrc::int64_t seek( int64_t pos, seek_whence whence ) const = 0;
+
+        virtual vtrc::int64_t seek( vtrc::int64_t pos,
+                                    seek_whence whence ) const = 0;
 
         virtual vtrc::int64_t tell( )  const = 0;
         virtual void          flush( ) const = 0;
