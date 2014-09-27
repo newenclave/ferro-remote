@@ -54,13 +54,13 @@ namespace fr { namespace cc { namespace cmd {
                         std::cout << "New value for "
                                   << gpio << " = " << val << "\n";
                     } else {
-                        vtrc::int32_t data;
-
-                        data = static_cast<vtrc::uint16_t>( gpio ) << 16
-                             | static_cast<vtrc::uint16_t>( val  );
+                        char data[2] = {
+                             static_cast<char>( gpio )
+                            ,static_cast<char>( val  )
+                        };
 
                         //(std::cout << std::hex << data << "-").flush( );
-                        std::cout.write( &data, sizeof(data) ).flush( );
+                        std::cout.write( data, sizeof(data) ).flush( );
                     }
 
                     for( iface_list::iterator b(out.begin( )), e(out.end( ));
@@ -138,7 +138,7 @@ namespace fr { namespace cc { namespace cmd {
                     ("out,O", po::value<std::vector<unsigned> >( ),
                                                      "set output from IN")
                     ("bin,B", "set binary output."
-                              " format is: <gpionumber:2bytes><value:2bytes>")
+                              " format is: <gpio:1><value:1>")
                     ("timeout,t", po::value<unsigned>( ), "timeout for 'wait'"
                                                               "; seconds")
                     ;
