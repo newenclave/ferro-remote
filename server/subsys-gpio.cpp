@@ -258,6 +258,10 @@ namespace fr { namespace server { namespace subsys {
                     return false;
                 }
 
+                if( events | EPOLLERR ) {
+                    return true;
+                }
+
                 gpio_sptr gpio( data.weak_gpio.lock( ) );
 
                 bool               success = true;
@@ -314,7 +318,7 @@ namespace fr { namespace server { namespace subsys {
                                                      opid ),
                                          client_) );
 
-                reactor_.add_fd( fd, EPOLLET | EPOLLPRI, cb );
+                reactor_.add_fd( fd, EPOLLET | EPOLLPRI | EPOLLERR, cb );
                 response->set_async_op_id( opid );
             }
 
