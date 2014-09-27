@@ -318,7 +318,7 @@ namespace fr { namespace server { namespace subsys {
                                                      opid ),
                                          client_) );
 
-                reactor_.add_fd( fd, EPOLLET | EPOLLPRI | EPOLLERR, cb );
+                reactor_.add_fd( fd, EPOLLET | EPOLLPRI, cb );
                 response->set_async_op_id( opid );
             }
 
