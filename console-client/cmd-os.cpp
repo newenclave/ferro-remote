@@ -50,7 +50,7 @@ namespace fr { namespace cc { namespace cmd {
 
             std::string desc( ) const
             {
-                return std::string( "fs command" );
+                return std::string( "os command" );
             }
 
         };
