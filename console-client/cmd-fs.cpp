@@ -150,7 +150,8 @@ namespace fr { namespace cc { namespace cmd {
 
                     ("pull,d", po::value<std::string>( ), "download file")
                     ("push,u", po::value<std::string>( ), "upload file")
-                    ("output,O", po::value<std::string>( ), "output path/name")
+                    ("output,O", po::value<std::string>( ), "output path/name; "
+                                                  "for push and pull commands ")
 
                     ("wait,w", po::value<std::string>( ), "wait file event")
                     ("timeout,t", po::value<unsigned>( ), "timeout for 'wait'"
