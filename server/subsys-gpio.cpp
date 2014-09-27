@@ -259,7 +259,8 @@ namespace fr { namespace server { namespace subsys {
                 }
 
                 if( events | EPOLLERR ) {
-                    return true;
+                    std::cout << "Error bit set\n";
+                    //return true;
                 }
 
                 gpio_sptr gpio( data.weak_gpio.lock( ) );
