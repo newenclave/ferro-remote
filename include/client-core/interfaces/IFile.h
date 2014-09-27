@@ -2,6 +2,8 @@
 #define FR_INTERFACE_FILE_H
 
 #include <string>
+#include <stddef.h>
+
 #include "vtrc-function.h"
 #include "vtrc-stdint.h"
 
@@ -56,10 +58,10 @@ namespace interfaces { namespace file {
 
     struct iface {
         virtual ~iface( ) { }
-        virtual int64_t seek( int64_t pos, seek_whence whence ) const = 0;
+        virtual vtrc::int64_t seek( int64_t pos, seek_whence whence ) const = 0;
 
-        virtual int64_t tell( )  const = 0;
-        virtual void    flush( ) const = 0;
+        virtual vtrc::int64_t tell( )  const = 0;
+        virtual void          flush( ) const = 0;
 
         virtual size_t  read( void *data,       size_t length ) const = 0;
         virtual size_t write( const void *data, size_t length ) const = 0;
