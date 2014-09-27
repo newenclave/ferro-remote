@@ -87,6 +87,21 @@ namespace fr { namespace cc { namespace cmd {
                 std::cout << total << " bytes uploaded\n";
             }
 
+            void write_file( const std::string &remote_path,
+                             const std::string &text,
+                             core::client_core &cl )
+            {
+                vtrc::unique_ptr<fsf::iface> iimpl(
+                          fsf::create( cl, remote_path,
+                                    fsf::flags::WRONLY | fsf::flags::CREAT ) );
+
+                size_t w = text.size( );
+                size_t pos = 0;
+                while( pos != w ) {
+                    pos += iimpl->write( &text[pos], w - pos );
+                }
+            }
+
             void exec( po::variables_map &vm, core::client_core &cl )
             {
                 if( vm.count( "list" ) ) {
@@ -114,6 +129,14 @@ namespace fr { namespace cc { namespace cmd {
                         o = vm["output"].as<std::string>( );
                     }
                     upload_file( local, o, cl );
+                } else if( vm.count( "write" ) ) {
+
+                    std::string text(vm["write"].as<std::string>( ));
+                    std::string o;
+                    if( vm.count( "output" ) ) {
+                        o = vm["output"].as<std::string>( );
+                    }
+                    write_file( o, text, cl );
                 }
 
                 if( vm.count( "wait" ) ) {
@@ -147,6 +170,9 @@ namespace fr { namespace cc { namespace cmd {
                 /// "only-pool,o"
                 desc.add_options( )
                     ("list,l", po::value<std::string>( ), "show directory list")
+
+                    ("write,W", po::value<std::string>( ),
+                                "write string to file; use -O for target file")
 
                     ("pull,d", po::value<std::string>( ), "download file")
                     ("push,u", po::value<std::string>( ), "upload file")
