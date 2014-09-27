@@ -10,6 +10,7 @@
 #include "vtrc-memory.h"
 #include "vtrc-chrono.h"
 #include "vtrc-bind.h"
+#include "vtrc-stdint.h"
 
 #ifdef _MSC_VER
 #include <windows.h>
@@ -45,11 +46,23 @@ namespace fr { namespace cc { namespace cmd {
             }
 
             static void event_cb( unsigned err, unsigned val,
-                                  iface_list &out, unsigned gpio )
+                                  iface_list &out, unsigned gpio,
+                                  unsigned bin )
             {
                 if( !err ) {
-                    std::cout << "New value for "
-                              << gpio << " = " << val << "\n";
+                    if( 0 == bin ) {
+                        std::cout << "New value for "
+                                  << gpio << " = " << val << "\n";
+                    } else {
+                        vtrc::int32_t data;
+
+                        data = static_cast<vtrc::uint16_t>( gpio ) << 16
+                             | static_cast<vtrc::uint16_t>( val  );
+
+                        //(std::cout << std::hex << data << "-").flush( );
+                        std::cout.write( &data, sizeof(data) ).flush( );
+                    }
+
                     for( iface_list::iterator b(out.begin( )), e(out.end( ));
                          b != e; ++b )
                     {
@@ -82,6 +95,8 @@ namespace fr { namespace cc { namespace cmd {
             void exec( po::variables_map &vm, core::client_core &cli )
             {
 
+                unsigned binary = !!vm.count( "bin" );
+
                 if( vm.count( "in" ) ) {
 
                     unsigned inp(vm["in"].as<unsigned>( ));
@@ -104,7 +119,7 @@ namespace fr { namespace cc { namespace cmd {
                                         vtrc::placeholders::_1,
                                         vtrc::placeholders::_2,
                                         outputs,
-                                        inp ));
+                                        inp, binary ));
 
                     ptr->register_for_change( cb );
 
@@ -122,6 +137,8 @@ namespace fr { namespace cc { namespace cmd {
                     ("in,I", po::value<unsigned>( ), "wait input from...")
                     ("out,O", po::value<std::vector<unsigned> >( ),
                                                      "set output from IN")
+                    ("bin,B", "set binary output."
+                              " format is: <gpionumber:2bytes><value:2bytes>")
                     ("timeout,t", po::value<unsigned>( ), "timeout for 'wait'"
                                                               "; seconds")
                     ;
