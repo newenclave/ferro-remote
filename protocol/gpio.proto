@@ -35,7 +35,7 @@ message setup_req {
 message open_req {
     optional uint32     gpio_id = 1;
     optional bool       exp     = 2; /// export at open
-    optional setup_data setup   = 3; /// setup info. only if export == true
+    optional setup_data setup   = 3; /// setup info. only if exp == true
 }
 
 message open_res {

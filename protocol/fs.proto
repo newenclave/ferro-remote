@@ -89,7 +89,7 @@ service instance {
 
 }
 
-message open_file_values {
+message open_file_values { /* man 2 open */
     enum flags {
         RDONLY      =        0;
         WRONLY      =       01;
