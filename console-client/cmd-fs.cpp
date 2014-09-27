@@ -138,7 +138,7 @@ namespace fr { namespace cc { namespace cmd {
 
             void add_options( po::options_description &desc )
             {
-                /// reserver as common
+                /// reserved as common
                 /// "help,h"
                 /// "command,c"
                 /// "server,s"
