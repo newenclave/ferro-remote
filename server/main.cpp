@@ -111,10 +111,8 @@ int main( int argc, const char **argv )
         vtrc::unique_ptr<vcommon::pool_pair> pp;
 
         if( use_only_pool ) {
-            std::cout << "Only\n";
             pp.reset( new vcommon::pool_pair( io_size ) );
         } else {
-            std::cout << "!Only\n";
             pp.reset( new vcommon::pool_pair(io_size, rpc_size) );
         }
 
