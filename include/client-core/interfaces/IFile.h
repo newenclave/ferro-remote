@@ -2,8 +2,8 @@
 #define FR_INTERFACE_FILE_H
 
 #include <string>
-#include <stdint.h>
 #include "vtrc-function.h"
+#include "vtrc-stdint.h"
 
 namespace fr { namespace client {
 
