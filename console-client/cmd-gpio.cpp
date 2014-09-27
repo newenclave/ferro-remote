@@ -10,6 +10,7 @@
 #include "vtrc-memory.h"
 #include "vtrc-chrono.h"
 #include "vtrc-bind.h"
+#include "vtrc-ref.h"
 #include "vtrc-stdint.h"
 
 #ifdef _MSC_VER
@@ -118,12 +119,15 @@ namespace fr { namespace cc { namespace cmd {
                                         &impl::event_cb,
                                         vtrc::placeholders::_1,
                                         vtrc::placeholders::_2,
-                                        outputs,
+                                        vtrc::ref(outputs),
                                         inp, binary ));
 
                     ptr->register_for_change( cb );
 
                     sleep_( MILLISECONDS(to) * 1000 );
+
+                    ptr->unregister( );
+
                 }
             }
 
