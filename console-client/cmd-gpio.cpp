@@ -102,9 +102,9 @@ namespace fr { namespace cc { namespace cmd {
 
                     unsigned inp(vm["in"].as<unsigned>( ));
 
-                    unsigned to = vm.count( "timeout" )
-                                ? vm["timeout"].as<unsigned>( )
-                                : 0;
+                    vtrc::uint64_t to = vm.count( "timeout" )
+                                      ? vm["timeout"].as<vtrc::uint64_t>( )
+                                      : 0;
 
                     iface_list outputs(get_outputs( vm, cli ));
 
@@ -143,8 +143,8 @@ namespace fr { namespace cc { namespace cmd {
                                                      "set output from IN")
                     ("bin,B", "set binary output."
                               " format is: <gpio:1><value:1>")
-                    ("timeout,t", po::value<unsigned>( ), "timeout for 'wait'"
-                                                              "; seconds")
+                    ("timeout,t", po::value<vtrc::uint64_t>( ),
+                              "timeout for 'wait'; seconds")
                     ;
             }
 
