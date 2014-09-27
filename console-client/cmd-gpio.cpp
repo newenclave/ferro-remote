@@ -108,7 +108,7 @@ namespace fr { namespace cc { namespace cmd {
 
                     ptr->register_for_change( cb );
 
-                    sleep( to );
+                    sleep_( MILLISECONDS(to) * 1000 );
                 }
             }
 
