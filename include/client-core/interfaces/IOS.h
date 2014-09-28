@@ -13,7 +13,7 @@ namespace interfaces { namespace os {
 
     struct iface {
         virtual ~iface( ) { }
-        virtual void execute( const std::string &cmd ) const = 0;
+        virtual int execute( const std::string &cmd ) const = 0;
     };
 
     typedef iface* iface_ptr;

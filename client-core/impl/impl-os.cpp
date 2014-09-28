@@ -26,11 +26,14 @@ namespace fr { namespace client { namespace interfaces {
                 :client_(cl.create_channel( ), true)
             { }
 
-            void execute( const std::string &cmd ) const override
+            int execute( const std::string &cmd ) const override
             {
                 oproto::execute_req req;
+                oproto::execute_res res;
                 req.set_cmd( cmd );
-                client_.call_request( &stub_type::execute, &req );
+                client_.call( &stub_type::execute, &req, &res );
+
+                return res.result( );
             }
         };
     }

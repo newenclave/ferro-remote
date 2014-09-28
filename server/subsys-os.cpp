@@ -28,7 +28,7 @@ namespace fr { namespace server { namespace subsys {
                 if( -1 == res ) {
                     throw vtrc::common::exception( errno );
                 }
-
+                response->set_result( res );
             }
         public:
             static const std::string &name( )

@@ -8,7 +8,9 @@ message execute_req {
     optional string cmd  = 1;
 }
 
-message execute_res { }
+message execute_res {
+    optional int32  result = 1;
+}
 
 service instance {
    rpc execute( execute_req ) returns ( execute_res );
