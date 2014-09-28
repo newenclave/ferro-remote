@@ -15,12 +15,10 @@
 
 #ifdef _MSC_VER
 #include <windows.h>
-#define sleep_ Sleep /// milliseconds
-#define MILLISECONDS( x ) x
+#define sleep_( x ) Sleep( (x) * 1000 ) /// milliseconds
 #else
 #include <unistd.h>
-#define sleep_ usleep /// microseconds
-#define MILLISECONDS( x ) ((x) * 1000)
+#define sleep_( x ) sleep( x ) /// seconds
 #endif
 
 namespace fr { namespace cc { namespace cmd {
@@ -124,7 +122,7 @@ namespace fr { namespace cc { namespace cmd {
 
                     ptr->register_for_change( cb );
 
-                    sleep_( MILLISECONDS(to) * 1000 );
+                    sleep_( to );
 
                     ptr->unregister( );
 
