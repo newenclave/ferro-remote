@@ -35,7 +35,7 @@ namespace fr { namespace cc { namespace cmd {
             {
                 /// reserver as common
                 /// "help,h" "command,c" "server,s"
-                /// "io-pool-size,i" "rpc-pool-size,r" "only-pool,o"
+                /// "io-pool-size,i" "rpc-pool-size,r"
                 desc.add_options( )
                     ("exec,e", po::value<std::string>( ),
                                         "execute command line; "

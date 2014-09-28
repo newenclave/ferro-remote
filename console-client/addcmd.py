@@ -38,7 +38,6 @@ namespace fr { namespace cc { namespace cmd {
                 /// "server,s"
                 /// "io-pool-size,i"
                 /// "rpc-pool-size,r"
-                /// "only-pool,o"
                 //desc.add_options( )
                 ///  ("cmd1,C",   "desc")
                 ///  ( "cmd2,D", po::value<std::string>( ), "desc" )

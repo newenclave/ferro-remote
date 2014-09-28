@@ -167,7 +167,6 @@ namespace fr { namespace cc { namespace cmd {
                 /// "server,s"
                 /// "io-pool-size,i"
                 /// "rpc-pool-size,r"
-                /// "only-pool,o"
                 desc.add_options( )
                     ("list,l", po::value<std::string>( ), "show directory list")
 

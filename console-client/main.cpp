@@ -49,8 +49,6 @@ namespace {
             ("rpc-pool-size,r", po::value<unsigned>( ),
                     "threads for rpc calls; default = 1")
 
-            ("only-pool,o", "use io pool for io operations and rpc calls")
-
             ("quit,q", "quit the remote service")
 
             ;
@@ -58,25 +56,24 @@ namespace {
 
     pool_pair_sptr pp_from_cmd( const po::variables_map &vm )
     {
-        bool use_only_pool = !!vm.count( "only-pool" );
 
         unsigned io_size = vm.count( "io-pool-size" )
                 ? vm["io-pool-size"].as<unsigned>( )
-                : ( use_only_pool ? 0 : 1 );
+                : 1;
 
         unsigned rpc_size = vm.count( "rpc-pool-size" )
                 ? vm["rpc-pool-size"].as<unsigned>( )
                 : 1;
 
-        if( (rpc_size < 1) && !use_only_pool) {
+        if( io_size < 1) {
+            throw std::runtime_error( "io_size must be at least 1" );
+        }
+
+        if( rpc_size < 1) {
             throw std::runtime_error( "rpc-pool-size must be at least 1" );
         }
 
-        if( use_only_pool ) {
-            return vtrc::make_shared<vcommon::pool_pair>( io_size );
-        } else {
-            return vtrc::make_shared<vcommon::pool_pair>( io_size, rpc_size );
-        }
+        return vtrc::make_shared<vcommon::pool_pair>( io_size, rpc_size );
     }
 
     po::variables_map parse_common( int argc, const char **argv,
