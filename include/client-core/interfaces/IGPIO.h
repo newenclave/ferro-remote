@@ -51,7 +51,7 @@ namespace interfaces { namespace gpio {
         virtual void set_edge( edge_type value ) const = 0;
 
         /// to do fix
-        virtual void register_for_change( value_change_callback cb ) const = 0;
+        virtual void register_for_change( value_change_callback  cb ) const = 0;
         virtual void unregister( ) const = 0;
 
     };

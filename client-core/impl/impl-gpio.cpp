@@ -200,6 +200,15 @@ namespace fr { namespace client { namespace interfaces {
                 cb( err, vcd.new_value( ) );
             }
 
+//            void event_handler0( unsigned err,
+//                                 const std::string &data,
+//                                 gpio::value_change_callback0 &cb ) const
+//            {
+//                gproto::value_change_data vcd;
+//                vcd.ParseFromString( data );
+//                cb( vcd.new_value( ) );
+//            }
+
             void register_for_change(
                     gpio::value_change_callback cb ) const override
             {
@@ -218,6 +227,11 @@ namespace fr { namespace client { namespace interfaces {
 
                 core_.register_async_op( res.async_op_id( ), acb );
             }
+
+//            void register_for_change( value_change_callback0 cb ) const
+//            {
+
+//            }
 
             void unregister_impl( ) const
             {
