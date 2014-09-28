@@ -38,6 +38,9 @@ namespace interfaces { namespace gpio {
         virtual unsigned value( ) const = 0;
         virtual void  set_value( unsigned value ) const = 0;
 
+        virtual unsigned active_low( ) const = 0;
+        virtual void  set_active_low( unsigned value ) const = 0;
+
         virtual void export_device( ) const = 0;
         virtual void unexport_device( ) const = 0;
 

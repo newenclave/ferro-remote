@@ -25,6 +25,7 @@ message setup_data {
     optional uint32 direction   = 1;
     optional uint32 edge        = 2;
     optional uint32 value       = 3;
+    optional uint32 active_low  = 4;
 }
 
 message setup_req {
@@ -48,10 +49,11 @@ message export_req {
 }
 
 message info_req {
-    optional handle hdl          = 1;
-    optional bool with_value     = 2;
-    optional bool with_direction = 3;
-    optional bool with_edge      = 4;
+    optional handle hdl             = 1;
+    optional bool with_value        = 2;
+    optional bool with_direction    = 3;
+    optional bool with_edge         = 4;
+    optional bool with_active_low   = 5;
 }
 
 message value_change_data {

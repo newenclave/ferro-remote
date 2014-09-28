@@ -135,7 +135,12 @@ namespace fr { namespace server { namespace subsys {
 
                 if( setup.has_value( ) ) {
                     unsigned val = setup.value( );
-                    ng->set_value( !!val );
+                    ng->set_value( val == 0 ? 0 : 1 );
+                }
+
+                if( setup.has_active_low( ) ) {
+                    unsigned act_low = setup.active_low( );
+                    ng->set_active_low( act_low == 0 ? 0 : 1 );
                 }
             }
 
@@ -214,7 +219,9 @@ namespace fr { namespace server { namespace subsys {
                     response->set_edge( g->edge( ) );
                 }
 
-                std::cout << response->DebugString( ) << "\n";
+                if( request->with_active_low( ) ) {
+                    response->set_active_low( g->active_low( ) );
+                }
 
             }
 

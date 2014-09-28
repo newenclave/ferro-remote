@@ -106,6 +106,25 @@ namespace fr { namespace client { namespace interfaces {
                 client_.call_request( &stub_type::setup, &req );
             }
 
+            unsigned active_low( ) const
+            {
+                gproto::info_req    req;
+                gproto::setup_data  res;
+                req.mutable_hdl( )->set_value( hdl_ );
+
+                req.set_with_active_low( true );
+                client_.call( &stub_type::info, &req, &res );
+                return res.active_low( );
+            }
+
+            void  set_active_low( unsigned value ) const
+            {
+                gproto::setup_req req;
+                req.mutable_hdl( )->set_value( hdl_ );
+                req.mutable_setup( )->set_active_low( value );
+                client_.call_request( &stub_type::setup, &req );
+            }
+
             void export_device( ) const override
             {
                 gproto::export_req req;

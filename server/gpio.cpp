@@ -34,9 +34,10 @@ namespace fr { namespace server {
         const std::string gpio_export_path  ( "/sys/class/gpio/export"   );
         const std::string gpio_unexport_path( "/sys/class/gpio/unexport" );
 
-        const std::string value_name(     "value" );
-        const std::string direction_name( "direction" );
-        const std::string edge_name(      "edge" );
+        const std::string value_name(      "value" );
+        const std::string direction_name(  "direction" );
+        const std::string edge_name(       "edge" );
+        const std::string active_low_name( "active_low" );
 
         std::string id_to_string( unsigned id )
         {
@@ -244,6 +245,16 @@ namespace fr { namespace server {
         return pos[0] - '0';
     }
 
+    unsigned gpio_helper::active_low( ) const
+    {
+        std::ostringstream oss;
+        oss << impl_->path_ << "/" << active_low_name;
+
+        std::string pos = read_from_file( oss.str( ) );
+        assert( pos[0] == '0' || pos[0] == '1' );
+        return pos[0] - '0';
+    }
+
     unsigned gpio_helper::value_by_fd( int fd )
     {
         std::string pos = read_from_file( fd );
@@ -256,6 +267,16 @@ namespace fr { namespace server {
         char data[2] = {0};
         data[0] = char(val + '0');
         write_to_file( impl_->value_path_, data, 2 );
+    }
+
+    void gpio_helper::set_active_low( unsigned val ) const
+    {
+        char data[2] = {0};
+        data[0] = char(val + '0');
+        std::ostringstream oss;
+        oss << impl_->path_ << "/" << active_low_name;
+
+        write_to_file( oss.str( ), data, 2 );
     }
 
     int gpio_helper::value_fd( ) const
