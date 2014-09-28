@@ -310,6 +310,23 @@ namespace fr { namespace server { namespace subsys {
                 response->mutable_hdl( )->set_value( hdl );
             }
 
+            void rename(::google::protobuf::RpcController* /*controller*/,
+                         const ::fr::proto::fs::rename_req* request,
+                         ::fr::proto::fs::handle_path* response,
+                         ::google::protobuf::Closure* done) override
+            {
+                vcomm::closure_holder holder(done);
+                vtrc::uint32_t shdl;
+                vtrc::uint32_t dhdl;
+
+                bfs::path s( path_from_request( &request->src( ), shdl ) );
+                bfs::path d( path_from_request( &request->dst( ), dhdl ) );
+
+                bfs::rename( s, d );
+                response->mutable_hdl( )->set_value( dhdl );
+
+            }
+
             void del(::google::protobuf::RpcController* /*controller*/,
                          const ::fr::proto::fs::handle_path* request,
                          ::fr::proto::fs::handle_path* response,

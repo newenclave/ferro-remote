@@ -254,6 +254,15 @@ namespace filesystem {
                 return res.position( );
             }
 
+            void rename( const std::string &old_path,
+                         const std::string &new_path ) const
+            {
+                fproto::rename_req req;
+                fill_request( *req.mutable_src(  ), old_path );
+                fill_request( *req.mutable_dst(  ), new_path );
+                client_.call_request( &stub_type::rename, &req );
+            }
+
             void cd( const std::string &path ) override
             {
                 fproto::handle_path   req;

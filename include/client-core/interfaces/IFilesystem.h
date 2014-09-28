@@ -100,6 +100,9 @@ namespace interfaces { namespace filesystem {
 
         virtual vtrc::uint64_t file_size( const std::string &path ) const = 0;
 
+        virtual void rename( const std::string &old_path,
+                             const std::string &new_path ) const = 0;
+
         virtual void cd( const std::string &path ) = 0;
         virtual const std::string &pwd(  ) const = 0;
 
