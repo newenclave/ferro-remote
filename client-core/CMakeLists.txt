@@ -35,7 +35,7 @@ foreach( dep ${internal} )
 
     add_dependencies(       ${lib_name} ${dep}      )
     add_definitions(        ${${dep}_DEFINITIONS}   )
-    target_link_libraries(  ${lib_name} ${${dep}_LIBRARIES} )
+    #target_link_libraries(  ${lib_name} ${${dep}_LIBRARIES} )
 
 endforeach(dep)
 
@@ -59,6 +59,7 @@ endforeach(dep)
 set_target_properties(${lib_name}
                       PROPERTIES
                         COMPILE_DEFINITIONS "${VTRC_LINK_TYPE}")
+
 get_target_property(${lib_name}_LOCATION ${lib_name} LOCATION)
 
 set(${lib_name}_DEFINITIONS "-D${VTRC_LINK_TYPE}" PARENT_SCOPE)
