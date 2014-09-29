@@ -1,29 +1,29 @@
 
-#ifndef FR_SUBSYS_listeners_H
-#define FR_SUBSYS_listeners_H
+#ifndef FR_SUBSYS_fs_H
+#define FR_SUBSYS_fs_H
 
 #include "subsystem-iface.h"
 
-namespace fr { namespace server {
+namespace fr { namespace agent {
 
     class application;
 
 namespace subsys {
 
-    class listeners: public subsystem_iface {
+    class fs: public subsystem_iface {
 
         struct  impl;
         impl   *impl_;
 
     protected:
 
-        listeners( application *app );
+        fs( application *app );
 
     public:
 
-        ~listeners( );
+        ~fs( );
 
-        static vtrc::shared_ptr<listeners> create( application *app );
+        static vtrc::shared_ptr<fs> create( application *app );
 
         const std::string &name( )  const;
 

@@ -69,5 +69,6 @@ add_subdirectory( client-core )
 add_subdirectory( console-client )
 
 if( NOT WIN32 )
-    add_subdirectory( server )
+    add_subdirectory( agent )
 endif( )
+

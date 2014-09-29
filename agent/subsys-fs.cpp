@@ -26,7 +26,7 @@
 #include "subsys-reactor.h"
 #include "vtrc-bind.h"
 
-namespace fr { namespace server { namespace subsys {
+namespace fr { namespace agent { namespace subsys {
 
     namespace {
 
@@ -454,7 +454,7 @@ namespace fr { namespace server { namespace subsys {
             }
 
         public:
-            proto_fs_impl( fr::server::application * /*app*/,
+            proto_fs_impl( fr::agent::application * /*app*/,
                            vcomm::connection_iface_wptr /*cl*/ )
                 :handle_(100)
             { }
@@ -467,8 +467,8 @@ namespace fr { namespace server { namespace subsys {
 
         class proto_file_impl: public fr::proto::fs::file {
 
-            typedef vtrc::shared_ptr<server::file_iface> file_sptr;
-            typedef vtrc::weak_ptr<server::file_iface>   file_wptr;
+            typedef vtrc::shared_ptr<agent::file_iface> file_sptr;
+            typedef vtrc::weak_ptr<agent::file_iface>   file_wptr;
 
             typedef std::map<vtrc::uint32_t, file_sptr>  file_map;
 
@@ -484,7 +484,7 @@ namespace fr { namespace server { namespace subsys {
 
         public:
 
-            proto_file_impl( fr::server::application *app,
+            proto_file_impl( fr::agent::application *app,
                              vcomm::connection_iface_wptr &cli)
                 :client_(cli)
                 ,index_(100)
@@ -558,8 +558,8 @@ namespace fr { namespace server { namespace subsys {
                 }
 
                 file_sptr new_file( (mode == 0)
-                    ? fr::server::file::create( request->path( ), flags )
-                    : fr::server::file::create( request->path( ), flags, mode )
+                    ? fr::agent::file::create( request->path( ), flags )
+                    : fr::agent::file::create( request->path( ), flags, mode )
                 );
                 response->set_value( add_file( new_file ) );
             }
@@ -575,17 +575,17 @@ namespace fr { namespace server { namespace subsys {
             }
 
             static
-            server::file_iface::seek_whence value_to_enum( vtrc::uint32_t v )
+            agent::file_iface::seek_whence value_to_enum( vtrc::uint32_t v )
             {
                 switch ( v ) {
                 case proto::fs::POS_SEEK_CUR:
-                    return server::file_iface::F_SEEK_CUR;
+                    return agent::file_iface::F_SEEK_CUR;
                 case proto::fs::POS_SEEK_SET:
-                    return server::file_iface::F_SEEK_SET;
+                    return agent::file_iface::F_SEEK_SET;
                 case proto::fs::POS_SEEK_END:
-                    return server::file_iface::F_SEEK_END;
+                    return agent::file_iface::F_SEEK_END;
                 }
-                return server::file_iface::F_SEEK_SET;
+                return agent::file_iface::F_SEEK_SET;
             }
 
             void seek(::google::protobuf::RpcController* /*controller*/,
@@ -708,7 +708,7 @@ namespace fr { namespace server { namespace subsys {
 
                 size_t op_id(reactor_.next_op_id( ));
 
-                server::reaction_callback
+                agent::reaction_callback
                         cb( vtrc::bind( &proto_file_impl::event_handler, this,
                                          vtrc::placeholders::_1,
                                          value_data( f, &reactor_, op_id),
@@ -747,7 +747,7 @@ namespace fr { namespace server { namespace subsys {
         };
 
         application::service_wrapper_sptr create_fs_inst(
-                                      fr::server::application *app,
+                                      fr::agent::application *app,
                                       vtrc::common::connection_iface_wptr cl)
         {
             vtrc::shared_ptr<proto_fs_impl>
@@ -757,7 +757,7 @@ namespace fr { namespace server { namespace subsys {
         }
 
         application::service_wrapper_sptr create_file_inst(
-                                      fr::server::application *app,
+                                      fr::agent::application *app,
                                       vtrc::common::connection_iface_wptr cl)
         {
             vtrc::shared_ptr<proto_file_impl>

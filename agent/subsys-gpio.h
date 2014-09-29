@@ -4,7 +4,7 @@
 
 #include "subsystem-iface.h"
 
-namespace fr { namespace server {
+namespace fr { namespace agent {
 
     class application;
 

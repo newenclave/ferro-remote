@@ -4,7 +4,7 @@
 #include <unistd.h>
 #include "vtrc-memory.h"
 
-namespace fr { namespace server {
+namespace fr { namespace agent {
 
     struct file_keeper {
 

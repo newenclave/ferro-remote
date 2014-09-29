@@ -20,7 +20,7 @@
 #include "boost/program_options.hpp"
 #include "boost/system/error_code.hpp"
 
-namespace fr { namespace server { namespace subsys {
+namespace fr { namespace agent { namespace subsys {
 
     namespace {
 

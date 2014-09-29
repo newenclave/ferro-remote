@@ -48,9 +48,9 @@ namespace {
         return vm;
     }
 
-    void init_subsystems( po::variables_map &vm, server::application &app )
+    void init_subsystems( po::variables_map &vm, agent::application &app )
     {
-        using namespace server::subsys;
+        using namespace agent::subsys;
 
         app.add_subsystem<config>( vm );
         app.add_subsystem<os>( );
@@ -116,7 +116,7 @@ int main( int argc, const char **argv )
             pp.reset( new vcommon::pool_pair(io_size, rpc_size) );
         }
 
-        server::application app( *pp );
+        agent::application app( *pp );
 
         init_subsystems( vm, app );
 

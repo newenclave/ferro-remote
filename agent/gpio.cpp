@@ -12,7 +12,7 @@
 
 #include "errno-check.h"
 
-namespace fr { namespace server {
+namespace fr { namespace agent {
 
     namespace {
 

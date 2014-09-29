@@ -8,7 +8,7 @@ foreach( dir ${src_dirs} )
     aux_source_directory( ${dir} src_dir )
 endforeach(dir)
 
-set( exe_name ${INTERNAL_PROJECT_NAME}_server )
+set( exe_name ${INTERNAL_PROJECT_NAME}_agent )
 
 add_executable(${exe_name} ${src_dir})
 
@@ -48,10 +48,6 @@ foreach( dep ${dependencies} )
     target_link_libraries(  ${exe_name} ${${dep}_LIBRARIES} )
 
 endforeach(dep)
-
-if(WIN32)
-    target_link_libraries(${exe_name} ws2_32.lib)
-endif(WIN32)
 
 set_target_properties(${exe_name}
                       PROPERTIES COMPILE_DEFINITIONS "${VTRC_LINK_TYPE}")

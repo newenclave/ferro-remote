@@ -16,7 +16,7 @@
 #include "vtrc-common/vtrc-closure-holder.h"
 #include "vtrc-common/vtrc-connection-list.h"
 
-namespace fr { namespace server {
+namespace fr { namespace agent {
 
     namespace vserv = vtrc::server;
     namespace vcomm = vtrc::common;
@@ -55,7 +55,7 @@ namespace fr { namespace server {
         }
 
         static application::service_wrapper_sptr create_call_inst(
-                                      fr::server::application *app,
+                                      fr::agent::application *app,
                                       vtrc::common::connection_iface_wptr cl)
         {
             vtrc::shared_ptr<internal_calls>

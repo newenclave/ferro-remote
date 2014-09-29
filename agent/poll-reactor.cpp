@@ -15,7 +15,7 @@
 #include "vtrc-common/vtrc-mutex-typedefs.h"
 #include "file-keeper.h"
 
-namespace fr { namespace server {
+namespace fr { namespace agent {
 
     namespace {
 

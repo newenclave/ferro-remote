@@ -7,7 +7,7 @@ namespace boost { namespace program_options {
     class variables_map;
 }}
 
-namespace fr { namespace server {
+namespace fr { namespace agent {
 
     class application;
 

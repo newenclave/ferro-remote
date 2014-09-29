@@ -13,7 +13,7 @@
 
 #include <assert.h>
 
-namespace fr { namespace server {
+namespace fr { namespace agent {
 
     class application: public vtrc::server::application {
 
@@ -64,7 +64,7 @@ namespace fr { namespace server {
         /// func( app, connection )
         ///
         typedef vtrc::function<
-            service_wrapper_sptr ( fr::server::application *,
+            service_wrapper_sptr ( fr::agent::application *,
                                    vtrc::common::connection_iface_wptr )
         > service_getter_type;
 

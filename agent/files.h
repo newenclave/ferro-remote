@@ -6,7 +6,7 @@
 #include <string>
 #include <unistd.h>
 
-namespace fr { namespace server {
+namespace fr { namespace agent {
 
     struct file_iface {
 

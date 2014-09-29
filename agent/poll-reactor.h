@@ -4,7 +4,7 @@
 #include "vtrc-function.h"
 #include <stddef.h>
 
-namespace fr { namespace server {
+namespace fr { namespace agent {
 
     typedef vtrc::function<bool (unsigned)> reaction_callback;
 

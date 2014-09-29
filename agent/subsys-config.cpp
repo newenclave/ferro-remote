@@ -3,7 +3,7 @@
 
 #include "boost/program_options.hpp"
 
-namespace fr { namespace server { namespace subsys {
+namespace fr { namespace agent { namespace subsys {
 
     namespace po = boost::program_options;
 

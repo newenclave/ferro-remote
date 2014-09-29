@@ -4,7 +4,7 @@
 #include <string>
 #include "file-keeper.h"
 
-namespace fr { namespace server {
+namespace fr { namespace agent {
 
     namespace gpio {
 

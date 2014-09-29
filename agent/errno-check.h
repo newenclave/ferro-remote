@@ -7,7 +7,7 @@
 
 #include "vtrc-common/vtrc-exception.h"
 
-namespace fr { namespace server {
+namespace fr { namespace agent {
 
     struct errno_error {
 

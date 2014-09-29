@@ -25,7 +25,7 @@
 
 #include "errno-check.h"
 
-namespace fr { namespace server { namespace subsys {
+namespace fr { namespace agent { namespace subsys {
 
     namespace {
 
@@ -42,34 +42,34 @@ namespace fr { namespace server { namespace subsys {
         using vserv::channels::unicast::create_event_channel;
         typedef vtrc::shared_ptr<vcomm::rpc_channel> rpc_channel_sptr;
 
-        typedef vtrc::shared_ptr<server::gpio_helper> gpio_sptr;
-        typedef vtrc::weak_ptr<server::gpio_helper> gpio_wptr;
+        typedef vtrc::shared_ptr<agent::gpio_helper> gpio_sptr;
+        typedef vtrc::weak_ptr<agent::gpio_helper> gpio_wptr;
 
         typedef std::map<vtrc::uint32_t, gpio_sptr> gpio_map;
 
-        server::gpio::direction_type direct_from_proto( unsigned dir )
+        agent::gpio::direction_type direct_from_proto( unsigned dir )
         {
             switch ( dir ) {
-            case server::gpio::DIRECT_IN:
-                return server::gpio::DIRECT_IN;
-            case server::gpio::DIRECT_OUT:
-                return server::gpio::DIRECT_OUT;
+            case agent::gpio::DIRECT_IN:
+                return agent::gpio::DIRECT_IN;
+            case agent::gpio::DIRECT_OUT:
+                return agent::gpio::DIRECT_OUT;
             default:
                 vcomm::throw_system_error( EINVAL, "Bad direction" );
             }
         }
 
-        server::gpio::edge_type edge_from_proto( unsigned edge )
+        agent::gpio::edge_type edge_from_proto( unsigned edge )
         {
             switch ( edge ) {
-            case server::gpio::EDGE_NONE:
-                return server::gpio::EDGE_NONE;
-            case server::gpio::EDGE_FALLING:
-                return server::gpio::EDGE_FALLING;
-            case server::gpio::EDGE_RISING:
-                return server::gpio::EDGE_RISING;
-            case server::gpio::EDGE_BOTH:
-                return server::gpio::EDGE_BOTH;
+            case agent::gpio::EDGE_NONE:
+                return agent::gpio::EDGE_NONE;
+            case agent::gpio::EDGE_FALLING:
+                return agent::gpio::EDGE_FALLING;
+            case agent::gpio::EDGE_RISING:
+                return agent::gpio::EDGE_RISING;
+            case agent::gpio::EDGE_BOTH:
+                return agent::gpio::EDGE_BOTH;
             default:
                 vcomm::throw_system_error( EINVAL, "Bad edge" );
             }
@@ -86,7 +86,7 @@ namespace fr { namespace server { namespace subsys {
 
         public:
 
-            gpio_impl( fr::server::application *app,
+            gpio_impl( fr::agent::application *app,
                        vcomm::connection_iface_wptr cli )
                 :index_(100)
                 ,client_(cli)
@@ -154,7 +154,7 @@ namespace fr { namespace server { namespace subsys {
                 vtrc::uint32_t newid = next_index( );
                 vtrc::uint32_t id = request->gpio_id( );
 
-                gpio_sptr ng( vtrc::make_shared<server::gpio_helper>( id ) );
+                gpio_sptr ng( vtrc::make_shared<agent::gpio_helper>( id ) );
 
                 if( request->exp( ) ) {
                     if( !ng->exists( ) ) {
@@ -314,7 +314,7 @@ namespace fr { namespace server { namespace subsys {
 
                 vtrc::uint32_t opid = reactor_.next_op_id( );
 
-                server::reaction_callback
+                agent::reaction_callback
                         cb( vtrc::bind( &gpio_impl::value_changed, this,
                                          vtrc::placeholders::_1,
                                          value_data( hdl, fd, g,
@@ -346,7 +346,7 @@ namespace fr { namespace server { namespace subsys {
         };
 
         application::service_wrapper_sptr create_service(
-                                      fr::server::application *app,
+                                      fr::agent::application *app,
                                       vtrc::common::connection_iface_wptr cl )
         {
             vtrc::shared_ptr<gpio_impl>
@@ -406,7 +406,7 @@ namespace fr { namespace server { namespace subsys {
 
     void gpio::start( )
     {
-        if( server::gpio::available( ) ) {
+        if( agent::gpio::available( ) ) {
             impl_->reg_creator( gpio_impl::name( ),  create_service );
         } else {
             //std::cout << "GPIO was not found\n";

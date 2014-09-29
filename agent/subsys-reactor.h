@@ -7,7 +7,7 @@
 
 #include <sys/epoll.h>
 
-namespace fr { namespace server {
+namespace fr { namespace agent {
 
     class application;
 

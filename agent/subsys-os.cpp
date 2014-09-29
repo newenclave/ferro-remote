@@ -8,7 +8,7 @@
 
 #include <stdlib.h>
 
-namespace fr { namespace server { namespace subsys {
+namespace fr { namespace agent { namespace subsys {
 
     namespace {
 
@@ -38,7 +38,7 @@ namespace fr { namespace server { namespace subsys {
         };
 
         application::service_wrapper_sptr create_service(
-                                      fr::server::application *app,
+                                      fr::agent::application *app,
                                       vtrc::common::connection_iface_wptr cl )
         {
             vtrc::shared_ptr<os_proto_impl>

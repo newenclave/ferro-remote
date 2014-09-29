@@ -4,7 +4,7 @@
 #include <string>
 #include "vtrc-memory.h"
 
-namespace fr { namespace server {
+namespace fr { namespace agent {
 
     struct subsystem_iface
             :public vtrc::enable_shared_from_this<subsystem_iface>
