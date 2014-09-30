@@ -76,8 +76,8 @@ namespace fr { namespace agent {
 
             std::vector<char> buf( buffer_length );
 
-            lseek( fd, 0, SEEK_SET );
             int res = read( fd, &buf[0], buffer_length );
+            lseek( fd, 0, SEEK_SET );
 
             errno_error::errno_assert( res != -1, "read" );
 
