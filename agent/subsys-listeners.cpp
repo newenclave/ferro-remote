@@ -166,7 +166,6 @@ namespace fr { namespace agent { namespace subsys {
         }
     };
 
-
     listeners::listeners( application *app )
         :impl_(new impl(app))
     { }
@@ -204,7 +203,6 @@ namespace fr { namespace agent { namespace subsys {
                            vtrc::bind( &impl::add_listener, impl_,
                                        vtrc::placeholders::_1 ));
         }
-
         impl_->start_all( );
     }
 
