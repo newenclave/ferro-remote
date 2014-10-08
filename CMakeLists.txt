@@ -63,6 +63,43 @@ include_directories( ${VTRC_INCLUDE_DIRS} )
 include_directories( ${CMAKE_CURRENT_SOURCE_DIR} )
 include_directories( ${FR_INCLUDE_DIRS} )
 
+set( src_dirs )
+set( src )
+
+set( LUA_FOUND 0 )
+
+if( LUA_SRC )
+
+    add_subdirectory( lua-build )
+
+#    include_directories( ${LUA_INCLUDE_DIR} )
+#    target_link_libraries( ${PROJECT_NAME} ${LUA_LIBRARIES} )
+#    add_dependencies( ${PROJECT_NAME} lua_lib )
+
+    set( LUA_FOUND 1 )
+
+else( )
+
+    find_package( Lua51 )
+
+    if( ${LUA51_FOUND} )
+
+        set( LUA_FOUND 1 )
+    else( )
+        find_package( Lua50 )
+        if( ${LUA50_FOUND} )
+            set( LUA_FOUND 1 )
+        endif( )
+
+    endif( )
+
+endif( )
+
+if( LUA_FOUND )
+    configure_file ("${PROJECT_SOURCE_DIR}/ferro-remote-config.h.in"
+                    "${PROJECT_SOURCE_DIR}/ferro-remote-config.h" )
+endif( )
+
 add_subdirectory( protocol )
 add_subdirectory( client-core )
 

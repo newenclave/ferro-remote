@@ -9,7 +9,7 @@
   * --------------------------------------------------------------------------
  **/
 
-#define FR_LUA_FOUND @LUA_FOUND@
+#define FR_LUA_FOUND 0
 
 #endif // FERRO_REMOTE_CONFIG_H
 
