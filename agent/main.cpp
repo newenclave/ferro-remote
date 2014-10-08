@@ -66,7 +66,7 @@ namespace {
 
     void usage( const po::options_description &dsc )
     {
-        std::cout << "Usage: ferro_remote_server [options]\n"
+        std::cout << "Usage: ferro_remote_agent [options]\n"
                   << dsc << "\n";
     }
 }
