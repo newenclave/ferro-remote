@@ -10,11 +10,6 @@
 #include "google/protobuf/descriptor.h"
 #include "interfaces/IInternal.h"
 
-#include "ferro-remote-config.h"
-
-#if FR_WITH_LUA
-
-#endif
 
 namespace po = boost::program_options;
 
@@ -35,6 +30,9 @@ namespace {
         m.insert( cmd( fr::cc::cmd::fs::create( ) ) );
         m.insert( cmd( fr::cc::cmd::gpio::create( ) ) );
         m.insert( cmd( fr::cc::cmd::os::create( ) ) );
+#if FR_WITH_LUA
+        m.insert( cmd( fr::cc::cmd::lua::create( ) ) );
+#endif
     }
 
     void fill_common_options( po::options_description &desc )
