@@ -95,10 +95,8 @@ else( )
 
 endif( )
 
-if( LUA_FOUND )
-    configure_file ("${PROJECT_SOURCE_DIR}/ferro-remote-config.h.in"
-                    "${PROJECT_SOURCE_DIR}/ferro-remote-config.h" )
-endif( )
+configure_file ("${PROJECT_SOURCE_DIR}/ferro-remote-config.h.in"
+                "${FR_INCLUDE_DIRS}/ferro-remote-config.h" )
 
 add_subdirectory( protocol )
 add_subdirectory( client-core )
