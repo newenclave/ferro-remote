@@ -68,7 +68,14 @@ set( src )
 
 set( LUA_FOUND 0 )
 
+if( DISABLE_LUA )
+    message( "DISABLE_LUA " ${DISABLE_LUA} )
+else( )
+    set( DISABLE_LUA 0 )
+endif( )
+
 if( NOT DISABLE_LUA )
+
     if( LUA_SRC )
 
         add_subdirectory( lua-build )

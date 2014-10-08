@@ -10,6 +10,11 @@
 #include "google/protobuf/descriptor.h"
 #include "interfaces/IInternal.h"
 
+#include "ferro-remote-config.h"
+
+#if FR_WITH_LUA
+
+#endif
 
 namespace po = boost::program_options;
 
