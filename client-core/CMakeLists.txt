@@ -39,6 +39,12 @@ foreach( dep ${internal} )
 
 endforeach(dep)
 
+if( LUA_FOUND )
+    include_directories( ${LUA_INCLUDE_DIR} )
+    target_link_libraries( ${lib_name} ${LUA_LIBRARIES} )
+    #add_dependencies( ${lib_name} lua_lib )
+endif( )
+
 list(APPEND dependencies
     Boost
     PROTOBUF

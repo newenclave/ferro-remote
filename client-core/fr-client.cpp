@@ -13,8 +13,8 @@
 
 #include "ferro-remote-config.h"
 
-#if FR_LUA_FOUND
-
+#if FR_WITH_LUA
+#include "fr-lua/lua-wrapper.hpp"
 #endif
 
 namespace fr {  namespace client { namespace core {

@@ -28,6 +28,12 @@ foreach( dep ${internal} )
 
 endforeach(dep)
 
+if( LUA_FOUND )
+    include_directories( ${LUA_INCLUDE_DIR} )
+    target_link_libraries( ${exe_name} ${LUA_LIBRARIES} )
+    add_dependencies( ${exe_name} lua_lib )
+endif( )
+
 list(APPEND dependencies
     Boost
     PROTOBUF
@@ -44,6 +50,7 @@ foreach( dep ${dependencies} )
     target_link_libraries(  ${exe_name} ${${dep}_LIBRARIES} )
 
 endforeach(dep)
+
 
 if(WIN32)
     target_link_libraries(${exe_name} ws2_32.lib)
