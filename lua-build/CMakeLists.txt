@@ -17,11 +17,9 @@ endforeach( )
 
 add_library( ${lib_name} STATIC ${lib_src} )
 
-set( LUA_INCLUDE_DIR
-     ${LUA_SRC}
-     PARENT_SCOPE
-)
+set( LUA_INCLUDE_DIR ${LUA_SRC} PARENT_SCOPE )
 
 get_target_property(${lib_name}_LOCATION ${lib_name} LOCATION)
+
 set( LUA_LIBRARIES ${${lib_name}_LOCATION} PARENT_SCOPE)
 
