@@ -11,11 +11,11 @@
 
 #include "protocol/ferro.pb.h"
 
-#include "ferro-remote-config.h"
+//#include "ferro-remote-config.h"
 
-#if FR_WITH_LUA
-#include "fr-lua/lua-wrapper.hpp"
-#endif
+//#if FR_WITH_LUA
+//#include "fr-lua/lua-wrapper.hpp"
+//#endif
 
 namespace fr {  namespace client { namespace core {
 
