@@ -4,7 +4,7 @@
 
 #if FR_WITH_LUA
 
-//#include "boost/program_options.hpp"
+#include "boost/program_options.hpp"
 
 namespace fr { namespace cc { namespace cmd {
 
@@ -35,9 +35,10 @@ namespace fr { namespace cc { namespace cmd {
                 /// "server,s"
                 /// "io-pool-size,i"
                 /// "rpc-pool-size,r"
-                //desc.add_options( )
-                ///  ("cmd1,C",   "desc")
-                ///  ( "cmd2,D", po::value<std::string>( ), "desc" )
+                desc.add_options( )
+                    ( "exec,e", po::value<std::string>( ),
+                                                    "execute the script" )
+                    ;
             }
 
             std::string help( ) const
