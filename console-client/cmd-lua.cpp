@@ -4,14 +4,24 @@
 
 #if FR_WITH_LUA
 
+#include "interfaces/IOS.h"
+
+#define LUA_WRAPPER_TOP_NAMESPACE fr
+#include "fr-lua/lua-wrapper.hpp"
+
 #include "boost/program_options.hpp"
 
 namespace fr { namespace cc { namespace cmd {
 
     namespace {
 
+        const std::string main_table_name( "fr" );
+        const std::string client_table_name( "client" );
+
         namespace po = boost::program_options;
         namespace core = client::core;
+
+        typedef fr::lua::state lua_state;
 
         const char *cmd_name = "lua";
 
@@ -24,7 +34,10 @@ namespace fr { namespace cc { namespace cmd {
 
             void exec( po::variables_map &vm, core::client_core &client )
             {
-
+                lua_state lv;
+                if( vm.count( "exec" ) ) {
+                    std::string script( vm["exec"].as<std::string>( ) );
+                }
             }
 
             void add_options( po::options_description &desc )

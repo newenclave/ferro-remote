@@ -2,6 +2,9 @@
 #define LUA_OBJECTS_HPP
 
 #include <memory>
+#include <sstream>
+#include <vector>
+#include <string>
 
 extern "C" {
 #include "lua.h"
