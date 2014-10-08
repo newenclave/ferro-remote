@@ -86,6 +86,10 @@ namespace fr { namespace cc { namespace cmd {
                 if( vm.count( "exec" ) ) {
                     std::string script( vm["exec"].as<std::string>( ) );
                     lv.load_file( script.c_str( ) );
+                    if( vm.count( "func" ) )  {
+                        std::string func( vm["func"].as<std::string>( ) );
+                        lv.exec_function( func.c_str( ) );
+                    }
                     //lv.exec_function( );
                 }
             }
@@ -101,6 +105,8 @@ namespace fr { namespace cc { namespace cmd {
                 desc.add_options( )
                     ( "exec,e", po::value<std::string>( ),
                                                     "execute the script" )
+                    ( "func,f", po::value<std::string>( ),
+                                              "call function from the script" )
                     ;
             }
 
