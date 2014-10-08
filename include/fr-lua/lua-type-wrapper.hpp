@@ -106,7 +106,7 @@ namespace lua { namespace types {
         static T get( lua_State *L, int idx )
         {
             size_t length = 0;
-            const char *t = lua_tolstring( L, idx, length );
+            const char *t = lua_tolstring( L, idx, &length );
             return t ? T( t, length ) : T( );
         }
     };

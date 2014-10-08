@@ -296,7 +296,7 @@ namespace lua { namespace objects {
 
         std::string str( ) const
         {
-            return std::string( "'" ).append( cont_ ).append( "'" );
+            return cont_ ;
         }
 
         lua_Number num( ) const
@@ -465,6 +465,8 @@ namespace lua { namespace objects {
             return oss.str( );
         }
     };
+
+    typedef std::shared_ptr<table> table_sptr;
 
     class function: public base {
 
