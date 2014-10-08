@@ -11,6 +11,12 @@
 
 #include "protocol/ferro.pb.h"
 
+#include "ferro-remote-config.h"
+
+#if FR_LUA_FOUND
+
+#endif
+
 namespace fr {  namespace client { namespace core {
 
     namespace vclient = vtrc::client;
