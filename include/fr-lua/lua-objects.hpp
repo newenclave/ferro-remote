@@ -426,6 +426,18 @@ namespace lua { namespace objects {
             return this;
         }
 
+        table * add( const base_sptr &k, const base_sptr &v )
+        {
+            push_back( pair_sptr(new pair( k, v ) ) );
+            return this;
+        }
+
+        table * add( const base_sptr &k, base *v )
+        {
+            push_back( pair_sptr(new pair( k, base_sptr( v ) ) ) );
+            return this;
+        }
+
         virtual base *clone( ) const
         {
             return new table( *this );
@@ -510,6 +522,11 @@ namespace lua { namespace objects {
     inline pair * new_pair( base *k, base *v )
     {
         return new pair( base_sptr(k), base_sptr(v) );
+    }
+
+    inline pair * new_pair( const base_sptr &k, const base_sptr &v )
+    {
+        return new pair( k, v );
     }
 
     inline table * new_table(  )

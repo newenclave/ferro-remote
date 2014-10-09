@@ -32,6 +32,87 @@ namespace fr { namespace cc { namespace cmd {
         typedef client::interfaces::os::iface os_iface;
         typedef std::shared_ptr<os_iface> os_iface_sptr;
 
+        lo::base_sptr get_object( lua_State *L, int idx );
+
+        lo::base_sptr get_table( lua_State *L, int idx )
+        {
+            lua_pushvalue( L, idx );
+            lua_pushnil( L );
+
+            lo::table_sptr new_table( lo::new_table( ) );
+            while ( lua_next( L, -2 ) ) {
+                lua_pushvalue( L, -2 );
+                lo::pair_sptr new_pair
+                        ( lo::new_pair( get_object( L, -1 ),
+                                        get_object( L, -2 ) ) );
+                new_table->push_back( new_pair );
+                lua_pop( L, 2 );
+            }
+
+            lua_pop( L, 1 );
+            return new_table;
+        }
+
+        lo::base_sptr get_string( lua_State *L, int idx )
+        {
+            size_t length = 0;
+            const char *ptr = lua_tolstring( L, idx, &length );
+            return lo::base_sptr( new lo::string( ptr, length ) );
+        }
+
+        lo::base_sptr get_object( lua_State *L, int idx )
+        {
+            int t = lua_type( L, idx );
+            switch( t ) {
+            case LUA_TBOOLEAN:
+                return lo::base_sptr(
+                            new lo::boolean( lua_toboolean( L, idx ) ));
+            case LUA_TLIGHTUSERDATA:
+                return lo::base_sptr(
+                            new lo::light_userdata( lua_touserdata( L, idx ) ));
+            case LUA_TNUMBER:
+                return lo::base_sptr(
+                            new lo::number( lua_tonumber( L, idx ) ));
+            case LUA_TSTRING:
+                return get_string( L, idx );
+            case LUA_TFUNCTION:
+                return lo::base_sptr(
+                            new lo::function( lua_tocfunction( L, idx ) ));
+            case LUA_TTABLE:
+                return get_table( L, idx );
+        //    case LUA_TUSERDATA:
+        //        return "userdata";
+        //    case LUA_TTHREAD:
+        //        return "thread";
+            }
+            return lo::base_sptr( new lo::nil );
+        }
+
+        int global_print( lua_State *L )
+        {
+            int n = lua_gettop( L );
+
+            lua::state lv( L );
+
+            if( n < 0 ) {
+                n = ( (n * -1) + 1 );
+            }
+
+            for ( int b = 1; b <= n; ++b ) {
+                std::cout << get_object( lv.get_state( ), b )->str( );
+            }
+            lv.pop( n );
+
+            return 0;
+        }
+
+        int global_println( lua_State *L )
+        {
+            int res = global_print( L );
+            std::cout << "\n";
+            return res;
+        }
+
         void init( std::map<std::string, lua::data_sptr> &data,
                    lua_State *L,
                    core::client_core &cl )
@@ -73,6 +154,9 @@ namespace fr { namespace cc { namespace cmd {
             {
                 lua_state lv;
                 lua::set_core( lv.get_state( ), &cl );
+
+                lv.register_call( "print", &global_print );
+                lv.register_call( "println", &global_println );
 
                 std::map<std::string, lua::data_sptr> datas;
 
