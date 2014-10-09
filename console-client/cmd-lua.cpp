@@ -47,7 +47,8 @@ namespace fr { namespace cc { namespace cmd {
             lua_state lv( L );
             std::string command( lv.get<std::string>( ) );
             const os_iface *iface( get_os_iface( L ) );
-            iface->execute( command );
+            lv.push( iface->execute( command ) );
+            return 1;
         }
 
         lo::table *os_table( )
