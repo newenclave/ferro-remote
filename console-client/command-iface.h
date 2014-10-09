@@ -34,6 +34,8 @@ namespace cc {
         virtual std::string help( ) const = 0;
         virtual std::string desc( ) const = 0;
 
+        virtual bool need_connect( ) const { return true; }
+
     };
 
     typedef vtrc::shared_ptr<command_iface> command_sptr;

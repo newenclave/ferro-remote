@@ -189,7 +189,7 @@ int main( int argc, const char **argv ) try
                         ? vm["server"].as<std::string>( )
                         : "");
 
-    if( server.empty( ) ) {
+    if( server.empty( ) && current_command->need_connect( ) ) {
         std::cout << "Invalid server '<empty>'\n";
         show_init_help( desc, cm );
         return 3;
@@ -205,7 +205,9 @@ int main( int argc, const char **argv ) try
     }
 
     //client.async_connect( server, connect_success );
-    client.connect( server );
+    if( current_command->need_connect( ) ) {
+        client.connect( server );
+    }
 
     if( quit ) {
         std::cout << "Quit remote\n";

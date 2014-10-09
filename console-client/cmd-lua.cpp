@@ -40,6 +40,7 @@ namespace fr { namespace cc { namespace cmd {
             lua_pushnil( L );
 
             lo::table_sptr new_table( lo::new_table( ) );
+
             while ( lua_next( L, -2 ) ) {
                 lua_pushvalue( L, -2 );
                 lo::pair_sptr new_pair
@@ -155,7 +156,7 @@ namespace fr { namespace cc { namespace cmd {
                 lua_state lv;
                 lua::set_core( lv.get_state( ), &cl );
 
-                lv.register_call( "print", &global_print );
+                lv.register_call( "print",   &global_print );
                 lv.register_call( "println", &global_println );
 
                 std::map<std::string, lua::data_sptr> datas;
@@ -197,6 +198,11 @@ namespace fr { namespace cc { namespace cmd {
             std::string desc( ) const
             {
                 return std::string( "lua command" );
+            }
+
+            bool need_connect( ) const
+            {
+                return true;
             }
 
         };
