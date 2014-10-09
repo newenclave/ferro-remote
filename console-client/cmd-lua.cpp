@@ -115,6 +115,14 @@ namespace fr { namespace cc { namespace cmd {
             return res;
         }
 
+        int test_call( lua_State *L )
+        {
+            lua::state lv( L );
+            std::string c(lv.get<std::string>(  ));
+            lv.exec_function( c.c_str( ) );
+            return 0;
+        }
+
 #define FR_INTERFACE_PAIR( ns, L, CL )      \
     std::make_pair( lua::ns::table_name, lua::ns::init( L, cl ))
 
@@ -147,6 +155,7 @@ namespace fr { namespace cc { namespace cmd {
             data.swap( tmp );
 
         }
+#undef FR_INTERFACE_PAIR
 
         void register_printer( lua_State *L )
         {
@@ -154,6 +163,9 @@ namespace fr { namespace cc { namespace cmd {
 
             lv.register_call( "print",   &global_print );
             lv.register_call( "println", &global_println );
+
+            lv.register_call( "call", &test_call );
+
         }
 
         struct impl: public command_iface {
