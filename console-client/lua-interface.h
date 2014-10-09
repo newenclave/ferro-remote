@@ -49,10 +49,17 @@ namespace fr { namespace lua {
 
     typedef std::shared_ptr<base_data> data_sptr;
 
-    namespace os {
-        static const char *table_name = "os";
-        data_sptr init( lua_State *ls, client::core::client_core &cc );
+#define FR_DEFINE_NAMESPACE_FOR_LUA( ns )                               \
+    namespace ns {                                                      \
+        static const char *table_name = #ns;                            \
+        data_sptr init( lua_State *ls, client::core::client_core &cc ); \
     }
+
+    FR_DEFINE_NAMESPACE_FOR_LUA( os )
+    FR_DEFINE_NAMESPACE_FOR_LUA( fs )
+
+#undef FR_DEFINE_NAMESPACE_FOR_LUA
+
 }}
 
 

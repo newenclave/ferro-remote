@@ -115,6 +115,9 @@ namespace fr { namespace cc { namespace cmd {
             return res;
         }
 
+#define FR_INTERFACE_PAIR( ns, L, CL )      \
+    std::make_pair( lua::ns::table_name, lua::ns::init( L, cl ))
+
         void init( std::map<std::string, lua::data_sptr> &data,
                    lua_State *L,
                    core::client_core &cl )
@@ -125,8 +128,8 @@ namespace fr { namespace cc { namespace cmd {
 
             lua_state lv( L );
 
-            tmp.insert(std::make_pair( lua::os::table_name,
-                                       lua::os::init( L, cl )));
+            tmp.insert( FR_INTERFACE_PAIR( os, L, cl ) );
+            tmp.insert( FR_INTERFACE_PAIR( fs, L, cl ) );
 
             lo::table_sptr client_table( lo::new_table( ) );
 
