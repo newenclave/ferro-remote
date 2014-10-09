@@ -4,6 +4,7 @@
 
 #if FR_WITH_LUA
 
+#include <iostream>
 #include "interfaces/IOS.h"
 
 #define LUA_WRAPPER_TOP_NAMESPACE fr
@@ -144,6 +145,14 @@ namespace fr { namespace cc { namespace cmd {
 
         }
 
+        void register_printer( lua_State *L )
+        {
+            lua_state lv( L );
+
+            lv.register_call( "print",   &global_print );
+            lv.register_call( "println", &global_println );
+        }
+
         struct impl: public command_iface {
 
             const char *name( ) const
@@ -156,8 +165,7 @@ namespace fr { namespace cc { namespace cmd {
                 lua_state lv;
                 lua::set_core( lv.get_state( ), &cl );
 
-                lv.register_call( "print",   &global_print );
-                lv.register_call( "println", &global_println );
+                register_printer( lv.get_state( ) );
 
                 std::map<std::string, lua::data_sptr> datas;
 
