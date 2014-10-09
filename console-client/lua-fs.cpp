@@ -8,6 +8,10 @@
 namespace fr { namespace lua {
 
     namespace {
+
+        const char *fsface_name = "fsiface";
+
+
         struct data: public base_data {
 
             typedef client::interfaces::os::iface iface;
