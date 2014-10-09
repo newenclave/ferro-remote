@@ -87,6 +87,14 @@ namespace lua { namespace types {
     };
 
     template <typename T>
+    struct id_user_data: public base_id<LUA_TLIGHTUSERDATA> {
+        static T get( lua_State *L, int idx )
+        {
+            return static_cast<T>(lua_touserdata( L, idx ));
+        }
+    };
+
+    template <typename T>
     struct id_pointer: public base_id<LUA_TLIGHTUSERDATA> {
         static T get( lua_State *L, int idx )
         {
@@ -183,6 +191,10 @@ namespace lua { namespace types {
     template <>
     struct id_traits<long double> : public
            id_numeric<long double> { };
+
+    template <>
+    struct id_traits<void *> : public
+           id_user_data<void *> { };
 
     template <>
     struct id_traits<const void *> : public

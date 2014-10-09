@@ -12,14 +12,13 @@
 
 #include "boost/program_options.hpp"
 
+#include "lua-interface.h"
+
 namespace fr { namespace cc { namespace cmd {
 
     namespace {
 
-        const char * main_table_name    = "fr" ;
-        const char * client_table_name  = "client";
         const char * os_table_name      = "os";
-
         const char * os_iface_name      = "osinst";
 
         namespace po = boost::program_options;
@@ -37,7 +36,7 @@ namespace fr { namespace cc { namespace cmd {
         {
             lua_state lv( L );
             const void *p =
-                    lv.get_from_global<const void *>( main_table_name,
+                    lv.get_from_global<const void *>( lua::main_table_name,
                                                       os_iface_name );
             return reinterpret_cast<const os_iface *>(p);
         }
@@ -70,7 +69,8 @@ namespace fr { namespace cc { namespace cmd {
             {
                 lua_state lv;
                 os_iface_sptr osi( client::interfaces::os::create( cl ) );
-                lv.set_in_global( main_table_name, os_iface_name, osi.get( ) );
+                lv.set_in_global( lua::main_table_name,
+                                  os_iface_name, osi.get( ) );
 
                 lo::table_sptr client_tabe( lo::new_table( ) );
                 client_tabe->add(
@@ -79,7 +79,8 @@ namespace fr { namespace cc { namespace cmd {
                 )
                 ;
 
-                lv.set_object_in_global( main_table_name, client_table_name,
+                lv.set_object_in_global( lua::main_table_name,
+                                         lua::client_table_name,
                                         *client_tabe );
 
                 if( vm.count( "exec" ) ) {
