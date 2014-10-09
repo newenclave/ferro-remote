@@ -61,7 +61,7 @@ namespace fr { namespace lua {
         data_sptr init( lua_State *ls, client::core::client_core &cc )
         {
             lua::state lv( ls );
-            return std::make_shared<data>( std::ref( cc ), ls );
+            return data_sptr( new data( cc, ls ) );
         }
     }
 
