@@ -32,30 +32,34 @@ namespace fr { namespace cc { namespace cmd {
         typedef client::interfaces::os::iface os_iface;
         typedef std::shared_ptr<os_iface> os_iface_sptr;
 
-        const os_iface *get_os_iface( lua_State *L )
+        void init( std::map<std::string, lua::data_sptr> &data,
+                   lua_State *L,
+                   core::client_core &cl )
         {
-            lua_state lv( L );
-            const void *p =
-                    lv.get_from_global<const void *>( lua::main_table_name,
-                                                      os_iface_name );
-            return reinterpret_cast<const os_iface *>(p);
-        }
+            std::map<std::string, lua::data_sptr> tmp;
 
-        int lcall_os_exec( lua_State *L )
-        {
-            lua_state lv( L );
-            std::string command( lv.get<std::string>( ) );
-            const os_iface *iface( get_os_iface( L ) );
-            lv.push( iface->execute( command ) );
-            return 1;
-        }
+            typedef std::map<std::string, lua::data_sptr>::const_iterator citr;
 
-        lo::table *os_table( )
-        {
-            lo::table * ot(lo::new_table( ));
-            ot->add( lo::new_string( "system" ),
-                     lo::new_function( lcall_os_exec ) );
-            return ot;
+            lua_state lv( L );
+
+            tmp.insert(std::make_pair( lua::os::table_name,
+                                       lua::os::init( L, cl )));
+
+            lo::table_sptr client_table( lo::new_table( ) );
+
+            for( citr b(tmp.begin( )), e(tmp.end( )); b!=e; ++b ) {
+                client_table->add(
+                    lo::new_string( b->first ),
+                    b->second->get_table( )
+                );
+            }
+
+            lv.set_object_in_global( lua::names::main_table,
+                                     lua::names::client_table,
+                                    *client_table );
+
+            data.swap( tmp );
+
         }
 
         struct impl: public command_iface {
@@ -68,20 +72,11 @@ namespace fr { namespace cc { namespace cmd {
             void exec( po::variables_map &vm, core::client_core &cl )
             {
                 lua_state lv;
-                os_iface_sptr osi( client::interfaces::os::create( cl ) );
-                lv.set_in_global( lua::main_table_name,
-                                  os_iface_name, osi.get( ) );
+                lua::set_core( lv.get_state( ), &cl );
 
-                lo::table_sptr client_tabe( lo::new_table( ) );
-                client_tabe->add(
-                    lo::new_string( os_table_name ),
-                    os_table( )
-                )
-                ;
+                std::map<std::string, lua::data_sptr> datas;
 
-                lv.set_object_in_global( lua::main_table_name,
-                                         lua::client_table_name,
-                                        *client_tabe );
+                init( datas, lv.get_state( ), cl );
 
                 if( vm.count( "exec" ) ) {
                     std::string script( vm["exec"].as<std::string>( ) );

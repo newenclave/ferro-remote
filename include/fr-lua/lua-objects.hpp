@@ -420,6 +420,12 @@ namespace lua { namespace objects {
             return this;
         }
 
+        table * add( base *k, const base_sptr &v )
+        {
+            push_back( pair_sptr(new pair( base_sptr(k), v ) ) );
+            return this;
+        }
+
         virtual base *clone( ) const
         {
             return new table( *this );

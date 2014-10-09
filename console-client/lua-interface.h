@@ -15,16 +15,19 @@ namespace fr { namespace client { namespace core {
 
 namespace fr { namespace lua {
 
-    static const char * main_table_name    = "fr" ;
-    static const char * client_table_name  = "client";
-    static const char * core_field_name    = "core";
+    namespace names {
+        static const char * main_table    = "fr" ;
+        static const char * client_table  = "client";
+        static const char * core_field    = "core";
+    }
 
     inline
     static client::core::client_core *get_core( lua_State *L )
     {
         lua::state lv( L );
         void *p =
-                lv.get_from_global<void *>( main_table_name, core_field_name );
+                lv.get_from_global<void *>( names::main_table,
+                                            names::core_field );
         return reinterpret_cast<client::core::client_core *>( p );
     }
 
@@ -32,7 +35,7 @@ namespace fr { namespace lua {
     static void set_core( lua_State *L, client::core::client_core *cc )
     {
         lua::state lv( L );
-        lv.set_in_global( main_table_name, core_field_name,
+        lv.set_in_global( names::main_table, names::core_field,
                           reinterpret_cast<void *>( cc ) );
     }
 
@@ -47,9 +50,9 @@ namespace fr { namespace lua {
     typedef std::shared_ptr<base_data> data_sptr;
 
     namespace os {
-        data_sptr init( lua_State *ls, const char *core_id );
+        static const char *table_name = "os";
+        data_sptr init( lua_State *ls, client::core::client_core &cc );
     }
-
 }}
 
 
