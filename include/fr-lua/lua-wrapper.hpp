@@ -388,6 +388,34 @@ namespace lua {
             return result;
         }
 
+        int get_table( const char *path )
+        {
+            int level = 1;
+            std::string r(path, path_root( path ));
+            const char *tail = path + r.size( );
+
+            lua_getglobal( vm_, r.c_str( ) );
+
+            while( 1 ) {
+                if( !lua_istable( vm_, -1 ) ) {
+                    lua_pop( vm_, level );
+                    level = 0;
+                    break;
+                } else {
+                    if( *tail ) {
+                        tail++;
+                        level++;
+                        r.assign( tail, path_root( tail ) );
+                        tail = tail + r.size( );
+                        lua_getfield( vm_, -1, r.c_str( ) );
+                    } else {
+                        break;
+                    }
+                }
+            }
+            return level;
+        }
+
         int exec_function( const char* func )
         {
             lua_getglobal( vm_, func );
