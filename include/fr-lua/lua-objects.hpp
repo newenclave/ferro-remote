@@ -78,6 +78,11 @@ namespace lua { namespace objects {
             return 0;
         }
 
+        const bool none_or_nil( ) const
+        {
+            int ti = type_id( );
+            return ( ti == LUA_TNONE ) || ( ti == LUA_TNIL );
+        }
     };
 
     typedef std::shared_ptr<base> base_sptr;
@@ -369,6 +374,12 @@ namespace lua { namespace objects {
 
             return oss.str( );
         }
+
+        size_t nil_size( ) const
+        {
+            return  ( pair_.first->none_or_nil( )  ? 1 : 0 )
+                  + ( pair_.second->none_or_nil( ) ? 1 : 0 );
+        }
     };
 
     typedef std::shared_ptr<pair> pair_sptr;
@@ -414,31 +425,44 @@ namespace lua { namespace objects {
             return this;
         }
 
-        table * add( base *k, base *v )
-        {
-            push_back( pair_sptr(new pair( base_sptr(k), base_sptr(v) ) ) );
-            return this;
-        }
-
-        table * add( base *k, const base_sptr &v )
-        {
-            push_back( pair_sptr(new pair( base_sptr(k), v ) ) );
-            return this;
-        }
-
         table * add( const base_sptr &k, const base_sptr &v )
         {
             push_back( pair_sptr(new pair( k, v ) ) );
             return this;
         }
 
-        table * add( const base_sptr &k, base *v )
+        table * add( base *k, base *v )
         {
-            push_back( pair_sptr(new pair( k, base_sptr( v ) ) ) );
+            add( base_sptr(k), base_sptr(v) );
             return this;
         }
 
-        virtual base *clone( ) const
+        table * add( base *k, const base_sptr &v )
+        {
+            add( base_sptr(k), v );
+            return this;
+        }
+
+        table * add( const base_sptr &k, base *v )
+        {
+            add( k, base_sptr(v) );
+            return this;
+        }
+
+        table * add( base_sptr v )
+        {
+            static std::shared_ptr<base> const_nil( new nil );
+            push_back( pair_sptr(new pair( const_nil, v ) ) );
+            return this;
+        }
+
+        table * add( base *v )
+        {
+            add( base_sptr(v) );
+            return this;
+        }
+
+        base *clone( ) const
         {
             return new table( *this );
         }
@@ -447,9 +471,22 @@ namespace lua { namespace objects {
         {
             typedef pair_vector::const_iterator citr;
             lua_newtable( L );
-            for( citr b(list_.begin( )), e(list_.end( )); b!=e; ++b ) {
-                (*b)->push( L );
-                lua_settable(L, -3);
+            size_t len = 0;
+            for( citr b(list_.begin( )), e(list_.end( )); b!=e; ++b, ++len ) {
+                size_t n((*b)->nil_size( ));
+                switch (n) {
+                case 1:
+                    lua_pushinteger( L, len );
+                    (*b)->push( L );
+                    lua_settable( L, -3 );
+                    break;
+                case 0:
+                    (*b)->push( L );
+                    lua_settable( L, -3 );
+                    break;
+                default: // nothing to do here
+                    break;
+                }
             }
         }
 

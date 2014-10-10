@@ -50,6 +50,18 @@ namespace lua {
             return tmp;
         }
 
+        struct object_wrapper {
+            const objects::base *obj_;
+            object_wrapper( const objects::base *o )
+                :obj_(o)
+            { }
+        };
+
+        void push( object_wrapper value )
+        {
+            value.obj_->push( vm_ );
+        }
+
     public:
 
         enum state_owning {
@@ -186,6 +198,111 @@ namespace lua {
                         + std::string("'") );
             }
             return traits::get( vm_, id );
+        }
+
+    private:
+
+        void get_global( const char *val )
+        {
+            lua_getglobal( vm_, val );
+        }
+
+        void set_global( const char *val )
+        {
+            lua_setglobal( vm_, val );
+        }
+
+        void set_table( int id = -3 )
+        {
+            lua_settable( vm_, id );
+        }
+
+        static size_t path_root( const char *path )
+        {
+            size_t res = 0;
+            while( ( *path != '.' ) && ( *path != '\0' ) ) {
+                ++path;
+                ++res;
+            }
+            return res;
+        }
+
+        template <typename T>
+        void create_or_push( const char *path, T value )
+        {
+            if( !*path ) {
+                push( value );
+            } else {
+
+                std::string p( path, path_root( path ) );
+                const char *tail = path + p.size( );
+
+                lua_newtable( vm_ );
+                push( p.c_str( ) );
+                create_or_push( !*tail ? "" : tail + 1, value );
+                set_table( );
+            }
+        }
+
+        template <typename T>
+        void set_to_stack( const char *path, T value )
+        {
+            std::string p( path, path_root( path ) );
+            const char *tail = path + p.size( );
+
+            if( !*tail ) {
+
+                push( p.c_str( ) );
+                push( value );
+                set_table( );
+
+            } else {
+
+                lua_getfield( vm_, -1, p.c_str( ) );
+
+                if( !lua_istable( vm_, -1 ) ) {
+                    pop( 1 );
+                    push( p.c_str( ) );
+                    create_or_push( tail + 1, value );
+                    set_table( );
+                } else {
+                    set_to_stack( tail + 1, value );
+                    pop( 1 );
+                }
+            }
+        }
+
+    public:
+
+        template <typename T>
+        void set( const char *path, T value )
+        {
+            std::string p( path, path_root( path ) );
+            const char *tail = path + p.size( );
+
+            get_global( p.c_str( ) );
+
+            if( !lua_istable( vm_, -1 ) ) {
+                pop( 1 );
+                if( !*tail ) {
+                    push( value );
+                } else {
+                    create_or_push( tail + 1, value );
+                }
+            } else {
+                if( !*tail ) {
+                    pop( 1 );
+                    push( value );
+                } else {
+                    set_to_stack( tail + 1, value );
+                }
+            }
+            set_global( p.c_str( ) );
+        }
+
+        void set_object( const char *path, const objects::base &obj )
+        {
+            set<object_wrapper>( path, object_wrapper( &obj ) );
         }
 
         template <typename T>
