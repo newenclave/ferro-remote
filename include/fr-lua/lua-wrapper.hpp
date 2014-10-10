@@ -134,6 +134,16 @@ namespace lua {
             }
         }
 
+        void push_value( int idx = -1 )
+        {
+            lua_pushvalue( vm_, idx );
+        }
+
+        void push( )
+        {
+            lua_pushnil( vm_ );
+        }
+
         void push( bool value )
         {
             lua_pushboolean( vm_, value ? 1 : 0 );

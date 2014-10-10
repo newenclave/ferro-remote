@@ -353,8 +353,12 @@ namespace lua { namespace objects {
 
         void push( lua_State *L ) const
         {
-            pair_.first->push( L );
-            pair_.second->push( L );
+            if( !pair_.first->none_or_nil( ) )  {
+                pair_.first->push( L );
+            }
+            if( !pair_.second->none_or_nil( ) )  {
+                pair_.second->push( L );
+            }
         }
 
         const base * at( size_t index ) const
@@ -452,7 +456,7 @@ namespace lua { namespace objects {
         table * add( base_sptr v )
         {
             static std::shared_ptr<base> const_nil( new nil );
-            push_back( pair_sptr(new pair( const_nil, v ) ) );
+            push_back( pair_sptr( new pair( const_nil, v ) ) );
             return this;
         }
 
