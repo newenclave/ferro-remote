@@ -393,7 +393,7 @@ namespace fr { namespace lua {
             fsiterator_sptr ni( get_iterator( L ) );
             if( ni ) {
                 ni->next( );
-                ls.push( ni->get( ).path.c_str( ) );
+                ls.push( path_leaf( ni->get( ).path.c_str( ) ) );
                 return 1;
             }
             return 0;
@@ -404,7 +404,7 @@ namespace fr { namespace lua {
             lua::state ls(L);
             fsiterator_sptr ni( get_iterator( L ) );
             if( ni ) {
-                ls.push( path_leaf( ni->get( ).path.c_str( ) ) );
+                ls.push( ni->get( ).path.c_str( ) );
                 return 1;
             }
             return 0;
