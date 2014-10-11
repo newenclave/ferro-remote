@@ -75,6 +75,7 @@ namespace lua { namespace types {
             default:
                 break;
             }
+            return T( );
         }
     };
 

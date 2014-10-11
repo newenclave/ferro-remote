@@ -228,7 +228,7 @@ namespace lua {
 
         bool none_or_nil( int id = -1 ) const
         {
-            lua_isnoneornil( vm_, -1 );
+            return lua_isnoneornil( vm_, -1 );
         }
 
         template<typename T>
@@ -275,9 +275,7 @@ namespace lua {
         template <typename T>
         void create_or_push( const char *path, T value )
         {
-            if( !*path ) {
-                push( value );
-            } else {
+            if( *path ) {
 
                 std::string p( path, path_root( path ) );
                 const char *tail = path + p.size( );
@@ -286,6 +284,8 @@ namespace lua {
                 push( p.c_str( ) );
                 create_or_push( !*tail ? "" : tail + 1, value );
                 set_table( );
+            } else {
+                push( value );
             }
         }
 
@@ -295,13 +295,7 @@ namespace lua {
             std::string p( path, path_root( path ) );
             const char *tail = path + p.size( );
 
-            if( !*tail ) {
-
-                push( p.c_str( ) );
-                push( value );
-                set_table( );
-
-            } else {
+            if( *tail ) {
 
                 lua_getfield( vm_, -1, p.c_str( ) );
 
@@ -314,10 +308,19 @@ namespace lua {
                     set_to_stack( tail + 1, value );
                     pop( 1 );
                 }
+            } else {
+                push( p.c_str( ) );
+                push( value );
+                set_table( );
             }
         }
 
     public:
+
+//        void set( const char *path, const objects::base *obj )
+//        {
+//            set<object_wrapper>( path, object_wrapper( obj ) );
+//        }
 
         template <typename T>
         void set( const char *path, T value )
@@ -345,9 +348,9 @@ namespace lua {
             set_global( p.c_str( ) );
         }
 
-        void set_object( const char *path, const objects::base &obj )
+        void set_object( const char *path, const objects::base *obj )
         {
-            set<object_wrapper>( path, object_wrapper( &obj ) );
+            set<object_wrapper>( path, object_wrapper( obj ) );
         }
 
         template <typename T>
