@@ -125,7 +125,7 @@ namespace fr { namespace cc { namespace cmd {
             throw std::runtime_error( except );
         }
 
-        int global_openlib( lua_State *L )
+        int global_open( lua_State *L )
         {
             lua::state lv( L );
             int r = lv.get_top( );
@@ -184,7 +184,7 @@ namespace fr { namespace cc { namespace cmd {
             lv.register_call( "print",   &global_print );
             lv.register_call( "println", &global_println );
             lv.register_call( "throw",   &global_throw );
-            lv.register_call( "open",    &global_openlib );
+            lv.register_call( "open",    &global_open );
         }
 
         struct impl: public command_iface {
