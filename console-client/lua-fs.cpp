@@ -32,15 +32,15 @@ namespace fr { namespace lua {
                                              fs_table_path.c_str( ) ) );
         }
 
-        int lcall_fs_pwd(  lua_State  *L );
-        int lcall_fs_cd(   lua_State  *L );
+        int lcall_fs_pwd(   lua_State *L );
+        int lcall_fs_cd(    lua_State *L );
         int lcall_fs_stat(  lua_State *L );
         int lcall_fs_info(  lua_State *L );
         int lcall_fs_close( lua_State *L );
 
         int lcall_fs_iter_begin( lua_State *L );
-        int lcall_fs_iter_next( lua_State *L );
-        int lcall_fs_iter_end( lua_State *L );
+        int lcall_fs_iter_next(  lua_State *L );
+        int lcall_fs_iter_end(   lua_State *L );
 
         struct data: public base_data {
 
