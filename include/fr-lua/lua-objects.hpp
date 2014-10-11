@@ -590,6 +590,16 @@ namespace lua { namespace objects {
         return new string( str );
     }
 
+    inline integer * new_integer( lua_Integer value )
+    {
+        return new integer( value );
+    }
+
+    inline number * new_number( lua_Number value )
+    {
+        return new number( value );
+    }
+
     inline function * new_function( lua_CFunction func )
     {
         return new function( func );

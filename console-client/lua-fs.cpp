@@ -29,8 +29,9 @@ namespace fr { namespace lua {
                                              fs_table_path.c_str( ) ) );
         }
 
-        int lcall_fs_pwd( lua_State *L );
-        int lcall_fs_cd( lua_State *L );
+        int lcall_fs_pwd( lua_State  *L );
+        int lcall_fs_cd( lua_State   *L );
+        int lcall_fs_stat( lua_State *L );
 
         struct data: public base_data {
 
@@ -53,6 +54,8 @@ namespace fr { namespace lua {
                            objects::new_function( &lcall_fs_pwd ))
                     ->add( objects::new_string( "cd" ),
                            objects::new_function( &lcall_fs_cd ))
+                    ->add( objects::new_string( "stat" ),
+                           objects::new_function( &lcall_fs_stat ))
                 ;
                 return tabl;
             }
@@ -79,6 +82,42 @@ namespace fr { namespace lua {
             }
             return 0;
         }
+
+#define ADD_TABLE_STAT_FIELD( sd, name ) \
+    objects::new_string( #name ), objects::new_integer( sd.name )
+
+        int lcall_fs_stat( lua_State *L )
+        {
+            lua::state ls(L);
+            int params = ls.get_top( );
+            if( params ) {
+                data *i = get_iface( L );
+                std::string path( ls.get<std::string>( ) );
+                ls.pop( );
+                client::interfaces::filesystem::stat_data sd;
+                i->iface_->stat( path, sd );
+
+                objects::table_sptr t(objects::new_table( ));
+                t->add( ADD_TABLE_STAT_FIELD( sd, dev ) );
+                t->add( ADD_TABLE_STAT_FIELD( sd, ino ) );
+                t->add( ADD_TABLE_STAT_FIELD( sd, mode ) );
+                t->add( ADD_TABLE_STAT_FIELD( sd, nlink ) );
+                t->add( ADD_TABLE_STAT_FIELD( sd, uid ) );
+                t->add( ADD_TABLE_STAT_FIELD( sd, gid ) );
+                t->add( ADD_TABLE_STAT_FIELD( sd, rdev ) );
+                t->add( ADD_TABLE_STAT_FIELD( sd, size ) );
+                t->add( ADD_TABLE_STAT_FIELD( sd, blksize ) );
+                t->add( ADD_TABLE_STAT_FIELD( sd, blocks ) );
+                t->add( ADD_TABLE_STAT_FIELD( sd, atime ) );
+                t->add( ADD_TABLE_STAT_FIELD( sd, mtime ) );
+                t->add( ADD_TABLE_STAT_FIELD( sd, ctime ) );
+
+                t->push( L );
+                return 1;
+            }
+            return 0;
+        }
+#undef ADD_TABLE_STAT_FIELD
 
     }
 

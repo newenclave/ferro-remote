@@ -71,7 +71,7 @@ namespace fr { namespace cc { namespace cmd {
                             new lo::light_userdata( lua_touserdata( L, idx ) ));
             case LUA_TNUMBER:
                 return lo::base_sptr(
-                            new lo::number( lua_tonumber( L, idx ) ));
+                            new lo::integer( lua_tointeger( L, idx ) ));
             case LUA_TSTRING:
                 return get_string( L, idx );
             case LUA_TFUNCTION:
