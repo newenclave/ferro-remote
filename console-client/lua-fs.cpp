@@ -97,20 +97,20 @@ namespace fr { namespace lua {
                 client::interfaces::filesystem::stat_data sd;
                 i->iface_->stat( path, sd );
 
-                objects::table_sptr t(objects::new_table( ));
-                t->add( ADD_TABLE_STAT_FIELD( sd, dev ) );
-                t->add( ADD_TABLE_STAT_FIELD( sd, ino ) );
-                t->add( ADD_TABLE_STAT_FIELD( sd, mode ) );
-                t->add( ADD_TABLE_STAT_FIELD( sd, nlink ) );
-                t->add( ADD_TABLE_STAT_FIELD( sd, uid ) );
-                t->add( ADD_TABLE_STAT_FIELD( sd, gid ) );
-                t->add( ADD_TABLE_STAT_FIELD( sd, rdev ) );
-                t->add( ADD_TABLE_STAT_FIELD( sd, size ) );
+                objects::table_sptr t(objects::new_table( ) );
+                t->add( ADD_TABLE_STAT_FIELD( sd, dev     ) );
+                t->add( ADD_TABLE_STAT_FIELD( sd, ino     ) );
+                t->add( ADD_TABLE_STAT_FIELD( sd, mode    ) );
+                t->add( ADD_TABLE_STAT_FIELD( sd, nlink   ) );
+                t->add( ADD_TABLE_STAT_FIELD( sd, uid     ) );
+                t->add( ADD_TABLE_STAT_FIELD( sd, gid     ) );
+                t->add( ADD_TABLE_STAT_FIELD( sd, rdev    ) );
+                t->add( ADD_TABLE_STAT_FIELD( sd, size    ) );
                 t->add( ADD_TABLE_STAT_FIELD( sd, blksize ) );
-                t->add( ADD_TABLE_STAT_FIELD( sd, blocks ) );
-                t->add( ADD_TABLE_STAT_FIELD( sd, atime ) );
-                t->add( ADD_TABLE_STAT_FIELD( sd, mtime ) );
-                t->add( ADD_TABLE_STAT_FIELD( sd, ctime ) );
+                t->add( ADD_TABLE_STAT_FIELD( sd, blocks  ) );
+                t->add( ADD_TABLE_STAT_FIELD( sd, atime   ) );
+                t->add( ADD_TABLE_STAT_FIELD( sd, mtime   ) );
+                t->add( ADD_TABLE_STAT_FIELD( sd, ctime   ) );
 
                 t->push( L );
                 return 1;
