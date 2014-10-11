@@ -44,6 +44,9 @@ namespace fr { namespace lua {
         int lcall_fs_iter_next(  lua_State *L );
         int lcall_fs_iter_end(   lua_State *L );
 
+        int lcall_fs_file_flags( lua_State *L );
+        int lcall_fs_file_open(  lua_State *L );
+
         struct data: public base_data {
 
             iface_uptr iface_;
@@ -56,6 +59,55 @@ namespace fr { namespace lua {
             data( client::core::client_core &cc, lua_State *L )
                 :iface_( client::interfaces::filesystem::create( cc, "" ) )
             { }
+
+#define ADD_FILE_TABLE_FLAG( f ) \
+    objects::new_string( #f ), objects::new_integer( file::flags::f )
+
+#define ADD_FILE_TABLE_MODE( m ) \
+    objects::new_string( #m ), objects::new_integer( file::mode::m )
+
+            objects::table_sptr create_file_table( )
+            {
+                objects::table_sptr f( objects::new_table( ) );
+
+                f->add( ADD_FILE_TABLE_FLAG( RDONLY ) );
+                f->add( ADD_FILE_TABLE_FLAG( WRONLY ) );
+                f->add( ADD_FILE_TABLE_FLAG( RDWR ) );
+                f->add( ADD_FILE_TABLE_FLAG( CREAT ) );
+                f->add( ADD_FILE_TABLE_FLAG( EXCL ) );
+                f->add( ADD_FILE_TABLE_FLAG( APPEND ) );
+                f->add( ADD_FILE_TABLE_FLAG( NONBLOCK ) );
+                f->add( ADD_FILE_TABLE_FLAG( ASYNC ) );
+                f->add( ADD_FILE_TABLE_FLAG( SYNC ) );
+
+                f->add( ADD_FILE_TABLE_MODE( IRWXU ) );
+                f->add( ADD_FILE_TABLE_MODE( IRUSR ) );
+                f->add( ADD_FILE_TABLE_MODE( IWUSR ) );
+                f->add( ADD_FILE_TABLE_MODE( IXUSR ) );
+                f->add( ADD_FILE_TABLE_MODE( IRWXG ) );
+                f->add( ADD_FILE_TABLE_MODE( IRGRP ) );
+                f->add( ADD_FILE_TABLE_MODE( IWGRP ) );
+                f->add( ADD_FILE_TABLE_MODE( IXGRP ) );
+                f->add( ADD_FILE_TABLE_MODE( IRWXO ) );
+                f->add( ADD_FILE_TABLE_MODE( IROTH ) );
+                f->add( ADD_FILE_TABLE_MODE( IWOTH ) );
+                f->add( ADD_FILE_TABLE_MODE( IXOTH ) );
+
+                f->add( objects::new_string( "SEEK_SET" ),
+                        objects::new_integer( file::POS_SEEK_SET ) );
+                f->add( objects::new_string( "SEEK_CUR" ),
+                        objects::new_integer( file::POS_SEEK_CUR ) );
+                f->add( objects::new_string( "SEEK_END" ),
+                        objects::new_integer( file::POS_SEEK_END ) );
+
+                f->add( objects::new_string( "flags" ),
+                        objects::new_function( &lcall_fs_file_flags ));
+
+                return f;
+            }
+
+#undef ADD_FILE_TABLE_MODE
+#undef ADD_FILE_TABLE_FLAG
 
             lua::objects::table_sptr init_table( )
             {
@@ -81,6 +133,11 @@ namespace fr { namespace lua {
                            objects::new_function( &lcall_fs_iter_end ))
                     ->add( objects::new_string( "iter_next" ),
                            objects::new_function( &lcall_fs_iter_next ))
+                    /* ==== files ==== */
+                    ->add( objects::new_string( "file" ),
+                           create_file_table( ))
+
+
                 ;
                 return tabl;
             }
@@ -274,6 +331,62 @@ namespace fr { namespace lua {
             }
             ls.push( true );
             return 1;
+        }
+
+        /*  FILES */
+
+        int lcall_fs_file_flags( lua_State *L )
+        {
+            lua::state ls(L);
+
+            int n = ls.get_top( );
+
+            unsigned result = 0;
+
+            for ( int b = 1; b <= n; ++b ) {
+                try {
+                    result |= ls.get<unsigned>( b );
+                } catch( ... ) {
+                    ;;;
+                }
+            }
+            ls.pop( n );
+            ls.push( result );
+            return 1;
+        }
+
+        int lcall_fs_file_open( lua_State *L )
+        {
+            lua::state ls(L);
+            int n = ls.get_top( );
+            std::string path;
+            unsigned flags;
+            unsigned mode;
+            if( n > 0 ) {
+                path = ls.get<std::string>( 1 );
+            }
+            if( n > 1 ) {
+                flags = ls.get<unsigned>( 2 );
+            }
+            if( n > 3 ) {
+                mode = ls.get<unsigned>( 3 );
+            }
+            ls.pop( n );
+            data *i = get_iface( L );
+            client::core::client_core *cc = lua::get_core( L );
+            try {
+                file_sptr f(file::create( *cc, path, flags, mode ));
+                do {
+                    std::lock_guard<std::mutex> lg(i->files_lock_);
+                    i->files_.insert( std::make_pair( f.get( ), f ) );
+                } while( 0 ); // just like it =)
+                ls.push( f.get( ) );
+                return 1;
+            } catch( ... ) {
+
+            }
+            return 0;
+
         }
     }
 

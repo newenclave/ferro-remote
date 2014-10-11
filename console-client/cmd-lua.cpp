@@ -249,7 +249,6 @@ namespace fr { namespace cc { namespace cmd {
                         lv.check_call_error(
                                     lv.exec_function( func.c_str( ), *par ));
                     }
-                    //lv.exec_function( );
                 }
             }
 
