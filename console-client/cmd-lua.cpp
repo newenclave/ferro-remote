@@ -190,7 +190,7 @@ namespace fr { namespace cc { namespace cmd {
                 /// "rpc-pool-size,r"
                 desc.add_options( )
                     ( "exec,e", po::value<std::string>( ),
-                                                    "execute the script" )
+                                              "execute the script" )
                     ( "func,f", po::value<std::string>( ),
                                               "call function from the script" )
                     ;
