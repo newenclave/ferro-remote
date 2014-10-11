@@ -3,7 +3,9 @@
 #if FR_WITH_LUA
 
 #include <iostream>
-#include "interfaces/IOS.h"
+#include "interfaces/IFilesystem.h"
+
+#include "fr-lua/lua-wrapper.hpp"
 
 namespace fr { namespace lua {
 
@@ -11,11 +13,12 @@ namespace fr { namespace lua {
 
         const char *fsface_name = "fsiface";
 
+        typedef client::interfaces::filesystem::iface iface;
+        typedef std::unique_ptr<iface>          iface_uptr;
 
         struct data: public base_data {
 
-            typedef client::interfaces::os::iface iface;
-            typedef std::unique_ptr<iface> iface_uptr;
+            iface_uptr iface_;
 
             data( client::core::client_core &cc, lua_State *L )
             {
@@ -34,7 +37,7 @@ namespace fr { namespace lua {
     namespace fs {
         data_sptr init( lua_State *ls, client::core::client_core &cc )
         {
-            lua::state lv( ls );
+            //lua::state lv( ls );
             return data_sptr( new data( cc, ls ) );
         }
     }

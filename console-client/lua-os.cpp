@@ -12,14 +12,28 @@ namespace fr { namespace lua {
         typedef client::interfaces::os::iface iface;
         typedef std::unique_ptr<iface> iface_uptr;
 
-        const char *os_iface_name    = "osiface";
+        const std::string os_iface_name =
+                std::string(lua::names::main_table)
+                + '.'
+                + lua::names::client_table
+                + '.'
+                + os::table_name;
+
+        const std::string inst_field_name = "__i";
+
         const char *system_call_name = "system";
 
         iface *get_os_iface( lua_State *L )
         {
             lua::state lv( L );
-            void *p = lv.get_from_global<void *>( lua::names::main_table,
-                                                  os_iface_name );
+            int level = lv.get_table( os_iface_name.c_str( ) );
+
+            void *p = NULL;
+
+            if( level ) {
+                p = lv.getfield<void *>( inst_field_name.c_str( ) );
+                lv.pop( level );
+            }
             return reinterpret_cast<iface *>(p);
         }
 
@@ -38,12 +52,7 @@ namespace fr { namespace lua {
 
             data( client::core::client_core &cc, lua_State *L )
                 :iface_(client::interfaces::os::create(cc))
-            {
-                lua::state lv( L );
-                lv.set_in_global( lua::names::main_table,
-                                  os_iface_name,
-                                  reinterpret_cast<void *>( iface_.get( )));
-            }
+            { }
 
             lua::objects::table_sptr get_table( )
             {
@@ -51,7 +60,8 @@ namespace fr { namespace lua {
                 ost->add(
                     objects::new_string( system_call_name ),
                     objects::new_function( lcall_os_exec )
-                );
+                )->add( objects::new_string( "__i" ),
+                        objects::new_light_userdata( iface_.get( ) ) );
                 return ost;
             }
         };

@@ -245,6 +245,23 @@ namespace lua {
             return traits::get( vm_, id );
         }
 
+        template<typename T>
+        T getfield( const char *key, int id = -1 )
+        {
+            T p;
+            lua_getfield( vm_, id, key );
+            if( !none_or_nil(  ) ) {
+                try {
+                    p = get<T>( );
+                } catch( ... ) {
+                    pop( );
+                    throw;
+                }
+                pop( );
+                return p;
+            }
+        }
+
     private:
 
         void get_global( const char *val )

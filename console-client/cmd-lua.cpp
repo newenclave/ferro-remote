@@ -155,7 +155,6 @@ namespace fr { namespace cc { namespace cmd {
 
             lv.register_call( "print",   &global_print );
             lv.register_call( "println", &global_println );
-
         }
 
         struct impl: public command_iface {
