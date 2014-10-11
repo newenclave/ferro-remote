@@ -195,12 +195,11 @@ namespace fr { namespace cc { namespace cmd {
             }
 
             typedef std::pair<std::string, std::string> string_pair;
+            typedef std::string::const_iterator citr;
 
             string_pair split_str( std::string const &s)
             {
-                for( std::string::const_iterator b(s.begin( )), e(s.end( ));
-                     b != e; ++b)
-                {
+                for( citr b(s.begin( )), e(s.end( )); b != e; ++b) {
                     if( *b == '=' ) {
                         return std::make_pair( std::string( s.begin( ), b ),
                                                std::string( b + 1, s.end( ) ) );
@@ -240,15 +239,17 @@ namespace fr { namespace cc { namespace cmd {
                 init( datas, lv.get_state( ), cl );
                 lua::set_core( lv.get_state( ), &cl );
 
+                std::string main_function("main");
+                if( vm.count( "main" ) )  {
+                    main_function.assign( vm["main"].as<std::string>( ) );
+                }
+
                 if( vm.count( "exec" ) ) {
                     std::string script( vm["exec"].as<std::string>( ) );
                     lv.check_call_error( lv.load_file( script.c_str( ) ) );
-                    if( vm.count( "func" ) )  {
-                        lo::base_sptr par = create_params( vm );
-                        std::string func( vm["func"].as<std::string>( ) );
-                        lv.check_call_error(
-                                    lv.exec_function( func.c_str( ), *par ));
-                    }
+                    lo::base_sptr par = create_params( vm );
+                    int res = lv.exec_function( main_function.c_str( ), *par );
+                    lv.check_call_error( res );
                 }
             }
 
@@ -263,8 +264,8 @@ namespace fr { namespace cc { namespace cmd {
                 desc.add_options( )
                     ( "exec,e", po::value<std::string>( ),
                                               "execute the script" )
-                    ( "func,f", po::value<std::string>( ),
-                                              "call function from the script" )
+                    ( "main,m", po::value<std::string>( ),
+                                            "main function; defailt = 'main'" )
                     ( "param,p", po::value< std::vector<std::string> >( ),
                                               "params for call" )
                     ;

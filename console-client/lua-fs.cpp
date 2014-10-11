@@ -34,11 +34,14 @@ namespace fr { namespace lua {
                                              fs_table_path.c_str( ) ) );
         }
 
-        int lcall_fs_pwd(   lua_State *L );
-        int lcall_fs_cd(    lua_State *L );
-        int lcall_fs_stat(  lua_State *L );
-        int lcall_fs_info(  lua_State *L );
-        int lcall_fs_close( lua_State *L );
+        int lcall_fs_pwd(    lua_State *L );
+        int lcall_fs_cd(     lua_State *L );
+        int lcall_fs_rename( lua_State *L );
+        int lcall_fs_mkdir(  lua_State *L );
+        int lcall_fs_del(    lua_State *L );
+        int lcall_fs_stat(   lua_State *L );
+        int lcall_fs_info(   lua_State *L );
+        int lcall_fs_close(  lua_State *L );
 
         int lcall_fs_iter_begin( lua_State *L );
         int lcall_fs_iter_next(  lua_State *L );
@@ -142,6 +145,12 @@ namespace fr { namespace lua {
                            objects::new_function( &lcall_fs_stat ))
                     ->add( objects::new_string( "info" ),
                            objects::new_function( &lcall_fs_info ))
+                    ->add( objects::new_string( "mkdir" ),
+                           objects::new_function( &lcall_fs_mkdir ))
+                    ->add( objects::new_string( "del" ),
+                           objects::new_function( &lcall_fs_del ))
+                    ->add( objects::new_string( "rename" ),
+                           objects::new_function( &lcall_fs_rename ))
                     ->add( objects::new_string( "close" ),
                            objects::new_function( &lcall_fs_close ))
                     /* ==== iterators ==== */
@@ -202,9 +211,57 @@ namespace fr { namespace lua {
                 if( r ) return 0;
             }
 
-
             return 0;
         }
+
+        int lcall_fs_rename( lua_State *L )
+        {
+            lua::state ls(L);
+            int params = ls.get_top( );
+            if( params ) {
+                data *i = get_iface( L );
+                std::string path( ls.get<std::string>( 1 ) );
+                std::string out;
+                if( params > 1 ) {
+                    out = ls.get<std::string>( 2 );
+                }
+                ls.pop( params );
+                if( out.empty( ) ) {
+                    i->iface_->del( path );
+                } else {
+                    i->iface_->rename( path, out );
+                }
+            }
+            return 0;
+
+        }
+
+        int lcall_fs_mkdir( lua_State *L )
+        {
+            lua::state ls(L);
+            int params = ls.get_top( );
+            if( params ) {
+                data *i = get_iface( L );
+                std::string path( ls.get<std::string>( ) );
+                ls.pop( );
+                i->iface_->mkdir( path );
+            }
+            return 0;
+        }
+
+        int lcall_fs_del( lua_State *L )
+        {
+            lua::state ls(L);
+            int params = ls.get_top( );
+            if( params ) {
+                data *i = get_iface( L );
+                std::string path( ls.get<std::string>( ) );
+                ls.pop( );
+                i->iface_->del( path );
+            }
+            return 0;
+        }
+
 
 #define ADD_TABLE_STAT_FIELD( sd, name ) \
     objects::new_string( #name ), objects::new_integer( sd.name )
