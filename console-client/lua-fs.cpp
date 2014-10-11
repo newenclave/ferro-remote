@@ -39,11 +39,9 @@ namespace fr { namespace lua {
 
             data( client::core::client_core &cc, lua_State *L )
                 :iface_( client::interfaces::filesystem::create( cc, "" ) )
-            {
+            { }
 
-            }
-
-            lua::objects::table_sptr get_table( )
+            lua::objects::table_sptr init_table( )
             {
                 objects::table_sptr tabl( objects::new_table( ) );
 

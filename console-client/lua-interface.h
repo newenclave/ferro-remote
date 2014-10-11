@@ -61,7 +61,7 @@ namespace fr { namespace lua {
 
     struct base_data {
         virtual ~base_data( ) { }
-        virtual lua::objects::table_sptr get_table( )
+        virtual lua::objects::table_sptr init_table( )
         {
             return lua::objects::table_sptr( );
         }

@@ -42,7 +42,7 @@ namespace fr { namespace lua {
                 :iface_(client::interfaces::os::create(cc))
             { }
 
-            lua::objects::table_sptr get_table( )
+            lua::objects::table_sptr init_table( )
             {
                 objects::table_sptr ost(objects::new_table( ));
                 ost->add(
