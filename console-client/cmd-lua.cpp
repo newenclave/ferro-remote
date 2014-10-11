@@ -133,7 +133,7 @@ namespace fr { namespace cc { namespace cmd {
             for( citr b(tmp.begin( )), e(tmp.end( )); b!=e; ++b ) {
                 client_table->add(
                     lo::new_string( b->first ),
-                    b->second->get_table( )
+                    b->second->init_table( )
                 );
             }
 
