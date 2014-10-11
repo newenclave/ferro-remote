@@ -6,6 +6,7 @@
 #include <mutex>
 #include <map>
 #include "interfaces/IFilesystem.h"
+#include "interfaces/IFile.h"
 
 #include "fr-lua/lua-wrapper.hpp"
 
@@ -18,6 +19,7 @@ namespace fr { namespace lua {
         typedef std::unique_ptr<iface>               iface_uptr;
         typedef std::shared_ptr<
                 filesystem::directory_iterator_impl> fsiterator_sptr;
+        typedef std::shared_ptr<file::iface>         file_sptr;
 
         const std::string fs_table_path =
                 std::string(lua::names::client_table)
@@ -47,6 +49,9 @@ namespace fr { namespace lua {
             iface_uptr iface_;
             std::map<void *, fsiterator_sptr> iterators_;
             std::mutex                        iterators_lock_;
+
+            std::map<void *, file_sptr> files_;
+            std::mutex                  files_lock_;
 
             data( client::core::client_core &cc, lua_State *L )
                 :iface_( client::interfaces::filesystem::create( cc, "" ) )
@@ -110,8 +115,18 @@ namespace fr { namespace lua {
             ls.pop( );
             fsiterator_sptr ni;
             data *i = get_iface( L );
-            std::lock_guard<std::mutex> lck(i->iterators_lock_);
-            i->iterators_.erase( p );
+            {
+                std::lock_guard<std::mutex> lck(i->iterators_lock_);
+                size_t r = i->iterators_.erase( p );
+                if( r ) return 0;
+            }
+
+            {
+                std::lock_guard<std::mutex> lck(i->files_lock_);
+                size_t r = i->files_.erase( p );
+                if( r ) return 0;
+            }
+
 
             return 0;
         }
