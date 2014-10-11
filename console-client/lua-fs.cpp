@@ -604,8 +604,8 @@ namespace fr { namespace lua {
             return 1;
         }
 
-        void file_event_handler(unsigned error, const std::string &data,
-                                lua_State *L, const char *fcall ) try
+        void file_event_handler( unsigned error, const std::string &data,
+                                 lua_State *L, const char *fcall ) try
         {
             lua::state ls(L);
             ls.exec_function( fcall, error, data );
@@ -623,7 +623,7 @@ namespace fr { namespace lua {
             f->register_for_events( std::bind( file_event_handler,
                                                std::placeholders::_1,
                                                std::placeholders::_2,
-                                               L, call ) );
+                                               L, std::cref(call) ) );
             return 0;
         }
 
