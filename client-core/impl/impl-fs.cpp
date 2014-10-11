@@ -290,7 +290,7 @@ namespace filesystem {
                 client_.call_request( &stub_type::del, &req );
             }
 
-            filesystem::directory_iterator begin( ) const override
+            filesystem::directory_iterator_impl *begin_iterate( ) const override
             {
                 fproto::handle_path     req;
                 fproto::iterator_info   res;
@@ -298,8 +298,12 @@ namespace filesystem {
 
                 client_.call( &stub_type::iter_begin, &req, &res );
 
-                return filesystem::directory_iterator(
-                                  new dir_iter_impl( channel_, res ));
+                return new dir_iter_impl( channel_, res );
+            }
+
+            filesystem::directory_iterator begin( ) const override
+            {
+                return filesystem::directory_iterator( begin_iterate( ) );
             }
 
             filesystem::directory_iterator end( ) const override

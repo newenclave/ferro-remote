@@ -3,6 +3,8 @@
 #if FR_WITH_LUA
 
 #include <iostream>
+#include <mutex>
+#include <map>
 #include "interfaces/IFilesystem.h"
 
 #include "fr-lua/lua-wrapper.hpp"
@@ -11,10 +13,11 @@ namespace fr { namespace lua {
 
     namespace {
 
-        const char *fsface_name = "fsiface";
-
-        typedef client::interfaces::filesystem::iface iface;
-        typedef std::unique_ptr<iface>          iface_uptr;
+        using namespace client::interfaces;
+        typedef filesystem::iface                    iface;
+        typedef std::unique_ptr<iface>               iface_uptr;
+        typedef std::shared_ptr<
+                filesystem::directory_iterator_impl> fsiterator_sptr;
 
         const std::string fs_table_path =
                 std::string(lua::names::client_table)
@@ -29,14 +32,21 @@ namespace fr { namespace lua {
                                              fs_table_path.c_str( ) ) );
         }
 
-        int lcall_fs_pwd( lua_State  *L );
-        int lcall_fs_cd( lua_State   *L );
-        int lcall_fs_stat( lua_State *L );
-        int lcall_fs_info( lua_State *L );
+        int lcall_fs_pwd(  lua_State  *L );
+        int lcall_fs_cd(   lua_State  *L );
+        int lcall_fs_stat(  lua_State *L );
+        int lcall_fs_info(  lua_State *L );
+        int lcall_fs_close( lua_State *L );
+
+        int lcall_fs_iter_begin( lua_State *L );
+        int lcall_fs_iter_next( lua_State *L );
+        int lcall_fs_iter_end( lua_State *L );
 
         struct data: public base_data {
 
             iface_uptr iface_;
+            std::map<void *, fsiterator_sptr> iterators_;
+            std::mutex                        iterators_lock_;
 
             data( client::core::client_core &cc, lua_State *L )
                 :iface_( client::interfaces::filesystem::create( cc, "" ) )
@@ -57,6 +67,15 @@ namespace fr { namespace lua {
                            objects::new_function( &lcall_fs_stat ))
                     ->add( objects::new_string( "info" ),
                            objects::new_function( &lcall_fs_info ))
+                    ->add( objects::new_string( "close" ),
+                           objects::new_function( &lcall_fs_close ))
+                    /* ==== iterators ==== */
+                    ->add( objects::new_string( "iter_begin" ),
+                           objects::new_function( &lcall_fs_iter_begin ))
+                    ->add( objects::new_string( "iter_end" ),
+                           objects::new_function( &lcall_fs_iter_end ))
+                    ->add( objects::new_string( "iter_next" ),
+                           objects::new_function( &lcall_fs_iter_next ))
                 ;
                 return tabl;
             }
@@ -81,6 +100,19 @@ namespace fr { namespace lua {
                 ls.pop( );
                 i->iface_->cd( path );
             }
+            return 0;
+        }
+
+        int lcall_fs_close( lua_State *L )
+        {
+            lua::state ls(L);
+            void *p = ls.get<void *>( );
+            ls.pop( );
+            fsiterator_sptr ni;
+            data *i = get_iface( L );
+            std::lock_guard<std::mutex> lck(i->iterators_lock_);
+            i->iterators_.erase( p );
+
             return 0;
         }
 
@@ -155,6 +187,76 @@ namespace fr { namespace lua {
         }
 #undef ADD_TABLE_INFO_FIELD
 
+        const char *path_leaf( const char *path )
+        {
+            const char *p  = path;
+            const char *sp = path;
+            for( ; *p; ++p ) {
+                if( *p == '/' || *p == '\\' ) {
+                    sp = p;
+                }
+            }
+            return sp == path ? sp : sp + 1;
+        }
+
+        int lcall_fs_iter_begin( lua_State *L )
+        {
+            data *i = get_iface( L );
+            fsiterator_sptr ni(i->iface_->begin_iterate( ));
+            {
+                std::lock_guard<std::mutex> lck(i->iterators_lock_);
+                i->iterators_.insert( std::make_pair(ni.get( ), ni) );
+            }
+            lua::state ls(L);
+            ls.push( path_leaf(ni->get( ).path.c_str( )) );
+            ls.push( reinterpret_cast<void *>( ni.get( )) );
+            return 2;
+        }
+
+        fsiterator_sptr get_iterator( lua_State *L )
+        {
+            lua::state ls(L);
+            void *p = ls.get<void *>( );
+            ls.pop( );
+            fsiterator_sptr ni;
+            data *i = get_iface( L );
+            {
+                std::lock_guard<std::mutex> lck(i->iterators_lock_);
+                std::map<
+                        void *,
+                        fsiterator_sptr
+                >::const_iterator f( i->iterators_.find( p ) );
+
+                if( f != i->iterators_.end( ) ) {
+                    ni = f->second;
+                }
+            }
+            return ni;
+        }
+
+        int lcall_fs_iter_next( lua_State *L )
+        {
+            lua::state ls(L);
+            fsiterator_sptr ni( get_iterator( L ) );
+            if( ni ) {
+                ni->next( );
+                ls.push( path_leaf( ni->get( ).path.c_str( ) ) );
+                return 1;
+            }
+            return 0;
+        }
+
+        int lcall_fs_iter_end( lua_State *L )
+        {
+            lua::state ls(L);
+            fsiterator_sptr ni( get_iterator( L ) );
+            if( ni ) {
+                ls.push( ni->end( ) );
+                return 1;
+            }
+            ls.push( true );
+            return 1;
+        }
     }
 
     namespace fs {

@@ -206,10 +206,10 @@ namespace fr { namespace cc { namespace cmd {
 
                 if( vm.count( "exec" ) ) {
                     std::string script( vm["exec"].as<std::string>( ) );
-                    lv.load_file( script.c_str( ) );
+                    lv.check_call_error( lv.load_file( script.c_str( ) ) );
                     if( vm.count( "func" ) )  {
                         std::string func( vm["func"].as<std::string>( ) );
-                        lv.exec_function( func.c_str( ) );
+                        lv.check_call_error( lv.exec_function( func.c_str( ) ));
                     }
                     //lv.exec_function( );
                 }

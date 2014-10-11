@@ -194,9 +194,15 @@ namespace fr { namespace agent { namespace subsys {
                     vcomm::throw_system_error( EINVAL, "Bad fs handle" );
                 }
 
-                bfs::path p(f->second / request->path( ));
-                p.normalize( );
+                bfs::path req( request->path( ) );
+                bfs::path p;
+                if( req.is_absolute( ) ) {
+                    p = req;
+                } else {
+                    p = f->second / request->path( );
+                }
 
+                p.normalize( );
                 response->set_path( p.string( ) );
                 /// set new path
                 vtrc::upgrade_to_unique utul( ul );
@@ -395,8 +401,12 @@ namespace fr { namespace agent { namespace subsys {
                 vtrc::shared_lock usl( iters_lock_ );
 
                 bfs::directory_iterator &iter( get_iter_unsafe( hdl ) );
-                ++iter;
-                fill_iter_info( iter, hdl, response );
+                if( iter != bfs::directory_iterator( ) ) {
+                    ++iter;
+                    fill_iter_info( iter, hdl, response );
+                } else {
+                    vcomm::throw_system_error( ENODATA, "End iterator." );
+                }
             }
 
             void iter_info(::google::protobuf::RpcController* /*controller*/,

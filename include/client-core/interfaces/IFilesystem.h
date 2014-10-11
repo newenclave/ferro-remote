@@ -109,6 +109,7 @@ namespace interfaces { namespace filesystem {
         virtual void mkdir( const std::string &path ) const = 0;
         virtual void del( const std::string &path )   const = 0;
 
+        virtual directory_iterator_impl *begin_iterate( ) const = 0;
         virtual directory_iterator begin( ) const = 0;
         virtual directory_iterator end( ) const = 0;
 
