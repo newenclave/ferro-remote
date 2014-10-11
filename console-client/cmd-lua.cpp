@@ -125,6 +125,25 @@ namespace fr { namespace cc { namespace cmd {
             throw std::runtime_error( except );
         }
 
+        int global_openlib( lua_State *L )
+        {
+            lua::state lv( L );
+            int r = lv.get_top( );
+            int loaded = 0;
+            for( int i=1; i<=r; ++i ) {
+                try {
+                    const char *libname = lv.get<const char *>( i );
+                    lv.openlib( libname );
+                    std::cout << libname << "\n";
+                } catch( ... ) {
+                    ;;;
+                }
+            }
+            lv.pop( r );
+            lv.push( loaded );
+            return 1;
+        }
+
 #define FR_INTERFACE_PAIR( ns, L, CL )      \
     std::make_pair( lua::ns::table_name, lua::ns::init( L, cl ))
 
@@ -163,6 +182,7 @@ namespace fr { namespace cc { namespace cmd {
             lv.register_call( "print",   &global_print );
             lv.register_call( "println", &global_println );
             lv.register_call( "throw",   &global_throw );
+            lv.register_call( "open",    &global_openlib );
         }
 
         struct impl: public command_iface {
