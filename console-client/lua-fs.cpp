@@ -564,6 +564,7 @@ namespace fr { namespace lua {
             file_sptr f(get_file( L, 1 ));
             if( n > 1 ) {
                 maximum = ls.get<unsigned>( 2 );
+                if( maximum > 44000 ) maximum = 44000;
             }
             ls.pop( n );
             if( maximum ) {
