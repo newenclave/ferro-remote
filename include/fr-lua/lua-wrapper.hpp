@@ -116,7 +116,6 @@ namespace lua {
                 if( 0 == libs[i].name.compare( libname ) ) {
                     push( libs[i].func );
                     lua_call( vm_, 0, 0 );
-                    //return libs[i].func( vm_ );
                     return 0;
                 }
             }
@@ -131,6 +130,11 @@ namespace lua {
         const lua_State *get_state( ) const
         {
             return vm_;
+        }
+
+        void clean( )
+        {
+            pop( get_top( ) );
         }
 
         void pop( )

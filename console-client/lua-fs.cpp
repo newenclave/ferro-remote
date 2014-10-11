@@ -21,6 +21,7 @@ namespace fr { namespace lua {
             iface_uptr iface_;
 
             data( client::core::client_core &cc, lua_State *L )
+                :iface_( client::interfaces::filesystem::create( cc, "" ) )
             {
 
             }
@@ -28,9 +29,11 @@ namespace fr { namespace lua {
             lua::objects::table_sptr get_table( )
             {
                 objects::table_sptr ost(objects::new_table( ));
+                ost->add( objects::new_string( names::inst_field ),
+                          objects::new_light_userdata( iface_.get( ) )
+                );
                 return ost;
             }
-
         };
     }
 
