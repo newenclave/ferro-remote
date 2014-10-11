@@ -44,6 +44,21 @@ namespace fr { namespace lua {
         lv.set( corepath.c_str( ), reinterpret_cast<void *>( cc ) );
     }
 
+    inline
+    static void *get_component_iface( lua_State *L, const char *table_path )
+    {
+        lua::state lv( L );
+
+        int level = lv.get_table( table_path );
+        void *ptr = NULL;
+
+        if( level ) {
+            ptr = lv.get_field<void *>( names::inst_field );
+            lv.pop( level );
+        }
+        return ptr;
+    }
+
     struct base_data {
         virtual ~base_data( ) { }
         virtual lua::objects::table_sptr get_table( )

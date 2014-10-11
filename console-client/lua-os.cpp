@@ -12,7 +12,7 @@ namespace fr { namespace lua {
         typedef client::interfaces::os::iface iface;
         typedef std::unique_ptr<iface> iface_uptr;
 
-        const std::string os_iface_name =
+        const std::string fs_table_path =
                 std::string(lua::names::client_table)
                 + '.'
                 + os::table_name;
@@ -21,16 +21,8 @@ namespace fr { namespace lua {
 
         iface *get_os_iface( lua_State *L )
         {
-            lua::state lv( L );
-            int level = lv.get_table( os_iface_name.c_str( ) );
-
-            void *p = NULL;
-
-            if( level ) {
-                p = lv.get_field<void *>( names::inst_field );
-                lv.pop( level );
-            }
-            return reinterpret_cast<iface *>(p);
+            return reinterpret_cast<iface *>( get_component_iface(L,
+                                              fs_table_path.c_str( ) ) );
         }
 
         int lcall_os_exec( lua_State *L )
