@@ -44,15 +44,17 @@ namespace fr { namespace lua {
 
             lua::objects::table_sptr get_table( )
             {
-                objects::table_sptr ost(objects::new_table( ));
-                ost->add( objects::new_string( names::inst_field ),
-                          objects::new_light_userdata( this ))
+                objects::table_sptr tabl( objects::new_table( ) );
+
+                tabl->add( objects::new_string( names::inst_field ),
+                           objects::new_light_userdata( this ))
+                    /* ==== calls ==== */
                     ->add( objects::new_string( "pwd" ),
                            objects::new_function( &lcall_fs_pwd ))
                     ->add( objects::new_string( "cd" ),
                            objects::new_function( &lcall_fs_cd ))
                 ;
-                return ost;
+                return tabl;
             }
         };
 
