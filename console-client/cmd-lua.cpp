@@ -88,8 +88,6 @@ namespace fr { namespace cc { namespace cmd {
             return lo::base_sptr( new lo::nil );
         }
 
-
-
         int global_print_impl( lua_State *L, bool as_integer )
         {
             int n = lua_gettop( L );
