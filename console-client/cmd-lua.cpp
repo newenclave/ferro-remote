@@ -162,13 +162,12 @@ namespace fr { namespace cc { namespace cmd {
             void exec( po::variables_map &vm, core::client_core &cl )
             {
                 lua_state lv;
-                lua::set_core( lv.get_state( ), &cl );
-
                 register_printer( lv.get_state( ) );
 
                 std::map<std::string, lua::data_sptr> datas;
 
                 init( datas, lv.get_state( ), cl );
+                lua::set_core( lv.get_state( ), &cl );
 
                 if( vm.count( "exec" ) ) {
                     std::string script( vm["exec"].as<std::string>( ) );

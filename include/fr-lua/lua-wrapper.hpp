@@ -250,7 +250,7 @@ namespace lua {
         }
 
         template<typename T>
-        T getfield( const char *key, int id = -1 )
+        T get_field( const char *key, int id = -1 )
         {
             T p;
             lua_getfield( vm_, id, key );
@@ -374,28 +374,28 @@ namespace lua {
             set<object_wrapper>( path, object_wrapper( obj ) );
         }
 
-        template <typename T>
-        void set_in_global( const char *table_name,
-                            const char *key, T value )
-        {
-            lua_getglobal( vm_, table_name );
+//        template <typename T>
+//        void set_in_global( const char *table_name,
+//                            const char *key, T value )
+//        {
+//            lua_getglobal( vm_, table_name );
 
-            if ( !lua_istable( vm_, -1 ) ) {
-                if ( lua_isnoneornil( vm_, -1 ) ) {
-                    pop( 1 );
-                    lua_newtable( vm_ );
-                } else {
-                    lua_pop(vm_, 2);
-                    throw std::logic_error( "Not a table" );
-                }
-            }
+//            if ( !lua_istable( vm_, -1 ) ) {
+//                if ( lua_isnoneornil( vm_, -1 ) ) {
+//                    pop( 1 );
+//                    lua_newtable( vm_ );
+//                } else {
+//                    lua_pop(vm_, 2);
+//                    throw std::logic_error( "Not a table" );
+//                }
+//            }
 
-            push( key );
-            push( value );
-            lua_settable( vm_, -3 );
+//            push( key );
+//            push( value );
+//            lua_settable( vm_, -3 );
 
-            lua_setglobal( vm_, table_name );
-        }
+//            lua_setglobal( vm_, table_name );
+//        }
 
         void set_object_in_global( const char *table_name,
                                    const char *key, const objects::base &bo )

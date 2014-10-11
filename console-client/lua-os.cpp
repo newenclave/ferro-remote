@@ -27,7 +27,7 @@ namespace fr { namespace lua {
             void *p = NULL;
 
             if( level ) {
-                p = lv.getfield<void *>( names::inst_field );
+                p = lv.get_field<void *>( names::inst_field );
                 lv.pop( level );
             }
             return reinterpret_cast<iface *>(p);

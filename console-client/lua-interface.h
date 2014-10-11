@@ -26,9 +26,12 @@ namespace fr { namespace lua {
     static client::core::client_core *get_core( lua_State *L )
     {
         lua::state lv( L );
-        void *p =
-                lv.get_from_global<void *>( names::main_table,
-                                            names::core_field );
+        int level = lv.get_table( names::client_table );
+        void *p = NULL;
+        if( level ) {
+            p = lv.get_field<void *>( names::core_field );
+            lv.pop( level );
+        }
         return reinterpret_cast<client::core::client_core *>( p );
     }
 
@@ -36,8 +39,9 @@ namespace fr { namespace lua {
     static void set_core( lua_State *L, client::core::client_core *cc )
     {
         lua::state lv( L );
-        lv.set_in_global( names::main_table, names::core_field,
-                          reinterpret_cast<void *>( cc ) );
+        static const std::string corepath = std::string( names::client_table )
+                                          + '.' + names::core_field;
+        lv.set( corepath.c_str( ), reinterpret_cast<void *>( cc ) );
     }
 
     struct base_data {
