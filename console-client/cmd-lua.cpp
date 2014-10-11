@@ -30,9 +30,9 @@ namespace fr { namespace cc { namespace cmd {
         typedef client::interfaces::os::iface os_iface;
         typedef std::shared_ptr<os_iface> os_iface_sptr;
 
-        lo::base_sptr get_object( lua_State *L, int idx );
+        lo::base_sptr get_object(lua_State *L, int idx , bool as_integer );
 
-        lo::base_sptr get_table( lua_State *L, int idx )
+        lo::base_sptr get_table( lua_State *L, int idx, bool as_integer )
         {
             lua_pushvalue( L, idx );
             lua_pushnil( L );
@@ -42,8 +42,8 @@ namespace fr { namespace cc { namespace cmd {
             while ( lua_next( L, -2 ) ) {
                 lua_pushvalue( L, -2 );
                 lo::pair_sptr new_pair
-                        ( lo::new_pair( get_object( L, -1 ),
-                                        get_object( L, -2 ) ) );
+                        ( lo::new_pair( get_object( L, -1, as_integer ),
+                                        get_object( L, -2, as_integer ) ) );
                 new_table->push_back( new_pair );
                 lua_pop( L, 2 );
             }
@@ -59,7 +59,7 @@ namespace fr { namespace cc { namespace cmd {
             return lo::base_sptr( new lo::string( ptr, length ) );
         }
 
-        lo::base_sptr get_object( lua_State *L, int idx )
+        lo::base_sptr get_object( lua_State *L, int idx, bool as_integer )
         {
             int t = lua_type( L, idx );
             switch( t ) {
@@ -70,15 +70,16 @@ namespace fr { namespace cc { namespace cmd {
                 return lo::base_sptr(
                             new lo::light_userdata( lua_touserdata( L, idx ) ));
             case LUA_TNUMBER:
-                return lo::base_sptr(
-                            new lo::integer( lua_tointeger( L, idx ) ));
+                return as_integer
+                   ? lo::base_sptr( new lo::integer( lua_tointeger( L, idx ) ))
+                   : lo::base_sptr( new lo::number( lua_tonumber( L, idx ) ) );
             case LUA_TSTRING:
                 return get_string( L, idx );
             case LUA_TFUNCTION:
                 return lo::base_sptr(
                             new lo::function( lua_tocfunction( L, idx ) ));
             case LUA_TTABLE:
-                return get_table( L, idx );
+                return get_table( L, idx, as_integer );
         //    case LUA_TUSERDATA:
         //        return "userdata";
         //    case LUA_TTHREAD:
@@ -87,7 +88,9 @@ namespace fr { namespace cc { namespace cmd {
             return lo::base_sptr( new lo::nil );
         }
 
-        int global_print( lua_State *L )
+
+
+        int global_print_impl( lua_State *L, bool as_integer )
         {
             int n = lua_gettop( L );
 
@@ -98,18 +101,39 @@ namespace fr { namespace cc { namespace cmd {
             }
 
             for ( int b = 1; b <= n; ++b ) {
-                std::cout << get_object( lv.get_state( ), b )->str( );
+                std::cout << get_object( lv.get_state( ),
+                                         b, as_integer )->str( );
             }
             lv.pop( n );
 
             return 0;
         }
 
-        int global_println( lua_State *L )
+        int global_println_impl( lua_State *L, bool as_integer )
         {
-            int res = global_print( L );
+            int res = global_print_impl( L, as_integer );
             std::cout << "\n";
             return res;
+        }
+
+        int global_print( lua_State *L )
+        {
+            return global_print_impl( L, false );
+        }
+
+        int global_println( lua_State *L )
+        {
+            return global_println_impl( L, false );
+        }
+
+        int global_printi( lua_State *L )
+        {
+            return global_print_impl( L, true );
+        }
+
+        int global_printiln( lua_State *L )
+        {
+            return global_println_impl( L, true );
         }
 
         int global_throw( lua_State *L )
@@ -181,10 +205,12 @@ namespace fr { namespace cc { namespace cmd {
         {
             lua_state lv( L );
 
-            lv.register_call( "print",   &global_print );
-            lv.register_call( "println", &global_println );
-            lv.register_call( "die",   &global_throw );
-            lv.register_call( "open",    &global_open );
+            lv.register_call( "print",    &global_print );
+            lv.register_call( "println",  &global_println );
+            lv.register_call( "printi",   &global_printi );
+            lv.register_call( "printiln", &global_printiln );
+            lv.register_call( "die",      &global_throw );
+            lv.register_call( "open",     &global_open );
         }
 
         struct impl: public command_iface {
