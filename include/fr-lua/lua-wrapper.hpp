@@ -261,8 +261,8 @@ namespace lua {
                     pop( );
                     throw;
                 }
-                pop( );
             }
+            pop( );
             return p;
         }
 

@@ -183,7 +183,7 @@ namespace fr { namespace cc { namespace cmd {
 
             lv.register_call( "print",   &global_print );
             lv.register_call( "println", &global_println );
-            lv.register_call( "throw",   &global_throw );
+            lv.register_call( "die",   &global_throw );
             lv.register_call( "open",    &global_open );
         }
 

@@ -46,6 +46,12 @@ namespace fr { namespace lua {
 
         int lcall_fs_file_flags( lua_State *L );
         int lcall_fs_file_open(  lua_State *L );
+        int lcall_fs_file_seek(  lua_State *L );
+        int lcall_fs_file_tell(  lua_State *L );
+        int lcall_fs_file_flush( lua_State *L );
+
+        int lcall_fs_file_read(  lua_State *L );
+        int lcall_fs_file_write( lua_State *L );
 
         struct data: public base_data {
 
@@ -102,6 +108,18 @@ namespace fr { namespace lua {
 
                 f->add( objects::new_string( "flags" ),
                         objects::new_function( &lcall_fs_file_flags ));
+                f->add( objects::new_string( "seek" ),
+                        objects::new_function( &lcall_fs_file_seek ));
+                f->add( objects::new_string( "open" ),
+                        objects::new_function( &lcall_fs_file_open ));
+                f->add( objects::new_string( "tell" ),
+                        objects::new_function( &lcall_fs_file_tell ));
+                f->add( objects::new_string( "flush" ),
+                        objects::new_function( &lcall_fs_file_flush ));
+                f->add( objects::new_string( "read" ),
+                        objects::new_function( &lcall_fs_file_read ));
+                f->add( objects::new_string( "write" ),
+                        objects::new_function( &lcall_fs_file_write ));
 
                 return f;
             }
@@ -335,6 +353,26 @@ namespace fr { namespace lua {
 
         /*  FILES */
 
+        file_sptr get_file( lua_State *L, int id = -1 )
+        {
+            lua::state ls(L);
+            void *p = ls.get<void *>( id );
+            file_sptr ni;
+            data *i = get_iface( L );
+            {
+                std::lock_guard<std::mutex> lck(i->files_lock_);
+                std::map<
+                        void *,
+                        file_sptr
+                >::const_iterator f( i->files_.find( p ) );
+
+                if( f != i->files_.end( ) ) {
+                    ni = f->second;
+                }
+            }
+            return ni;
+        }
+
         int lcall_fs_file_flags( lua_State *L )
         {
             lua::state ls(L);
@@ -351,6 +389,7 @@ namespace fr { namespace lua {
                 }
             }
             ls.pop( n );
+
             ls.push( result );
             return 1;
         }
@@ -360,34 +399,129 @@ namespace fr { namespace lua {
             lua::state ls(L);
             int n = ls.get_top( );
             std::string path;
-            unsigned flags;
-            unsigned mode;
+            unsigned flags = 0;
+            unsigned mode = 0;
+
             if( n > 0 ) {
                 path = ls.get<std::string>( 1 );
             }
             if( n > 1 ) {
                 flags = ls.get<unsigned>( 2 );
             }
-            if( n > 3 ) {
+            if( n > 2 ) {
                 mode = ls.get<unsigned>( 3 );
             }
+
             ls.pop( n );
             data *i = get_iface( L );
             client::core::client_core *cc = lua::get_core( L );
             try {
                 file_sptr f(file::create( *cc, path, flags, mode ));
-                do {
-                    std::lock_guard<std::mutex> lg(i->files_lock_);
-                    i->files_.insert( std::make_pair( f.get( ), f ) );
-                } while( 0 ); // just like it =)
+
+                std::lock_guard<std::mutex> lg(i->files_lock_);
+                i->files_.insert( std::make_pair( f.get( ), f ) );
+
                 ls.push( f.get( ) );
                 return 1;
             } catch( ... ) {
 
             }
             return 0;
+        }
+
+        file::seek_whence from_unsigned( unsigned v )
+        {
+            switch ( v ) {
+            case file::POS_SEEK_CUR:
+                return file::POS_SEEK_CUR;
+            case file::POS_SEEK_SET:
+                return file::POS_SEEK_SET;
+            case file::POS_SEEK_END:
+                return file::POS_SEEK_END;
+            }
+            return file::POS_SEEK_SET;
 
         }
+
+        int lcall_fs_file_seek(  lua_State *L )
+        {
+            lua::state ls(L);
+            unsigned whence = 0;
+            lua_Integer pos = 0;
+
+            int n = ls.get_top( );
+
+            file_sptr f( get_file( L, 1 ) );
+
+            if( n > 1 ) {
+                whence = ls.get<unsigned>( 2 );
+            }
+            if( n > 2 ) {
+                pos = ls.get<lua_Integer>( 3 );
+            }
+            ls.pop( n );
+
+            ls.push( f->seek( pos, from_unsigned( whence ) ) );
+            return 1;
+        }
+
+        int lcall_fs_file_tell(  lua_State *L )
+        {
+            lua::state ls(L);
+
+            file_sptr f(get_file( L ));
+            ls.clean( );
+
+            ls.push( f->tell( ) );
+            return 1;
+        }
+
+        int lcall_fs_file_flush( lua_State *L )
+        {
+            lua::state ls(L);
+            file_sptr f(get_file( L ));
+            ls.clean( );
+            f->flush( );
+            return 0;
+        }
+
+        int lcall_fs_file_read(  lua_State *L )
+        {
+            lua::state ls(L);
+            int n = ls.get_top( );
+            unsigned maximum = 44000;
+            file_sptr f(get_file( L, 1 ));
+            if( n > 1 ) {
+                maximum = ls.get<unsigned>( 2 );
+            }
+            ls.pop( n );
+            if( maximum ) {
+                std::vector<char> data(maximum);
+                size_t r = f->read( &data[0], maximum );
+                ls.push( &data[0], r );
+                return 1;
+            }
+            return 0;
+        }
+
+        int lcall_fs_file_write( lua_State *L )
+        {
+            lua::state ls(L);
+
+            file_sptr f(get_file( L, 1 ));
+            std::string data( ls.get<std::string>( 2 ) );
+
+            ls.clean( );
+
+            size_t pos = 0;
+            const size_t w = data.size( );
+            while( pos != w ) {
+                pos += f->write( &data[pos], w - pos );
+            }
+            ls.push( w );
+            return 1;
+        }
+
     }
 
     namespace fs {
