@@ -32,6 +32,7 @@ namespace fr { namespace lua {
         int lcall_fs_pwd( lua_State  *L );
         int lcall_fs_cd( lua_State   *L );
         int lcall_fs_stat( lua_State *L );
+        int lcall_fs_info( lua_State *L );
 
         struct data: public base_data {
 
@@ -54,6 +55,8 @@ namespace fr { namespace lua {
                            objects::new_function( &lcall_fs_cd ))
                     ->add( objects::new_string( "stat" ),
                            objects::new_function( &lcall_fs_stat ))
+                    ->add( objects::new_string( "info" ),
+                           objects::new_function( &lcall_fs_info ))
                 ;
                 return tabl;
             }
@@ -116,6 +119,41 @@ namespace fr { namespace lua {
             return 0;
         }
 #undef ADD_TABLE_STAT_FIELD
+
+
+#define ADD_TABLE_INFO_FIELD( sd, name ) \
+    objects::new_string( #name ), objects::new_boolean( sd.name )
+
+        int lcall_fs_info( lua_State *L )
+        {
+            lua::state ls(L);
+            int params = ls.get_top( );
+            if( params ) {
+                data *i = get_iface( L );
+
+                std::string path( ls.get<std::string>( ) );
+
+                ls.pop( );
+
+                client::interfaces::filesystem::info_data id;
+
+                i->iface_->info( path, id );
+
+                objects::table_sptr t(objects::new_table( ) );
+
+                t->add( ADD_TABLE_INFO_FIELD( id, is_exist ) );
+                t->add( ADD_TABLE_INFO_FIELD( id, is_directory ) );
+                t->add( ADD_TABLE_INFO_FIELD( id, is_empty ) );
+                t->add( ADD_TABLE_INFO_FIELD( id, is_regular ) );
+                t->add( ADD_TABLE_INFO_FIELD( id, is_symlink ) );
+
+                t->push( L );
+
+                return 1;
+            }
+            return 0;
+        }
+#undef ADD_TABLE_INFO_FIELD
 
     }
 

@@ -595,6 +595,11 @@ namespace lua { namespace objects {
         return new integer( value );
     }
 
+    inline boolean * new_boolean( bool value )
+    {
+        return new boolean( value );
+    }
+
     inline number * new_number( lua_Number value )
     {
         return new number( value );
