@@ -194,6 +194,42 @@ namespace fr { namespace cc { namespace cmd {
                 return cmd_name;
             }
 
+            typedef std::pair<std::string, std::string> string_pair;
+
+            string_pair split_str( std::string const &s)
+            {
+                for( std::string::const_iterator b(s.begin( )), e(s.end( ));
+                     b != e; ++b)
+                {
+                    if( *b == '=' ) {
+                        return std::make_pair( std::string( s.begin( ), b ),
+                                               std::string( b + 1, s.end( ) ) );
+                    }
+                }
+                return std::make_pair( std::string( ), s );
+            }
+
+            lo::base_sptr create_params( po::variables_map &vm )
+            {
+                typedef std::vector<std::string> strings;
+                lo::table_sptr t(lo::new_table( ));
+                if( vm.count( "param" ) ) {
+                    strings p( vm["param"].as<strings>( ) );
+                    for( strings::const_iterator b(p.begin( )), e(p.end( ));
+                         b != e; ++b)
+                    {
+                        string_pair ss( split_str( *b ) );
+                        if( ss.first.empty( ) ) {
+                            t->add( lo::new_string( ss.second ) );
+                        } else {
+                            t->add( lo::new_string( ss.first ),
+                                    lo::new_string( ss.second ) );
+                        }
+                    }
+                }
+                return t;
+            }
+
             void exec( po::variables_map &vm, core::client_core &cl )
             {
                 lua_state lv;
@@ -208,8 +244,10 @@ namespace fr { namespace cc { namespace cmd {
                     std::string script( vm["exec"].as<std::string>( ) );
                     lv.check_call_error( lv.load_file( script.c_str( ) ) );
                     if( vm.count( "func" ) )  {
+                        lo::base_sptr par = create_params( vm );
                         std::string func( vm["func"].as<std::string>( ) );
-                        lv.check_call_error( lv.exec_function( func.c_str( ) ));
+                        lv.check_call_error(
+                                    lv.exec_function( func.c_str( ), *par ));
                     }
                     //lv.exec_function( );
                 }
@@ -228,6 +266,8 @@ namespace fr { namespace cc { namespace cmd {
                                               "execute the script" )
                     ( "func,f", po::value<std::string>( ),
                                               "call function from the script" )
+                    ( "param,p", po::value< std::vector<std::string> >( ),
+                                              "params for call" )
                     ;
             }
 

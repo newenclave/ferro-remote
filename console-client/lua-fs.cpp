@@ -168,17 +168,20 @@ namespace fr { namespace lua {
                 ls.pop( );
 
                 client::interfaces::filesystem::info_data id;
-
-                i->iface_->info( path, id );
-
                 objects::table_sptr t(objects::new_table( ) );
 
-                t->add( ADD_TABLE_INFO_FIELD( id, is_exist ) );
-                t->add( ADD_TABLE_INFO_FIELD( id, is_directory ) );
-                t->add( ADD_TABLE_INFO_FIELD( id, is_empty ) );
-                t->add( ADD_TABLE_INFO_FIELD( id, is_regular ) );
-                t->add( ADD_TABLE_INFO_FIELD( id, is_symlink ) );
+                try {
+                    i->iface_->info( path, id );
+                    t->add( ADD_TABLE_INFO_FIELD( id, is_exist ) );
+                    t->add( ADD_TABLE_INFO_FIELD( id, is_directory ) );
+                    t->add( ADD_TABLE_INFO_FIELD( id, is_empty ) );
+                    t->add( ADD_TABLE_INFO_FIELD( id, is_regular ) );
+                    t->add( ADD_TABLE_INFO_FIELD( id, is_symlink ) );
 
+                } catch( ... ) {
+                   t->add( objects::new_string( "failed" ),
+                           objects::new_boolean( true ) );
+                }
                 t->push( L );
 
                 return 1;
