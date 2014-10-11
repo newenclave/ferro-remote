@@ -18,7 +18,7 @@ namespace fr { namespace lua {
     namespace names {
         static const char * main_table    = "fr" ;
         static const char * client_table  = "fr.client";
-        static const char * core_field    = "core";
+        static const char * core_path     = "fr.client.core";
         static const char * inst_field    = "__i";
     }
 
@@ -26,12 +26,7 @@ namespace fr { namespace lua {
     static client::core::client_core *get_core( lua_State *L )
     {
         lua::state lv( L );
-        int level = lv.get_table( names::client_table );
-        void *p = NULL;
-        if( level ) {
-            p = lv.get_field<void *>( names::core_field );
-            lv.pop( level );
-        }
+        void *p = lv.get<void *>( names::core_path );
         return reinterpret_cast<client::core::client_core *>( p );
     }
 
@@ -39,9 +34,7 @@ namespace fr { namespace lua {
     static void set_core( lua_State *L, client::core::client_core *cc )
     {
         lua::state lv( L );
-        static const std::string corepath = std::string( names::client_table )
-                                          + '.' + names::core_field;
-        lv.set( corepath.c_str( ), reinterpret_cast<void *>( cc ) );
+        lv.set( names::core_path, reinterpret_cast<void *>( cc ) );
     }
 
     inline
