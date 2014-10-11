@@ -17,8 +17,9 @@ namespace fr { namespace lua {
 
     namespace names {
         static const char * main_table    = "fr" ;
-        static const char * client_table  = "client";
+        static const char * client_table  = "fr.client";
         static const char * core_field    = "core";
+        static const char * inst_field    = "__i";
     }
 
     inline

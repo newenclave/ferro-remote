@@ -13,13 +13,9 @@ namespace fr { namespace lua {
         typedef std::unique_ptr<iface> iface_uptr;
 
         const std::string os_iface_name =
-                std::string(lua::names::main_table)
-                + '.'
-                + lua::names::client_table
+                std::string(lua::names::client_table)
                 + '.'
                 + os::table_name;
-
-        const std::string inst_field_name = "__i";
 
         const char *system_call_name = "system";
 
@@ -31,7 +27,7 @@ namespace fr { namespace lua {
             void *p = NULL;
 
             if( level ) {
-                p = lv.getfield<void *>( inst_field_name.c_str( ) );
+                p = lv.getfield<void *>( names::inst_field );
                 lv.pop( level );
             }
             return reinterpret_cast<iface *>(p);

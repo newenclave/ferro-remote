@@ -19,9 +19,6 @@ namespace fr { namespace cc { namespace cmd {
 
     namespace {
 
-        const char * os_table_name      = "os";
-        const char * os_iface_name      = "osinst";
-
         namespace po = boost::program_options;
         namespace core = client::core;
         namespace lo = fr::lua::objects;
@@ -140,13 +137,11 @@ namespace fr { namespace cc { namespace cmd {
                 );
             }
 
-            lv.set_object_in_global( lua::names::main_table,
-                                     lua::names::client_table,
-                                    *client_table );
-
+            lv.set_object( lua::names::client_table, client_table.get( ) );
             data.swap( tmp );
 
         }
+
 #undef FR_INTERFACE_PAIR
 
         void register_printer( lua_State *L )
