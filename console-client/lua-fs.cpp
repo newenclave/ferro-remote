@@ -265,7 +265,6 @@ namespace fr { namespace lua {
     namespace fs {
         data_sptr init( lua_State *ls, client::core::client_core &cc )
         {
-            //lua::state lv( ls );
             return data_sptr( new data( cc, ls ) );
         }
     }
