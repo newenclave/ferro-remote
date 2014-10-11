@@ -623,7 +623,7 @@ namespace fr { namespace lua {
             f->register_for_events( std::bind( file_event_handler,
                                                std::placeholders::_1,
                                                std::placeholders::_2,
-                                               L, std::cref(call) ) );
+                                               L, call ) );
             return 0;
         }
 
