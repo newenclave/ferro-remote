@@ -5,6 +5,8 @@
 #include <iostream>
 #include <mutex>
 #include <map>
+#include <functional>
+
 #include "interfaces/IFilesystem.h"
 #include "interfaces/IFile.h"
 
@@ -53,6 +55,9 @@ namespace fr { namespace lua {
         int lcall_fs_file_seek(  lua_State *L );
         int lcall_fs_file_tell(  lua_State *L );
         int lcall_fs_file_flush( lua_State *L );
+
+        int lcall_fs_file_ev_reg(   lua_State *L );
+        int lcall_fs_file_ev_unreg( lua_State *L );
 
         int lcall_fs_file_read(  lua_State *L );
         int lcall_fs_file_write( lua_State *L );
@@ -124,6 +129,11 @@ namespace fr { namespace lua {
                         objects::new_function( &lcall_fs_file_read ));
                 f->add( objects::new_string( "write" ),
                         objects::new_function( &lcall_fs_file_write ));
+                f->add( objects::new_string( "register_for_events" ),
+                        objects::new_function( &lcall_fs_file_ev_reg ));
+                f->add( objects::new_string( "unregister" ),
+                        objects::new_function( &lcall_fs_file_ev_unreg ));
+
 
                 return f;
             }
@@ -592,6 +602,38 @@ namespace fr { namespace lua {
             }
             ls.push( w );
             return 1;
+        }
+
+        void file_event_handler(unsigned error, const std::string &data,
+                                lua_State *L, const char *fcall ) try
+        {
+            lua::state ls(L);
+            ls.exec_function( fcall, error, data );
+        } catch( ... ) {
+            std::cout << "call erro " << "\n";
+        }
+
+        int lcall_fs_file_ev_reg( lua_State *L )
+        {
+            lua::state ls(L);
+
+            file_sptr f(get_file( L, 1 ));
+            const char * call = ls.get<const char *>( 2 );
+            ls.clean( );
+            f->register_for_events( std::bind( file_event_handler,
+                                               std::placeholders::_1,
+                                               std::placeholders::_2,
+                                               L, call ) );
+            return 0;
+        }
+
+        int lcall_fs_file_ev_unreg( lua_State *L )
+        {
+            lua::state ls(L);
+            file_sptr f(get_file( L, 1 ));
+            ls.clean( );
+            f->unregister( );
+            return 0;
         }
 
     }

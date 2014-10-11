@@ -448,9 +448,30 @@ namespace lua {
 
         int exec_function( const char* func, const objects::base &bo )
         {
+
             lua_getglobal( vm_, func );
             bo.push( vm_ );
             int rc = lua_pcall( vm_, 1, LUA_MULTRET, 0 );
+            return rc;
+        }
+
+        template <typename P0>
+        int exec_function( const char* func, P0 p0 )
+        {
+
+            lua_getglobal( vm_, func );
+            push( p0 );
+            int rc = lua_pcall( vm_, 1, LUA_MULTRET, 0 );
+            return rc;
+        }
+
+        template <typename P0, typename P1>
+        int exec_function( const char* func, P0 p0, P1 p1 )
+        {
+            lua_getglobal( vm_, func );
+            push( p0 );
+            push( p1 );
+            int rc = lua_pcall( vm_, 2, LUA_MULTRET, 0 );
             return rc;
         }
 

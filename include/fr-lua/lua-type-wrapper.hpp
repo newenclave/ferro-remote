@@ -104,6 +104,14 @@ namespace lua { namespace types {
     };
 
     template <typename T>
+    struct id_function: public base_id<LUA_TFUNCTION> {
+        static T get( lua_State *L, int idx )
+        {
+            return static_cast<T>(lua_tocfunction( L, idx ));
+        }
+    };
+
+    template <typename T>
     struct id_string {
 
         enum { type_index = LUA_TSTRING };
@@ -140,6 +148,10 @@ namespace lua { namespace types {
     struct id_traits {
         enum { type_index = LUA_TNONE };
     };
+
+    template <>
+    struct id_traits<lua_CFunction> : public
+           id_function<lua_CFunction> { };
 
     template <>
     struct id_traits<signed int> : public

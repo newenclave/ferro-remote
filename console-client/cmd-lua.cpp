@@ -15,6 +15,14 @@
 
 #include "lua-interface.h"
 
+#ifdef _MSC_VER
+#include <windows.h>
+#define sleep_( x ) Sleep( (x) * 1000 ) /// milliseconds
+#else
+#include <unistd.h>
+#define sleep_( x ) sleep( x ) /// seconds
+#endif
+
 namespace fr { namespace cc { namespace cmd {
 
     namespace {
@@ -168,6 +176,22 @@ namespace fr { namespace cc { namespace cmd {
             return 1;
         }
 
+        int global_sleep( lua_State *L )
+        {
+            lua::state lv( L );
+            int r = lv.get_top( );
+            for( int i=1; i<=r; ++i ) {
+                try {
+                    unsigned seconds = lv.get<unsigned>( i );
+                    sleep_( seconds );
+                } catch( ... ) {
+                    ;;;
+                }
+            }
+            lv.pop( r );
+            return 0;
+        }
+
 #define FR_INTERFACE_PAIR( ns, L, CL )      \
     std::make_pair( lua::ns::table_name, lua::ns::init( L, cl ))
 
@@ -209,6 +233,7 @@ namespace fr { namespace cc { namespace cmd {
             lv.register_call( "printiln", &global_printiln );
             lv.register_call( "die",      &global_throw );
             lv.register_call( "open",     &global_open );
+            lv.register_call( "sleep",    &global_sleep );
         }
 
         struct impl: public command_iface {
