@@ -133,8 +133,10 @@ namespace fr { namespace cc { namespace cmd {
             for( int i=1; i<=r; ++i ) {
                 try {
                     const char *libname = lv.get<const char *>( i );
-                    lv.openlib( libname );
-                    std::cout << libname << "\n";
+                    int res = lv.openlib( libname );
+                    if( !res ) {
+                        lv.load_file( libname );
+                    }
                 } catch( ... ) {
                     ;;;
                 }

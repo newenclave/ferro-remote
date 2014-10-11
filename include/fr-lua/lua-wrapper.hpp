@@ -116,10 +116,10 @@ namespace lua {
                 if( 0 == libs[i].name.compare( libname ) ) {
                     push( libs[i].func );
                     lua_call( vm_, 0, 0 );
-                    return 0;
+                    return 1;
                 }
             }
-            return -1;
+            return 0;
         }
 
         lua_State *get_state( )
@@ -372,79 +372,6 @@ namespace lua {
         void set_object( const char *path, const objects::base *obj )
         {
             set<object_wrapper>( path, object_wrapper( obj ) );
-        }
-
-//        template <typename T>
-//        void set_in_global( const char *table_name,
-//                            const char *key, T value )
-//        {
-//            lua_getglobal( vm_, table_name );
-
-//            if ( !lua_istable( vm_, -1 ) ) {
-//                if ( lua_isnoneornil( vm_, -1 ) ) {
-//                    pop( 1 );
-//                    lua_newtable( vm_ );
-//                } else {
-//                    lua_pop(vm_, 2);
-//                    throw std::logic_error( "Not a table" );
-//                }
-//            }
-
-//            push( key );
-//            push( value );
-//            lua_settable( vm_, -3 );
-
-//            lua_setglobal( vm_, table_name );
-//        }
-
-        void set_object_in_global( const char *table_name,
-                                   const char *key, const objects::base &bo )
-        {
-            lua_getglobal( vm_, table_name );
-
-            if ( !lua_istable( vm_, -1 ) ) {
-                if ( lua_isnoneornil( vm_, -1 ) ) {
-                    pop( 1 );
-                    lua_newtable( vm_ );
-                } else {
-                    lua_pop(vm_, 2);
-                    throw std::logic_error( "Not a table" );
-                }
-            }
-
-            push( key );
-            bo.push( vm_ );
-            lua_settable( vm_, -3 );
-
-            lua_setglobal( vm_, table_name );
-        }
-
-        template<typename T>
-        T get_from_global( const char* table_name,
-                           const char* key )
-        {
-            lua_getglobal( vm_, table_name );
-
-            if ( !lua_istable( vm_, -1 ) ) {
-                lua_pop( vm_, 1 );
-                throw std::logic_error( "Not a table" );
-            }
-
-            //push( key );
-            //lua_gettable( vm_, -2 );
-
-            lua_getfield( vm_, -1, key );
-
-            T result;
-            try {
-                result = get<T>( );
-            } catch( ... ) {
-                lua_pop( vm_, 2 );
-                throw;
-            }
-
-            lua_pop( vm_, 2 );
-            return result;
         }
 
         int get_table( const char *path )
