@@ -112,6 +112,19 @@ namespace fr { namespace cc { namespace cmd {
             return res;
         }
 
+        int global_throw( lua_State *L )
+        {
+            lua::state lv( L );
+            int r = lv.get_top( );
+            std::string except( "throw from script" );
+            if( r ) try {
+                except = lv.get<std::string>( );
+            } catch( ... ) {
+                ;;;
+            }
+            throw std::runtime_error( except );
+        }
+
 #define FR_INTERFACE_PAIR( ns, L, CL )      \
     std::make_pair( lua::ns::table_name, lua::ns::init( L, cl ))
 
@@ -143,12 +156,13 @@ namespace fr { namespace cc { namespace cmd {
 
 #undef FR_INTERFACE_PAIR
 
-        void register_printer( lua_State *L )
+        void register_globals( lua_State *L )
         {
             lua_state lv( L );
 
             lv.register_call( "print",   &global_print );
             lv.register_call( "println", &global_println );
+            lv.register_call( "throw",   &global_throw );
         }
 
         struct impl: public command_iface {
@@ -161,7 +175,7 @@ namespace fr { namespace cc { namespace cmd {
             void exec( po::variables_map &vm, core::client_core &cl )
             {
                 lua_state lv;
-                register_printer( lv.get_state( ) );
+                register_globals( lv.get_state( ) );
 
                 std::map<std::string, lua::data_sptr> datas;
 
