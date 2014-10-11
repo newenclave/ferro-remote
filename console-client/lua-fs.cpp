@@ -45,6 +45,7 @@ namespace fr { namespace lua {
 
         int lcall_fs_iter_begin( lua_State *L );
         int lcall_fs_iter_next(  lua_State *L );
+        int lcall_fs_iter_get(   lua_State *L );
         int lcall_fs_iter_end(   lua_State *L );
 
         int lcall_fs_file_flags( lua_State *L );
@@ -156,10 +157,12 @@ namespace fr { namespace lua {
                     /* ==== iterators ==== */
                     ->add( objects::new_string( "iter_begin" ),
                            objects::new_function( &lcall_fs_iter_begin ))
-                    ->add( objects::new_string( "iter_end" ),
+                    ->add( objects::new_string( "iter_get" ),
                            objects::new_function( &lcall_fs_iter_end ))
                     ->add( objects::new_string( "iter_next" ),
                            objects::new_function( &lcall_fs_iter_next ))
+                    ->add( objects::new_string( "iter_end" ),
+                           objects::new_function( &lcall_fs_iter_end ))
                     /* ==== files ==== */
                     ->add( objects::new_string( "file" ),
                            create_file_table( ))
@@ -390,6 +393,17 @@ namespace fr { namespace lua {
             fsiterator_sptr ni( get_iterator( L ) );
             if( ni ) {
                 ni->next( );
+                ls.push( ni->get( ).path.c_str( ) );
+                return 1;
+            }
+            return 0;
+        }
+
+        int lcall_fs_iter_get(   lua_State *L )
+        {
+            lua::state ls(L);
+            fsiterator_sptr ni( get_iterator( L ) );
+            if( ni ) {
                 ls.push( path_leaf( ni->get( ).path.c_str( ) ) );
                 return 1;
             }
