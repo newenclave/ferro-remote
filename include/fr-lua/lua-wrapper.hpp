@@ -262,8 +262,8 @@ namespace lua {
                     throw;
                 }
                 pop( );
-                return p;
             }
+            return p;
         }
 
     private:
@@ -285,12 +285,21 @@ namespace lua {
 
         static size_t path_root( const char *path )
         {
-            size_t res = 0;
-            while( ( *path != '.' ) && ( *path != '\0' ) ) {
-                ++path;
-                ++res;
+            const char *p = path;
+            for( ; *p && (*p != '.'); ++p );
+            return p - path;
+        }
+
+        static const char *path_leaf( const char *path )
+        {
+            const char *p  = path;
+            const char *sp = path;
+            for( ; *p; ++p ) {
+                if( *p == '.' ) {
+                    sp = p;
+                }
             }
-            return res;
+            return sp;
         }
 
         template <typename T>
@@ -337,11 +346,6 @@ namespace lua {
         }
 
     public:
-
-//        void set( const char *path, const objects::base *obj )
-//        {
-//            set<object_wrapper>( path, object_wrapper( obj ) );
-//        }
 
         template <typename T>
         void set( const char *path, T value )
@@ -400,6 +404,39 @@ namespace lua {
                 }
             }
             return level;
+        }
+
+        template <typename T>
+        T get( const char *path )
+        {
+            const char *pl = path_leaf( path );
+            if( pl == path ) {
+                get_global( pl );
+                T val;
+                if( !none_or_nil(  ) ) try {
+                    val = get<T>( );
+                    pop( );
+                } catch( ... ) {
+                    pop( );
+                    throw;
+                }
+                return val;
+            } else {
+                std::string tpath( path, (pl - path) );
+                int level = get_table( tpath.c_str( ) );
+                if( level ) {
+                    T val;
+                    try {
+                        val = get_field<T>( pl + 1 );
+                        pop( level );
+                    } catch( ... ) {
+                        pop( level );
+                        throw;
+                    }
+                    return val;
+                }
+            }
+            return T( );
         }
 
         int exec_function( const char* func )
