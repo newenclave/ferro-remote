@@ -139,7 +139,6 @@ namespace fr { namespace cc { namespace cmd {
 
             lv.set_object( lua::names::client_table, client_table.get( ) );
             data.swap( tmp );
-
         }
 
 #undef FR_INTERFACE_PAIR
