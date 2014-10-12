@@ -273,7 +273,7 @@ namespace fr { namespace client { namespace interfaces {
                 result.id = id_;
                 req.set_with_active_low( true );
                 req.set_with_value(      true );
-                //req.set_with_edge(       true );
+                req.set_with_edge(       true );
                 req.set_with_direction(  true );
                 client_.call( &stub_type::info, &req, &res );
 
