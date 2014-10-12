@@ -139,6 +139,13 @@ namespace fr { namespace client { namespace interfaces {
                 client_.call_request( &stub_type::unexp, &req );
             }
 
+            static gpio::direction_type dir_value2enum( unsigned val )
+            {
+                return val == gpio::DIRECT_IN
+                        ? gpio::DIRECT_IN
+                        : gpio::DIRECT_OUT;
+            }
+
             gpio::direction_type direction( ) const override
             {
                 gproto::info_req    req;
@@ -148,9 +155,7 @@ namespace fr { namespace client { namespace interfaces {
                 req.set_with_direction( true );
                 client_.call( &stub_type::info, &req, &res );
 
-                return res.direction( ) == gpio::DIRECT_IN
-                        ? gpio::DIRECT_IN
-                        : gpio::DIRECT_OUT;
+                return dir_value2enum(res.direction( ));
             }
 
             void set_direction( gpio::direction_type value ) const override
@@ -159,6 +164,21 @@ namespace fr { namespace client { namespace interfaces {
                 req.mutable_hdl( )->set_value( hdl_ );
                 req.mutable_setup( )->set_direction( value );
                 client_.call_request( &stub_type::setup, &req );
+            }
+
+            static gpio::edge_type edge_value2enum( unsigned val )
+            {
+                switch (val) {
+                case gpio::EDGE_NONE:
+                    return gpio::EDGE_NONE;
+                case gpio::EDGE_FALLING:
+                    return gpio::EDGE_FALLING;
+                case gpio::EDGE_RISING:
+                    return gpio::EDGE_RISING;
+                case gpio::EDGE_BOTH:
+                    return gpio::EDGE_BOTH;
+                }
+                return gpio::EDGE_NONE;
             }
 
             gpio::edge_type edge( ) const override
@@ -170,17 +190,7 @@ namespace fr { namespace client { namespace interfaces {
                 req.set_with_edge( true );
                 client_.call( &stub_type::info, &req, &res );
 
-                switch (res.edge( )) {
-                case gpio::EDGE_NONE:
-                    return gpio::EDGE_NONE;
-                case gpio::EDGE_FALLING:
-                    return gpio::EDGE_FALLING;
-                case gpio::EDGE_RISING:
-                    return gpio::EDGE_RISING;
-                case gpio::EDGE_BOTH:
-                    return gpio::EDGE_BOTH;
-                }
-                return gpio::EDGE_NONE;
+                return edge_value2enum( res.edge( ) );
             }
 
             void set_edge( gpio::edge_type value ) const override
@@ -242,7 +252,7 @@ namespace fr { namespace client { namespace interfaces {
 
             void unregister( ) const override
             {
-
+                unregister_impl( );
             }
 
             void close_impl( )
@@ -250,6 +260,29 @@ namespace fr { namespace client { namespace interfaces {
                 gproto::handle req;
                 req.set_value( hdl_ );
                 client_.call_request( &stub_type::close, &req );
+            }
+
+            gpio::info get_info( ) const
+            {
+                gpio::info result;
+                gproto::info_req    req;
+                gproto::setup_data  res;
+
+                req.mutable_hdl( )->set_value( hdl_ );
+
+                result.id = id_;
+                req.set_with_active_low( true );
+                req.set_with_value(      true );
+                //req.set_with_edge(       true );
+                req.set_with_direction(  true );
+                client_.call( &stub_type::info, &req, &res );
+
+                result.value      = res.value( );
+                result.active_low = res.active_low( );
+                result.direction  = dir_value2enum( res.direction( ) );
+                result.edge       = edge_value2enum( res.edge( ) );
+
+                return result;
             }
 
         };

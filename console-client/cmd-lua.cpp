@@ -207,8 +207,9 @@ namespace fr { namespace cc { namespace cmd {
 
             lua_state lv( L );
 
-            tmp.insert( FR_INTERFACE_PAIR( os, L, cl ) );
-            tmp.insert( FR_INTERFACE_PAIR( fs, L, cl ) );
+            tmp.insert( FR_INTERFACE_PAIR( os,   L, cl ) );
+            tmp.insert( FR_INTERFACE_PAIR( fs,   L, cl ) );
+            tmp.insert( FR_INTERFACE_PAIR( gpio, L, cl ) );
 
             lo::table_sptr client_table( lo::new_table( ) );
 

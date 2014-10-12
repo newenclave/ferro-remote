@@ -30,8 +30,18 @@ namespace interfaces { namespace gpio {
             void (unsigned, unsigned)
     > value_change_callback;
 
+    struct info {
+        unsigned        id;
+        unsigned        value;
+        unsigned        active_low;
+        direction_type  direction;
+        edge_type       edge;
+    };
+
     struct iface {
         virtual ~iface( ) { }
+
+        virtual info get_info( ) const = 0;
 
         virtual unsigned id( ) const = 0;
 

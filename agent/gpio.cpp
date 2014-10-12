@@ -214,7 +214,12 @@ namespace fr { namespace agent {
         std::ostringstream oss;
         oss << impl_->path_ << "/" << edge_name;
 
-        std::string pos = read_from_file( oss.str( ) );
+        std::string pos;
+        try {
+            pos.assign( read_from_file( oss.str( ) ) );
+        } catch( ... ) {
+            return gpio::EDGE_NONE;
+        }
 
         if( check_name(pos, edge_index[gpio::EDGE_NONE]) ) {
             return gpio::EDGE_NONE;
@@ -224,9 +229,8 @@ namespace fr { namespace agent {
             return gpio::EDGE_FALLING;
         } else if( check_name(pos, edge_index[gpio::EDGE_BOTH]) ) {
             return gpio::EDGE_BOTH;
-        } else {
-            vcomm::throw_system_error( EINVAL, pos.c_str( ) );
         }
+        return gpio::EDGE_NONE;
     }
 
     void  gpio_helper::set_edge( gpio::edge_type val ) const

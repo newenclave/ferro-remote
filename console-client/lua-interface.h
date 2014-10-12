@@ -70,6 +70,7 @@ namespace fr { namespace lua {
 
     FR_DEFINE_NAMESPACE_FOR_LUA( os )
     FR_DEFINE_NAMESPACE_FOR_LUA( fs )
+    FR_DEFINE_NAMESPACE_FOR_LUA( gpio )
 
 #undef FR_DEFINE_NAMESPACE_FOR_LUA
 
