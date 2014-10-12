@@ -606,12 +606,12 @@ namespace fr { namespace lua {
 
         void file_event_handler( unsigned error, const std::string &data,
                                  std::shared_ptr<lua::state> ls,
-                                 const char *fcall,
-                                 std::vector<objects::base_sptr> params ) try
-        {
-            ls->exec_function( fcall, error, data, params );
+                                 const std::string &fcall,
+                                 const std::vector<objects::base_sptr> &params )
+        try {
+            ls->exec_function( fcall.c_str( ), error, data, params );
         } catch( ... ) {
-            std::cout << "call erro " << "\n";
+            //std::cout << "call erro " << "\n";
         }
 
         int lcall_fs_file_ev_reg( lua_State *L )
@@ -621,7 +621,7 @@ namespace fr { namespace lua {
             int n = ls.get_top( );
 
             file_sptr f(get_file( L, 1 ));
-            const char * call = ls.get<const char *>( 2 );
+            std::string call(ls.get<const char *>( 2 ));
 
             std::vector<objects::base_sptr> params;
 

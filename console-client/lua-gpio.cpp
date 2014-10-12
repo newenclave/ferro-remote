@@ -98,6 +98,11 @@ namespace fr { namespace lua {
                 t->add( new_string( "close" ),
                         new_function( &lcall_gpio_close ) );
 
+                t->add( new_string( "register_for_change" ),
+                        new_function( &lcall_gpio_reg_for_change ) );
+                t->add( new_string( "unregister" ),
+                        new_function( &lcall_gpio_unreg ) );
+
                 return t;
             }
 #undef ADD_GPIO_VALUE
@@ -250,13 +255,45 @@ namespace fr { namespace lua {
             return 0;
         }
 
+        void gpio_event_handler( unsigned error, unsigned value,
+                                 std::shared_ptr<lua::state> ls,
+                                 const std::string &fcall,
+                                 const std::vector<objects::base_sptr> &params )
+        try {
+            ls->exec_function( fcall.c_str( ), value, params );
+        } catch( ... ) {
+            //std::cout << "call erro " << "\n";
+        }
+
+
         int lcall_gpio_reg_for_change( lua_State *L )
         {
             lua::state ls( L );
-            iface_sptr dev = get_gpio_dev( L );
-            ls.clean( );
-            ls.push<unsigned>( dev->edge( ) );
+            int n = ls.get_top( );
 
+            iface_sptr dev = get_gpio_dev( L, 1 );
+            std::string call(ls.get<const char *>( 2 ));
+
+            std::vector<objects::base_sptr> params;
+
+            if( n > 2 ) {
+                params.reserve( n - 2 );
+                for( int i=3; i<=n; ++i ) {
+                    params.push_back( ls.get_object( i ) );
+                }
+            }
+
+            ls.pop( n );
+
+            lua::state_sptr thread(new lua::state(lua_newthread( L )));
+            ls.pop( );
+
+
+            dev->register_for_change( std::bind( gpio_event_handler,
+                                                 std::placeholders::_1,
+                                                 std::placeholders::_2,
+                                                 thread, call, params ) );
+            return 0;
         }
 
         int lcall_gpio_unreg( lua_State *L )
