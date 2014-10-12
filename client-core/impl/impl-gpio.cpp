@@ -141,9 +141,7 @@ namespace fr { namespace client { namespace interfaces {
 
             static gpio::direction_type dir_value2enum( unsigned val )
             {
-                return val == gpio::DIRECT_IN
-                        ? gpio::DIRECT_IN
-                        : gpio::DIRECT_OUT;
+                return gpio::direction_val2enum( val );
             }
 
             gpio::direction_type direction( ) const override
@@ -168,17 +166,7 @@ namespace fr { namespace client { namespace interfaces {
 
             static gpio::edge_type edge_value2enum( unsigned val )
             {
-                switch (val) {
-                case gpio::EDGE_NONE:
-                    return gpio::EDGE_NONE;
-                case gpio::EDGE_FALLING:
-                    return gpio::EDGE_FALLING;
-                case gpio::EDGE_RISING:
-                    return gpio::EDGE_RISING;
-                case gpio::EDGE_BOTH:
-                    return gpio::EDGE_BOTH;
-                }
-                return gpio::EDGE_NONE;
+                return gpio::edge_val2enum( val );
             }
 
             gpio::edge_type edge( ) const override

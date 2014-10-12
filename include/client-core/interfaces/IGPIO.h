@@ -16,12 +16,36 @@ namespace interfaces { namespace gpio {
         ,DIRECT_OUT  = 1
     };
 
+    static
+    inline direction_type direction_val2enum( unsigned val )
+    {
+        switch (val) {
+        case DIRECT_IN:
+        case DIRECT_OUT:
+            return static_cast<direction_type>( val );
+        }
+        return DIRECT_OUT;
+    }
+
     enum edge_type {
          EDGE_NONE     = 0
         ,EDGE_RISING   = 1
         ,EDGE_FALLING  = 2
         ,EDGE_BOTH     = 3
     };
+
+    static
+    inline edge_type edge_val2enum( unsigned val )
+    {
+        switch (val) {
+        case EDGE_NONE:
+        case EDGE_FALLING:
+        case EDGE_RISING:
+        case EDGE_BOTH:
+            return static_cast<edge_type>(val);
+        }
+        return gpio::EDGE_NONE;
+    }
 
     ///
     /// error, new_state

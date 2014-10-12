@@ -29,6 +29,10 @@ namespace fr { namespace lua {
         int lcall_gpio_new( lua_State *L );
         int lcall_gpio_info( lua_State *L );
         int lcall_gpio_unexport( lua_State *L );
+        int lcall_gpio_set_value( lua_State *L );
+        int lcall_gpio_value( lua_State *L );
+        int lcall_gpio_set_edge( lua_State *L );
+        int lcall_gpio_edge( lua_State *L );
         int lcall_gpio_close( lua_State *L );
 
         struct data;
@@ -72,13 +76,21 @@ namespace fr { namespace lua {
                 t->add( ADD_GPIO_VALUE( EDGE_BOTH ) );
 
                 t->add( new_string( "export" ),
-                        new_function( lcall_gpio_new ) );
+                        new_function( &lcall_gpio_new ) );
                 t->add( new_string( "info" ),
-                        new_function( lcall_gpio_info ) );
+                        new_function( &lcall_gpio_info ) );
+                t->add( new_string( "value" ),
+                        new_function( &lcall_gpio_value ) );
+                t->add( new_string( "set_value" ),
+                        new_function( &lcall_gpio_set_value ) );
+                t->add( new_string( "edge" ),
+                        new_function( &lcall_gpio_edge ) );
+                t->add( new_string( "set_edge" ),
+                        new_function( &lcall_gpio_set_edge ) );
                 t->add( new_string( "unexport" ),
-                        new_function( lcall_gpio_unexport ) );
+                        new_function( &lcall_gpio_unexport ) );
                 t->add( new_string( "close" ),
-                        new_function( lcall_gpio_close ) );
+                        new_function( &lcall_gpio_close ) );
 
                 return t;
             }
@@ -86,11 +98,10 @@ namespace fr { namespace lua {
 
         };
 
-        iface_sptr get_gpio_dev( lua_State *L )
+        iface_sptr get_gpio_dev( lua_State *L, int id = -1 )
         {
             lua::state ls(L);
-            void *p = ls.get<void *>( );
-            ls.pop( );
+            void *p = ls.get<void *>( id );
             iface_sptr ni;
             data *i = get_iface( L );
             {
@@ -115,7 +126,7 @@ namespace fr { namespace lua {
             int n = ls.get_top( );
             unsigned gid    = ls.get<unsigned>( 1 );
             unsigned direct = 0xFF;
-            if( n > 1 ) {
+            if( n > 1 && ( ls.get_type( 2 ) == LUA_TNUMBER ) ) {
                 direct = ls.get<unsigned>( 2 );
             }
             ls.pop( n );
@@ -172,6 +183,52 @@ namespace fr { namespace lua {
                 dev->unexport_device( );
             }
             return 0;
+        }
+
+        int lcall_gpio_set_value( lua_State *L )
+        {
+            lua::state ls( L );
+            int        r = ls.get_top( );
+            unsigned val = 0;
+            iface_sptr dev = get_gpio_dev( L, 1 );
+            if( r > 1 ) {
+                val = ls.get<unsigned>( 2 );
+            }
+            ls.clean( );
+            dev->set_value( val );
+            return 0;
+        }
+
+        int lcall_gpio_value( lua_State *L )
+        {
+            lua::state ls( L );
+            iface_sptr dev = get_gpio_dev( L );
+            ls.clean( );
+            ls.push( dev->value( ) );
+            return 1;
+        }
+
+        int lcall_gpio_set_edge( lua_State *L )
+        {
+            lua::state ls( L );
+            int        r = ls.get_top( );
+            unsigned val = 0;
+            iface_sptr dev = get_gpio_dev( L, 1 );
+            if( r > 1 ) {
+                val = ls.get<unsigned>( 2 );
+            }
+            ls.clean( );
+            dev->set_edge( interfaces::gpio::edge_val2enum( val ) );
+            return 0;
+        }
+
+        int lcall_gpio_edge( lua_State *L )
+        {
+            lua::state ls( L );
+            iface_sptr dev = get_gpio_dev( L );
+            ls.clean( );
+            ls.push<unsigned>( dev->edge( ) );
+            return 1;
         }
 
         int lcall_gpio_close( lua_State *L )
