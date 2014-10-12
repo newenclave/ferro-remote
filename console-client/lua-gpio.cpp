@@ -36,6 +36,9 @@ namespace fr { namespace lua {
         int lcall_gpio_set_edge( lua_State *L );
         int lcall_gpio_edge( lua_State *L );
 
+        int lcall_gpio_set_dir( lua_State *L );
+        int lcall_gpio_dir( lua_State *L );
+
         int lcall_gpio_reg_for_change( lua_State *L );
         int lcall_gpio_unreg( lua_State *L );
 
@@ -85,14 +88,22 @@ namespace fr { namespace lua {
                         new_function( &lcall_gpio_new ) );
                 t->add( new_string( "info" ),
                         new_function( &lcall_gpio_info ) );
+
                 t->add( new_string( "value" ),
                         new_function( &lcall_gpio_value ) );
                 t->add( new_string( "set_value" ),
                         new_function( &lcall_gpio_set_value ) );
+
                 t->add( new_string( "edge" ),
                         new_function( &lcall_gpio_edge ) );
                 t->add( new_string( "set_edge" ),
                         new_function( &lcall_gpio_set_edge ) );
+
+                t->add( new_string( "direction" ),
+                        new_function( &lcall_gpio_dir ) );
+                t->add( new_string( "set_direction" ),
+                        new_function( &lcall_gpio_set_dir ) );
+
                 t->add( new_string( "unexport" ),
                         new_function( &lcall_gpio_unexport ) );
                 t->add( new_string( "close" ),
@@ -100,6 +111,7 @@ namespace fr { namespace lua {
 
                 t->add( new_string( "register_for_change" ),
                         new_function( &lcall_gpio_reg_for_change ) );
+
                 t->add( new_string( "unregister" ),
                         new_function( &lcall_gpio_unreg ) );
 
@@ -239,6 +251,29 @@ namespace fr { namespace lua {
             iface_sptr dev = get_gpio_dev( L );
             ls.clean( );
             ls.push<unsigned>( dev->edge( ) );
+            return 1;
+        }
+
+        int lcall_gpio_set_dir( lua_State *L )
+        {
+            lua::state ls( L );
+            int        r = ls.get_top( );
+            unsigned val = 0;
+            iface_sptr dev = get_gpio_dev( L, 1 );
+            if( r > 1 ) {
+                val = ls.get<unsigned>( 2 );
+            }
+            ls.clean( );
+            dev->set_direction( interfaces::gpio::direction_val2enum( val ) );
+            return 0;
+        }
+
+        int lcall_gpio_dir( lua_State *L )
+        {
+            lua::state ls( L );
+            iface_sptr dev = get_gpio_dev( L );
+            ls.clean( );
+            ls.push<unsigned>( dev->direction( ) );
             return 1;
         }
 
