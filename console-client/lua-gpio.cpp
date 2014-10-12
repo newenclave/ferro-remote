@@ -26,7 +26,7 @@ namespace fr { namespace lua {
                 + '.'
                 + gpio::table_name;
 
-        int lcall_gpio_new( lua_State *L );
+        int lcall_gpio_export( lua_State *L );
         int lcall_gpio_info( lua_State *L );
         int lcall_gpio_unexport( lua_State *L );
 
@@ -85,7 +85,7 @@ namespace fr { namespace lua {
                 t->add( ADD_GPIO_VALUE( EDGE_BOTH ) );
 
                 t->add( new_string( "export" ),
-                        new_function( &lcall_gpio_new ) );
+                        new_function( &lcall_gpio_export ) );
                 t->add( new_string( "info" ),
                         new_function( &lcall_gpio_info ) );
 
@@ -142,7 +142,7 @@ namespace fr { namespace lua {
         }
 
 
-        int lcall_gpio_new( lua_State *L )
+        int lcall_gpio_export( lua_State *L )
         {
             lua::state ls( L );
             data * i = get_iface( L );
