@@ -593,7 +593,7 @@ namespace lua { namespace objects {
         std::string str( ) const
         {
             std::ostringstream oss;
-            oss << "coroutine@" << std::hex << s_;
+            oss << "thread@" << std::hex << s_;
             return oss.str( );
         }
     };
