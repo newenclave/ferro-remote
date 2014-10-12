@@ -88,10 +88,12 @@ namespace fr { namespace cc { namespace cmd {
                             new lo::function( lua_tocfunction( L, idx ) ));
             case LUA_TTABLE:
                 return get_table( L, idx, as_integer );
+            case LUA_TTHREAD:
+                return lo::base_sptr(
+                                new lo::thread( L, lua_tothread( L, idx ) ));
+
         //    case LUA_TUSERDATA:
         //        return "userdata";
-        //    case LUA_TTHREAD:
-        //        return "thread";
             }
             return lo::base_sptr( new lo::nil );
         }

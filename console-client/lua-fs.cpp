@@ -129,10 +129,10 @@ namespace fr { namespace lua {
                         objects::new_function( &lcall_fs_file_read ));
                 f->add( objects::new_string( "write" ),
                         objects::new_function( &lcall_fs_file_write ));
-//                f->add( objects::new_string( "register_for_events" ),
-//                        objects::new_function( &lcall_fs_file_ev_reg ));
-//                f->add( objects::new_string( "unregister" ),
-//                        objects::new_function( &lcall_fs_file_ev_unreg ));
+                f->add( objects::new_string( "register_for_events" ),
+                        objects::new_function( &lcall_fs_file_ev_reg ));
+                f->add( objects::new_string( "unregister" ),
+                        objects::new_function( &lcall_fs_file_ev_unreg ));
 
 
                 return f;
@@ -605,10 +605,10 @@ namespace fr { namespace lua {
         }
 
         void file_event_handler( unsigned error, const std::string &data,
-                                 lua_State *L, const char *fcall ) try
+                                 std::shared_ptr<lua::state> ls,
+                                 const char *fcall ) try
         {
-            lua::state ls(L);
-            ls.exec_function( fcall, error, data );
+            ls->exec_function( fcall, error, data );
         } catch( ... ) {
             std::cout << "call erro " << "\n";
         }
@@ -620,10 +620,15 @@ namespace fr { namespace lua {
             file_sptr f(get_file( L, 1 ));
             const char * call = ls.get<const char *>( 2 );
             ls.clean( );
+
+            lua::state_sptr thread(new lua::state(lua_newthread( L )));
+            ls.pop( );
+            std::cout << "L =" << L << " T = " << thread << "\n";
+
             f->register_for_events( std::bind( file_event_handler,
                                                std::placeholders::_1,
                                                std::placeholders::_2,
-                                               L, call ) );
+                                               thread, call ) );
             return 0;
         }
 

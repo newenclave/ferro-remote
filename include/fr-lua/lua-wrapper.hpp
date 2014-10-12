@@ -484,6 +484,7 @@ namespace lua {
             return res;
         }
     };
+    typedef std::shared_ptr<state> state_sptr;
 }
 
 #ifdef LUA_WRAPPER_TOP_NAMESPACE

@@ -560,6 +560,44 @@ namespace lua { namespace objects {
         }
     };
 
+    class thread: public base {
+
+        lua_State *p_;
+        lua_State *s_;
+
+    public:
+
+        thread( lua_State *parent,  lua_State *s )
+            :p_(parent)
+            ,s_(s)
+        { }
+
+        virtual int type_id( ) const
+        {
+            return base::TYPE_THREAD;
+        }
+
+        virtual base *clone( ) const
+        {
+            return new thread( p_, s_ );
+        }
+
+        void push( lua_State *L ) const
+        {
+            if( L != p_ ) {
+                throw std::runtime_error( "Invalid stack for thread" );
+            }
+            lua_pushthread( s_ );
+        }
+
+        std::string str( ) const
+        {
+            std::ostringstream oss;
+            oss << "coroutine@" << std::hex << s_;
+            return oss.str( );
+        }
+    };
+
     inline pair * new_pair( base *k, base *v )
     {
         return new pair( base_sptr(k), base_sptr(v) );
