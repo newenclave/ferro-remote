@@ -129,10 +129,10 @@ namespace fr { namespace lua {
                         objects::new_function( &lcall_fs_file_read ));
                 f->add( objects::new_string( "write" ),
                         objects::new_function( &lcall_fs_file_write ));
-                f->add( objects::new_string( "register_for_events" ),
-                        objects::new_function( &lcall_fs_file_ev_reg ));
-                f->add( objects::new_string( "unregister" ),
-                        objects::new_function( &lcall_fs_file_ev_unreg ));
+//                f->add( objects::new_string( "register_for_events" ),
+//                        objects::new_function( &lcall_fs_file_ev_reg ));
+//                f->add( objects::new_string( "unregister" ),
+//                        objects::new_function( &lcall_fs_file_ev_unreg ));
 
 
                 return f;
