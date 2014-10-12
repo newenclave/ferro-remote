@@ -266,59 +266,56 @@ namespace lua {
             return p;
         }
 
-        objects::base_sptr get_table( lua_State *L, int idx = -1,
-                                      unsigned flags = 0 )
+        objects::base_sptr get_table( int idx = -1, unsigned flags = 0 )
         {
-            lua_pushvalue( L, idx );
-            lua_pushnil( L );
+            lua_pushvalue( vm_, idx );
+            lua_pushnil( vm_ );
 
             objects::table_sptr new_table( objects::new_table( ) );
 
-            while ( lua_next( L, -2 ) ) {
-                lua_pushvalue( L, -2 );
+            while ( lua_next( vm_, -2 ) ) {
+                lua_pushvalue( vm_, -2 );
                 objects::pair_sptr new_pair
-                        ( objects::new_pair( get_object( L, -1, flags ),
-                                             get_object( L, -2, flags ) ) );
+                        ( objects::new_pair( get_object( -1, flags ),
+                                             get_object( -2, flags ) ) );
                 new_table->push_back( new_pair );
-                lua_pop( L, 2 );
+                lua_pop( vm_, 2 );
             }
 
-            lua_pop( L, 1 );
+            lua_pop( vm_, 1 );
             return new_table;
         }
 
-        objects::base_sptr get_object( lua_State *L,
-                                       int idx = -1,
-                                       unsigned flags = 0 )
+        objects::base_sptr get_object( int idx = -1, unsigned flags = 0 )
         {
 
             typedef objects::base_sptr base_sptr;
 
-            int t = lua_type( L, idx );
+            int t = lua_type( vm_, idx );
             switch( t ) {
             case LUA_TBOOLEAN:
                 return base_sptr(
-                      new objects::boolean( lua_toboolean( L, idx ) ));
+                    new objects::boolean( lua_toboolean( vm_, idx ) ));
             case LUA_TLIGHTUSERDATA:
                 return base_sptr(
-                      new objects::light_userdata( lua_touserdata( L, idx ) ));
+                    new objects::light_userdata( lua_touserdata( vm_, idx ) ));
             case LUA_TNUMBER:
                 return flags
-                   ? base_sptr(new objects::integer( lua_tointeger( L, idx ) ))
-                   : base_sptr(new objects::number( lua_tonumber( L, idx ) )) ;
+                  ? base_sptr(new objects::integer( lua_tointeger( vm_, idx ) ))
+                  : base_sptr(new objects::number( lua_tonumber( vm_, idx ) )) ;
             case LUA_TSTRING: {
                     size_t length = 0;
-                    const char *ptr = lua_tolstring( L, idx, &length );
+                    const char *ptr = lua_tolstring( vm_, idx, &length );
                     return base_sptr(new objects::string( ptr, length ));
                 }
             case LUA_TFUNCTION:
                 return base_sptr(
-                      new objects::function( lua_tocfunction( L, idx ) ));
+                    new objects::function( lua_tocfunction( vm_, idx ) ));
             case LUA_TTABLE:
-                return get_table( L, idx, flags );
+                return get_table( idx, flags );
             case LUA_TTHREAD:
                 return base_sptr(
-                      new objects::thread( L, lua_tothread( L, idx ) ));
+                    new objects::thread( vm_, lua_tothread( vm_, idx ) ));
 
         //    case LUA_TUSERDATA:
         //        return "userdata";
@@ -514,14 +511,19 @@ namespace lua {
             return rc;
         }
 
-        int exec_function( const char* func,
-                           const std::vector<objects::base_sptr> &bo )
+        void push_object_list( const std::vector<objects::base_sptr> &bo )
         {
             typedef std::vector<objects::base_sptr>::const_iterator citr;
-            lua_getglobal( vm_, func );
             for( citr b(bo.begin( )), e(bo.end( )); b!=e; ++b ) {
                 (*b)->push( vm_ );
             }
+        }
+
+        int exec_function( const char* func,
+                           const std::vector<objects::base_sptr> &bo )
+        {
+            lua_getglobal( vm_, func );
+            push_object_list( bo );
             int rc = lua_pcall( vm_, bo.size( ), LUA_MULTRET, 0 );
             return rc;
         }
@@ -536,6 +538,18 @@ namespace lua {
             return rc;
         }
 
+        template <typename P0>
+        int exec_function( const char* func, P0 p0,
+                           const std::vector<objects::base_sptr> &bo )
+        {
+
+            lua_getglobal( vm_, func );
+            push( p0 );
+            push_object_list( bo );
+            int rc = lua_pcall( vm_, 1 + bo.size( ), LUA_MULTRET, 0 );
+            return rc;
+        }
+
         template <typename P0, typename P1>
         int exec_function( const char* func, P0 p0, P1 p1 )
         {
@@ -543,6 +557,18 @@ namespace lua {
             push( p0 );
             push( p1 );
             int rc = lua_pcall( vm_, 2, LUA_MULTRET, 0 );
+            return rc;
+        }
+
+        template <typename P0, typename P1>
+        int exec_function( const char* func, P0 p0, P1 p1,
+                           const std::vector<objects::base_sptr> &bo )
+        {
+            lua_getglobal( vm_, func );
+            push( p0 );
+            push( p1 );
+            push_object_list( bo );
+            int rc = lua_pcall( vm_, 2 + bo.size( ), LUA_MULTRET, 0 );
             return rc;
         }
 
