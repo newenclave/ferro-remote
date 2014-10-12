@@ -29,10 +29,16 @@ namespace fr { namespace lua {
         int lcall_gpio_new( lua_State *L );
         int lcall_gpio_info( lua_State *L );
         int lcall_gpio_unexport( lua_State *L );
+
         int lcall_gpio_set_value( lua_State *L );
         int lcall_gpio_value( lua_State *L );
+
         int lcall_gpio_set_edge( lua_State *L );
         int lcall_gpio_edge( lua_State *L );
+
+        int lcall_gpio_reg_for_change( lua_State *L );
+        int lcall_gpio_unreg( lua_State *L );
+
         int lcall_gpio_close( lua_State *L );
 
         struct data;
@@ -241,6 +247,24 @@ namespace fr { namespace lua {
                 std::lock_guard<std::mutex> lck( i->devices_lock_ );
                 i->devices_.erase( dev );
             } while ( 0 );
+            return 0;
+        }
+
+        int lcall_gpio_reg_for_change( lua_State *L )
+        {
+            lua::state ls( L );
+            iface_sptr dev = get_gpio_dev( L );
+            ls.clean( );
+            ls.push<unsigned>( dev->edge( ) );
+
+        }
+
+        int lcall_gpio_unreg( lua_State *L )
+        {
+            lua::state ls( L );
+            iface_sptr dev = get_gpio_dev( L );
+            ls.clean( );
+            dev->unregister( );
             return 0;
         }
     }

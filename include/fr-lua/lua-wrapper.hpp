@@ -266,6 +266,66 @@ namespace lua {
             return p;
         }
 
+        objects::base_sptr get_table( lua_State *L, int idx = -1,
+                                      unsigned flags = 0 )
+        {
+            lua_pushvalue( L, idx );
+            lua_pushnil( L );
+
+            objects::table_sptr new_table( objects::new_table( ) );
+
+            while ( lua_next( L, -2 ) ) {
+                lua_pushvalue( L, -2 );
+                objects::pair_sptr new_pair
+                        ( objects::new_pair( get_object( L, -1, flags ),
+                                             get_object( L, -2, flags ) ) );
+                new_table->push_back( new_pair );
+                lua_pop( L, 2 );
+            }
+
+            lua_pop( L, 1 );
+            return new_table;
+        }
+
+        objects::base_sptr get_object( lua_State *L,
+                                       int idx = -1,
+                                       unsigned flags = 0 )
+        {
+
+            typedef objects::base_sptr base_sptr;
+
+            int t = lua_type( L, idx );
+            switch( t ) {
+            case LUA_TBOOLEAN:
+                return base_sptr(
+                      new objects::boolean( lua_toboolean( L, idx ) ));
+            case LUA_TLIGHTUSERDATA:
+                return base_sptr(
+                      new objects::light_userdata( lua_touserdata( L, idx ) ));
+            case LUA_TNUMBER:
+                return flags
+                   ? base_sptr(new objects::integer( lua_tointeger( L, idx ) ))
+                   : base_sptr(new objects::number( lua_tonumber( L, idx ) )) ;
+            case LUA_TSTRING: {
+                    size_t length = 0;
+                    const char *ptr = lua_tolstring( L, idx, &length );
+                    return base_sptr(new objects::string( ptr, length ));
+                }
+            case LUA_TFUNCTION:
+                return base_sptr(
+                      new objects::function( lua_tocfunction( L, idx ) ));
+            case LUA_TTABLE:
+                return get_table( L, idx, flags );
+            case LUA_TTHREAD:
+                return base_sptr(
+                      new objects::thread( L, lua_tothread( L, idx ) ));
+
+        //    case LUA_TUSERDATA:
+        //        return "userdata";
+            }
+            return base_sptr(new objects::nil);
+        }
+
     private:
 
         void get_global( const char *val )
@@ -448,10 +508,21 @@ namespace lua {
 
         int exec_function( const char* func, const objects::base &bo )
         {
-
             lua_getglobal( vm_, func );
             bo.push( vm_ );
             int rc = lua_pcall( vm_, 1, LUA_MULTRET, 0 );
+            return rc;
+        }
+
+        int exec_function( const char* func,
+                           const std::vector<objects::base_sptr> &bo )
+        {
+            typedef std::vector<objects::base_sptr>::const_iterator citr;
+            lua_getglobal( vm_, func );
+            for( citr b(bo.begin( )), e(bo.end( )); b!=e; ++b ) {
+                (*b)->push( vm_ );
+            }
+            int rc = lua_pcall( vm_, bo.size( ), LUA_MULTRET, 0 );
             return rc;
         }
 
