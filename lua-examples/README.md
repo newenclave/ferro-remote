@@ -8,7 +8,7 @@ fr = {
             system=function@0x532424
         },
         gpio = {
-            available = 0
+            available = false
         },
         fs = {
             iter_get=function@0x50c7da,
