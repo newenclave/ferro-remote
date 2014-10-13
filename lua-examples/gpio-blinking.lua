@@ -14,7 +14,7 @@ function main( argv ) --- main lua thread
 
     dev = gpio.export( tonumber( argv.gpio ), gpio.DIRECT_OUT )
 
-    i = 0
+    local i = 0
 
     local on_off = { 'OFF', 'ON' }
 
