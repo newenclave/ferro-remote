@@ -9,10 +9,10 @@ file = fr.client.fs.file
 
 function main( argv )
 
-    println( 'Pull file "', argv.src, '"', ' to "', argv.out, '"' )
+    print( 'Pull file "', argv.src, '"', ' to "', argv.out, '"...' )
 
-    f = file.open( argv.src, file.O_RDONLY ) -- remote file
-    out = io.open( argv.out, 'wb' )          -- local file
+    f = file.open( argv.src, file.flags( file.O_RDONLY ) )  -- remote file
+    out = io.open( argv.out, 'wb' )                         -- local file
 
     d = file.read( f, 44000 )
 
@@ -20,5 +20,5 @@ function main( argv )
         out:write( d )
         d = file.read( f, 44000 )
     end
-
+    println( 'success!' )
 end
