@@ -7,8 +7,8 @@
  =  PROFIT!
 --]]
 
-function handler( err, data, params ) -- other lua thread !
-    println( 'read from '..params.path, ' <- ', data ) --show this garbage
+function handler( err, data ) -- other lua thread !
+    println( 'read from /dev/random <- ', data ) --show this garbage
 end
 
 file = fr.client.fs.file
@@ -16,7 +16,7 @@ file = fr.client.fs.file
 function main( argv ) -- main lua thread
 
     f = file.open( "/dev/random", file.RDONLY )
-    file.register_for_events( f, "handler", { path = "/dev/random" } )
+    file.register_for_events( f, "handler" )
     while true do
         sleep( 1 )
         print( '.' ) --- some work! =)
