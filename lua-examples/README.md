@@ -46,12 +46,12 @@ fr = {
             iter_get    = function@0x50c7da,
             iter_end    = function@0x50c7da,
 
-            mkdir   = function@0x50b68c,
+            read    = function@0x50b85a,
             write   = function@0x50b9fd,
             close   = function@0x50b34c,
+            mkdir   = function@0x50b68c,
             del     = function@0x50b773,
             rename  = function@0x50b4ec,
-            read    = function@0x50b85a,
             info    = function@0x50bfdc,
             cd      = function@0x50b265,
             pwd     = function@0x50b193,
@@ -87,12 +87,12 @@ fr = {
                 SEEK_CUR = 1,
                 SEEK_END = 2,
 
+                read    = function@0x50d06a,
                 write   = function@0x50d22e,
                 flags   = function@0x50ca34,
                 seek    = function@0x50cdae,
                 open    = function@0x50caff,
                 flush   = function@0x50cfb3,
-                read    = function@0x50d06a,
                 tell    = function@0x50ceea,
 
                 register_for_events = function@0x50d422,
