@@ -1,5 +1,5 @@
 --[[
-%ferro_remote_client -s xx.xx.xx.xx:xxxx -clua -e show-main-argv.lua -p"gpio=id"
+%ferro_remote_client -s xx.xx.xx.xx:xxxx -clua -e script.lua -p"gpio=id"
 --]]
 
 gpio = fr.client.gpio
