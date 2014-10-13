@@ -1,5 +1,5 @@
 -- show main fr.* table
 
 function main( argv )
-    println( fr )
+    printiln( fr )
 end
