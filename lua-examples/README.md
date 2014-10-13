@@ -1,4 +1,4 @@
-```json
+```lua
 fr = {
     client = {
         core=0x7fffea704050,
