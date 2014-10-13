@@ -34,6 +34,7 @@ function show_directory( level, parent, subdir )
         path = fs.iter_next( iterator )
     end
 
+    fs.close( iterator ) -- ok ...
     fs.cd( parent ) -- revert directory
 end
 
