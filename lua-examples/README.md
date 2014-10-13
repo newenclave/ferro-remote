@@ -1,3 +1,4 @@
+## fr table
 ```lua
 fr = {
     client = {
