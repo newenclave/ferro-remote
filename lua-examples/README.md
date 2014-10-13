@@ -4,61 +4,96 @@ fr = {
     client = {
         core=0x7fffea704050,
         os = {
-            __i=0x1a926c0,
-            system=function@0x532424
+            system = function@0x532424 // int system( "command" )
         },
         gpio = {
-            available = false
+
+            available  = true, // true or false
+
+            EDGE_NONE    = 0,
+            EDGE_RISING  = 1,
+            EDGE_FALLING = 2,
+            EDGE_BOTH    = 3,
+
+            DIRECT_IN   = 0,
+            DIRECT_OUT  = 1,
+
+            export      =function@0x643eac, // device export( gpio_id [, DIRECT_IN or DIRECT_OUT] )
+            unexport    =function@0x644356, // void unexport( device )
+
+            direction       =function@0x6448a3, // returns direction (direction( device ))
+            set_direction   =function@0x6447a8,
+
+            value           =function@0x64451f
+            set_value       =function@0x644433,
+
+            edge            =function@0x6446e1,
+            set_edge        =function@0x6445e6,
+
+            register_for_change =function@0x644aa0,
+            unregister          =function@0x644e1d,
+
+            info  =function@0x64411b,
+
+            close =function@0x64496a, // close(device)
         },
         fs = {
-            iter_get=function@0x50c7da,
-            mkdir=function@0x50b68c,
-            write=function@0x50b9fd,
-            close=function@0x50b34c,
-            iter_end=function@0x50c7da,
-            iter_next=function@0x50c609,
-            del=function@0x50b773,
-            iter_begin=function@0x50c2f6,
-            rename=function@0x50b4ec,
-            read=function@0x50b85a,
-            info=function@0x50bfdc,
-            cd=function@0x50b265,
-            pwd=function@0x50b193,
+
+            iter_begin  =function@0x50c2f6,
+            iter_next   =function@0x50c609,
+            iter_get    =function@0x50c7da,
+            iter_end    =function@0x50c7da,
+
+            mkdir   =function@0x50b68c,
+            write   =function@0x50b9fd,
+            close   =function@0x50b34c,
+            del     =function@0x50b773,
+            rename  =function@0x50b4ec,
+            read    =function@0x50b85a,
+            info    =function@0x50bfdc,
+            cd      =function@0x50b265,
+            pwd     =function@0x50b193,
+
             file = {
-                unregister=function@0x50d79f,
-                RDONLY=0,
-                CREAT=64,
-                WRONLY=1,
-                IXUSR=64,
-                IROTH=4,
+
+                RDONLY   = 0,
+                WRONLY   = 1,
+                RDWR     = 2,
+                CREAT    = 64,
+                EXCL     = 128,
+                TRUNC    = 512,
+                APPEND   = 1024,
+                NONBLOCK = 2048,
+                ASYNC    = 8192,
+                SYNC     = 1052672,
+
+                IXOTH   = 1,
+                IWOTH   = 2,
+                IROTH   = 4,
+                IRWXO   = 7,
+                IXGRP   = 8
+                IWGRP   = 16,
+                IRGRP   = 32,
+                IRWXG   = 56,
+                IXUSR   = 64,
+                IWUSR   = 128,
+                IRUSR   = 256,
+                IRWXU   = 448,
+
+                SEEK_SET = 0,
+                SEEK_CUR = 1,
+                SEEK_END = 2,
+
                 write=function@0x50d22e,
-                IRUSR=256,
                 flags=function@0x50ca34,
                 seek=function@0x50cdae,
-                TRUNC=512,
-                ASYNC=8192,
-                SYNC=1052672,
-                SEEK_SET=0,
-                IRWXG=56,
                 register_for_events=function@0x50d422,
-                IWGRP=16,
-                NONBLOCK=2048,
-                SEEK_END=2,
-                IRGRP=32,
-                EXCL=128,
-                IWUSR=128,
-                IWOTH=2,
-                SEEK_CUR=1,
                 open=function@0x50caff,
                 flush=function@0x50cfb3,
-                RDWR=2,
                 read=function@0x50d06a,
-                IRWXO=7,
-                APPEND=1024,
                 tell=function@0x50ceea,
-                IXOTH=1,
-                IRWXU=448,
-                IXGRP=8
+                unregister=function@0x50d79f,
+
             },
             stat=function@0x50bb91,
             __i=0x1a927a0
