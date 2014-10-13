@@ -1,7 +1,7 @@
 -- show remote directory list
 
 --[[
-    %ferro_remote_client -s xx.xx.xx.xx:xxxx -clua -e show-main-argv.lua \
+    %ferro_remote_client -s xx.xx.xx.xx:xxxx -clua -e script.lua \
         -p"path=/remote/path"
 --]]
 
