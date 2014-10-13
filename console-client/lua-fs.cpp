@@ -577,11 +577,12 @@ namespace fr { namespace lua {
             file_sptr f( get_file( L, 1 ) );
 
             if( n > 1 ) {
-                pos = ls.get<lua_Integer>( 2 );
+                whence = ls.get<unsigned>( 2 );
             }
             if( n > 2 ) {
-                whence = ls.get<unsigned>( 3 );
+                pos = ls.get<lua_Integer>( 3 );
             }
+
             ls.pop( n );
 
             ls.push( f->seek( pos, from_unsigned( whence ) ) );
