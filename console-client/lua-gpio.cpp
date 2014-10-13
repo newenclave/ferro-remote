@@ -80,6 +80,9 @@ namespace fr { namespace lua {
                     t->add( new_string( names::inst_field ),
                             new_light_userdata( this ));
 
+                    t->add( new_string( "available" ),
+                            objects::new_boolean( true ) );
+
                     t->add( ADD_GPIO_VALUE( DIRECT_IN ) );
                     t->add( ADD_GPIO_VALUE( DIRECT_OUT ) );
 
@@ -118,6 +121,9 @@ namespace fr { namespace lua {
 
                     t->add( new_string( "unregister" ),
                             new_function( &lcall_gpio_unreg ) );
+                } else {
+                    t->add( objects::new_string( "available" ),
+                            objects::new_boolean( false ) );
                 }
 
                 return t;
