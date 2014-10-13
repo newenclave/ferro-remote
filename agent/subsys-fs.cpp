@@ -51,6 +51,7 @@ namespace fr { namespace agent { namespace subsys {
                 { proto::fs::open_file_values::NONBLOCK, O_NONBLOCK },
                 { proto::fs::open_file_values::ASYNC,    O_ASYNC    },
                 { proto::fs::open_file_values::SYNC,     O_SYNC     },
+                { proto::fs::open_file_values::TRUNC,    O_TRUNC    }
             };
 
             static

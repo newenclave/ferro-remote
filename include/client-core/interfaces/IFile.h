@@ -21,6 +21,7 @@ namespace interfaces { namespace file {
             ,RDWR        =       02
             ,CREAT       =     0100
             ,EXCL        =     0200
+            ,TRUNC       =    01000
             ,APPEND      =    02000
             ,NONBLOCK    =    04000
             ,ASYNC       =   020000

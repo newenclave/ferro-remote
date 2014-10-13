@@ -97,6 +97,7 @@ namespace fr { namespace lua {
                 f->add( ADD_FILE_TABLE_FLAG( NONBLOCK ) );
                 f->add( ADD_FILE_TABLE_FLAG( ASYNC ) );
                 f->add( ADD_FILE_TABLE_FLAG( SYNC ) );
+                f->add( ADD_FILE_TABLE_FLAG( TRUNC ) );
 
                 f->add( ADD_FILE_TABLE_MODE( IRWXU ) );
                 f->add( ADD_FILE_TABLE_MODE( IRUSR ) );
