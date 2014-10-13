@@ -97,6 +97,8 @@ namespace interfaces { namespace gpio {
                              unsigned value = 0 );
     iface_ptr create_input( core::client_core &cl, unsigned gpio_id );
 
+    bool available( core::client_core &cl );
+
 }}}}
 
 #endif // IGPIO_H

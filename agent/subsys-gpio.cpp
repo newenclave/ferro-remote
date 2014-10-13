@@ -144,6 +144,14 @@ namespace fr { namespace agent { namespace subsys {
                 }
             }
 
+            void ping(::google::protobuf::RpcController*  /* controller */,
+                         const ::fr::proto::gpio::empty*  /* request    */,
+                         ::fr::proto::gpio::empty*        /* response   */,
+                         ::google::protobuf::Closure* done) override
+            {
+                if( done ) done->Run( );
+            }
+
             void open(::google::protobuf::RpcController* /*controller*/,
                          const ::fr::proto::gpio::open_req* request,
                          ::fr::proto::gpio::open_res* response,

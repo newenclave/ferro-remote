@@ -11,6 +11,7 @@
 
 #include "vtrc-stdint.h"
 #include "vtrc-bind.h"
+#include "vtrc-memory.h"
 
 namespace fr { namespace client { namespace interfaces {
 
@@ -62,6 +63,13 @@ namespace fr { namespace client { namespace interfaces {
                 ,hdl_(open_instance( client_, id_ ))
             { }
 
+            gpio_impl( core::client_core &cl )
+                :core_(cl)
+                ,id_(0)
+                ,client_(core_.create_channel( ), true)
+                ,hdl_(0)
+            { }
+
             gpio_impl( core::client_core &cl, unsigned id,
                        gpio::direction_type dir, unsigned value )
                 :core_(cl)
@@ -76,10 +84,26 @@ namespace fr { namespace client { namespace interfaces {
                 hdl_ = open_setup_inst( client_, id_, setup );
             }
 
-            ~gpio_impl( )  {
-                try {
+            ~gpio_impl( ) {
+                if( hdl_ != 0 ) try {
                     close_impl( );
                 } catch( ... ) {  }
+            }
+
+            void close_impl( )
+            {
+                gproto::handle req;
+                req.set_value( hdl_ );
+                client_.call_request( &stub_type::close, &req );
+            }
+
+            bool available(  ) const
+            {
+                try {
+                    client_.call( &stub_type::ping );
+                    return true;
+                } catch( ... ) { }
+                return false;
             }
 
             unsigned id( ) const
@@ -243,13 +267,6 @@ namespace fr { namespace client { namespace interfaces {
                 unregister_impl( );
             }
 
-            void close_impl( )
-            {
-                gproto::handle req;
-                req.set_value( hdl_ );
-                client_.call_request( &stub_type::close, &req );
-            }
-
             gpio::info get_info( ) const
             {
                 gpio::info result;
@@ -291,6 +308,12 @@ namespace fr { namespace client { namespace interfaces {
         iface_ptr create_input( core::client_core &cl, unsigned gpio_id )
         {
             return new gpio_impl( cl, gpio_id, gpio::DIRECT_IN, 0 );
+        }
+
+        bool available( core::client_core &cl )
+        {
+            vtrc::unique_ptr<gpio_impl> i( new gpio_impl( cl ) );
+            return i->available( );
         }
     }
 

@@ -60,7 +60,9 @@ namespace fr { namespace lua {
 
             data( lua_State */*ls*/, client::core::client_core &cc )
                 :cc_(cc)
-            { }
+            {
+
+            }
 
 #define ADD_GPIO_VALUE( f ) \
     objects::new_string( #f ), objects::new_integer( interfaces::gpio::f )
@@ -69,51 +71,54 @@ namespace fr { namespace lua {
             {
                 objects::table_sptr t( objects::new_table( ) );
 
-                using objects::new_string;
-                using objects::new_function;
-                using objects::new_light_userdata;
+                if( interfaces::gpio::available( cc_ ) ) {
 
-                t->add( new_string( names::inst_field ),
-                        new_light_userdata( this ));
+                    using objects::new_string;
+                    using objects::new_function;
+                    using objects::new_light_userdata;
 
-                t->add( ADD_GPIO_VALUE( DIRECT_IN ) );
-                t->add( ADD_GPIO_VALUE( DIRECT_OUT ) );
+                    t->add( new_string( names::inst_field ),
+                            new_light_userdata( this ));
 
-                t->add( ADD_GPIO_VALUE( EDGE_NONE ) );
-                t->add( ADD_GPIO_VALUE( EDGE_RISING ) );
-                t->add( ADD_GPIO_VALUE( EDGE_FALLING ) );
-                t->add( ADD_GPIO_VALUE( EDGE_BOTH ) );
+                    t->add( ADD_GPIO_VALUE( DIRECT_IN ) );
+                    t->add( ADD_GPIO_VALUE( DIRECT_OUT ) );
 
-                t->add( new_string( "export" ),
-                        new_function( &lcall_gpio_export ) );
-                t->add( new_string( "info" ),
-                        new_function( &lcall_gpio_info ) );
+                    t->add( ADD_GPIO_VALUE( EDGE_NONE ) );
+                    t->add( ADD_GPIO_VALUE( EDGE_RISING ) );
+                    t->add( ADD_GPIO_VALUE( EDGE_FALLING ) );
+                    t->add( ADD_GPIO_VALUE( EDGE_BOTH ) );
 
-                t->add( new_string( "value" ),
-                        new_function( &lcall_gpio_value ) );
-                t->add( new_string( "set_value" ),
-                        new_function( &lcall_gpio_set_value ) );
+                    t->add( new_string( "export" ),
+                            new_function( &lcall_gpio_export ) );
+                    t->add( new_string( "info" ),
+                            new_function( &lcall_gpio_info ) );
 
-                t->add( new_string( "edge" ),
-                        new_function( &lcall_gpio_edge ) );
-                t->add( new_string( "set_edge" ),
-                        new_function( &lcall_gpio_set_edge ) );
+                    t->add( new_string( "value" ),
+                            new_function( &lcall_gpio_value ) );
+                    t->add( new_string( "set_value" ),
+                            new_function( &lcall_gpio_set_value ) );
 
-                t->add( new_string( "direction" ),
-                        new_function( &lcall_gpio_dir ) );
-                t->add( new_string( "set_direction" ),
-                        new_function( &lcall_gpio_set_dir ) );
+                    t->add( new_string( "edge" ),
+                            new_function( &lcall_gpio_edge ) );
+                    t->add( new_string( "set_edge" ),
+                            new_function( &lcall_gpio_set_edge ) );
 
-                t->add( new_string( "unexport" ),
-                        new_function( &lcall_gpio_unexport ) );
-                t->add( new_string( "close" ),
-                        new_function( &lcall_gpio_close ) );
+                    t->add( new_string( "direction" ),
+                            new_function( &lcall_gpio_dir ) );
+                    t->add( new_string( "set_direction" ),
+                            new_function( &lcall_gpio_set_dir ) );
 
-                t->add( new_string( "register_for_change" ),
-                        new_function( &lcall_gpio_reg_for_change ) );
+                    t->add( new_string( "unexport" ),
+                            new_function( &lcall_gpio_unexport ) );
+                    t->add( new_string( "close" ),
+                            new_function( &lcall_gpio_close ) );
 
-                t->add( new_string( "unregister" ),
-                        new_function( &lcall_gpio_unreg ) );
+                    t->add( new_string( "register_for_change" ),
+                            new_function( &lcall_gpio_reg_for_change ) );
+
+                    t->add( new_string( "unregister" ),
+                            new_function( &lcall_gpio_unreg ) );
+                }
 
                 return t;
             }
@@ -140,7 +145,6 @@ namespace fr { namespace lua {
             }
             return ni;
         }
-
 
         int lcall_gpio_export( lua_State *L )
         {

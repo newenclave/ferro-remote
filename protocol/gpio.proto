@@ -70,6 +70,8 @@ message register_res {
 
 service instance {
 
+    rpc ping( empty ) returns ( empty );
+
     rpc open  ( open_req )   returns ( open_res );
     rpc exp   ( export_req ) returns ( empty );  // unable to use 'export':(
     rpc setup ( setup_req )  returns ( empty );
