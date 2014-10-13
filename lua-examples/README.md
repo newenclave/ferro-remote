@@ -1,11 +1,13 @@
 ## fr table
 ```lua
 fr = {
+
     client = {
-        core=0x7fffea704050,
+
         os = {
             system = function@0x532424 // int system( "command" )
         },
+
         gpio = {
 
             available  = true, // true or false
