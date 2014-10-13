@@ -498,9 +498,9 @@ namespace fr { namespace agent { namespace subsys {
                 vtrc::uint32_t dhdl;
                 bfs::path p( path_from_request( &request->dst( ), dhdl ) );
 
-                vtrc::shared_ptr<file_iface> f(
-                            file::create( p.string( ), O_WRONLY | O_CREAT,
-                                                       S_IRUSR | S_IWUSR ) );
+                vtrc::shared_ptr<file_iface> f( file::create( p.string( ),
+                                                O_WRONLY | O_CREAT | O_TRUNC,
+                                                S_IRUSR | S_IWUSR ) );
                 size_t r = f->write( request->data( ).c_str( ), len );
             }
 
