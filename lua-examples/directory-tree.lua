@@ -7,7 +7,7 @@
 
 fs = fr.client.fs
 
-function show_subdir( level, parent, subdir )
+function show_directory( level, parent, subdir )
 
     local current_path = parent
 
@@ -21,12 +21,16 @@ function show_subdir( level, parent, subdir )
     while not fs.iter_end( iterator ) do
         info = fs.info( path )
         if info.is_directory then
-            name = '['..path..']'
-            show_subdir( level..'  ', current_path, path )
+
+            println( level..'['..path..']' )
+
+            if not info.is_empty then
+                show_directory( level..'  ', current_path, path )
+            end
+
         else
-            name = ' '..path
+            println( level..' '..path )
         end
-        println( level..name )
         path = fs.iter_next( iterator )
     end
 
@@ -36,6 +40,6 @@ end
 function main( argv )
     println( 'Show directory "', argv.path, '"')
     fs.cd( argv.path ) -- change our path
-    show_subdir( '', argv.path )
+    show_directory( '', argv.path )
 end
 
