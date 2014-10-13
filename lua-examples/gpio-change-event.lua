@@ -6,7 +6,7 @@ gpio = fr.client.gpio
 
 old_print = print -- base module imports own 'print' we don't want
 
-open( "base" ) -- for tonamber
+open( "base" ) -- for tonumber
 
 print = old_print -- restore our print
 

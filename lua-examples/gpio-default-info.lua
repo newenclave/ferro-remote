@@ -4,6 +4,8 @@
 
 gpio = fr.client.gpio
 
+open( "base" )
+
 if not gpio.available then
     die "GPIO is not available on the target system :("
 end
