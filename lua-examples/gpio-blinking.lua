@@ -4,11 +4,7 @@
 
 gpio = fr.client.gpio
 
-old_print = print -- base module imports own 'print' we don't want
-
 open( "base" ) -- for tonamber
-
-print = old_print -- restore our print
 
 if not gpio.available then
     die "GPIO is not available on the target system :("
