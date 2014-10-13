@@ -1,10 +1,10 @@
 --[[
- = open remote /dev/random
- = subscribe to events
- = do some work
- = receive events asynchronously
- = ....
- = PROFIT!
+ =  open remote /dev/random
+ =  subscribe to events
+ =  do some work
+ =  receive events asynchronously
+ =  ....
+ =  PROFIT!
 --]]
 
 function handler( err, data, params )
@@ -18,6 +18,6 @@ function main( argv  )
     file.register_for_events( f, "handler", { path = "/dev/random" } )
     while true do
         sleep( 1 )
-        print( '.' ) --- some work!
+        print( '.' ) --- some work! =)
     end
 end
