@@ -11,8 +11,8 @@ function main( argv )
 
     print( 'Pull file "', argv.src, '"', ' to "', argv.out, '"...' )
 
-    f = file.open( argv.src, file.flags( file.O_RDONLY ) )  -- remote file
-    out = io.open( argv.out, 'wb' )                         -- local file
+    f = file.open( argv.src, file.flags( file.RDONLY ) )  -- remote file
+    out = io.open( argv.out, 'wb' )                       -- local file
 
     d = file.read( f, 44000 )
 
