@@ -51,6 +51,18 @@ namespace interfaces { namespace file {
         ,POS_SEEK_END = 2
     };
 
+    static
+    inline seek_whence whence_value2enum( unsigned value )
+    {
+        switch ( value ) {
+        case file::POS_SEEK_CUR:
+        case file::POS_SEEK_SET:
+        case file::POS_SEEK_END:
+            return static_cast<seek_whence>(value);
+        }
+        return file::POS_SEEK_SET;
+    }
+
     typedef vtrc::function<
             void (unsigned, const std::string &)
     > file_event_callback;

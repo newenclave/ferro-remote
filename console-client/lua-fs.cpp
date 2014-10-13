@@ -561,22 +561,14 @@ namespace fr { namespace lua {
 
         file::seek_whence from_unsigned( unsigned v )
         {
-            switch ( v ) {
-            case file::POS_SEEK_CUR:
-                return file::POS_SEEK_CUR;
-            case file::POS_SEEK_SET:
-                return file::POS_SEEK_SET;
-            case file::POS_SEEK_END:
-                return file::POS_SEEK_END;
-            }
-            return file::POS_SEEK_SET;
-
+            return file::whence_value2enum( v );
         }
 
         int lcall_fs_file_seek(  lua_State *L )
         {
             lua::state ls(L);
-            unsigned whence = 0;
+
+            unsigned whence = file::POS_SEEK_SET;
             lua_Integer pos = 0;
 
             int n = ls.get_top( );
@@ -584,10 +576,10 @@ namespace fr { namespace lua {
             file_sptr f( get_file( L, 1 ) );
 
             if( n > 1 ) {
-                whence = ls.get<unsigned>( 2 );
+                pos = ls.get<lua_Integer>( 2 );
             }
             if( n > 2 ) {
-                pos = ls.get<lua_Integer>( 3 );
+                whence = ls.get<unsigned>( 3 );
             }
             ls.pop( n );
 
