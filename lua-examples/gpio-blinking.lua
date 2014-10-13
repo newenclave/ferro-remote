@@ -16,12 +16,10 @@ function main( argv ) --- main lua thread
 
     i = 0
 
+    local on_off = { 'OFF', 'ON' }
+
     while true do  --- do work
-        if 0 == i % 2 then
-            println( 'OFF' )
-        else
-            println( 'ON' )
-        end
+        println( on_off[(i % 2) + 1]  )
         gpio.set_value( dev, i % 2 )
         sleep( 1 )
         i = i + 1
