@@ -113,6 +113,11 @@ namespace interfaces { namespace filesystem {
         virtual directory_iterator begin( ) const = 0;
         virtual directory_iterator end( ) const = 0;
 
+        virtual size_t read_file( const std::string &path,
+                                  void *data, size_t max ) const = 0;
+        virtual void  write_file( const std::string &path,
+                                  const void *data, size_t max ) const = 0;
+
     };
 
     typedef iface* iface_ptr;

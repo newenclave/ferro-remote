@@ -54,6 +54,20 @@ message rename_req {
     optional handle_path  dst = 2;
 }
 
+message read_file_req {
+    optional handle_path  dst = 1;
+    optional uint32       len = 2;
+}
+
+message read_file_res {
+    optional bytes data = 1;
+}
+
+message write_file_req {
+    optional handle_path  dst  = 1;
+    optional bytes        data = 2;
+}
+
 service instance {
 
     // open instance
@@ -94,6 +108,11 @@ service instance {
 
     // close instance or iterator;
     rpc close( handle ) returns ( empty );
+
+    /// read and write file fast
+
+    rpc read_file( read_file_req )   returns( read_file_res );
+    rpc write_file( write_file_req ) returns( empty );
 
 }
 

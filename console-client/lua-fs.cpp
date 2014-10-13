@@ -45,6 +45,9 @@ namespace fr { namespace lua {
         int lcall_fs_info(   lua_State *L );
         int lcall_fs_close(  lua_State *L );
 
+        int lcall_fs_read_file(   lua_State *L );
+        int lcall_fs_write_file(  lua_State *L );
+
         int lcall_fs_iter_begin( lua_State *L );
         int lcall_fs_iter_next(  lua_State *L );
         int lcall_fs_iter_get(   lua_State *L );
@@ -164,6 +167,13 @@ namespace fr { namespace lua {
                            objects::new_function( &lcall_fs_rename ))
                     ->add( objects::new_string( "close" ),
                            objects::new_function( &lcall_fs_close ))
+
+                    /* ======= read and write file withot object ======= */
+                    ->add( objects::new_string( "read" ),
+                           objects::new_function( &lcall_fs_read_file ))
+                    ->add( objects::new_string( "write" ),
+                           objects::new_function( &lcall_fs_write_file ))
+
                     /* ==== iterators ==== */
                     ->add( objects::new_string( "iter_begin" ),
                            objects::new_function( &lcall_fs_iter_begin ))
@@ -275,6 +285,45 @@ namespace fr { namespace lua {
             return 0;
         }
 
+        int lcall_fs_read_file( lua_State *L )
+        {
+            lua::state ls(L);
+            int params = ls.get_top( );
+            std::string result;
+            if( params ) {
+                data *i = get_iface( L );
+                std::string path( ls.get<std::string>( 1 ) );
+                unsigned max = 44000;
+                if( params > 1 ) {
+                    max = ls.get<unsigned>( 2 );
+                }
+                ls.pop( params );
+                if( max != 0 ) {
+                    result.resize( max );
+                    size_t len = i->iface_->read_file( path, &result[0], max );
+                    result.resize( len );
+                }
+            }
+            ls.push( result );
+            return 1;
+        }
+
+        int lcall_fs_write_file(  lua_State *L )
+        {
+            lua::state ls(L);
+            int params = ls.get_top( );
+            if( params ) {
+                data *i = get_iface( L );
+                std::string path( ls.get<std::string>( 1 ) );
+                std::string data;
+                if( params > 1 ) {
+                    data = ls.get<std::string>( 2 );
+                }
+                ls.pop( params );
+                i->iface_->write_file( path, data.c_str( ), data.size( ) );
+            }
+            return 0;
+        }
 
 #define ADD_TABLE_STAT_FIELD( sd, name ) \
     objects::new_string( #name ), objects::new_integer( sd.name )

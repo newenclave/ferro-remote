@@ -463,6 +463,47 @@ namespace fr { namespace agent { namespace subsys {
                 }
             }
 
+            void read_file(::google::protobuf::RpcController* /*controller*/,
+                         const ::fr::proto::fs::read_file_req* request,
+                         ::fr::proto::fs::read_file_res* response,
+                         ::google::protobuf::Closure* done) override
+            {
+                vcomm::closure_holder holder(done);
+                size_t len = request->len( ) > 44000 ? 44000 : request->len( );
+                if( 0 == len ) {
+                    return;
+                }
+
+                vtrc::uint32_t dhdl;
+                bfs::path p( path_from_request( &request->dst( ), dhdl ) );
+
+                std::vector<char> data(len);
+
+                vtrc::shared_ptr<file_iface> f( file::create(
+                                                   p.string( ), O_RDONLY ) );
+                size_t r = f->read( &data[0], len );
+                response->set_data( &data[0], r );
+            }
+
+            void write_file(::google::protobuf::RpcController*  /*controller*/,
+                         const ::fr::proto::fs::write_file_req* request,
+                         ::fr::proto::fs::empty*                /*response*/,
+                         ::google::protobuf::Closure* done) override
+            {
+                vcomm::closure_holder holder(done);
+                size_t len = request->data( ).size( ) > 44000
+                           ? 44000
+                           : request->data( ).size( );
+
+                vtrc::uint32_t dhdl;
+                bfs::path p( path_from_request( &request->dst( ), dhdl ) );
+
+                vtrc::shared_ptr<file_iface> f(
+                            file::create( p.string( ), O_WRONLY | O_CREAT,
+                                                       S_IRUSR | S_IWUSR ) );
+                size_t r = f->write( request->data( ).c_str( ), len );
+            }
+
         public:
             proto_fs_impl( fr::agent::application * /*app*/,
                            vcomm::connection_iface_wptr /*cl*/ )
