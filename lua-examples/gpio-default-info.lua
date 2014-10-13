@@ -4,8 +4,6 @@
 
 gpio = fr.client.gpio
 
-open( "base" ) -- for tonumber
-
 if not gpio.available then
     die "GPIO is not available on the target system :("
 end
