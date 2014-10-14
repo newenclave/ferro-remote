@@ -115,7 +115,7 @@ namespace lua { namespace objects {
 
         std::string str( ) const
         {
-            static const char * vals[2] = { "0", "1" };
+            static const char * vals[2] = { "false", "true" };
             return vals[value_ ? 1 : 0];
         }
 
