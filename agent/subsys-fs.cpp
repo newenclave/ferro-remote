@@ -255,10 +255,12 @@ namespace fr { namespace agent { namespace subsys {
                     bool is_dir = bfs::is_directory( p );
                     response->set_is_symlink( bfs::is_symlink( p ) );
                     response->set_is_directory( is_dir );
-                    if( is_dir )
+                    response->set_is_empty( true );
+
+                    if( is_dir ) try {
                         response->set_is_empty( bfs::is_empty( p ) );
-                    else
-                        response->set_is_empty(true);
+                    } catch( ... ) { ;;; }
+
                     response->set_is_regular( bfs::is_regular_file( p ) );
                 }
             }
