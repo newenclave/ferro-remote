@@ -8,6 +8,9 @@
 fs = fr.client.fs
 
 function main( argv )
+
+    println( fr )
+
     println( 'Show directory "', argv.path, '"')
 
     fs.cd( argv.path ) -- change our path
@@ -15,8 +18,12 @@ function main( argv )
     path, iterator = fs.iter_begin( )
 
     while not fs.iter_end( iterator ) do
+
         info = fs.info( path )
-        if info.is_directory then
+
+        if info.failed then
+            name = '?'..path..'?'
+        elseif info.is_directory then
             name = '['..path..']'
         else
             name = ' '..path

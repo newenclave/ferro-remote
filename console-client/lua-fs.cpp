@@ -78,6 +78,9 @@ namespace fr { namespace lua {
                 :iface_( client::interfaces::filesystem::create( cc, "" ) )
             { }
 
+            ~data( )
+            { }
+
 #define ADD_FILE_TABLE_FLAG( f ) \
     objects::new_string( #f ), objects::new_integer( file::flags::f )
 
@@ -179,7 +182,7 @@ namespace fr { namespace lua {
                     ->add( objects::new_string( "iter_begin" ),
                            objects::new_function( &lcall_fs_iter_begin ))
                     ->add( objects::new_string( "iter_get" ),
-                           objects::new_function( &lcall_fs_iter_end ))
+                           objects::new_function( &lcall_fs_iter_get ))
                     ->add( objects::new_string( "iter_next" ),
                            objects::new_function( &lcall_fs_iter_next ))
                     ->add( objects::new_string( "iter_end" ),
@@ -383,11 +386,14 @@ namespace fr { namespace lua {
                 try {
                     i->iface_->info( path, id );
                     t->add( ADD_TABLE_INFO_FIELD( id, is_exist ) );
-                    t->add( ADD_TABLE_INFO_FIELD( id, is_directory ) );
-                    t->add( ADD_TABLE_INFO_FIELD( id, is_empty ) );
-                    t->add( ADD_TABLE_INFO_FIELD( id, is_regular ) );
-                    t->add( ADD_TABLE_INFO_FIELD( id, is_symlink ) );
-
+                    if( id.is_exist ) {
+                        t->add( ADD_TABLE_INFO_FIELD( id, is_directory ) );
+                        if( id.is_directory ) {
+                            t->add( ADD_TABLE_INFO_FIELD( id, is_empty ) );
+                        }
+                        t->add( ADD_TABLE_INFO_FIELD( id, is_regular ) );
+                        t->add( ADD_TABLE_INFO_FIELD( id, is_symlink ) );
+                    }
                 } catch( ... ) {
                    t->add( objects::new_string( "failed" ),
                            objects::new_boolean( true ) );
@@ -414,13 +420,24 @@ namespace fr { namespace lua {
 
         int lcall_fs_iter_begin( lua_State *L )
         {
+            lua::state ls(L);
             data *i = get_iface( L );
-            fsiterator_sptr ni(i->iface_->begin_iterate( ));
+            int n = ls.get_top( );
+            fsiterator_sptr ni;
+
+            if( n > 0 ) {
+                std::string path( ls.get<std::string>( 1 ) );
+                ni.reset( i->iface_->begin_iterate( path ) );
+                ls.clean_stack( );
+            } else {
+                ni.reset( i->iface_->begin_iterate( ) );
+            }
+
             {
                 std::lock_guard<std::mutex> lck(i->iterators_lock_);
                 i->iterators_.insert( std::make_pair(ni.get( ), ni) );
             }
-            lua::state ls(L);
+
             ls.push( path_leaf(ni->get( ).path.c_str( )) );
             ls.push( reinterpret_cast<void *>( ni.get( )) );
             return 2;
@@ -459,7 +476,7 @@ namespace fr { namespace lua {
             return 0;
         }
 
-        int lcall_fs_iter_get(   lua_State *L )
+        int lcall_fs_iter_get( lua_State *L )
         {
             lua::state ls(L);
             fsiterator_sptr ni( get_iterator( L ) );
@@ -545,7 +562,7 @@ namespace fr { namespace lua {
 
             ls.pop( n );
             data *i = get_iface( L );
-            client::core::client_core *cc = lua::get_core( L );
+            client::core::client_core *cc = lua::get_core( L )->core_;
             try {
                 file_sptr f(file::create( *cc, path, flags, mode ));
 

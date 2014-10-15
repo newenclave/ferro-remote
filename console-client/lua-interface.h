@@ -5,6 +5,9 @@
 
 #if FR_WITH_LUA
 
+#include <map>
+#include <string>
+
 #define LUA_WRAPPER_TOP_NAMESPACE fr
 #include "fr-lua/lua-wrapper.hpp"
 #include "fr-lua/lua-objects.hpp"
@@ -25,16 +28,18 @@ namespace fr { namespace lua {
         static const char * inst_field       = "__i";
     }
 
+    struct core_data;
+
     inline
-    static client::core::client_core *get_core( lua_State *L )
+    static core_data *get_core( lua_State *L )
     {
         lua::state lv( L );
         void *p = lv.get<void *>( names::core_path );
-        return reinterpret_cast<client::core::client_core *>( p );
+        return reinterpret_cast<core_data *>( p );
     }
 
     inline
-    static void set_core( lua_State *L, client::core::client_core *cc )
+    static void set_core( lua_State *L, core_data *cc )
     {
         lua::state lv( L );
         lv.set( names::core_path, reinterpret_cast<void *>( cc ) );
@@ -64,6 +69,15 @@ namespace fr { namespace lua {
     };
 
     typedef std::shared_ptr<base_data> data_sptr;
+
+    struct core_data {
+
+        typedef std::map<std::string, data_sptr> table_map;
+
+        client::core::client_core  *core_;
+        table_map                   tables_;
+    };
+
 
 #define FR_DEFINE_NAMESPACE_FOR_LUA( ns )                               \
     namespace ns {                                                      \
