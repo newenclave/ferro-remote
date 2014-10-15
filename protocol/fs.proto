@@ -100,6 +100,9 @@ service instance {
     // del fs element
     rpc del( handle_path )         returns ( handle_path );
 
+    // del fs element or fs tree
+    rpc delall( handle_path )      returns ( handle_path );
+
     // iterate directory
     rpc iter_begin(  handle_path  ) returns( iterator_info );
     rpc iter_next ( iterator_info ) returns( iterator_info );

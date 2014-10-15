@@ -346,6 +346,18 @@ namespace fr { namespace agent { namespace subsys {
                 response->mutable_hdl( )->set_value( hdl );
             }
 
+            void delall(::google::protobuf::RpcController* /*controller*/,
+                         const ::fr::proto::fs::handle_path* request,
+                         ::fr::proto::fs::handle_path* response,
+                         ::google::protobuf::Closure* done) override
+            {
+                vcomm::closure_holder holder(done);
+                vtrc::uint32_t hdl = 0;
+                bfs::path p(path_from_request( request, hdl ));
+                bfs::remove_all( p );
+                response->mutable_hdl( )->set_value( hdl );
+            }
+
             void fill_iter_info( const bfs::directory_iterator &iter,
                                  vtrc::uint32_t hdl,
                                  proto::fs::iterator_info* response)
