@@ -16,8 +16,7 @@ function main( argv )
 
     err, res = client.connect( argv.server )
 
-    local yes_no = { [false] = "failed! ", [true] = "success!\n" }
-    print( yes_no[res] )
+    print( ({ [false] = "failed! ", [true] = "success!\n" })[res] )
 
     if not res then
         println( err )
