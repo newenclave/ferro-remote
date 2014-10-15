@@ -143,8 +143,8 @@ namespace fr { namespace cc { namespace cmd {
 
         int global_connect( lua_State *L )
         {
-            core::client_core *core = lua::get_core( L );
             lua::state ls( L );
+            core::client_core *core = lua::get_core( L );
             std::string server = ls.get<std::string>( );
             ls.clean_stack( );
             try {
@@ -167,8 +167,11 @@ namespace fr { namespace cc { namespace cmd {
 
         int global_disconnect( lua_State *L )
         {
+            lua::state ls( L );
             core::client_core *core = lua::get_core( L );
             core->disconnect( );
+            ls.set( lua::names::client_table ); // set to nil
+            set_connect( L, *core );
             return 0;
         }
 
