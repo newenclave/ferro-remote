@@ -43,7 +43,7 @@ namespace fr { namespace cc { namespace cmd {
 
         void general_init( lua_State *L, const std::string &server,
                            core::client_core &cl );
-        void set_connect(lua_State *L, core::client_core &cl );
+        void set_client_info(lua_State *L, core::client_core &cl );
 
         int global_print_impl( lua_State *L, bool as_integer )
         {
@@ -147,22 +147,21 @@ namespace fr { namespace cc { namespace cmd {
             core::client_core *core = lua::get_core( L );
             std::string server = ls.get<std::string>( );
             ls.clean_stack( );
+            int result = 1;
             try {
-
                 core->disconnect( );
-                core->connect( server );
-
                 ls.set( lua::names::client_table ); // set to nil
+                core->connect( server );
                 general_init( L, server, *core );
-                set_connect( L, *core );
-
             } catch( const std::exception &ex ) {
                 ls.push( false );
                 ls.push( ex.what( ) );
-                return 2;
+                result = 2;
             }
+
+            set_client_info( L, *core );
             ls.push( true );
-            return 1;
+            return result;
         }
 
         int global_disconnect( lua_State *L )
@@ -171,7 +170,7 @@ namespace fr { namespace cc { namespace cmd {
             core::client_core *core = lua::get_core( L );
             core->disconnect( );
             ls.set( lua::names::client_table ); // set to nil
-            set_connect( L, *core );
+            set_client_info( L, *core );
             return 0;
         }
 
@@ -229,7 +228,7 @@ namespace fr { namespace cc { namespace cmd {
             ls.register_call( "sleep",    &global_sleep );
         }
 
-        void set_connect( lua_State *L, core::client_core &cl )
+        void set_client_info( lua_State *L, core::client_core &cl )
         {
             lua_state ls( L );
             lua::set_core( L, &cl );
@@ -296,7 +295,7 @@ namespace fr { namespace cc { namespace cmd {
                     general_init( ls.get_state( ), server, cl );
                 }
 
-                set_connect( ls.get_state( ), cl );
+                set_client_info( ls.get_state( ), cl );
                 std::string main_function("main");
 
                 if( vm.count( "main" ) )  {

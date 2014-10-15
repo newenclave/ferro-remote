@@ -6,11 +6,21 @@
 client = fr.client
 
 function main( argv )
-    println( 'Main table before\n========\n', fr, '\n========' )
+
+    if client.server then
+        println( 'CLIENT IS ALREADY CONNECTED TO '..client.server )
+    end
+
+    println( 'Main table before: \n========\n', fr, '\n========' )
     print( 'Trying connect to '..argv.server..'..' )
+
     client.connect( argv.server )
+
     println( 'success!' )
-    println( 'Main table after\n========\n', fr, '\n========' )
+    println( 'Main table after connect:\n>>>>>>>>\n', fr, '\n>>>>>>>>' )
+
     client.disconnect( )
-    println( 'Main table again\n========\n', fr, '\n========' )
+
+    println( 'Main table after disconnect:\n<<<<<<<<\n', fr, '\n<<<<<<<<' )
+
 end
