@@ -2,6 +2,6 @@
 
 function main( argv )
     println( 'GPIO is '..({ [false] = "not ",
-                            [true] = ""
+                            [true]  = ""
                          }) [fr.client.gpio.available].."available" )
 end
