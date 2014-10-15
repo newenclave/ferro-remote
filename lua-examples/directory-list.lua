@@ -9,8 +9,6 @@ fs = fr.client.fs
 
 function main( argv )
 
-    println( fr )
-
     println( 'Show directory "', argv.path, '"')
 
     fs.cd( argv.path ) -- change our path
