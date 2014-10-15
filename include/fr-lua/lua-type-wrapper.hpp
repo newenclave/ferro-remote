@@ -173,6 +173,10 @@ namespace lua { namespace types {
     template <>
     struct id_traits<lua_Integer> : public
            id_integer<lua_Integer> { };
+
+    template <>
+    struct id_traits<lua_Unsigned> : public
+           id_integer<lua_Unsigned> { };
 #endif
 
     template <>

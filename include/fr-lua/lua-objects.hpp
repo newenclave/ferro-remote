@@ -34,6 +34,9 @@ namespace lua { namespace objects {
             ,TYPE_LOCAL_INDEX   = 1000
             ,TYPE_PAIR          = TYPE_LOCAL_INDEX + 1
             ,TYPE_INTEGER       = TYPE_LOCAL_INDEX + 2
+#if LUA_VERSION_NUM >=503
+            ,TYPE_UINTEGER      = TYPE_LOCAL_INDEX + 2
+#endif
         };
 
         virtual ~base( ) { }
@@ -260,6 +263,46 @@ namespace lua { namespace objects {
         }
 
     };
+
+#if LUA_VERSION_NUM >=503
+    class uinteger: public base {
+
+        lua_Unsigned num_;
+
+    public:
+
+        explicit uinteger( lua_Unsigned num )
+            :num_(num)
+        { }
+
+        virtual int type_id( ) const
+        {
+            return base::TYPE_UINTEGER;
+        }
+
+        virtual base *clone( ) const
+        {
+            return new integer( num_ );
+        }
+
+        void push( lua_State *L ) const
+        {
+            lua_pushinteger( L, num_ );
+        }
+
+        std::string str( ) const
+        {
+            std::ostringstream oss;
+            oss << num_;
+            return oss.str( );
+        }
+
+        lua_Number num( ) const
+        {
+            return static_cast<lua_Number>( num_ );
+        }
+    };
+#endif
 
     class string: public base {
 
