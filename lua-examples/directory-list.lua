@@ -15,6 +15,8 @@ function main( argv )
 
     path, iterator = fs.iter_begin( )
 
+    local empty_or_not = { [false]='+', [true] = ' ' }
+
     while not fs.iter_end( iterator ) do
 
         info = fs.info( path )
@@ -22,9 +24,9 @@ function main( argv )
         if info.failed then
             name = '?'..path..'?'
         elseif info.is_directory then
-            name = '['..path..']'
+            name = empty_or_not[info.is_empty]..'['..path..']'
         else
-            name = ' '..path
+            name = '  '..path
         end
         println( '  '..name )
         path = fs.iter_next( iterator )
