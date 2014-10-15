@@ -98,7 +98,7 @@ int main( int argc, const char **argv )
 
         unsigned io_size = vm.count( "io-pool-size" )
                 ? vm["io-pool-size"].as<unsigned>( )
-                : ( use_only_pool ? 0 : 1 );
+                : 0;
 
         unsigned rpc_size = vm.count( "rpc-pool-size" )
                 ? vm["rpc-pool-size"].as<unsigned>( )
