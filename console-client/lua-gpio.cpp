@@ -26,19 +26,19 @@ namespace fr { namespace lua {
                 + '.'
                 + gpio::table_name;
 
-        int lcall_gpio_export( lua_State *L );
-        int lcall_gpio_info( lua_State *L );
+        int lcall_gpio_export(   lua_State *L );
+        int lcall_gpio_info(     lua_State *L );
         int lcall_gpio_unexport( lua_State *L );
 
         int lcall_gpio_set_value( lua_State *L );
-        int lcall_gpio_value( lua_State *L );
+        int lcall_gpio_value(     lua_State *L );
 
         int lcall_gpio_test_edge( lua_State *L );
-        int lcall_gpio_set_edge( lua_State *L );
-        int lcall_gpio_edge( lua_State *L );
+        int lcall_gpio_set_edge(  lua_State *L );
+        int lcall_gpio_edge(      lua_State *L );
 
         int lcall_gpio_set_dir( lua_State *L );
-        int lcall_gpio_dir( lua_State *L );
+        int lcall_gpio_dir(     lua_State *L );
 
         int lcall_gpio_reg_for_change( lua_State *L );
         int lcall_gpio_unreg( lua_State *L );
