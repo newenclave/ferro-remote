@@ -169,6 +169,12 @@ namespace lua { namespace types {
     struct id_traits<unsigned long> : public
            id_integer<unsigned long> { };
 
+#if LUA_VERSION_NUM >= 503
+    template <>
+    struct id_traits<lua_Integer> : public
+           id_integer<lua_Integer> { };
+#endif
+
     template <>
     struct id_traits<signed short> : public
            id_integer<signed short> { };
