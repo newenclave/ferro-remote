@@ -86,7 +86,6 @@ namespace fr { namespace lua {
                     t->add( new_string( names::inst_field ),
                             new_light_userdata( this ));
 
-
                     t->add( ADD_GPIO_VALUE( DIRECT_IN ) );
                     t->add( ADD_GPIO_VALUE( DIRECT_OUT ) );
 
