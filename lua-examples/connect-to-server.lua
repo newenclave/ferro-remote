@@ -14,13 +14,17 @@ function main( argv )
     println( 'Main table before: \n========\n', fr, '\n========' )
     print( 'Trying connect to '..argv.server..'..' )
 
-    client.connect( argv.server )
+    err, res = client.connect( argv.server )
 
-    println( 'success!' )
-    println( 'Main table after connect:\n>>>>>>>>\n', fr, '\n>>>>>>>>' )
+    local yes_no = { [false] = "failed! ", [true] = "success!\n" }
+    print( yes_no[res] )
 
-    client.disconnect( )
-
-    println( 'Main table after disconnect:\n<<<<<<<<\n', fr, '\n<<<<<<<<' )
+    if not res then
+        println( err )
+    else
+        println( 'Main table after connect:\n>>>>>>>>\n', fr, '\n>>>>>>>>' )
+        client.disconnect( )
+        println( 'Main table after disconnect:\n<<<<<<<<\n', fr, '\n<<<<<<<<' )
+    end
 
 end

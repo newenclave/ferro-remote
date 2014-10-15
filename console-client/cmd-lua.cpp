@@ -147,21 +147,24 @@ namespace fr { namespace cc { namespace cmd {
             core::client_core *core = lua::get_core( L );
             std::string server = ls.get<std::string>( );
             ls.clean_stack( );
-            int result = 1;
+            bool success = true;
+
             try {
                 core->disconnect( );
                 ls.set( lua::names::client_table ); // set to nil
                 core->connect( server );
                 general_init( L, server, *core );
             } catch( const std::exception &ex ) {
-                ls.push( false );
                 ls.push( ex.what( ) );
-                result = 2;
+                ls.push( false );
+                success = false;
             }
-
             set_client_info( L, *core );
-            ls.push( true );
-            return result;
+            if( success ) {
+                ls.push( );
+                ls.push( true );
+            }
+            return 2;
         }
 
         int global_disconnect( lua_State *L )
