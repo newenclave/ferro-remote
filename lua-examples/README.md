@@ -29,6 +29,7 @@ fr = {
             value           = function@0x64451f
             set_value       = function@0x644433,
 
+            edge_supported  = function@0x6446d0,
             edge            = function@0x6446e1,
             set_edge        = function@0x6445e6,
 
