@@ -156,14 +156,13 @@ namespace fr { namespace cc { namespace cmd {
                 general_init( L, server, *core );
             } catch( const std::exception &ex ) {
                 ls.push( ex.what( ) );
-                ls.push( false );
                 success = false;
             }
             set_client_info( L, *core );
             if( success ) {
                 ls.push( );
-                ls.push( true );
             }
+            ls.push( success );
             return 2;
         }
 
