@@ -3,7 +3,6 @@
 
 #include <string>
 #include "vtrc-function.h"
-#include "vtrc-stdint.h"
 
 namespace fr { namespace client {
 
