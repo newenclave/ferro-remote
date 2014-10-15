@@ -290,6 +290,13 @@ namespace filesystem {
                 client_.call_request( &stub_type::del, &req );
             }
 
+            void remove_all( const std::string &path )  const
+            {
+                fproto::handle_path   req;
+                fill_request( req, path );
+                client_.call_request( &stub_type::remove_all, &req );
+            }
+
             filesystem::directory_iterator_impl *begin_iterate( ) const override
             {
                 fproto::handle_path     req;

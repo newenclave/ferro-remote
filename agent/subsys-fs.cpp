@@ -346,7 +346,7 @@ namespace fr { namespace agent { namespace subsys {
                 response->mutable_hdl( )->set_value( hdl );
             }
 
-            void delall(::google::protobuf::RpcController* /*controller*/,
+            void remove_all(::google::protobuf::RpcController* /*controller*/,
                          const ::fr::proto::fs::handle_path* request,
                          ::fr::proto::fs::handle_path* response,
                          ::google::protobuf::Closure* done) override
