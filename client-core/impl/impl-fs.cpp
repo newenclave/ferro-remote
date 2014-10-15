@@ -297,6 +297,20 @@ namespace filesystem {
                 client_.call_request( &stub_type::remove_all, &req );
             }
 
+            filesystem::directory_iterator_impl *begin_iterate(
+                                        const std::string &path ) const override
+            {
+                fproto::handle_path     req;
+                fproto::iterator_info   res;
+                req.mutable_hdl( )->set_value( hdl_ );
+                req.set_path( path );
+
+                client_.call( &stub_type::iter_begin, &req, &res );
+
+                return new dir_iter_impl( channel_, res );
+            }
+
+
             filesystem::directory_iterator_impl *begin_iterate( ) const override
             {
                 fproto::handle_path     req;
