@@ -4,6 +4,10 @@ fr = {
 
     client = {
 
+        connect     = function@0x53a553
+        disconnect  = function@0x53a6e3,
+        server      = "xxx.xxx.xxx.xxx:xxxxx" // if connected else nil
+
         os = {
             system = function@0x532424 // int system( "command" )
         },
