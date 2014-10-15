@@ -11,7 +11,7 @@ open( "base" ) -- for tonumber
 print = old_print -- restore our print
 
 if not gpio.available then
-    die "GPIO is not available on the target system :("
+    die "GPIO is not available on the "..fr.client.server.." :("
 end
 
 function change_handler( new_value, device_id ) -- other lua thread
