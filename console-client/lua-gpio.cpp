@@ -72,7 +72,12 @@ namespace fr { namespace lua {
             {
                 objects::table_sptr t( objects::new_table( ) );
 
-                if( interfaces::gpio::available( cc_ ) ) {
+                bool avail = interfaces::gpio::available( cc_ );
+
+                t->add( objects::new_string( "available" ),
+                        objects::new_boolean( avail ) );
+
+                if( avail ) {
 
                     using objects::new_string;
                     using objects::new_function;
@@ -81,8 +86,6 @@ namespace fr { namespace lua {
                     t->add( new_string( names::inst_field ),
                             new_light_userdata( this ));
 
-                    t->add( new_string( "available" ),
-                            objects::new_boolean( true ) );
 
                     t->add( ADD_GPIO_VALUE( DIRECT_IN ) );
                     t->add( ADD_GPIO_VALUE( DIRECT_OUT ) );
@@ -124,9 +127,6 @@ namespace fr { namespace lua {
 
                     t->add( new_string( "unregister" ),
                             new_function( &lcall_gpio_unreg ) );
-                } else {
-                    t->add( objects::new_string( "available" ),
-                            objects::new_boolean( false ) );
                 }
 
                 return t;
