@@ -30,7 +30,9 @@ function main( argv )
         end
         println( '  '..name )
         path = fs.iter_next( iterator )
+
     end
+
     fs.close( iterator ) -- not necessary
 end
 
