@@ -16,7 +16,6 @@ namespace fr { namespace lua {
 
     namespace {
 
-
         using namespace client;
         typedef interfaces::gpio::iface  iface;
         typedef std::shared_ptr<iface>   iface_sptr;
@@ -192,7 +191,7 @@ namespace fr { namespace lua {
             lua::state ls( L );
             data * i   = get_iface( L );
             iface_sptr dev = get_gpio_dev( L );
-            ls.clean( );
+            ls.clean_stack( );
             interfaces::gpio::info inf( dev->get_info( ) );
 
             objects::table_sptr t(objects::new_table( ));
@@ -213,7 +212,7 @@ namespace fr { namespace lua {
             lua::state ls( L );
             data * i   = get_iface( L );
             iface_sptr dev = get_gpio_dev( L );
-            ls.clean( );
+            ls.clean_stack( );
             if( dev.get( ) ) {
                 dev->unexport_device( );
             }
@@ -229,7 +228,7 @@ namespace fr { namespace lua {
             if( r > 1 ) {
                 val = ls.get<unsigned>( 2 );
             }
-            ls.clean( );
+            ls.clean_stack( );
             dev->set_value( val );
             return 0;
         }
@@ -238,7 +237,7 @@ namespace fr { namespace lua {
         {
             lua::state ls( L );
             iface_sptr dev = get_gpio_dev( L );
-            ls.clean( );
+            ls.clean_stack( );
             ls.push( dev->value( ) );
             return 1;
         }
@@ -252,7 +251,7 @@ namespace fr { namespace lua {
             if( r > 1 ) {
                 val = ls.get<unsigned>( 2 );
             }
-            ls.clean( );
+            ls.clean_stack( );
             ls.push<bool>( dev->edge_supported( ) );
             return 1;
         }
@@ -266,7 +265,7 @@ namespace fr { namespace lua {
             if( r > 1 ) {
                 val = ls.get<unsigned>( 2 );
             }
-            ls.clean( );
+            ls.clean_stack( );
             dev->set_edge( interfaces::gpio::edge_val2enum( val ) );
             return 0;
         }
@@ -275,7 +274,7 @@ namespace fr { namespace lua {
         {
             lua::state ls( L );
             iface_sptr dev = get_gpio_dev( L );
-            ls.clean( );
+            ls.clean_stack( );
             ls.push<unsigned>( dev->edge( ) );
             return 1;
         }
@@ -289,7 +288,7 @@ namespace fr { namespace lua {
             if( r > 1 ) {
                 val = ls.get<unsigned>( 2 );
             }
-            ls.clean( );
+            ls.clean_stack( );
             dev->set_direction( interfaces::gpio::direction_val2enum( val ) );
             return 0;
         }
@@ -298,7 +297,7 @@ namespace fr { namespace lua {
         {
             lua::state ls( L );
             iface_sptr dev = get_gpio_dev( L );
-            ls.clean( );
+            ls.clean_stack( );
             ls.push<unsigned>( dev->direction( ) );
             return 1;
         }
@@ -308,7 +307,7 @@ namespace fr { namespace lua {
             lua::state ls( L );
             data * i   = get_iface( L );
             void * dev = ls.get<void *>(  );
-            ls.clean( );
+            ls.clean_stack( );
             do {
                 std::lock_guard<std::mutex> lck( i->devices_lock_ );
                 i->devices_.erase( dev );
@@ -361,7 +360,7 @@ namespace fr { namespace lua {
         {
             lua::state ls( L );
             iface_sptr dev = get_gpio_dev( L );
-            ls.clean( );
+            ls.clean_stack( );
             dev->unregister( );
             return 0;
         }

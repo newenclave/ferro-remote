@@ -132,7 +132,7 @@ namespace lua {
             return vm_;
         }
 
-        void clean( )
+        void clean_stack( )
         {
             pop( get_top( ) );
         }
@@ -428,6 +428,12 @@ namespace lua {
                 }
             }
             set_global( p.c_str( ) );
+        }
+
+        void set( const char *path )
+        {
+            static const objects::nil nil_value;
+            set_object( path, &nil_value );
         }
 
         void set_object( const char *path, const objects::base *obj )

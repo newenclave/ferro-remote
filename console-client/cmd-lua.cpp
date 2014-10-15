@@ -8,6 +8,9 @@
 #include "interfaces/IOS.h"
 
 #define LUA_WRAPPER_TOP_NAMESPACE fr
+
+#include "client-core/fr-client.h"
+
 #include "fr-lua/lua-wrapper.hpp"
 #include "fr-lua/lua-objects.hpp"
 
@@ -37,6 +40,10 @@ namespace fr { namespace cc { namespace cmd {
 
         typedef client::interfaces::os::iface os_iface;
         typedef std::shared_ptr<os_iface> os_iface_sptr;
+
+        void general_init( lua_State *L, const std::string &server,
+                           core::client_core &cl );
+        void set_connect(lua_State *L, core::client_core &cl );
 
         int global_print_impl( lua_State *L, bool as_integer )
         {
@@ -134,6 +141,37 @@ namespace fr { namespace cc { namespace cmd {
             return 0;
         }
 
+        int global_connect( lua_State *L )
+        {
+            core::client_core *core = lua::get_core( L );
+            lua::state ls( L );
+            std::string server = ls.get<std::string>( );
+            ls.clean_stack( );
+            try {
+
+                core->disconnect( );
+                core->connect( server );
+
+                ls.set( lua::names::client_table ); // set to nil
+                general_init( L, server, *core );
+                set_connect( L, *core );
+
+            } catch( const std::exception &ex ) {
+                ls.push( false );
+                ls.push( ex.what( ) );
+                return 2;
+            }
+            ls.push( true );
+            return 1;
+        }
+
+        int global_disconnect( lua_State *L )
+        {
+            core::client_core *core = lua::get_core( L );
+            core->disconnect( );
+            return 0;
+        }
+
 #define FR_INTERFACE_PAIR( ns, L, CL )      \
     std::make_pair( lua::ns::table_name, lua::ns::init( L, cl ))
 
@@ -164,19 +202,40 @@ namespace fr { namespace cc { namespace cmd {
             data.swap( tmp );
         }
 
+        void general_init( lua_State *L,
+                           const std::string &server, core::client_core &cl )
+        {
+            lua_state ls(L);
+            std::map<std::string, lua::data_sptr> datas;
+            init( datas, ls.get_state( ), cl );
+            ls.set( lua::names::server_path, server );
+        }
+
 #undef FR_INTERFACE_PAIR
 
         void register_globals( lua_State *L )
         {
-            lua_state lv( L );
+            lua_state ls( L );
 
-            lv.register_call( "print",    &global_print );
-            lv.register_call( "println",  &global_println );
-            lv.register_call( "printi",   &global_printi );
-            lv.register_call( "printiln", &global_printiln );
-            lv.register_call( "die",      &global_throw );
-            lv.register_call( "open",     &global_open );
-            lv.register_call( "sleep",    &global_sleep );
+            ls.register_call( "print",    &global_print );
+            ls.register_call( "println",  &global_println );
+            ls.register_call( "printi",   &global_printi );
+            ls.register_call( "printiln", &global_printiln );
+            ls.register_call( "die",      &global_throw );
+            ls.register_call( "open",     &global_open );
+            ls.register_call( "sleep",    &global_sleep );
+        }
+
+        void set_connect( lua_State *L, core::client_core &cl )
+        {
+            lua_state ls( L );
+            lua::set_core( L, &cl );
+
+            lo::function connect_func(    &global_connect );
+            lo::function disconnect_func( &global_disconnect );
+
+            ls.set_object( lua::names::connect_table, &connect_func );
+            ls.set_object( lua::names::disconnect_table, &disconnect_func );
         }
 
         struct impl: public command_iface {
@@ -223,25 +282,30 @@ namespace fr { namespace cc { namespace cmd {
 
             void exec( po::variables_map &vm, core::client_core &cl )
             {
-                lua_state lv;
-                register_globals( lv.get_state( ) );
+                lua_state ls;
+                register_globals( ls.get_state( ) );
 
-                std::map<std::string, lua::data_sptr> datas;
+                std::string server(   vm.count("server")
+                                    ? vm["server"].as<std::string>( ) : "" );
 
-                init( datas, lv.get_state( ), cl );
-                lua::set_core( lv.get_state( ), &cl );
+                if( !server.empty( ) ) {
+                    cl.connect( server );
+                    general_init( ls.get_state( ), server, cl );
+                }
 
+                set_connect( ls.get_state( ), cl );
                 std::string main_function("main");
+
                 if( vm.count( "main" ) )  {
                     main_function.assign( vm["main"].as<std::string>( ) );
                 }
 
                 if( vm.count( "exec" ) ) {
                     std::string script( vm["exec"].as<std::string>( ) );
-                    lv.check_call_error( lv.load_file( script.c_str( ) ) );
+                    ls.check_call_error( ls.load_file( script.c_str( ) ) );
                     lo::base_sptr par = create_params( vm );
-                    int res = lv.exec_function( main_function.c_str( ), *par );
-                    lv.check_call_error( res );
+                    int res = ls.exec_function( main_function.c_str( ), *par );
+                    ls.check_call_error( res );
                 }
             }
 
@@ -275,7 +339,7 @@ namespace fr { namespace cc { namespace cmd {
 
             bool need_connect( ) const
             {
-                return true;
+                return false;
             }
 
         };

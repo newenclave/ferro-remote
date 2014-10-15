@@ -594,7 +594,7 @@ namespace fr { namespace lua {
             lua::state ls(L);
 
             file_sptr f(get_file( L ));
-            ls.clean( );
+            ls.clean_stack( );
 
             ls.push( f->tell( ) );
             return 1;
@@ -604,7 +604,7 @@ namespace fr { namespace lua {
         {
             lua::state ls(L);
             file_sptr f(get_file( L ));
-            ls.clean( );
+            ls.clean_stack( );
             f->flush( );
             return 0;
         }
@@ -636,7 +636,7 @@ namespace fr { namespace lua {
             file_sptr f(get_file( L, 1 ));
             std::string data( ls.get<std::string>( 2 ) );
 
-            ls.clean( );
+            ls.clean_stack( );
 
             size_t pos = 0;
             const size_t w = data.size( );
@@ -690,7 +690,7 @@ namespace fr { namespace lua {
         {
             lua::state ls(L);
             file_sptr f(get_file( L, 1 ));
-            ls.clean( );
+            ls.clean_stack( );
             f->unregister( );
             return 0;
         }

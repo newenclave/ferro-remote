@@ -177,7 +177,7 @@ int main( int argc, const char **argv ) try
         return 0;
     }
 
-    bool quit(!!vm.count("quit"));
+    bool quit( !!vm.count("quit") );
 
     if( !current_command.get( ) && !quit ) {
         std::cout << "Invalid command '<empty>'\n";
@@ -194,7 +194,6 @@ int main( int argc, const char **argv ) try
         show_init_help( desc, cm );
         return 3;
     }
-
 
     pool_pair_sptr pp(pp_from_cmd( vm ));
 
