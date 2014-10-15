@@ -70,6 +70,12 @@ namespace fr { namespace agent {
             errno_error::errno_assert( res != -1, "write" );
         }
 
+        bool try_open_file( const std::string &path, int flags = O_RDONLY )
+        {
+            file_keeper fd( open( path.c_str( ), flags ) );
+            return fd.hdl( ) != -1;
+        }
+
         std::string read_from_file( int fd )
         {
             static const size_t buffer_length = 32;
@@ -207,6 +213,13 @@ namespace fr { namespace agent {
         write_to_file( oss.str( ),
                        direct_index[val].c_str( ),
                        direct_index[val].size( ) + 1 );
+    }
+
+    bool gpio_helper::edge_supported( ) const
+    {
+        std::ostringstream oss;
+        oss << impl_->path_ << "/" << edge_name;
+        return try_open_file( oss.str( ) );
     }
 
     gpio::edge_type gpio_helper::edge( ) const

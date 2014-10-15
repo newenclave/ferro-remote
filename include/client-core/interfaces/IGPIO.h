@@ -81,6 +81,7 @@ namespace interfaces { namespace gpio {
         virtual direction_type direction( ) const = 0;
         virtual void set_direction( direction_type value ) const = 0;
 
+        virtual bool edge_supported( ) const = 0;
         virtual edge_type edge( ) const = 0;
         virtual void set_edge( edge_type value ) const = 0;
 

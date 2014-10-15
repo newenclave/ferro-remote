@@ -23,7 +23,21 @@ namespace fr { namespace client { namespace interfaces {
         typedef gproto::instance::Stub stub_type;
         typedef vcomm::stub_wrapper<stub_type> client_type;
 
-        vtrc::uint32_t open_instance( client_type &cl, unsigned gpio_id )
+        struct instance_info {
+            vtrc::uint32_t hdl_;
+            bool edge_available_;
+            instance_info( )
+                :hdl_(0)
+                ,edge_available_(false)
+            { }
+
+            instance_info( vtrc::uint32_t h, bool ea )
+                :hdl_(h)
+                ,edge_available_(ea)
+            { }
+        };
+
+        instance_info open_instance( client_type &cl, unsigned gpio_id )
         {
             gproto::open_req req;
             gproto::open_res res;
@@ -31,10 +45,10 @@ namespace fr { namespace client { namespace interfaces {
 
             cl.call( &stub_type::open, &req, &res );
 
-            return res.hdl( ).value( );
+            return instance_info(res.hdl( ).value( ), res.edge_supported( ));
         }
 
-        vtrc::uint32_t open_setup_inst( client_type &cl, unsigned gpio_id,
+        instance_info open_setup_inst( client_type &cl, unsigned gpio_id,
                                         gproto::setup_data &setup )
         {
             gproto::open_req req;
@@ -45,7 +59,8 @@ namespace fr { namespace client { namespace interfaces {
             req.mutable_setup( )->CopyFrom( setup );
 
             cl.call( &stub_type::open, &req, &res );
-            return res.hdl( ).value( );
+
+            return instance_info(res.hdl( ).value( ), res.edge_supported( ));
 
         }
 
@@ -54,20 +69,19 @@ namespace fr { namespace client { namespace interfaces {
             core::client_core  &core_;
             unsigned            id_;
             mutable client_type client_;
-            vtrc::uint32_t      hdl_;
+            instance_info       ii_;
 
             gpio_impl( core::client_core &cl, unsigned id )
                 :core_(cl)
                 ,id_(id)
                 ,client_(core_.create_channel( ), true)
-                ,hdl_(open_instance( client_, id_ ))
+                ,ii_(open_instance( client_, id_ ))
             { }
 
             gpio_impl( core::client_core &cl )
                 :core_(cl)
                 ,id_(0)
                 ,client_(core_.create_channel( ), true)
-                ,hdl_(0)
             { }
 
             gpio_impl( core::client_core &cl, unsigned id,
@@ -81,11 +95,12 @@ namespace fr { namespace client { namespace interfaces {
                 if( ( dir == gpio::DIRECT_OUT ) && ( value != 0 ) ) {
                     setup.set_value( 1 );
                 }
-                hdl_ = open_setup_inst( client_, id_, setup );
+
+                ii_ = open_setup_inst( client_, id_, setup );
             }
 
             ~gpio_impl( ) {
-                if( hdl_ != 0 ) try {
+                if( ii_.hdl_ != 0 ) try {
                     close_impl( );
                 } catch( ... ) {  }
             }
@@ -93,7 +108,7 @@ namespace fr { namespace client { namespace interfaces {
             void close_impl( )
             {
                 gproto::handle req;
-                req.set_value( hdl_ );
+                req.set_value( ii_.hdl_ );
                 client_.call_request( &stub_type::close, &req );
             }
 
@@ -115,7 +130,7 @@ namespace fr { namespace client { namespace interfaces {
             {
                 gproto::info_req    req;
                 gproto::setup_data  res;
-                req.mutable_hdl( )->set_value( hdl_ );
+                req.mutable_hdl( )->set_value( ii_.hdl_ );
 
                 req.set_with_value( true );
                 client_.call( &stub_type::info, &req, &res );
@@ -125,7 +140,7 @@ namespace fr { namespace client { namespace interfaces {
             void set_value( unsigned value ) const override
             {
                 gproto::setup_req req;
-                req.mutable_hdl( )->set_value( hdl_ );
+                req.mutable_hdl( )->set_value( ii_.hdl_ );
                 req.mutable_setup( )->set_value( value );
                 client_.call_request( &stub_type::setup, &req );
             }
@@ -134,7 +149,7 @@ namespace fr { namespace client { namespace interfaces {
             {
                 gproto::info_req    req;
                 gproto::setup_data  res;
-                req.mutable_hdl( )->set_value( hdl_ );
+                req.mutable_hdl( )->set_value( ii_.hdl_ );
 
                 req.set_with_active_low( true );
                 client_.call( &stub_type::info, &req, &res );
@@ -144,7 +159,7 @@ namespace fr { namespace client { namespace interfaces {
             void  set_active_low( unsigned value ) const
             {
                 gproto::setup_req req;
-                req.mutable_hdl( )->set_value( hdl_ );
+                req.mutable_hdl( )->set_value( ii_.hdl_ );
                 req.mutable_setup( )->set_active_low( value );
                 client_.call_request( &stub_type::setup, &req );
             }
@@ -152,14 +167,14 @@ namespace fr { namespace client { namespace interfaces {
             void export_device( ) const override
             {
                 gproto::export_req req;
-                req.mutable_hdl( )->set_value( hdl_ );
+                req.mutable_hdl( )->set_value( ii_.hdl_ );
                 client_.call_request( &stub_type::exp, &req );
             }
 
             void unexport_device( ) const override
             {
                 gproto::export_req req;
-                req.mutable_hdl( )->set_value( hdl_ );
+                req.mutable_hdl( )->set_value( ii_.hdl_ );
                 client_.call_request( &stub_type::unexp, &req );
             }
 
@@ -173,7 +188,7 @@ namespace fr { namespace client { namespace interfaces {
                 gproto::info_req    req;
                 gproto::setup_data  res;
 
-                req.mutable_hdl( )->set_value( hdl_ );
+                req.mutable_hdl( )->set_value( ii_.hdl_ );
                 req.set_with_direction( true );
                 client_.call( &stub_type::info, &req, &res );
 
@@ -183,7 +198,7 @@ namespace fr { namespace client { namespace interfaces {
             void set_direction( gpio::direction_type value ) const override
             {
                 gproto::setup_req req;
-                req.mutable_hdl( )->set_value( hdl_ );
+                req.mutable_hdl( )->set_value( ii_.hdl_ );
                 req.mutable_setup( )->set_direction( value );
                 client_.call_request( &stub_type::setup, &req );
             }
@@ -193,12 +208,17 @@ namespace fr { namespace client { namespace interfaces {
                 return gpio::edge_val2enum( val );
             }
 
+            bool edge_supported( ) const
+            {
+                return ii_.edge_available_;
+            }
+
             gpio::edge_type edge( ) const override
             {
                 gproto::info_req    req;
                 gproto::setup_data  res;
 
-                req.mutable_hdl( )->set_value( hdl_ );
+                req.mutable_hdl( )->set_value( ii_.hdl_ );
                 req.set_with_edge( true );
                 client_.call( &stub_type::info, &req, &res );
 
@@ -208,7 +228,7 @@ namespace fr { namespace client { namespace interfaces {
             void set_edge( gpio::edge_type value ) const override
             {
                 gproto::setup_req req;
-                req.mutable_hdl( )->set_value( hdl_ );
+                req.mutable_hdl( )->set_value( ii_.hdl_ );
                 req.mutable_setup( )->set_edge( value );
                 client_.call_request( &stub_type::setup, &req );
             }
@@ -237,7 +257,7 @@ namespace fr { namespace client { namespace interfaces {
                 gproto::register_req req;
                 gproto::register_res res;
 
-                req.mutable_hdl( )->set_value( hdl_ );
+                req.mutable_hdl( )->set_value( ii_.hdl_ );
 
                 client_.call( &stub_type::register_for_change, &req, &res );
 
@@ -258,7 +278,7 @@ namespace fr { namespace client { namespace interfaces {
             void unregister_impl( ) const
             {
                 gproto::register_req req;
-                req.mutable_hdl( )->set_value( hdl_ );
+                req.mutable_hdl( )->set_value( ii_.hdl_ );
                 client_.call_request( &stub_type::unregister, &req );
             }
 
@@ -273,7 +293,7 @@ namespace fr { namespace client { namespace interfaces {
                 gproto::info_req    req;
                 gproto::setup_data  res;
 
-                req.mutable_hdl( )->set_value( hdl_ );
+                req.mutable_hdl( )->set_value( ii_.hdl_ );
 
                 result.id = id_;
                 req.set_with_active_low( true );

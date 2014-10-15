@@ -15,11 +15,12 @@ file = fr.client.fs.file
 
 function main( argv ) -- main lua thread
 
-    f = file.open( "/dev/random", file.RDONLY )
-    file.register_for_events( f, "handler" )
-    while true do
-        sleep( 1 )
-        print( '.' ) --- some work! =)
-    end
+	f = file.open( "/dev/random", file.RDONLY )
+	file.register_for_events( f, "handler" )
+	while true do
+		sleep( 1 )
+		print( '.' ) --- some work! =)
+	end
 
 end
+

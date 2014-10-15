@@ -40,8 +40,9 @@ message open_req {
 }
 
 message open_res {
-    optional handle hdl    = 1;
-    optional bool   exists = 2;
+    optional handle hdl             = 1;
+    optional bool   exists          = 2;
+    optional bool   edge_supported  = 3;
 }
 
 message export_req {

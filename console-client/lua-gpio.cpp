@@ -33,6 +33,7 @@ namespace fr { namespace lua {
         int lcall_gpio_set_value( lua_State *L );
         int lcall_gpio_value( lua_State *L );
 
+        int lcall_gpio_test_edge( lua_State *L );
         int lcall_gpio_set_edge( lua_State *L );
         int lcall_gpio_edge( lua_State *L );
 
@@ -101,6 +102,8 @@ namespace fr { namespace lua {
                     t->add( new_string( "set_value" ),
                             new_function( &lcall_gpio_set_value ) );
 
+                    t->add( new_string( "edge_supported" ),
+                            new_function( &lcall_gpio_test_edge ) );
                     t->add( new_string( "edge" ),
                             new_function( &lcall_gpio_edge ) );
                     t->add( new_string( "set_edge" ),
@@ -238,6 +241,20 @@ namespace fr { namespace lua {
             iface_sptr dev = get_gpio_dev( L );
             ls.clean( );
             ls.push( dev->value( ) );
+            return 1;
+        }
+
+        int lcall_gpio_test_edge( lua_State *L )
+        {
+            lua::state ls( L );
+            int        r = ls.get_top( );
+            unsigned val = 0;
+            iface_sptr dev = get_gpio_dev( L, 1 );
+            if( r > 1 ) {
+                val = ls.get<unsigned>( 2 );
+            }
+            ls.clean( );
+            ls.push<bool>( dev->edge_supported( ) );
             return 1;
         }
 

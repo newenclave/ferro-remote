@@ -42,6 +42,7 @@ namespace fr { namespace agent {
         gpio::direction_type direction( ) const;
         void  set_direction( gpio::direction_type val ) const;
 
+        bool edge_supported( ) const;
         gpio::edge_type edge( ) const;
         void  set_edge( gpio::edge_type val ) const;
 

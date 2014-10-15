@@ -21,6 +21,11 @@ end
 function main( argv ) --- main lua thread
 
     dev = gpio.export( tonumber( argv.gpio ) )
+
+    if not gpio.edge_supported( dev )
+        die "This device doesn't support edge. No edge -> no events"
+    end
+
     gpio.set_edge( dev, gpio.EDGE_BOTH )
 
     gpio.register_for_change( dev, "change_handler", argv.gpio )

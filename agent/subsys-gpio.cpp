@@ -171,6 +171,7 @@ namespace fr { namespace agent { namespace subsys {
                     gpio_setup( ng, request->setup( ) );
                 }
                 response->mutable_hdl( )->set_value( newid );
+                response->set_edge_supported( ng->edge_supported( ) );
                 vtrc::unique_shared_lock lck( gpio_lock_ );
                 gpio_.insert( std::make_pair( newid, ng ) );
             }
