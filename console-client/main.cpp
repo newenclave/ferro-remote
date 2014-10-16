@@ -223,9 +223,9 @@ int main( int argc, const char **argv ) try
     fr::client::core::client_core client(*pp);
 
 #if 0
-    client.on_connect_connect( &on_connect );
+    client.on_connect_connect(    &on_connect    );
     client.on_disconnect_connect( &on_disconnect );
-    client.on_ready_connect( &on_ready);
+    client.on_ready_connect(      &on_ready      );
     client.on_init_error_connect( &on_init_error );
 #endif
 
