@@ -233,8 +233,8 @@ int main( int argc, const char **argv ) try
         vm = parse_command( argc, argv, current_command, desc );
     }
 
-    //client.async_connect( server, connect_success );
     if( current_command->need_connect( ) ) {
+        //client.async_connect( server, connect_success );
         client.connect( server );
     }
 
