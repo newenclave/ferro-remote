@@ -6,6 +6,7 @@
 #include "vtrc-common/vtrc-pool-pair.h"
 #include "vtrc-function.h"
 #include "vtrc-common/vtrc-closure.h"
+#include "vtrc-common/vtrc-signal-declaration.h"
 
 #include "vtrc-stdint.h"
 #include "interfaces/IAsyncOperation.h"
@@ -22,8 +23,14 @@ namespace fr {  namespace client { namespace core {
 
     class client_core {
 
-        struct  impl;
-        impl   *impl_;
+        struct         impl;
+        friend struct  impl;
+        impl          *impl_;
+
+        VTRC_DECLARE_SIGNAL( on_init_error, void( const char *message ) );
+        VTRC_DECLARE_SIGNAL( on_connect,    void( ) );
+        VTRC_DECLARE_SIGNAL( on_disconnect, void( ) );
+        VTRC_DECLARE_SIGNAL( on_ready,      void( ) );
 
     public:
 
@@ -58,6 +65,14 @@ namespace fr {  namespace client { namespace core {
 
         void register_async_op( size_t id, async_op_callback_type cb );
         void unregister_async_op( size_t id );
+
+        void set_id ( const std::string &id );
+        void set_key( const std::string &key );
+        void set_id_key( const std::string &id, const std::string &key );
+
+        std::string get_id( ) const;
+        bool has_key( ) const;
+
     };
 
 }}}

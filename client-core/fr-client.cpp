@@ -6,6 +6,9 @@
 #include "vtrc-client/vtrc-client.h"
 #include "vtrc-mutex.h"
 #include "vtrc-memory.h"
+#include "vtrc-bind.h"
+#include "vtrc-ref.h"
+
 #include "vtrc-common/vtrc-mutex-typedefs.h"
 #include "vtrc-common/vtrc-closure-holder.h"
 
@@ -75,11 +78,45 @@ namespace fr {  namespace client { namespace core {
         connect_info_sptr         last_connection_;
         mutable vtrc::mutex       client_lock_;
         callbacks_info            cbi_;
+        client_core              *parent_;
+
+
 
         impl( vcommon::pool_pair &pp )
             :client_(vclient::vtrc_client::create(pp))
-        { }
+        {
+            client_->on_connect_connect(
+                        vtrc::bind( &impl::on_connect, this ) );
+            client_->on_disconnect_connect(
+                        vtrc::bind( &impl::on_disconnect, this ) );
+            client_->on_ready_connect(
+                        vtrc::bind( &impl::on_ready, this ) );
+            client_->on_init_error_connect(
+                        vtrc::bind( &impl::on_init_error, this,
+                                    vtrc::placeholders::_1,
+                                    vtrc::placeholders::_2 ));
+        }
 
+        void on_init_error( const vtrc::rpc::errors::container & /*ec*/,
+                            const char *message )
+        {
+            parent_->on_init_error_( message );
+        }
+
+        void on_connect( )
+        {
+            parent_->on_connect_( );
+        }
+
+        void on_disconnect( )
+        {
+            parent_->on_disconnect_( );
+        }
+
+        void on_ready( )
+        {
+            parent_->on_ready_( );
+        }
 
         void set_new_info( const std::string &server, bool nw )
         {
@@ -168,6 +205,7 @@ namespace fr {  namespace client { namespace core {
         vtrc::shared_ptr<proto_event_impl>
                 e( vtrc::make_shared<proto_event_impl>( &impl_->cbi_ ));
         impl_->client_->assign_rpc_handler( e );
+        impl_->parent_ = this;
     }
 
     client_core::~client_core(  )
@@ -242,6 +280,31 @@ namespace fr {  namespace client { namespace core {
             vtrc::upgrade_to_unique utl(lck);
             impl_->cbi_.acb_.erase( f );
         }
+    }
+
+    void client_core::set_id ( const std::string &id )
+    {
+        impl_->client_->set_session_id( id );
+    }
+
+    void client_core::set_key( const std::string &key )
+    {
+        impl_->client_->set_session_key( key );
+    }
+
+    void client_core::set_id_key( const std::string &id, const std::string &key )
+    {
+        impl_->client_->set_session_key( id, key );
+    }
+
+    std::string client_core::get_id( ) const
+    {
+        return impl_->client_->get_session_id( );
+    }
+
+    bool client_core::has_key( ) const
+    {
+        impl_->client_->is_key_set( );
     }
 
 }}}
