@@ -80,21 +80,22 @@ namespace fr {  namespace client { namespace core {
         callbacks_info            cbi_;
         client_core              *parent_;
 
-
-
         impl( vcommon::pool_pair &pp )
             :client_(vclient::vtrc_client::create(pp))
         {
             client_->on_connect_connect(
                         vtrc::bind( &impl::on_connect, this ) );
+
             client_->on_disconnect_connect(
                         vtrc::bind( &impl::on_disconnect, this ) );
+
             client_->on_ready_connect(
                         vtrc::bind( &impl::on_ready, this ) );
+
             client_->on_init_error_connect(
                         vtrc::bind( &impl::on_init_error, this,
-                                    vtrc::placeholders::_1,
-                                    vtrc::placeholders::_2 ));
+                                     vtrc::placeholders::_1,
+                                     vtrc::placeholders::_2 ) );
         }
 
         void on_init_error( const vtrc::rpc::errors::container & /*ec*/,

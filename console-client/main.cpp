@@ -147,6 +147,29 @@ namespace {
     }
 }
 
+namespace {
+
+    void on_connect( )
+    {
+        std::cout << "connect...";
+    }
+
+    void on_disconnect( )
+    {
+        std::cout << "disconnect...\n";
+    }
+
+    void on_ready( )
+    {
+        std::cout << "ready...\n";
+    }
+
+    void on_init_error( const char *message )
+    {
+        std::cout << "init error '" << message << "'\n";
+    }
+}
+
 int main( int argc, const char **argv ) try
 {    
     po::options_description desc("Common options");
@@ -198,6 +221,13 @@ int main( int argc, const char **argv ) try
     pool_pair_sptr pp(pp_from_cmd( vm ));
 
     fr::client::core::client_core client(*pp);
+
+#if 0
+    client.on_connect_connect( &on_connect );
+    client.on_disconnect_connect( &on_disconnect );
+    client.on_ready_connect( &on_ready);
+    client.on_init_error_connect( &on_init_error );
+#endif
 
     if( !quit ) {
         vm = parse_command( argc, argv, current_command, desc );
