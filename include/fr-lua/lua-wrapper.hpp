@@ -99,8 +99,8 @@ namespace lua {
                 std::string name;
                 lua_CFunction func;
             } libs[ ] = {
-                 { LUA_COLIBNAME,   &luaopen_base    }
-                ,{ "base",          &luaopen_base    }
+                 { "base",          &luaopen_base    }
+                //,{ LUA_COLIBNAME,   &luaopen_base    }
                 ,{ LUA_TABLIBNAME,  &luaopen_table   }
                 ,{ LUA_IOLIBNAME,   &luaopen_io      }
                 ,{ LUA_OSLIBNAME,   &luaopen_os      }
