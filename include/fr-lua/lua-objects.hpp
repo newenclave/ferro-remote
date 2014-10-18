@@ -132,6 +132,10 @@ namespace lua { namespace objects {
     class nil: public base {
 
     public:
+
+        nil( )
+        { }
+
         virtual int type_id( ) const
         {
             return base::TYPE_NIL;
