@@ -20,11 +20,6 @@ namespace fr { namespace lua {
         typedef interfaces::gpio::iface  iface;
         typedef std::shared_ptr<iface>   iface_sptr;
 
-        const std::string gpio_table_path =
-                std::string(lua::names::client_table)
-                + '.'
-                + gpio::table_name;
-
         int lcall_gpio_export(   lua_State *L );
         int lcall_gpio_info(     lua_State *L );
         int lcall_gpio_unexport( lua_State *L );
@@ -48,7 +43,7 @@ namespace fr { namespace lua {
 
         data * get_iface( lua_State *L )
         {
-            void * p = get_component_iface( L, gpio_table_path.c_str( ) );
+            void * p = get_component_iface( L, gpio::table_path( ) );
             return reinterpret_cast<data *>( p );
         }
 
@@ -189,7 +184,7 @@ namespace fr { namespace lua {
         int lcall_gpio_info( lua_State *L )
         {
             lua::state ls( L );
-            data * i   = get_iface( L );
+            //data * i   = get_iface( L );
             iface_sptr dev = get_gpio_dev( L );
             ls.clean_stack( );
             interfaces::gpio::info inf( dev->get_info( ) );
@@ -210,7 +205,7 @@ namespace fr { namespace lua {
         int lcall_gpio_unexport( lua_State *L )
         {
             lua::state ls( L );
-            data * i   = get_iface( L );
+            //data * i   = get_iface( L );
             iface_sptr dev = get_gpio_dev( L );
             ls.clean_stack( );
             if( dev.get( ) ) {
@@ -245,12 +240,7 @@ namespace fr { namespace lua {
         int lcall_gpio_test_edge( lua_State *L )
         {
             lua::state ls( L );
-            int        r = ls.get_top( );
-            unsigned val = 0;
             iface_sptr dev = get_gpio_dev( L, 1 );
-            if( r > 1 ) {
-                val = ls.get<unsigned>( 2 );
-            }
             ls.clean_stack( );
             ls.push<bool>( dev->edge_supported( ) );
             return 1;
@@ -367,6 +357,13 @@ namespace fr { namespace lua {
     }
 
     namespace gpio {
+        const char *table_name( ) { return "fs"; }
+        const char *table_path( )
+        {
+            static const std::string path =
+                    std::string( names::client_table ) + '.' + table_name( );
+            return path.c_str( );
+        }
         data_sptr init( lua_State *ls, client::core::client_core &cc )
         {
             return data_sptr( new data(ls, cc) );

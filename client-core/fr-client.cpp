@@ -305,7 +305,7 @@ namespace fr {  namespace client { namespace core {
 
     bool client_core::has_key( ) const
     {
-        impl_->client_->is_key_set( );
+        return impl_->client_->is_key_set( );
     }
 
 }}}

@@ -602,7 +602,7 @@ namespace lua { namespace objects {
         std::string str( ) const
         {
             std::ostringstream oss;
-            oss << "function@" << reinterpret_cast<const void *>(func_);
+            oss << "function@" << func_;
             return oss.str( );
         }
     };

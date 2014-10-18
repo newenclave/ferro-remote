@@ -23,17 +23,12 @@ namespace fr { namespace lua {
                 filesystem::directory_iterator_impl> fsiterator_sptr;
         typedef std::shared_ptr<file::iface>         file_sptr;
 
-        const std::string fs_table_path =
-                std::string(lua::names::client_table)
-                + '.'
-                + fs::table_name;
-
         struct data;
 
         data *get_iface( lua_State *L )
         {
             return reinterpret_cast<data *>( get_component_iface(L,
-                                             fs_table_path.c_str( ) ) );
+                                             fs::table_path( ) ) );
         }
 
         int lcall_fs_pwd(    lua_State *L );
@@ -715,6 +710,13 @@ namespace fr { namespace lua {
     }
 
     namespace fs {
+        const char *table_name( ) { return "fs"; }
+        const char *table_path( )
+        {
+            static const std::string path =
+                    std::string( names::client_table ) + '.' + table_name( );
+            return path.c_str( );
+        }
         data_sptr init( lua_State *ls, client::core::client_core &cc )
         {
             return data_sptr( new data( cc, ls ) );

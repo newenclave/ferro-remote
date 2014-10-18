@@ -12,17 +12,12 @@ namespace fr { namespace lua {
         typedef client::interfaces::os::iface iface;
         typedef std::unique_ptr<iface> iface_uptr;
 
-        const std::string fs_table_path =
-                std::string(lua::names::client_table)
-                + '.'
-                + os::table_name;
-
         const char *system_call_name = "system";
 
         iface *get_os_iface( lua_State *L )
         {
             return reinterpret_cast<iface *>( get_component_iface(L,
-                                              fs_table_path.c_str( ) ) );
+                                              os::table_path( ) ) );
         }
 
         int lcall_os_exec( lua_State *L )
@@ -56,6 +51,13 @@ namespace fr { namespace lua {
     }
 
     namespace os {
+        const char *table_name( ) { return "fs"; }
+        const char *table_path( )
+        {
+            static const std::string path =
+                    std::string( names::client_table ) + '.' + table_name( );
+            return path.c_str( );
+        }
         data_sptr init( lua_State *ls, client::core::client_core &cc )
         {
             lua::state lv( ls );

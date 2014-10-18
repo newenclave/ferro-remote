@@ -180,7 +180,7 @@ namespace fr { namespace cc { namespace cmd {
         }
 
 #define FR_INTERFACE_PAIR( ns, L, cl )      \
-    std::make_pair( lua::ns::table_name, lua::ns::init( L, cl ))
+    std::make_pair( lua::ns::table_name( ), lua::ns::init( L, cl ))
 
         void init( lua::core_data &cd, lua_State *L )
         {

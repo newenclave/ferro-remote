@@ -79,10 +79,11 @@ namespace fr { namespace lua {
     };
 
 
-#define FR_DEFINE_NAMESPACE_FOR_LUA( ns )                               \
-    namespace ns {                                                      \
-        static const char *table_name = #ns;                            \
-        data_sptr init( lua_State *ls, client::core::client_core &cc ); \
+#define FR_DEFINE_NAMESPACE_FOR_LUA( ns )                                      \
+    namespace ns {                                                             \
+        const char *table_name( );                                             \
+        const char *table_path( );                                             \
+        data_sptr init( lua_State *ls, client::core::client_core &cc );        \
     }
 
     FR_DEFINE_NAMESPACE_FOR_LUA( os )

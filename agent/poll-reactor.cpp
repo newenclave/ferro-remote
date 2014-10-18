@@ -105,7 +105,8 @@ namespace fr { namespace agent {
 
         void stop( )
         {
-            int res = eventfd_write( stop_event_.hdl( ), 1 );
+            /*int res = */
+            eventfd_write( stop_event_.hdl( ), 1 );
         }
 
         void add_fd( int fd, unsigned events, reaction_callback cb )
