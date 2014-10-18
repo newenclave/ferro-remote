@@ -94,7 +94,7 @@ namespace fr { namespace agent { namespace subsys {
                 case proto::fs::open_file_values::IROTH:
                     res = S_IROTH; break;
                 case proto::fs::open_file_values::IWOTH:
-                    res = S_IWOTH;
+                    res = S_IWOTH; break;
                 case proto::fs::open_file_values::IXOTH:
                     res = S_IXOTH; break;
                 default:
@@ -516,7 +516,7 @@ namespace fr { namespace agent { namespace subsys {
                 vtrc::shared_ptr<file_iface> f( file::create( p.string( ),
                                                 O_WRONLY | O_CREAT | O_TRUNC,
                                                 S_IRUSR | S_IWUSR ) );
-                size_t r = f->write( request->data( ).c_str( ), len );
+                f->write( request->data( ).c_str( ), len );
             }
 
         public:

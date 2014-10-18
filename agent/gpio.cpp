@@ -203,6 +203,7 @@ namespace fr { namespace agent {
         } else {
             vcomm::throw_system_error( EINVAL, pos.c_str( ) );
         }
+        return gpio::DIRECT_OUT;
     }
 
     void  gpio_helper::set_direction( gpio::direction_type val ) const
