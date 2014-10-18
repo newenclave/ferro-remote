@@ -51,28 +51,26 @@ namespace fr { namespace agent { namespace subsys {
         {
             switch ( dir ) {
             case agent::gpio::DIRECT_IN:
-                return agent::gpio::DIRECT_IN;
             case agent::gpio::DIRECT_OUT:
-                return agent::gpio::DIRECT_OUT;
+                return static_cast<agent::gpio::direction_type>(dir);
             default:
                 vcomm::throw_system_error( EINVAL, "Bad direction" );
             }
+            return agent::gpio::DIRECT_OUT; ///
         }
 
         agent::gpio::edge_type edge_from_proto( unsigned edge )
         {
             switch ( edge ) {
             case agent::gpio::EDGE_NONE:
-                return agent::gpio::EDGE_NONE;
             case agent::gpio::EDGE_FALLING:
-                return agent::gpio::EDGE_FALLING;
             case agent::gpio::EDGE_RISING:
-                return agent::gpio::EDGE_RISING;
             case agent::gpio::EDGE_BOTH:
-                return agent::gpio::EDGE_BOTH;
+                return static_cast<agent::gpio::edge_type>(edge);
             default:
                 vcomm::throw_system_error( EINVAL, "Bad edge" );
             }
+            return agent::gpio::EDGE_NONE;
         }
 
         class gpio_impl: public gproto::instance {
