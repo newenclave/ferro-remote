@@ -7,7 +7,7 @@
 namespace fr { namespace agent {
 
     struct subsystem_iface
-            :public vtrc::enable_shared_from_this<subsystem_iface>
+            :public vtrc::enable_shared_from_this<subsystem_iface> 
     {
 
         virtual ~subsystem_iface( ) { }
