@@ -168,7 +168,7 @@ namespace fr { namespace lua {
                     ->add( objects::new_string( "close" ),
                            objects::new_function( &lcall_fs_close ))
 
-                    /* ======= read and write file withot object ======= */
+                    /* ======= read and write file without object ======= */
                     ->add( objects::new_string( "read" ),
                            objects::new_function( &lcall_fs_read_file ))
                     ->add( objects::new_string( "write" ),
