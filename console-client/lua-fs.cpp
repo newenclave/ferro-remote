@@ -46,6 +46,7 @@ namespace fr { namespace lua {
         int lcall_fs_iter_begin( lua_State *L );
         int lcall_fs_iter_next(  lua_State *L );
         int lcall_fs_iter_get(   lua_State *L );
+        int lcall_fs_iter_clone( lua_State *L );
         int lcall_fs_iter_end(   lua_State *L );
 
         int lcall_fs_file_flags( lua_State *L );
@@ -178,6 +179,8 @@ namespace fr { namespace lua {
                            objects::new_function( &lcall_fs_iter_begin ))
                     ->add( objects::new_string( "iter_get" ),
                            objects::new_function( &lcall_fs_iter_get ))
+                    ->add( objects::new_string( "iter_clone" ),
+                           objects::new_function( &lcall_fs_iter_clone ))
                     ->add( objects::new_string( "iter_next" ),
                            objects::new_function( &lcall_fs_iter_next ))
                     ->add( objects::new_string( "iter_end" ),
@@ -477,6 +480,23 @@ namespace fr { namespace lua {
             fsiterator_sptr ni( get_iterator( L ) );
             if( ni ) {
                 ls.push( ni->get( ).path.c_str( ) );
+                return 1;
+            }
+            return 0;
+        }
+
+        int lcall_fs_iter_clone( lua_State *L )
+        {
+            lua::state ls(L);
+            data *i = get_iface( L );
+            fsiterator_sptr ni( get_iterator( L ) );
+            fsiterator_sptr nni;
+
+            if( ni ) {
+                nni.reset( ni->clone( ) );
+                std::lock_guard<std::mutex> lck(i->iterators_lock_);
+                i->iterators_.insert( std::make_pair(nni.get( ), nni ) );
+                ls.push( reinterpret_cast<void *>( nni.get( ) ) );
                 return 1;
             }
             return 0;
