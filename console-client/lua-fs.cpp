@@ -153,7 +153,7 @@ namespace fr { namespace lua {
                        objects::new_function( &lcall_fs_iter_clone ))
                 ->add( objects::new_string( "next" ),
                        objects::new_function( &lcall_fs_iter_next ))
-                ->add( objects::new_string( "end" ),
+                ->add( objects::new_string( "is_end" ),
                        objects::new_function( &lcall_fs_iter_end ));
 
                 return f;
