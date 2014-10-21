@@ -205,7 +205,7 @@ namespace fr { namespace lua {
                     ->add( objects::new_string( "iter_end" ),
                            objects::new_function( &lcall_fs_iter_end ))
                     ->add( objects::new_string( "iterator" ),
-                           create_file_table( ) )
+                           create_iter_table( ) )
                     /* ==== files ==== */
                     ->add( objects::new_string( "file" ),
                            create_file_table( ))
