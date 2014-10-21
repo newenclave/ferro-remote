@@ -4,67 +4,76 @@ fr = {
 
     client = {
 
-        connect     = function@0x53a553
-        disconnect  = function@0x53a6e3,
+        connect     = function( ip:port/local_name ) -> err, bool
+        disconnect  = function( ) -> nil
         server      = "xxx.xxx.xxx.xxx:xxxxx" // if connected else nil
 
         os = {
-            system = function@0x532424 // int system( "command" )
+            system = function("command" ) -> int
         },
 
         gpio = {
 
             available  = true, // true or false
 
-            EDGE_NONE    = 0,
-            EDGE_RISING  = 1,
-            EDGE_FALLING = 2,
-            EDGE_BOTH    = 3,
+            EDGE_NONE    = 0, // edge
+            EDGE_RISING  = 1, // edge
+            EDGE_FALLING = 2, // edge
+            EDGE_BOTH    = 3, // edge
 
-            DIRECT_IN   = 0,
-            DIRECT_OUT  = 1,
+            DIRECT_IN   = 0, // direction
+            DIRECT_OUT  = 1, // direction
 
-            export      = function@0x643eac, // device export( gpio_id [, DIRECT_IN or DIRECT_OUT] )
-            unexport    = function@0x644356, // void unexport( device )
+            export          = function( gpio_id [, DIRECT_IN or DIRECT_OUT] ) -> device_instance
+            unexport        = function( device_instance ) -> nil
 
-            direction       = function@0x6448a3, // returns direction (direction( device ))
-            set_direction   = function@0x6447a8,
+            direction       = function( device_instance ) -> direction
+            set_direction   = function( device_instance, direction ),
 
-            value           = function@0x64451f
-            set_value       = function@0x644433,
+            value           = function( device_instance ) -> value
+            set_value       = function( device_instance, value ) -> nil,
 
-            edge_supported  = function@0x6446d0,
-            edge            = function@0x6446e1,
-            set_edge        = function@0x6445e6,
+            edge_supported  = function( device_instance ) -> boolean,
+            edge            = function( device_instance ) -> edge,
+            set_edge        = function( device_instance, edge ) -> nil,
 
-            register_for_change = function@0x644aa0,
-            unregister          = function@0x644e1d,
+            register_for_change = function( device_instance, call_name, ... ) -> nil,
+            unregister          = function( device_instance ) -> nil,
 
-            info  = function@0x64411b,
+            info  = function( device_instance ) -> { ... },
 
-            close = function@0x64496a, // close(device)
+            close = function( device_instance )
         },
         fs = {
 
-            iter_begin  = function@0x50c2f6,
-            iter_next   = function@0x50c609,
-            iter_get    = function@0x50c7da,
-            iter_end    = function@0x50c7da,
+            iter_begin  = function, // depricated
+            iter_next   = function, // depricated
+            iter_get    = function, // depricated
+            iter_end    = function, // depricated
 
-            read    = function@0x50b85a,
-            write   = function@0x50b9fd,
-            close   = function@0x50b34c,
-            mkdir   = function@0x50b68c,
-            del     = function@0x50b773,
-            rename  = function@0x50b4ec,
-            info    = function@0x50bfdc,
-            cd      = function@0x50b265,
-            pwd     = function@0x50b193,
-            stat    = function@0x50bb91,
+            read    = function( path_to_file, max_length ) -> data,
+            write   = function( path_to_file, data ) -> nil,
+            mkdir   = function( path_to_new_dir ),
+            del     = function( path_to_new_dir ),
+            rename  = function( path_to_old_name, path_to_new_name ),
+            info    = function( path_to_old_name ) -> { ... },
+            cd      = function( path_to_new_dir ),
+            pwd     = function(  ) -> path_to_current_dir,
+            stat    = function,
+
+            close   = function( file or iterator ),
+
+            iterator = {
+                begin   = function( [path_to_directory] ) -> fs_element_name, iterator
+                clone   = function( iterator ) -> new_iterator,
+                next    = function( iterator ) -> fs_element_name,
+                is_end  = function( iterator ) -> boolean,
+                get     = function( iterator ) -> full_path_of_fs_element
+            },
 
             file = {
 
-                RDONLY   = 0,
+                RDONLY   = 0,        // flags
                 WRONLY   = 1,
                 RDWR     = 2,
                 CREAT    = 64,
@@ -73,9 +82,9 @@ fr = {
                 APPEND   = 1024,
                 NONBLOCK = 2048,
                 ASYNC    = 8192,
-                SYNC     = 1052672,
+                SYNC     = 1052672,  // flags
 
-                IXOTH   = 1,
+                IXOTH   = 1,         // mode
                 IWOTH   = 2,
                 IROTH   = 4,
                 IRWXO   = 7,
@@ -86,22 +95,22 @@ fr = {
                 IXUSR   = 64,
                 IWUSR   = 128,
                 IRUSR   = 256,
-                IRWXU   = 448,
+                IRWXU   = 448,      // mode
 
-                SEEK_SET = 0,
-                SEEK_CUR = 1,
-                SEEK_END = 2,
+                SEEK_SET = 0,       // seek_type
+                SEEK_CUR = 1,       // seek_type
+                SEEK_END = 2,       // seek_type
 
-                read    = function@0x50d06a,
-                write   = function@0x50d22e,
-                flags   = function@0x50ca34,
-                seek    = function@0x50cdae,
-                open    = function@0x50caff,
-                flush   = function@0x50cfb3,
-                tell    = function@0x50ceea,
+                open    = function( path_to_file, flags [, mode] ) -> file_inst,
+                read    = function( file_inst[, max_len] ) -> data,
+                write   = function( file_inst, data) -> nil,
+                flags   = function( flag1, flag2, ..., flagN ) -> flags,
+                seek    = function( file_inst, seek_type[, position] ) -> position,
+                tell    = function( file_inst ) -> position),
+                flush   = function( file_inst ) -> nil,
 
-                register_for_events = function@0x50d422,
-                unregister          = function@0x50d79f,
+                register_for_events = function( file_inst, handler_name, ... ) -> nil,
+                unregister          = function( file_inst ) -> nil,
 
             },
         }
