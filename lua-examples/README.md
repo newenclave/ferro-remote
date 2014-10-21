@@ -1,12 +1,21 @@
 ## Global calls
 
-print    = function( ... )  // prints numbers as Float
-println  = function( ... )  // prints numbers as Float
-printi   = function( ... )  // prints numbers as Integars
-printiln = function( ... )  // prints numbers as Integars
-die      = function( reason ) // quits execution with 'reason' error
-open     = function( libaname or path_to_lua_script )
+```lua
+    print    = function( ... )  // prints numbers as Float
+
+    println  = function( ... )  // prints numbers as Float
+
+    printi   = function( ... )  // prints numbers as Integars
+
+    printiln = function( ... )  // prints numbers as Integars
+
+    die      = function( reason ) // quits execution with 'reason' error
+
+    open     = function( libaname or path_to_lua_script )
+            available libs: base, table, io, math, debug, package, string, os
+
 sleep    = function( seconds )
+```
 
 ## fr table
 ```lua
