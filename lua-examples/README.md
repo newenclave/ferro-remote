@@ -101,7 +101,7 @@ fr = {
                 SEEK_CUR = 1,       // seek_type
                 SEEK_END = 2,       // seek_type
 
-                open    = function( path_to_file, flags [, mode] ) -> file_inst,
+                open    = function( path_to_file[, flags [, mode ]] ) -> file_inst, RDONLY is default
                 read    = function( file_inst[, max_len] ) -> data,
                 write   = function( file_inst, data) -> nil,
                 flags   = function( flag1, flag2, ..., flagN ) -> flags,
