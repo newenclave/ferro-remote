@@ -51,7 +51,7 @@ namespace fr { namespace lua {
     }
 
     namespace os {
-        const char *table_name( ) { return "fs"; }
+        const char *table_name( ) { return "os"; }
         const char *table_path( )
         {
             static const std::string path =

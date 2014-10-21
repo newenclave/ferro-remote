@@ -141,6 +141,25 @@ namespace fr { namespace lua {
                 return f;
             }
 
+            objects::table_sptr create_iter_table( )
+            {
+                objects::table_sptr f( objects::new_table( ) );
+
+                f->add( objects::new_string( "begin" ),
+                       objects::new_function( &lcall_fs_iter_begin ))
+                ->add( objects::new_string( "get" ),
+                       objects::new_function( &lcall_fs_iter_get ))
+                ->add( objects::new_string( "clone" ),
+                       objects::new_function( &lcall_fs_iter_clone ))
+                ->add( objects::new_string( "next" ),
+                       objects::new_function( &lcall_fs_iter_next ))
+                ->add( objects::new_string( "end" ),
+                       objects::new_function( &lcall_fs_iter_end ));
+
+                return f;
+            }
+
+
 #undef ADD_FILE_TABLE_MODE
 #undef ADD_FILE_TABLE_FLAG
 
@@ -185,11 +204,11 @@ namespace fr { namespace lua {
                            objects::new_function( &lcall_fs_iter_next ))
                     ->add( objects::new_string( "iter_end" ),
                            objects::new_function( &lcall_fs_iter_end ))
+                    ->add( objects::new_string( "iterator" ),
+                           create_file_table( ) )
                     /* ==== files ==== */
                     ->add( objects::new_string( "file" ),
                            create_file_table( ))
-
-
                 ;
                 return tabl;
             }

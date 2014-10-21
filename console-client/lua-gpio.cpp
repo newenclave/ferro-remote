@@ -357,7 +357,7 @@ namespace fr { namespace lua {
     }
 
     namespace gpio {
-        const char *table_name( ) { return "fs"; }
+        const char *table_name( ) { return "gpio"; }
         const char *table_path( )
         {
             static const std::string path =

@@ -10,7 +10,6 @@
 #include "google/protobuf/descriptor.h"
 #include "interfaces/IInternal.h"
 
-
 namespace po = boost::program_options;
 
 namespace vcommon = vtrc::common;
