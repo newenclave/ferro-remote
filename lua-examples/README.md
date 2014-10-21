@@ -74,7 +74,7 @@ fr = {
             info    = function( path_to_old_name ) -> { ... },
             cd      = function( path_to_new_dir ),
             pwd     = function(  ) -> path_to_current_dir,
-            stat    = function,
+            stat    = function(  path_to_fs_object ) -> { ... },
 
             close   = function( file or iterator ),
 
