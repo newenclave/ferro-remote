@@ -467,7 +467,7 @@ namespace lua {
             const char *pl = path_leaf( path );
             if( pl == path ) {
                 get_global( pl );
-                T val;
+                T val = T( );
                 if( !none_or_nil(  ) ) try {
                     val = get<T>( );
                     pop( );
