@@ -24,7 +24,8 @@ fr = {
         server      = "xxx.xxx.xxx.xxx:xxxxx" // if connected else nil
 
         os = {
-            system = function("command" ) -> int
+            system  = function("command" ) -> int
+            execute = function("command" ) -> int // the same as system
         },
 
         gpio = {
