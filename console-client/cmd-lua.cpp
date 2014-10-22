@@ -342,9 +342,10 @@ namespace fr { namespace cc { namespace cmd {
                     std::string script( vm["exec"].as<std::string>( ) );
                     std::string buf = load_file( script );
 
-                    lv.check_call_error(
-                                lv.load_buffer( buf.c_str( ),
-                                                buf.size( ), script.c_str( ) ));
+                    lv.check_call_error( lv.load_file(script.c_str( ) ) );
+//                    lv.check_call_error(
+//                                lv.load_buffer( buf.c_str( ),
+//                                                buf.size( ), script.c_str( ) ));
 
                     lo::base_sptr par = create_params( vm );
                     if( lv.exists( main_function.c_str( ) ) ) {
