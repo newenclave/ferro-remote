@@ -6,18 +6,19 @@
 --]]
 
 fs = fr.client.fs
+fsiter = fs.iterator
 
 function main( argv )
 
     println( 'Show directory "', argv.path, '"')
 
-    path, iterator = fs.iter_begin( argv.path )
+    path, iterator = fsiter.begin( argv.path )
 
     local empty_or_not = { [false]='+', [true] = ' ' }
 
-    while not fs.iter_end( iterator ) do
+    while not fsiter.is_end( iterator ) do
 
-        info = fs.info( fs.iter_get( iterator ) )
+        info = fs.info( fsiter.get( iterator ) )
 
         if info.failed then
             name = '?'..path..'?'
@@ -27,7 +28,7 @@ function main( argv )
             name = '  '..path
         end
         println( '  '..name )
-        path = fs.iter_next( iterator )
+        path = fsiter.next( iterator )
 
     end
 

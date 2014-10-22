@@ -23,13 +23,15 @@ namespace fr { namespace client { namespace interfaces {
         typedef vcomm::stub_wrapper<stub_type>  client_type;
 
         fproto::handle open_file( client_type &cl, const std::string &path,
-                                  unsigned flags, unsigned mode )
+                                  unsigned flags, unsigned mode,
+                                  bool as_device )
         {
             fproto::file_open_req req;
             fproto::handle        res;
             req.set_path( path );
             req.set_flags( flags );
             req.set_mode( mode );
+            req.set_as_device( as_device );
             cl.call( &stub_type::open, &req, &res );
 
             return res;
@@ -43,10 +45,10 @@ namespace fr { namespace client { namespace interfaces {
 
             file_impl( core::client_core &ccore,
                        const std::string &path,
-                       unsigned flags, unsigned mode )
+                       unsigned flags, unsigned mode, bool as_device )
                 :core_(ccore)
                 ,client_(core_.create_channel( ), true)
-                ,hdl_(open_file(client_, path, flags, mode))
+                ,hdl_(open_file(client_, path, flags, mode, as_device))
             { }
 
             ~file_impl( )  {
@@ -175,14 +177,26 @@ namespace fr { namespace client { namespace interfaces {
         iface_ptr create( core::client_core &cl,
                           const std::string &path, unsigned  flags )
         {
-            return new file_impl( cl, path, flags, 0 );
+            return new file_impl( cl, path, flags, 0, false );
         }
 
         iface_ptr create( core::client_core &cl,
                           const std::string &path,
                           unsigned flags, unsigned mode )
         {
-            return new file_impl( cl, path, flags, mode );
+            return new file_impl( cl, path, flags, mode, false );
+        }
+
+        iface_ptr create_simple_device( core::client_core &cl,
+                          const std::string &path, unsigned flags )
+        {
+            return new file_impl( cl, path, flags, 0, true );
+        }
+
+        iface_ptr create_simple_device( core::client_core &cl,
+                       const std::string &path, unsigned flags, unsigned mode )
+        {
+            return new file_impl( cl, path, flags, mode, true );
         }
     }
 

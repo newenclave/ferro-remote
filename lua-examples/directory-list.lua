@@ -6,6 +6,7 @@
 --]]
 
 fs = fr.client.fs
+fsiter = fs.iterator
 
 function main( argv )
 
@@ -13,11 +14,11 @@ function main( argv )
 
     fs.cd( argv.path ) -- change our path
 
-    path, iterator = fs.iter_begin( )
+    path, iterator = fsiter.begin( )
 
     local empty_or_not = { [false]='+', [true] = ' ' }
 
-    while not fs.iter_end( iterator ) do
+    while not fsiter.is_end( iterator ) do
 
         info = fs.info( path )
 
@@ -29,7 +30,7 @@ function main( argv )
             name = '  '..path
         end
         println( '  '..name )
-        path = fs.iter_next( iterator )
+        path = fsiter.next( iterator )
 
     end
 

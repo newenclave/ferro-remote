@@ -49,11 +49,12 @@ namespace fr { namespace lua {
         int lcall_fs_iter_clone( lua_State *L );
         int lcall_fs_iter_end(   lua_State *L );
 
-        int lcall_fs_file_flags( lua_State *L );
-        int lcall_fs_file_open(  lua_State *L );
-        int lcall_fs_file_seek(  lua_State *L );
-        int lcall_fs_file_tell(  lua_State *L );
-        int lcall_fs_file_flush( lua_State *L );
+        int lcall_fs_file_flags(    lua_State *L );
+        int lcall_fs_file_open(     lua_State *L );
+        int lcall_fs_file_open_dev( lua_State *L );
+        int lcall_fs_file_seek(     lua_State *L );
+        int lcall_fs_file_tell(     lua_State *L );
+        int lcall_fs_file_flush(    lua_State *L );
 
         int lcall_fs_file_ev_reg(   lua_State *L );
         int lcall_fs_file_ev_unreg( lua_State *L );
@@ -120,10 +121,12 @@ namespace fr { namespace lua {
 
                 f->add( objects::new_string( "flags" ),
                         objects::new_function( &lcall_fs_file_flags ));
-                f->add( objects::new_string( "seek" ),
-                        objects::new_function( &lcall_fs_file_seek ));
                 f->add( objects::new_string( "open" ),
                         objects::new_function( &lcall_fs_file_open ));
+                f->add( objects::new_string( "open_device" ),
+                        objects::new_function( &lcall_fs_file_open_dev ));
+                f->add( objects::new_string( "seek" ),
+                        objects::new_function( &lcall_fs_file_seek ));
                 f->add( objects::new_string( "tell" ),
                         objects::new_function( &lcall_fs_file_tell ));
                 f->add( objects::new_string( "flush" ),
@@ -146,15 +149,15 @@ namespace fr { namespace lua {
                 objects::table_sptr f( objects::new_table( ) );
 
                 f->add( objects::new_string( "begin" ),
-                       objects::new_function( &lcall_fs_iter_begin ))
-                ->add( objects::new_string( "get" ),
-                       objects::new_function( &lcall_fs_iter_get ))
-                ->add( objects::new_string( "clone" ),
-                       objects::new_function( &lcall_fs_iter_clone ))
-                ->add( objects::new_string( "next" ),
-                       objects::new_function( &lcall_fs_iter_next ))
-                ->add( objects::new_string( "is_end" ),
-                       objects::new_function( &lcall_fs_iter_end ));
+                        objects::new_function( &lcall_fs_iter_begin ))
+                 ->add( objects::new_string( "get" ),
+                        objects::new_function( &lcall_fs_iter_get ))
+                 ->add( objects::new_string( "clone" ),
+                        objects::new_function( &lcall_fs_iter_clone ))
+                 ->add( objects::new_string( "next" ),
+                        objects::new_function( &lcall_fs_iter_next ))
+                 ->add( objects::new_string( "is_end" ),
+                        objects::new_function( &lcall_fs_iter_end ));
 
                 return f;
             }
@@ -192,18 +195,6 @@ namespace fr { namespace lua {
                            objects::new_function( &lcall_fs_read_file ))
                     ->add( objects::new_string( "write" ),
                            objects::new_function( &lcall_fs_write_file ))
-
-                    /* ==== iterators ==== */
-                    ->add( objects::new_string( "iter_begin" ),
-                           objects::new_function( &lcall_fs_iter_begin ))
-                    ->add( objects::new_string( "iter_get" ),
-                           objects::new_function( &lcall_fs_iter_get ))
-                    ->add( objects::new_string( "iter_clone" ),
-                           objects::new_function( &lcall_fs_iter_clone ))
-                    ->add( objects::new_string( "iter_next" ),
-                           objects::new_function( &lcall_fs_iter_next ))
-                    ->add( objects::new_string( "iter_end" ),
-                           objects::new_function( &lcall_fs_iter_end ))
 
                     /* ==== iterators as table ==== */
                     ->add( objects::new_string( "iterator" ),
@@ -578,7 +569,13 @@ namespace fr { namespace lua {
             return 1;
         }
 
-        int lcall_fs_file_open( lua_State *L )
+
+        typedef file::iface_ptr
+                (* create_file_call)( client::core::client_core &,
+                                      const std::string &,
+                                      unsigned, unsigned );
+
+        int lcall_fs_file_open_impl( lua_State *L, create_file_call creator )
         {
             lua::state ls(L);
             int n = ls.get_top( );
@@ -600,7 +597,7 @@ namespace fr { namespace lua {
             data *i = get_iface( L );
             client::core::client_core *cc = lua::get_core( L )->core_;
             try {
-                file_sptr f(file::create( *cc, path, flags, mode ));
+                file_sptr f( creator( *cc, path, flags, mode ) );
 
                 std::lock_guard<std::mutex> lg(i->files_lock_);
                 i->files_.insert( std::make_pair( f.get( ), f ) );
@@ -611,6 +608,17 @@ namespace fr { namespace lua {
 
             }
             return 0;
+
+        }
+
+        int lcall_fs_file_open( lua_State *L )
+        {
+            return lcall_fs_file_open_impl( L, &file::create );
+        }
+
+        int lcall_fs_file_open_dev( lua_State *L )
+        {
+            return lcall_fs_file_open_impl( L, &file::create_simple_device );
         }
 
         file::seek_whence from_unsigned( unsigned v )

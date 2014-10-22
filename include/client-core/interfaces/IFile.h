@@ -92,6 +92,12 @@ namespace interfaces { namespace file {
     iface_ptr create( core::client_core &cl,
                       const std::string &path, unsigned flags, unsigned mode );
 
+    iface_ptr create_simple_device( core::client_core &cl,
+                      const std::string &path, unsigned flags );
+
+    iface_ptr create_simple_device( core::client_core &cl,
+                      const std::string &path, unsigned flags, unsigned mode );
+
 }}}}
 
 #endif // IFILE_H

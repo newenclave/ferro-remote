@@ -6,6 +6,7 @@
 --]]
 
 fs = fr.client.fs
+fsiter = fs.iterator
 
 function show_directory( level, parent, subdir )
 
@@ -16,10 +17,12 @@ function show_directory( level, parent, subdir )
         fs.cd( current_path )
     end
 
-    local path, iterator = fs.iter_begin( )
+    local path, iterator = fsiter.begin( )
 
-    while not fs.iter_end( iterator ) do
+    while not fsiter.is_end( iterator ) do
+
         info = fs.info( path )
+
         if info.is_directory then
 
             println( level..'['..path..']' )
@@ -31,7 +34,7 @@ function show_directory( level, parent, subdir )
         else
             println( level..' '..path )
         end
-        path = fs.iter_next( iterator )
+        path = fsiter.next( iterator )
     end
 
     fs.close( iterator ) -- ok ...
