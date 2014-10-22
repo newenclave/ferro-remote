@@ -738,7 +738,8 @@ namespace fr { namespace lua {
 
             ls.pop( n );
 
-            lua::state_sptr thread(new lua::state(lua_newthread( L )));
+            lua::state_sptr thread(new lua::state(lua_newthread( L ),
+                                                  lua::state::OWN_STATE ));
             ls.pop( );
             f->register_for_events( std::bind( file_event_handler,
                                                std::placeholders::_1,
