@@ -25,7 +25,7 @@ fr = {
 
         os = {
             system  = function("command" ) -> int
-            execute = function("command" ) -> int // the same as system
+            execute = function("command" ) -> int // the same as 'system'
         },
 
         gpio = {
@@ -115,7 +115,10 @@ fr = {
                 open        = function( path_to_file[, flags [, mode ]] ) -> file_inst, 
                               flags = RDONLY is default
                 open_device = function( path_to_file[, flags [, mode ]] ) -> file_inst, 
-                              flags = RDONLY is default
+                              flags = RDONLY is default;
+                              Every time you read or write this file,
+                              agent sets its position to 0;
+                              Easy way to read v2r_xxx devices =)
                 read        = function( file_inst[, max_len] ) -> data,
                 write       = function( file_inst, data) -> nil,
                 flags       = function( flag1, flag2, ..., flagN ) -> flags,
