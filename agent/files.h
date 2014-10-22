@@ -37,6 +37,11 @@ namespace fr { namespace agent {
         file_ptr create( std::string const &path, int flags, mode_t mode );
     }
 
+    namespace device {
+        file_ptr create( std::string const &path, int flags );
+        file_ptr create( std::string const &path, int flags, mode_t mode );
+    }
+
 }}
 
 #endif // FR_FILEIFACE_H

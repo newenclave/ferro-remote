@@ -623,10 +623,23 @@ namespace fr { namespace agent { namespace subsys {
                     mode = S_IRUSR | S_IWUSR;
                 }
 
-                file_sptr new_file( (mode == 0)
-                    ? fr::agent::file::create( request->path( ), flags )
-                    : fr::agent::file::create( request->path( ), flags, mode )
-                );
+                file_sptr new_file;
+
+                namespace afile     = fr::agent::file;
+                namespace adevice   = fr::agent::device;
+
+                if( request->as_device( ) ) {
+                    new_file.reset( (mode == 0)
+                        ? adevice::create( request->path( ), flags )
+                        : adevice::create( request->path( ), flags, mode )
+                    );
+                } else {
+                    new_file.reset( (mode == 0)
+                        ? afile::create( request->path( ), flags )
+                        : afile::create( request->path( ), flags, mode )
+                    );
+                }
+
                 response->set_value( add_file( new_file ) );
             }
 

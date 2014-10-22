@@ -150,9 +150,10 @@ message open_file_values { /* man 2 open */
 }
 
 message file_open_req {
-    optional string path  = 1;
-    optional uint32 flags = 2; // see open_file_values.flags
-    optional uint32 mode  = 3; // see open_file_values.mode
+    optional string path      = 1;
+    optional uint32 flags     = 2; // see open_file_values.flags
+    optional uint32 mode      = 3; // see open_file_values.mode
+    optional bool   as_device = 4;
 }
 
 enum file_position_whence {
