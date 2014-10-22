@@ -39,7 +39,7 @@ fr = {
             DIRECT_IN   = 0, // direction
             DIRECT_OUT  = 1, // direction
 
-            export          = function( gpio_id [, DIRECT_IN or DIRECT_OUT] ) -> device_instance
+            export          = function( gpio_id[, direction] ) -> device_instance
             unexport        = function( device_instance ) -> nil
 
             direction       = function( device_instance ) -> direction
