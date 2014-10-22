@@ -37,7 +37,7 @@ namespace lua {
 
             if ( old_size && new_size && ptr ) {
                 if ( old_size < new_size ) {
-                    tmp = realloc (ptr, new_size);
+                    tmp = realloc ( ptr, new_size );
                 } else {
                     tmp = ptr;
                 }
