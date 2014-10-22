@@ -5,6 +5,7 @@
 #if FR_WITH_LUA
 
 #include <iostream>
+#include <stdio.h>
 #include "interfaces/IOS.h"
 
 #define LUA_WRAPPER_TOP_NAMESPACE fr
@@ -298,6 +299,20 @@ namespace fr { namespace cc { namespace cmd {
                 return t;
             }
 
+            std::string load_file( const std::string &path )
+            {
+                FILE *f = fopen( path.c_str( ), "rb" );
+                std::string res;
+                if( f ) {
+                    std::vector<char> tmp(4096);
+                    while(size_t len = fread( &tmp[0], 1, tmp.size( ), f )) {
+                        res.append( tmp.begin( ), tmp.begin( ) + len );
+                    }
+                    fclose( f );
+                }
+                return res;
+            }
+
             void exec( po::variables_map &vm, core::client_core &cl )
             {
                 lua_state lv;
@@ -325,7 +340,10 @@ namespace fr { namespace cc { namespace cmd {
 
                 if( vm.count( "exec" ) ) {
                     std::string script( vm["exec"].as<std::string>( ) );
-                    lv.check_call_error( lv.load_file( script.c_str( ) ) );
+                    std::string buf = load_file( script );
+                    lv.check_call_error(
+                                lv.load_buffer( buf.c_str( ), buf.size( ) ) );
+
                     lo::base_sptr par = create_params( vm );
                     if( lv.exists( main_function.c_str( ) ) ) {
                         int res = lv.exec_function( main_function.c_str( ),

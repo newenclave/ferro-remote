@@ -604,6 +604,16 @@ namespace lua {
             }
             return res;
         }
+
+        int load_buffer( const char *buf, size_t length,
+                         const char *name = NULL )
+        {
+            int res = luaL_loadbuffer ( vm_, buf, length, name ? name : "" );
+            if( 0 == res ) {
+                res = lua_pcall( vm_, 0, LUA_MULTRET, 0);
+            }
+            return res;
+        }
     };
     typedef std::shared_ptr<state> state_sptr;
 }
