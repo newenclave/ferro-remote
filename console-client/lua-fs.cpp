@@ -741,7 +741,6 @@ namespace fr { namespace lua {
             lua::state_sptr thread(
                         std::make_shared<lua::state>( lua_newthread( L ),
                                                       lua::state::OWN_STATE ) );
-            lua_resume( thread->get_state( ), 0 );
             ls.pop( );
             f->register_for_events( std::bind( file_event_handler,
                                                std::placeholders::_1,
