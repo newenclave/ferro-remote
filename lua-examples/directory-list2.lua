@@ -5,7 +5,7 @@
         -p"path=/remote/path"
 --]]
 
-fs = fr.client.fs
+fs     = fr.client.fs
 fsiter = fs.iterator
 
 function main( argv )
