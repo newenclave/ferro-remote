@@ -117,7 +117,7 @@ fr = {
                 open_device = function( path_to_file[, flags [, mode ]] ) -> file_inst, 
                               flags = RDONLY is default;
                               Every time you read or write this file,
-                              agent sets its position to 0;
+                              agent sets its position to 0 after operation;
                               Easy way to read v2r_xxx devices =)
                 read        = function( file_inst[, max_len] ) -> data,
                 write       = function( file_inst, data) -> nil,
