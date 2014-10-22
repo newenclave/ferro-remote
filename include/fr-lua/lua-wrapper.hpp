@@ -102,7 +102,7 @@ namespace lua {
                 ,{ LUA_LOADLIBNAME, &luaopen_package }
             };
 
-            const size_t libs_count = sizeof( libs )/sizeof( libs[0] );
+            const size_t libs_count = sizeof( libs ) / sizeof( libs[0] );
 
             for( size_t i=0; i<libs_count; ++i ) {
                 if( 0 == libs[i].name.compare( libname ) ) {
@@ -480,7 +480,7 @@ namespace lua {
                 std::string tpath( path, (pl - path) );
                 int level = get_table( tpath.c_str( ) );
                 if( level ) {
-                    T val;
+                    T val = T( );
                     try {
                         val = get_field<T>( pl + 1 );
                         pop( level );
@@ -492,6 +492,32 @@ namespace lua {
                 }
             }
             return T( );
+        }
+
+
+        bool exists( const char *path )
+        {
+            const char *pl = path_leaf( path );
+            bool res = false;
+            if( pl == path ) {
+                get_global( pl );
+                if( !none_or_nil(  ) ) {
+                    res = true;
+                    pop( );
+                }
+            } else {
+                std::string tpath( path, (pl - path) );
+                int level = get_table( tpath.c_str( ) );
+                if( level ) {
+                    lua_getfield( vm_, -1, pl + 1 );
+                    if( !none_or_nil(  ) ) {
+                        res = true;
+                        pop( );
+                    }
+                    pop( level );
+                }
+            }
+            return res;
         }
 
         int exec_function( const char* func )

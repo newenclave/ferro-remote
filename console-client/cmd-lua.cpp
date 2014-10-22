@@ -300,8 +300,8 @@ namespace fr { namespace cc { namespace cmd {
 
             void exec( po::variables_map &vm, core::client_core &cl )
             {
-                lua_state ls;
-                register_globals( ls.get_state( ) );
+                lua_state lv;
+                register_globals( lv.get_state( ) );
 
                 lua::core_data cd;
                 cd.core_ = &cl;
@@ -311,22 +311,30 @@ namespace fr { namespace cc { namespace cmd {
 
                 if( !server.empty( ) ) {
                     cl.connect( server );
-                    general_init( ls.get_state( ), server, cd );
+                    general_init( lv.get_state( ), server, cd );
                 }
 
-                set_client_info( ls.get_state( ), cd );
+                set_client_info( lv.get_state( ), cd );
                 std::string main_function("main");
+                bool custom_main = false;
 
                 if( vm.count( "main" ) )  {
                     main_function.assign( vm["main"].as<std::string>( ) );
+                    custom_main = true;
                 }
 
                 if( vm.count( "exec" ) ) {
                     std::string script( vm["exec"].as<std::string>( ) );
-                    ls.check_call_error( ls.load_file( script.c_str( ) ) );
+                    lv.check_call_error( lv.load_file( script.c_str( ) ) );
                     lo::base_sptr par = create_params( vm );
-                    int res = ls.exec_function( main_function.c_str( ), *par );
-                    ls.check_call_error( res );
+                    if( lv.exists( main_function.c_str( ) ) ) {
+                        int res = lv.exec_function( main_function.c_str( ),
+                                                    *par );
+                        lv.check_call_error( res );
+                    } else if( custom_main ) {
+                        std::cout << "Function '" << main_function << "'"
+                                  << " was not found in the script.\n";
+                    }
                 }
             }
 
