@@ -11,11 +11,11 @@
 
 --]]
 
+file = fr.client.fs.file
+
 function handler( err, data, dev_name ) -- other lua thread !
     println( 'read from '..dev_name..' <- ', data ) --show data
 end
-
-file = fr.client.fs.file
 
 function main( argv ) -- main lua thread
 
