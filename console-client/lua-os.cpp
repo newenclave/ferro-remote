@@ -13,6 +13,7 @@ namespace fr { namespace lua {
         typedef std::unique_ptr<iface> iface_uptr;
 
         const char *system_call_name = "system";
+        const char *exec_call_name   = "execute";
 
         iface *get_os_iface( lua_State *L )
         {
@@ -42,6 +43,9 @@ namespace fr { namespace lua {
                 objects::table_sptr ost(objects::new_table( ));
                 ost->add(
                         objects::new_string( system_call_name ),
+                        objects::new_function( &lcall_os_exec ))
+                   ->add(
+                        objects::new_string( exec_call_name ),
                         objects::new_function( &lcall_os_exec ))
                    ->add(
                         objects::new_string( names::inst_field ),

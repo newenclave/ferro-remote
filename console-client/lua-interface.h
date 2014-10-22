@@ -19,13 +19,13 @@ namespace fr { namespace client { namespace core {
 namespace fr { namespace lua {
 
     namespace names {
-        static const char * main_table       = "fr" ;
-        static const char * client_table     = "fr.client";
-        static const char * connect_table    = "fr.client.connect";
-        static const char * disconnect_table = "fr.client.disconnect";
-        static const char * core_path        = "fr.client.core";
-        static const char * server_path      = "fr.client.server";
-        static const char * inst_field       = "__i";
+        extern const char * main_table;
+        extern const char * client_table;
+        extern const char * connect_table;
+        extern const char * disconnect_table;
+        extern const char * core_path;
+        extern const char * server_path;
+        extern const char * inst_field;
     }
 
     struct core_data;

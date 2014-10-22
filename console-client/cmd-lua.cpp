@@ -26,6 +26,19 @@
 #define sleep_( x ) sleep( x ) /// seconds
 #endif
 
+namespace fr { namespace lua {
+
+    namespace names {
+        const char * main_table       = "fr" ;
+        const char * client_table     = "fr.client";
+        const char * connect_table    = "fr.client.connect";
+        const char * disconnect_table = "fr.client.disconnect";
+        const char * core_path        = "fr.client.core";
+        const char * server_path      = "fr.client.server";
+        const char * inst_field       = "__i";
+    }
+}}
+
 namespace fr { namespace cc { namespace cmd {
 
     namespace {

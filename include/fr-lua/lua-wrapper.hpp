@@ -31,19 +31,19 @@ namespace lua {
         bool       own_;
 
         static void *def_alloc( void *ud, void *ptr,
-                                size_t osize, size_t nsize )
+                                size_t old_size, size_t new_size )
         {
             void *tmp = NULL;
 
-            if ( osize && nsize && ptr ) {
-                if ( osize < nsize ) {
-                    tmp = realloc (ptr, nsize);
+            if ( old_size && new_size && ptr ) {
+                if ( old_size < new_size ) {
+                    tmp = realloc (ptr, new_size);
                 } else {
                     tmp = ptr;
                 }
-            } else if( nsize ) {
-                tmp = malloc( nsize );
-            } else if( nsize == 0 ) {
+            } else if( new_size ) {
+                tmp = malloc( new_size );
+            } else if( new_size == 0 ) {
                 free( ptr );
                 tmp = NULL;
             }
@@ -72,9 +72,7 @@ namespace lua {
         state( lua_State *vm, state_owning os = NOT_OWN_STATE )
             :vm_(vm)
             ,own_(os == OWN_STATE)
-        {
-
-        }
+        { }
 
         state( )
             :vm_(lua_newstate( def_alloc, 0 ))
@@ -88,11 +86,6 @@ namespace lua {
             }
         }
 
-//        void openlibs( )
-//        {
-//            luaL_openlibs( vm_ );
-//        }
-
         int openlib( const char *libname )
         {
             static const struct {
@@ -100,7 +93,6 @@ namespace lua {
                 lua_CFunction func;
             } libs[ ] = {
                  { "base",          &luaopen_base    }
-                //,{ LUA_COLIBNAME,   &luaopen_base    }
                 ,{ LUA_TABLIBNAME,  &luaopen_table   }
                 ,{ LUA_IOLIBNAME,   &luaopen_io      }
                 ,{ LUA_OSLIBNAME,   &luaopen_os      }
