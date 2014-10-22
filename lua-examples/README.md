@@ -78,7 +78,7 @@ fr = {
                 begin   = function( [path_to_directory] ) -> fs_element_name, iterator
                 clone   = function( iterator ) -> new_iterator,
                 next    = function( iterator ) -> fs_element_name,
-                is_end  = function( iterator ) -> boolean,
+                is_end  = function( iterator ) -> boolean, -- cant use end =(
                 get     = function( iterator ) -> full_path_of_fs_element
             },
 
