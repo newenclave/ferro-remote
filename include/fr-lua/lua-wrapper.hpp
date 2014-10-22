@@ -244,7 +244,7 @@ namespace lua {
         template<typename T>
         T get_field( const char *key, int id = -1 )
         {
-            T p;
+            T p = T( );
             lua_getfield( vm_, id, key );
             if( !none_or_nil(  ) ) {
                 try {
