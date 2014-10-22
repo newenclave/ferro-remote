@@ -61,12 +61,7 @@ fr = {
             close = function( device_instance )
         },
         fs = {
-
-            iter_begin  = function, // depricated
-            iter_next   = function, // depricated
-            iter_get    = function, // depricated
-            iter_end    = function, // depricated
-
+        
             read    = function( path_to_file, max_length ) -> data,
             write   = function( path_to_file, data ) -> nil,
             mkdir   = function( path_to_new_dir ),
@@ -117,13 +112,16 @@ fr = {
                 SEEK_CUR = 1,       // seek_type
                 SEEK_END = 2,       // seek_type
 
-                open    = function( path_to_file[, flags [, mode ]] ) -> file_inst, flags = RDONLY is default
-                read    = function( file_inst[, max_len] ) -> data,
-                write   = function( file_inst, data) -> nil,
-                flags   = function( flag1, flag2, ..., flagN ) -> flags,
-                seek    = function( file_inst, seek_type[, position] ) -> position,
-                tell    = function( file_inst ) -> position),
-                flush   = function( file_inst ) -> nil,
+                open        = function( path_to_file[, flags [, mode ]] ) -> file_inst, 
+                              flags = RDONLY is default
+                open_device = function( path_to_file[, flags [, mode ]] ) -> file_inst, 
+                              flags = RDONLY is default
+                read        = function( file_inst[, max_len] ) -> data,
+                write       = function( file_inst, data) -> nil,
+                flags       = function( flag1, flag2, ..., flagN ) -> flags,
+                seek        = function( file_inst, seek_type[, position] ) -> position,
+                tell        = function( file_inst ) -> position),
+                flush       = function( file_inst ) -> nil,
 
                 register_for_events = function( file_inst, handler_name, ... ) -> nil,
                 unregister          = function( file_inst ) -> nil,
