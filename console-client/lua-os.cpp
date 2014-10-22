@@ -41,10 +41,12 @@ namespace fr { namespace lua {
             {
                 objects::table_sptr ost(objects::new_table( ));
                 ost->add(
-                    objects::new_string( system_call_name ),
-                    objects::new_function( lcall_os_exec )
-                )->add( objects::new_string( "__i" ),
+                        objects::new_string( system_call_name ),
+                        objects::new_function( &lcall_os_exec ))
+                   ->add(
+                        objects::new_string( names::inst_field ),
                         objects::new_light_userdata( iface_.get( ) ) );
+
                 return ost;
             }
         };
