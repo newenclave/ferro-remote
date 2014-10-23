@@ -24,17 +24,12 @@ function main( argv ) -- main lua thread
     file.register_for_events( f, "handler", argv.dev )
     local i = 0;
 
-    println( fr )
-
-    while i < 5 do
+    while true do
         sleep( 1 )
         print( '.' ) --- some work! =)
-        i = i + 1
     end
 
     file.unregister( f )
-
-    println( fr )
 
 end
 
