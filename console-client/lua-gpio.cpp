@@ -317,20 +317,35 @@ namespace fr { namespace lua {
             return 0;
         }
 
+        struct handler_params {
+            std::weak_ptr<lua::state>       parent_state_;
+            std::shared_ptr<lua::state>     thread_;
+            std::string                     call_name_;
+            std::vector<objects::base_sptr> params_;
+            handler_params( std::weak_ptr<lua::state> ps,
+                            std::shared_ptr<lua::state> t,
+                            std::string cn,
+                            std::vector<objects::base_sptr> par )
+                :parent_state_(ps)
+                ,thread_(t)
+                ,call_name_(cn)
+                ,params_(par)
+            { }
+        };
+
         void gpio_event_handler( unsigned error, unsigned value,
-                                 std::shared_ptr<lua::state> ls,
-                                 std::weak_ptr<lua::state> parent_state,
-                                 const std::string &fcall,
-                                 const std::vector<objects::base_sptr> &params )
+                                 handler_params &p )
         try {
 
-            std::shared_ptr<lua::state> m(parent_state.lock( ));
+            std::shared_ptr<lua::state> m( p.parent_state_.lock( ) );
 
             if( !m ) {
                 return;
             }
 
-            ls->exec_function( fcall.c_str( ), value, params );
+            p.thread_->exec_function( p.call_name_.c_str( ), value,
+                                      p.params_ );
+
         } catch( ... ) {
             //std::cout << "call erro " << "\n";
         }
@@ -365,8 +380,10 @@ namespace fr { namespace lua {
             dev->register_for_change( std::bind( gpio_event_handler,
                                                  std::placeholders::_1,
                                                  std::placeholders::_2,
-                                                 thread, i->state_,
-                                                 call, params ) );
+                                                 handler_params(
+                                                     i->state_, thread,
+                                                     call, params
+                                                 ) ) );
             return 0;
         }
 
