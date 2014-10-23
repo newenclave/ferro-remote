@@ -72,16 +72,20 @@ namespace fr {  namespace client { namespace core {
         vtrc::shared_mutex  acb_lock_;
     };
 
+    typedef vtrc::weak_ptr<callbacks_info>   callbacks_info_wptr;
+    typedef vtrc::shared_ptr<callbacks_info> callbacks_info_sptr;
+
     struct client_core::impl {
 
         vclient::vtrc_client_sptr client_;
         connect_info_sptr         last_connection_;
         mutable vtrc::mutex       client_lock_;
-        callbacks_info            cbi_;
+        callbacks_info_sptr       cbi_;
         client_core              *parent_;
 
         impl( vcommon::pool_pair &pp )
             :client_(vclient::vtrc_client::create(pp))
+            ,cbi_(vtrc::make_shared<callbacks_info>( ))
         {
             client_->on_connect_connect(
                         vtrc::bind( &impl::on_connect, this ) );
@@ -177,8 +181,10 @@ namespace fr {  namespace client { namespace core {
     class proto_event_impl: public fr::proto::events {
 
     public:
-        callbacks_info *cbi_;
-        proto_event_impl( callbacks_info *cbi )
+
+        callbacks_info_wptr cbi_;
+
+        proto_event_impl( callbacks_info_sptr &cbi )
             :cbi_(cbi)
         { }
 
@@ -188,10 +194,16 @@ namespace fr {  namespace client { namespace core {
                       ::google::protobuf::Closure* done)
         {
             vcommon::closure_holder holder( done );
-            vtrc::unique_shared_lock lck( cbi_->acb_lock_ );
-            cb_map::iterator f(cbi_->acb_.find( request->id( ) ));
 
-            if( f != cbi_->acb_.end( ) ) {
+            callbacks_info_sptr cbi(cbi_.lock( ));
+            if( !cbi ) {
+                return;
+            }
+
+            vtrc::unique_shared_lock lck( cbi->acb_lock_ );
+            cb_map::iterator f(cbi->acb_.find( request->id( ) ));
+
+            if( f != cbi->acb_.end( ) ) {
                 f->second( request->error( ).code( ),
                            request->data( ) );
             } else {
@@ -204,7 +216,7 @@ namespace fr {  namespace client { namespace core {
         :impl_(new impl(pp))
     {
         vtrc::shared_ptr<proto_event_impl>
-                e( vtrc::make_shared<proto_event_impl>( &impl_->cbi_ ));
+                e( vtrc::make_shared<proto_event_impl>( impl_->cbi_ ));
         impl_->client_->assign_rpc_handler( e );
         impl_->parent_ = this;
     }
@@ -269,17 +281,17 @@ namespace fr {  namespace client { namespace core {
 
     void client_core::register_async_op( size_t id, async_op_callback_type cb )
     {
-        vtrc::unique_shared_lock lck( impl_->cbi_.acb_lock_ );
-        impl_->cbi_.acb_[id] = cb;
+        vtrc::unique_shared_lock lck( impl_->cbi_->acb_lock_ );
+        impl_->cbi_->acb_[id] = cb;
     }
 
     void client_core::unregister_async_op( size_t id )
     {
-        vtrc::upgradable_lock lck( impl_->cbi_.acb_lock_ );
-        cb_map::iterator f(impl_->cbi_.acb_.find(id));
-        if( f != impl_->cbi_.acb_.end( ) ) {
+        vtrc::upgradable_lock lck( impl_->cbi_->acb_lock_ );
+        cb_map::iterator f(impl_->cbi_->acb_.find(id));
+        if( f != impl_->cbi_->acb_.end( ) ) {
             vtrc::upgrade_to_unique utl(lck);
-            impl_->cbi_.acb_.erase( f );
+            impl_->cbi_->acb_.erase( f );
         }
     }
 
