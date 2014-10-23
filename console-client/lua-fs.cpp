@@ -750,7 +750,7 @@ namespace fr { namespace lua {
 
             std::string tmp_path( create_ref_table_path( f.get( ) ) );
 
-            /// create new lua thread and store it to table for referencing
+            /// create new lua thread and store it to the table for referencing
             lua::state_sptr thread(
                         std::make_shared<lua::state>(
                             ls.create_thread( tmp_path.c_str( ) ) ) );
