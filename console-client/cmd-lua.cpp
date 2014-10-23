@@ -339,15 +339,13 @@ namespace fr { namespace cc { namespace cmd {
                 }
 
                 if( vm.count( "exec" ) ) {
+
                     std::string script( vm["exec"].as<std::string>( ) );
+
                     lv.check_call_error( lv.load_file(script.c_str( ) ) );
 
-//                    std::string buf = load_file( script );
-//                    lv.check_call_error(
-//                                lv.load_buffer( buf.c_str( ),
-//                                                buf.size( ), script.c_str( ) ));
-
                     lo::base_sptr par = create_params( vm );
+
                     if( lv.exists( main_function.c_str( ) ) ) {
                         int res = lv.exec_function( main_function.c_str( ),
                                                     *par );
@@ -357,6 +355,7 @@ namespace fr { namespace cc { namespace cmd {
                                   << " was not found in the script.\n";
                     }
                 }
+                cl.disconnect( );
             }
 
             void add_options( po::options_description &desc )
