@@ -632,9 +632,10 @@ namespace lua { namespace objects {
         void push( lua_State *L ) const
         {
             if( L != p_ ) {
-                throw std::runtime_error( "Invalid stack for thread" );
+                throw std::logic_error( "Invalid stack for thread" );
             }
             lua_pushthread( s_ );
+            lua_xmove( s_, L, 1 );
         }
 
         std::string str( ) const

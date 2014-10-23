@@ -787,6 +787,7 @@ namespace fr { namespace lua {
                                                     i->state_, thread,
                                                     call, params
                                                ) ) );
+
             return 0;
         }
 
