@@ -32,10 +32,10 @@ namespace fr { namespace lua {
         }
 
         template <typename T>
-        std::string create_tmp_path( T value )
+        std::string create_ref_table_path( T value )
         {
             static const std::string tp =
-                         std::string( fs::table_path( ) ) + ".tmp.";
+                         std::string( fs::table_path( ) ) + ".refs.";
             std::ostringstream oss;
             oss << tp << std::hex << value;
             return oss.str( );
@@ -748,7 +748,7 @@ namespace fr { namespace lua {
 
             ls.pop( n );
 
-            std::string tmp_path( create_tmp_path( f.get( ) ) );
+            std::string tmp_path( create_ref_table_path( f.get( ) ) );
 
             /// create new lua thread and store it to table for referencing
             lua::state_sptr thread(
@@ -770,7 +770,7 @@ namespace fr { namespace lua {
             ls.clean_stack( );
             f->unregister( );
 
-            std::string tmp_path(create_tmp_path( f.get( ) ));
+            std::string tmp_path(create_ref_table_path( f.get( ) ));
             ls.set( tmp_path.c_str( ) ); /// clean thread reference
                                          /// thread state will be free
 

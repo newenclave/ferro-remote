@@ -48,10 +48,10 @@ namespace fr { namespace lua {
         }
 
         template <typename T>
-        std::string create_tmp_path( T value )
+        std::string create_ref_table_path( T value )
         {
             static const std::string tp =
-                         std::string( gpio::table_path( ) ) + ".tmp";
+                         std::string( gpio::table_path( ) ) + ".refs.";
             std::ostringstream oss;
             oss << tp << std::hex << value;
             return oss.str( );
@@ -345,7 +345,7 @@ namespace fr { namespace lua {
 
             ls.pop( n );
 
-            std::string tmp_path(create_tmp_path( dev.get( ) ));
+            std::string tmp_path(create_ref_table_path( dev.get( ) ));
 
             lua::state_sptr thread(
                         std::make_shared<lua::state>(
