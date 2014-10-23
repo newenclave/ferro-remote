@@ -31,6 +31,16 @@ namespace fr { namespace lua {
                                              fs::table_path( ) ) );
         }
 
+        template <typename T>
+        std::string create_tmp_path( T value )
+        {
+            static const std::string tp =
+                         std::string( fs::table_path( ) ) + ".tmp.";
+            std::ostringstream oss;
+            oss << tp << std::hex << value;
+            return oss.str( );
+        }
+
         int lcall_fs_pwd(    lua_State *L );
         int lcall_fs_cd(     lua_State *L );
         int lcall_fs_rename( lua_State *L );
@@ -720,32 +730,29 @@ namespace fr { namespace lua {
 
         int lcall_fs_file_ev_reg( lua_State *L )
         {
-            lua::state lv(L);
+            lua::state ls(L);
 
-            int n = lv.get_top( );
+            int n = ls.get_top( );
 
             file_sptr f(get_file( L, 1 ));
-            std::string call(lv.get<const char *>( 2 ));
+            std::string call(ls.get<const char *>( 2 ));
 
             std::vector<objects::base_sptr> params;
 
             if( n > 2 ) {
                 params.reserve( n - 2 );
                 for( int i=3; i<=n; ++i ) {
-                    params.push_back( lv.get_object( i ) );
+                    params.push_back( ls.get_object( i ) );
                 }
             }
 
-            lv.pop( n );
+            ls.pop( n );
+
+            std::string tmp_path(create_tmp_path( f.get( ) ));
 
             lua::state_sptr thread(
                         std::make_shared<lua::state>(
-                            lv.create_thread( "fr.tmp" ) ) );
-
-//            lua::state_sptr thread(
-//                        std::make_shared<lua::state>( lua_newthread( L ) ) );
-
-//            lv.pop( );
+                            ls.create_thread( tmp_path.c_str( ) ) ) );
 
             f->register_for_events( std::bind( file_event_handler,
                                                std::placeholders::_1,
@@ -760,6 +767,10 @@ namespace fr { namespace lua {
             file_sptr f(get_file( L, 1 ));
             ls.clean_stack( );
             f->unregister( );
+
+            std::string tmp_path(create_tmp_path( f.get( ) ));
+            ls.set( tmp_path.c_str( ) ); // clean reference
+
             return 0;
         }
 

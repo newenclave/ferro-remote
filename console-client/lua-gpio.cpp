@@ -47,6 +47,16 @@ namespace fr { namespace lua {
             return reinterpret_cast<data *>( p );
         }
 
+        template <typename T>
+        std::string create_tmp_path( T value )
+        {
+            static const std::string tp =
+                         std::string( gpio::table_path( ) ) + ".tmp";
+            std::ostringstream oss;
+            oss << tp << std::hex << value;
+            return oss.str( );
+        }
+
         struct data: public base_data {
 
             client::core::client_core    &cc_;
