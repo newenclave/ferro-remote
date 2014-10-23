@@ -22,9 +22,14 @@ function main( argv ) -- main lua thread
     f = file.open_device( argv.dev )
 
     file.register_for_events( f, "handler", argv.dev )
-    while true do
+    local i = 0;
+
+    print( fr )
+
+    while i < 5 do
         sleep( 1 )
         print( '.' ) --- some work! =)
+        i = i + 1
     end
 
 end

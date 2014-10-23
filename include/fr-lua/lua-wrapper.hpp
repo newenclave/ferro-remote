@@ -494,7 +494,6 @@ namespace lua {
             return T( );
         }
 
-
         bool exists( const char *path )
         {
             const char *pl = path_leaf( path );
@@ -541,6 +540,29 @@ namespace lua {
             for( citr b(bo.begin( )), e(bo.end( )); b!=e; ++b ) {
                 (*b)->push( vm_ );
             }
+        }
+
+        lua_State *create_thread( const char *path )
+        {
+            const char *pl = path_leaf( path );
+            lua_State *res = NULL;
+            if( pl == path ) {
+                get_global( pl );
+                res = lua_newthread( vm_ );
+                set_global( pl );
+            } else {
+                std::string tpath( path, (pl - path) );
+                int level = get_table( tpath.c_str( ) );
+                if( level ) {
+                    lua_getfield( vm_, -1, pl + 1 );
+                    pop( );
+                    push( pl + 1 );
+                    res = lua_newthread( vm_ );
+                    lua_settable( vm_, -3 );
+                    pop( level );
+                }
+            }
+            return res;
         }
 
         int exec_function( const char* func,

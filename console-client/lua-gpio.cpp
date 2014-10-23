@@ -336,8 +336,7 @@ namespace fr { namespace lua {
             ls.pop( n );
 
             lua::state_sptr thread(
-                        std::make_shared<lua::state>( lua_newthread( L ),
-                                                      lua::state::OWN_STATE ) );
+                        std::make_shared<lua::state>( lua_newthread( L ) ) );
             ls.pop( );
 
             dev->register_for_change( std::bind( gpio_event_handler,

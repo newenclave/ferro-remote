@@ -660,6 +660,11 @@ namespace lua { namespace objects {
         return new table;
     }
 
+    inline thread * new_thread( lua_State *parent, lua_State *child )
+    {
+        return new thread( parent, child );
+    }
+
     inline string * new_string( const char *str )
     {
         return new string( str );

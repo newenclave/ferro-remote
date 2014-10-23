@@ -720,28 +720,33 @@ namespace fr { namespace lua {
 
         int lcall_fs_file_ev_reg( lua_State *L )
         {
-            lua::state ls(L);
+            lua::state lv(L);
 
-            int n = ls.get_top( );
+            int n = lv.get_top( );
 
             file_sptr f(get_file( L, 1 ));
-            std::string call(ls.get<const char *>( 2 ));
+            std::string call(lv.get<const char *>( 2 ));
 
             std::vector<objects::base_sptr> params;
 
             if( n > 2 ) {
                 params.reserve( n - 2 );
                 for( int i=3; i<=n; ++i ) {
-                    params.push_back( ls.get_object( i ) );
+                    params.push_back( lv.get_object( i ) );
                 }
             }
 
-            ls.pop( n );
+            lv.pop( n );
 
             lua::state_sptr thread(
-                        std::make_shared<lua::state>( lua_newthread( L ),
-                                                      lua::state::OWN_STATE ) );
-            ls.pop( );
+                        std::make_shared<lua::state>(
+                            lv.create_thread( "fr.tmp" ) ) );
+
+//            lua::state_sptr thread(
+//                        std::make_shared<lua::state>( lua_newthread( L ) ) );
+
+//            lv.pop( );
+
             f->register_for_events( std::bind( file_event_handler,
                                                std::placeholders::_1,
                                                std::placeholders::_2,

@@ -340,9 +340,9 @@ namespace fr { namespace cc { namespace cmd {
 
                 if( vm.count( "exec" ) ) {
                     std::string script( vm["exec"].as<std::string>( ) );
-                    std::string buf = load_file( script );
-
                     lv.check_call_error( lv.load_file(script.c_str( ) ) );
+
+//                    std::string buf = load_file( script );
 //                    lv.check_call_error(
 //                                lv.load_buffer( buf.c_str( ),
 //                                                buf.size( ), script.c_str( ) ));
