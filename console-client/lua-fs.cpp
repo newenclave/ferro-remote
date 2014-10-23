@@ -81,8 +81,11 @@ namespace fr { namespace lua {
             std::map<void *, file_sptr> files_;
             std::mutex                  files_lock_;
 
-            data( client::core::client_core &cc, lua_State *L )
+            std::weak_ptr<lua::state>   state_;
+
+            data( client::core::client_core &cc, std::shared_ptr<lua::state> ls)
                 :iface_( client::interfaces::filesystem::create( cc, "" ) )
+                ,state_(ls)
             { }
 
             ~data( )
@@ -720,9 +723,16 @@ namespace fr { namespace lua {
 
         void file_event_handler( unsigned error, const std::string &data,
                                  std::shared_ptr<lua::state> ls,
+                                 std::weak_ptr<lua::state> parent_state,
                                  const std::string &fcall,
                                  const std::vector<objects::base_sptr> &params )
         try {
+            std::shared_ptr<lua::state> m(parent_state.lock( ));
+
+            if( !m ) {
+                return;
+            }
+
             ls->exec_function( fcall.c_str( ), error, data, params );
         } catch( ... ) {
             //std::cout << "call erro " << "\n";
@@ -732,6 +742,7 @@ namespace fr { namespace lua {
         {
             lua::state ls(L);
 
+            data * i = get_iface( L );
             int n = ls.get_top( );
 
             file_sptr f(get_file( L, 1 ));
@@ -758,7 +769,8 @@ namespace fr { namespace lua {
             f->register_for_events( std::bind( file_event_handler,
                                                std::placeholders::_1,
                                                std::placeholders::_2,
-                                               thread, call, params ) );
+                                               thread, i->state_,
+                                               call, params ) );
             return 0;
         }
 
@@ -787,7 +799,8 @@ namespace fr { namespace lua {
                     std::string( names::client_table ) + '.' + table_name( );
             return path.c_str( );
         }
-        data_sptr init( lua_State *ls, client::core::client_core &cc )
+        data_sptr init( std::shared_ptr<lua::state> &ls,
+                        client::core::client_core &cc )
         {
             return data_sptr( new data( cc, ls ) );
         }

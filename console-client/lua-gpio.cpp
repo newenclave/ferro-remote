@@ -63,11 +63,13 @@ namespace fr { namespace lua {
             std::map<void *, iface_sptr>  devices_;
             std::mutex                    devices_lock_;
 
-            data( lua_State */*ls*/, client::core::client_core &cc )
-                :cc_(cc)
-            {
+            std::weak_ptr<lua::state>     state_;
 
-            }
+            data( std::shared_ptr<lua::state> ls,
+                  client::core::client_core &cc )
+                :cc_(cc)
+                ,state_(ls)
+            { }
 
 #define ADD_GPIO_VALUE( f ) \
     objects::new_string( #f ), objects::new_integer( interfaces::gpio::f )
@@ -317,9 +319,17 @@ namespace fr { namespace lua {
 
         void gpio_event_handler( unsigned error, unsigned value,
                                  std::shared_ptr<lua::state> ls,
+                                 std::weak_ptr<lua::state> parent_state,
                                  const std::string &fcall,
                                  const std::vector<objects::base_sptr> &params )
         try {
+
+            std::shared_ptr<lua::state> m(parent_state.lock( ));
+
+            if( !m ) {
+                return;
+            }
+
             ls->exec_function( fcall.c_str( ), value, params );
         } catch( ... ) {
             //std::cout << "call erro " << "\n";
@@ -330,6 +340,7 @@ namespace fr { namespace lua {
         {
             lua::state ls( L );
             int n = ls.get_top( );
+            data * i = get_iface( L );
 
             iface_sptr dev = get_gpio_dev( L, 1 );
             std::string call(ls.get<const char *>( 2 ));
@@ -354,7 +365,8 @@ namespace fr { namespace lua {
             dev->register_for_change( std::bind( gpio_event_handler,
                                                  std::placeholders::_1,
                                                  std::placeholders::_2,
-                                                 thread, call, params ) );
+                                                 thread, i->state_,
+                                                 call, params ) );
             return 0;
         }
 
@@ -376,9 +388,10 @@ namespace fr { namespace lua {
                     std::string( names::client_table ) + '.' + table_name( );
             return path.c_str( );
         }
-        data_sptr init( lua_State *ls, client::core::client_core &cc )
+        data_sptr init( std::shared_ptr<lua::state> &ls,
+                        client::core::client_core &cc )
         {
-            return data_sptr( new data(ls, cc) );
+            return data_sptr( new data( ls, cc ) );
         }
     }
 

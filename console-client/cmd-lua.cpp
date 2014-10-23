@@ -55,10 +55,10 @@ namespace fr { namespace cc { namespace cmd {
         typedef client::interfaces::os::iface os_iface;
         typedef std::shared_ptr<os_iface> os_iface_sptr;
 
-        void general_init(lua_State *L, const std::string &server,
-                                        fr::lua::core_data &cd );
+        void general_init( const std::string &server,
+                           fr::lua::core_data &cd );
 
-        void set_client_info( lua_State *L, fr::lua::core_data &cd );
+        void set_client_info(fr::lua::core_data &cd );
 
         int global_print_impl( lua_State *L, bool as_integer )
         {
@@ -168,13 +168,13 @@ namespace fr { namespace cc { namespace cmd {
                 cd->core_->disconnect( );
                 ls.set( lua::names::client_table ); // set to nil
                 cd->core_->connect( server );
-                general_init( L, server, *cd );
+                general_init( server, *cd );
             } catch( const std::exception &ex ) {
                 ls.push( ex.what( ) );
                 success = false;
             }
 
-            set_client_info( L, *cd );
+            set_client_info( *cd );
 
             if( success ) {
                 ls.push( );
@@ -189,24 +189,22 @@ namespace fr { namespace cc { namespace cmd {
             lua::core_data *cd = lua::get_core( L );
             cd->core_->disconnect( );
             ls.set( lua::names::client_table ); // set to nil
-            set_client_info( L, *cd );
+            set_client_info( *cd );
             return 0;
         }
 
 #define FR_INTERFACE_PAIR( ns, L, cl )      \
     std::make_pair( lua::ns::table_name( ), lua::ns::init( L, cl ))
 
-        void init( lua::core_data &cd, lua_State *L )
+        void init( lua::core_data &cd )
         {
             std::map<std::string, lua::data_sptr> tmp;
 
             typedef lua::core_data::table_map::const_iterator citr;
 
-            lua_state lv( L );
-
-            tmp.insert( FR_INTERFACE_PAIR( os,   L, *cd.core_ ) );
-            tmp.insert( FR_INTERFACE_PAIR( fs,   L, *cd.core_ ) );
-            tmp.insert( FR_INTERFACE_PAIR( gpio, L, *cd.core_ ) );
+            tmp.insert( FR_INTERFACE_PAIR( os,   cd.state_, *cd.core_ ) );
+            tmp.insert( FR_INTERFACE_PAIR( fs,   cd.state_, *cd.core_ ) );
+            tmp.insert( FR_INTERFACE_PAIR( gpio, cd.state_, *cd.core_ ) );
 
             lo::table_sptr client_table( lo::new_table( ) );
 
@@ -217,17 +215,17 @@ namespace fr { namespace cc { namespace cmd {
                 );
             }
 
-            lv.set_object( lua::names::client_table, client_table.get( ) );
+            cd.state_->set_object( lua::names::client_table,
+                                   client_table.get( ) );
             cd.tables_.swap( tmp );
 
         }
 
-        void general_init( lua_State *L, const std::string &server,
+        void general_init( const std::string &server,
                            lua::core_data &cd )
         {
-            lua_state ls(L);
-            init( cd, ls.get_state( ) );
-            ls.set( lua::names::server_path, server );
+            init( cd );
+            cd.state_->set( lua::names::server_path, server );
         }
 
 #undef FR_INTERFACE_PAIR
@@ -245,16 +243,18 @@ namespace fr { namespace cc { namespace cmd {
             ls.register_call( "sleep",    &global_sleep );
         }
 
-        void set_client_info(lua_State *L, fr::lua::core_data &cd )
+        void set_client_info( fr::lua::core_data &cd )
         {
-            lua_state ls( L );
-            lua::set_core( L, &cd );
+            lua::set_core( cd.state_->get_state( ), &cd );
 
             lo::function connect_func(    &global_connect );
             lo::function disconnect_func( &global_disconnect );
 
-            ls.set_object( lua::names::connect_table, &connect_func );
-            ls.set_object( lua::names::disconnect_table, &disconnect_func );
+            cd.state_->set_object( lua::names::connect_table,
+                                   &connect_func );
+
+            cd.state_->set_object( lua::names::disconnect_table,
+                                   &disconnect_func );
         }
 
         struct impl: public command_iface {
@@ -315,21 +315,22 @@ namespace fr { namespace cc { namespace cmd {
 
             void exec( po::variables_map &vm, core::client_core &cl )
             {
-                lua_state lv;
-                register_globals( lv.get_state( ) );
-
                 lua::core_data cd;
                 cd.core_ = &cl;
+                cd.state_ = std::make_shared<fr::lua::state>( );
+
+                register_globals( cd.state_->get_state( ) );
 
                 std::string server(   vm.count("server")
                                     ? vm["server"].as<std::string>( ) : "" );
 
                 if( !server.empty( ) ) {
                     cl.connect( server );
-                    general_init( lv.get_state( ), server, cd );
+                    general_init( server, cd );
                 }
 
-                set_client_info( lv.get_state( ), cd );
+                set_client_info( cd );
+
                 std::string main_function("main");
                 bool custom_main = false;
 
@@ -338,18 +339,20 @@ namespace fr { namespace cc { namespace cmd {
                     custom_main = true;
                 }
 
+                std::shared_ptr<lua_state> lv = cd.state_;
+
                 if( vm.count( "exec" ) ) {
 
                     std::string script( vm["exec"].as<std::string>( ) );
 
-                    lv.check_call_error( lv.load_file(script.c_str( ) ) );
+                    lv->check_call_error( lv->load_file(script.c_str( ) ) );
 
                     lo::base_sptr par = create_params( vm );
 
-                    if( lv.exists( main_function.c_str( ) ) ) {
-                        int res = lv.exec_function( main_function.c_str( ),
-                                                    *par );
-                        lv.check_call_error( res );
+                    if( lv->exists( main_function.c_str( ) ) ) {
+                        int res = lv->exec_function( main_function.c_str( ),
+                                                     *par );
+                        lv->check_call_error( res );
                     } else if( custom_main ) {
                         std::cout << "Function '" << main_function << "'"
                                   << " was not found in the script.\n";

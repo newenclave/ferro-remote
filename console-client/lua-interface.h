@@ -76,6 +76,7 @@ namespace fr { namespace lua {
 
         client::core::client_core  *core_;
         table_map                   tables_;
+        std::shared_ptr<lua::state> state_;
     };
 
 
@@ -83,7 +84,8 @@ namespace fr { namespace lua {
     namespace ns {                                                             \
         const char *table_name( );                                             \
         const char *table_path( );                                             \
-        data_sptr init( lua_State *ls, client::core::client_core &cc );        \
+        data_sptr init( std::shared_ptr<lua::state> &ls,                       \
+                        client::core::client_core &cc );                       \
     }
 
     FR_DEFINE_NAMESPACE_FOR_LUA( os )

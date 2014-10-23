@@ -34,7 +34,7 @@ namespace fr { namespace lua {
 
             iface_uptr iface_;
 
-            data( client::core::client_core &cc, lua_State *L )
+            data( client::core::client_core &cc, std::shared_ptr<lua::state> )
                 :iface_(client::interfaces::os::create(cc))
             { }
 
@@ -64,9 +64,9 @@ namespace fr { namespace lua {
                     std::string( names::client_table ) + '.' + table_name( );
             return path.c_str( );
         }
-        data_sptr init( lua_State *ls, client::core::client_core &cc )
+        data_sptr init( std::shared_ptr<lua::state> &ls,
+                        client::core::client_core &cc )
         {
-            lua::state lv( ls );
             return data_sptr( new data( cc, ls ) );
         }
     }
