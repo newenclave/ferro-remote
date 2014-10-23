@@ -696,7 +696,7 @@ namespace lua { namespace objects {
         return new number( value );
     }
 
-    inline function * new_function( lua_CFunction func )
+    inline function * new_function( lua_CFunction func ) 
     {
         return new function( func );
     }
