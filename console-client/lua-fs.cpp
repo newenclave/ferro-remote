@@ -748,8 +748,9 @@ namespace fr { namespace lua {
 
             ls.pop( n );
 
-            std::string tmp_path(create_tmp_path( f.get( ) ));
+            std::string tmp_path( create_tmp_path( f.get( ) ) );
 
+            /// create new lua thread and store it to table for referencing
             lua::state_sptr thread(
                         std::make_shared<lua::state>(
                             ls.create_thread( tmp_path.c_str( ) ) ) );
@@ -765,11 +766,13 @@ namespace fr { namespace lua {
         {
             lua::state ls(L);
             file_sptr f(get_file( L, 1 ));
+
             ls.clean_stack( );
             f->unregister( );
 
             std::string tmp_path(create_tmp_path( f.get( ) ));
-            ls.set( tmp_path.c_str( ) ); // clean reference
+            ls.set( tmp_path.c_str( ) ); /// clean thread reference
+                                         /// thread state will be free
 
             return 0;
         }

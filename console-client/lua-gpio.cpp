@@ -345,9 +345,11 @@ namespace fr { namespace lua {
 
             ls.pop( n );
 
+            std::string tmp_path(create_tmp_path( dev.get( ) ));
+
             lua::state_sptr thread(
-                        std::make_shared<lua::state>( lua_newthread( L ) ) );
-            ls.pop( );
+                        std::make_shared<lua::state>(
+                            ls.create_thread( tmp_path.c_str( ) ) ) );
 
             dev->register_for_change( std::bind( gpio_event_handler,
                                                  std::placeholders::_1,
