@@ -1,11 +1,16 @@
 
-set( lib_name ${INTERNAL_PROJECT_NAME}_client_core )
+
+set( lib_postfix client_core )
+set( lib_dirname client-core )
+
+
+set( lib_name ${INTERNAL_PROJECT_NAME}_${lib_postfix} )
 
 list( APPEND src_dirs
         .
         ./impl
-        ${FR_INCLUDE_DIRS}/client-core
-        ${FR_INCLUDE_DIRS}/client-core/interfaces
+        ${FR_INCLUDE_DIRS}/${lib_dirname}
+        ${FR_INCLUDE_DIRS}/${lib_dirname}/interfaces
     )
 
 foreach( src_dir ${src_dirs} )
@@ -16,7 +21,7 @@ endforeach( )
 
 add_library( ${lib_name} STATIC ${lib_src} )
 
-set( CORE_INCLUDE_DIRS "${FR_INCLUDE_DIRS}/client-core" )
+set( CORE_INCLUDE_DIRS "${FR_INCLUDE_DIRS}/${lib_dirname}" )
 
 list( APPEND internal
     ${INTERNAL_PROJECT_NAME}_protocol

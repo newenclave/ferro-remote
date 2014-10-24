@@ -125,6 +125,7 @@ configure_file ("${PROJECT_SOURCE_DIR}/ferro-remote-config.h.in"
 
 add_subdirectory( protocol )
 add_subdirectory( client-core )
+add_subdirectory( hub-core )
 
 add_subdirectory( console-client )
 
