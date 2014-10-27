@@ -91,15 +91,15 @@ namespace fr { namespace lua {
             ~data( )
             { }
 
+            objects::table_sptr create_file_table( )
+            {
+                objects::table_sptr f( objects::new_table( ) );
+
 #define ADD_FILE_TABLE_FLAG( f ) \
     objects::new_string( #f ), objects::new_integer( file::flags::f )
 
 #define ADD_FILE_TABLE_MODE( m ) \
     objects::new_string( #m ), objects::new_integer( file::mode::m )
-
-            objects::table_sptr create_file_table( )
-            {
-                objects::table_sptr f( objects::new_table( ) );
 
                 f->add( ADD_FILE_TABLE_FLAG( RDONLY ) );
                 f->add( ADD_FILE_TABLE_FLAG( WRONLY ) );
@@ -124,6 +124,9 @@ namespace fr { namespace lua {
                 f->add( ADD_FILE_TABLE_MODE( IROTH ) );
                 f->add( ADD_FILE_TABLE_MODE( IWOTH ) );
                 f->add( ADD_FILE_TABLE_MODE( IXOTH ) );
+
+#undef ADD_FILE_TABLE_MODE
+#undef ADD_FILE_TABLE_FLAG
 
                 f->add( objects::new_string( "SEEK_SET" ),
                         objects::new_integer( file::POS_SEEK_SET ) );
@@ -153,7 +156,6 @@ namespace fr { namespace lua {
                 f->add( objects::new_string( "unregister" ),
                         objects::new_function( &lcall_fs_file_ev_unreg ));
 
-
                 return f;
             }
 
@@ -174,10 +176,6 @@ namespace fr { namespace lua {
 
                 return f;
             }
-
-
-#undef ADD_FILE_TABLE_MODE
-#undef ADD_FILE_TABLE_FLAG
 
             lua::objects::table_sptr init_table( )
             {
