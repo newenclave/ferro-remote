@@ -1,0 +1,3 @@
+package fr.proto.hub;
+option cc_generic_services = true;
+
