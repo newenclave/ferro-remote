@@ -83,7 +83,11 @@ namespace fr { namespace client { namespace interfaces {
 
             void ioctl( unsigned code, uint64_t param ) const
             {
-
+                fproto::ioctl_req req;
+                req.mutable_hdl( )->set_value( hdl_.value( ) );
+                req.set_code( code );
+                req.set_parameter( param );
+                client_.call_request( &stub_type::ioctl, &req );
             }
 
             size_t read( void *data, size_t length ) const override

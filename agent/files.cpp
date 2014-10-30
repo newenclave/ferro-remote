@@ -9,6 +9,8 @@
 #include <sys/stat.h>
 #include <fcntl.h>
 
+#include <sys/ioctl.h>
+
 #include "errno-check.h"
 
 namespace fr { namespace agent {
@@ -74,6 +76,12 @@ namespace fr { namespace agent {
                 return static_cast<size_t>(res);
             }
 
+            void ioctl( int code, unsigned long data )
+            {
+                int res = ::ioctl( fd_, code, data );
+                errno_error::errno_assert( res != -1, "ioctl" );
+            }
+
             size_t read( void *data, size_t length )
             {
                 ssize_t res = ::read( fd_, data, length );
@@ -120,6 +128,12 @@ namespace fr { namespace agent {
             vtrc::int64_t tell( ) const
             {
                 return 0;
+            }
+
+            void ioctl( int code, unsigned long data )
+            {
+                int res = ::ioctl( fd_, code, data );
+                errno_error::errno_assert( res != -1, "ioctl" );
             }
 
             size_t write( const void *data, size_t length )

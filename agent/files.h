@@ -22,6 +22,7 @@ namespace fr { namespace agent {
                                      seek_whence whence ) = 0;
         virtual vtrc::int64_t tell( ) const = 0;
 
+        virtual void ioctl( int code, unsigned long data ) = 0;
         virtual size_t write( const void *data, size_t length ) = 0;
         virtual size_t read(        void *data, size_t length ) = 0;
 

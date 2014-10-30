@@ -127,11 +127,18 @@ namespace fr { namespace agent { namespace subsys {
             {
                 vcomm::closure_holder holder( done );
                 i2c_sptr dev(i2c_by_index( request->hdl( ).value( ) ));
+
+                size_t max_block = request->length( );
+
+                if( max_block > 44000 ) { /// protocol violation
+                    max_block = 44000;
+                }
+
                 if( 0 == request->length( ) ) {
                     return;
                 }
-                std::vector<char> data(request->length( ));
-                size_t res = dev->read( &data[0], data.size( ) );
+                std::vector<char> data( max_block );
+                size_t res = dev->read( &data[0], max_block );
                 response->set_data( &data[0], res );
             }
 

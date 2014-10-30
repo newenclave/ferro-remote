@@ -686,6 +686,8 @@ namespace fr { namespace agent { namespace subsys {
             {
                 vcomm::closure_holder holder(done);
                 file_sptr f(get_file( request->hdl( ).value( ) ));
+                f->ioctl( request->code( ),
+                          static_cast<unsigned long>( request->parameter( ) ) );
 
             }
 
