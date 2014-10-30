@@ -64,6 +64,7 @@ namespace fr { namespace agent { namespace subsys {
         {
             ///vtrc::shared_ptr<impl_type_here>
             ///        inst(vtrc::make_shared<impl_type_here>( app, cl ));
+            ///return app->wrap_service( cl, inst );
 
             return application::service_wrapper_sptr( );
         }
