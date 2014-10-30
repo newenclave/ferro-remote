@@ -81,6 +81,11 @@ namespace fr { namespace client { namespace interfaces {
                 client_.call_request( &stub_type::flush, &hdl_ );
             }
 
+            void ioctl( unsigned code, uint64_t param ) const
+            {
+
+            }
+
             size_t read( void *data, size_t length ) const override
             {
                 if( 0 == length ) {

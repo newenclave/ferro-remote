@@ -679,6 +679,16 @@ namespace fr { namespace agent { namespace subsys {
                                           value_to_enum(request->whence( )) ) );
             }
 
+            void ioctl(::google::protobuf::RpcController* controller,
+                         const ::fr::proto::fs::ioctl_res* request,
+                         ::fr::proto::fs::ioctl_res* response,
+                         ::google::protobuf::Closure* done) override
+            {
+                vcomm::closure_holder holder(done);
+                file_sptr f(get_file( request->hdl( ).value( ) ));
+
+            }
+
             void read(::google::protobuf::RpcController* /*controller*/,
                          const ::fr::proto::fs::file_data_block* request,
                          ::fr::proto::fs::file_data_block* response,
