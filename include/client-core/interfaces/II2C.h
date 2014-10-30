@@ -23,15 +23,17 @@ namespace interfaces { namespace i2c {
 
     struct iface {
         virtual ~iface( ) { }
-        void ioctl( unsigned code, vtrc::uint64_t );
+        virtual void ioctl( unsigned code, vtrc::uint64_t );
     };
 
     typedef iface * iface_ptr;
     typedef vtrc::shared_ptr<iface> iface_sptr;
 
-    iface_ptr open( unsigned bus_id );
-    iface_ptr open( unsigned bus_id, unsigned slave_addr );
-    iface_ptr open( unsigned bus_id, unsigned slave_addr, bool slave_force );
+    iface_ptr open( core::client_core &cc, unsigned bus_id );
+    iface_ptr open( core::client_core &cc,
+                    unsigned bus_id, unsigned slave_addr );
+    iface_ptr open( core::client_core &cc,
+                    unsigned bus_id, unsigned slave_addr, bool slave_force );
 
     bool bus_available( core::client_core &cc, unsigned bus_id );
 
