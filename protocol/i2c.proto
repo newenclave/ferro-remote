@@ -18,12 +18,50 @@ message bus_available_res {
 }
 
 message open_req {
-    optional uint32 bus_id = 1;
+    optional uint32 bus_id      = 1;
+    optional uint64 slave_id    = 2;
+    optional bool   force_slave = 3;
 }
 
 message open_res {
     optional handle hdl = 1;
 }
+
+enum i2c_control_codes { /// from linux/i2c-dev.h
+
+/* /dev/i2c-X ioctl commands.  The ioctl's parameter is always an
+ * unsigned long, except for:
+ *	- I2C_FUNCS, takes pointer to an unsigned long
+ *	- I2C_RDWR, takes pointer to struct i2c_rdwr_ioctl_data
+ *	- I2C_SMBUS, takes pointer to struct i2c_smbus_ioctl_data
+ */
+
+    CODE_I2C_RETRIES     = 0x0701;  /* number of times a device address should
+                                       be polled when not acknowledging */
+    CODE_I2C_TIMEOUT     = 0x0702;  /* set timeout in units of 10 ms */
+
+    /* NOTE: Slave address is 7 or 10 bits, but 10-bit addresses
+     * are NOT supported! (due to code brokenness)
+     */
+    CODE_I2C_SLAVE       = 0x0703;  /* Use this slave address */
+    CODE_I2C_SLAVE_FORCE = 0x0706;  /* Use this slave address, even if it
+                                       is already in use by a driver! */
+    CODE_I2C_TENBIT      = 0x0704;  /* 0 for 7 bit addrs, != 0 for 10 bit */
+    CODE_I2C_PEC         = 0x0708;  /* != 0 to use PEC with SMBus */
+
+    //// I make it as calls
+    // CODE_I2C_FUNCS       = 0x0705 /* Get the adapter functionality mask */
+    // CODE_I2C_RDWR        = 0x0707 /* Combined R/W transfer (one STOP only) */
+    // CODE_I2C_SMBUS       = 0x0720 /* SMBus transfer */
+}
+
+message ioctl_req {
+    optional handle hdl       = 1;
+    optional int32  code      = 2; // @i2c_control_codes
+    optional uint64 parameter = 3; // ... is always an unsigned long
+}
+
+message ioctl_res { }
 
 service instance {
 
@@ -31,4 +69,8 @@ service instance {
     rpc bus_available( bus_available_req ) returns ( bus_available_res );
 
     rpc open( open_req ) returns ( open_res );
+
+    rpc ioctl( ioctl_req ) returns ( ioctl_res );
+
+    rpc close( handle ) returns ( empty );
 }

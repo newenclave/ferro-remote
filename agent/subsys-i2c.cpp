@@ -7,6 +7,8 @@
 #include "protocol/i2c.pb.h"
 
 #include "vtrc-common/vtrc-closure-holder.h"
+#include "vtrc-common/vtrc-exception.h"
+
 #include "vtrc-memory.h"
 #include "vtrc-stdint.h"
 #include "vtrc-atomic.h"
@@ -27,7 +29,6 @@ namespace fr { namespace agent { namespace subsys {
         namespace vcomm  = vtrc::common;
         namespace vserv  = vtrc::server;
 
-
         using vserv::channels::unicast::create_event_channel;
         typedef vtrc::shared_ptr<vcomm::rpc_channel> rpc_channel_sptr;
 
@@ -41,7 +42,6 @@ namespace fr { namespace agent { namespace subsys {
             device_map                           devices_;
             vtrc::shared_mutex                   devices_lock_;
             vtrc::atomic<vtrc::uint32_t>         index_;
-            // rpc_channel_sptr                     event_channel_;
 
         public:
 
@@ -73,6 +73,16 @@ namespace fr { namespace agent { namespace subsys {
                       set_value( agent::i2c::available( request->bus_id( ) ) );
             }
 
+            i2c_sptr i2c_by_index( vtrc::uint32_t id )
+            {
+                vtrc::shared_lock slck(devices_lock_);
+                device_map::iterator f(devices_.find(id));
+                if( f == devices_.end( ) ) {
+                    vcomm::throw_system_error( EINVAL, "Bad I2C handle." );
+                }
+                return f->second;
+            }
+
             void open(::google::protobuf::RpcController* /*controller*/,
                          const ::fr::proto::i2c::open_req* request,
                          ::fr::proto::i2c::open_res* response,
@@ -85,8 +95,39 @@ namespace fr { namespace agent { namespace subsys {
                 i2c_sptr new_dev( vtrc::make_shared<i2c_helper>( bid ) );
                 response->mutable_hdl( )->set_value( next_hdl );
 
+                if( request->has_slave_id( ) ) {
+                    unsigned long slv =
+                            static_cast<unsigned long>(request->slave_id( ));
+                    bool force = request->force_slave( );
+                    new_dev->ioctl( force ? I2C_SLAVE_FORCE : I2C_SLAVE, slv );
+                }
+
                 vtrc::unique_shared_lock lck(devices_lock_);
-                devices_.insert( std::make_pair(next_hdl, new_dev ) );
+                devices_.insert( std::make_pair( next_hdl, new_dev ) );
+            }
+
+            void ioctl( ::google::protobuf::RpcController*   /*controller*/,
+                         const ::fr::proto::i2c::ioctl_req* request,
+                         ::fr::proto::i2c::ioctl_res*       /*response*/,
+                         ::google::protobuf::Closure* done ) override
+            {
+                vcomm::closure_holder holder( done );
+
+                i2c_sptr dev(i2c_by_index( request->hdl( ).value( ) ));
+                unsigned long par =
+                        static_cast<unsigned long>( request->parameter( ) );
+
+                dev->ioctl( request->code( ), par );
+            }
+
+            void close(::google::protobuf::RpcController* /*controller*/,
+                         const ::fr::proto::i2c::handle* request,
+                         ::fr::proto::i2c::empty*         /*response*/,
+                         ::google::protobuf::Closure* done) override
+            {
+                vcomm::closure_holder holder( done );
+                vtrc::unique_shared_lock uslck(devices_lock_);
+                devices_.erase( request->value( ) );
             }
 
         public:
