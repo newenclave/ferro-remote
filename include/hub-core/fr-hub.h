@@ -1,0 +1,5 @@
+
+namespace fr { namespace hub {
+
+}}
+
