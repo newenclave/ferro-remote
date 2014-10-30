@@ -10,7 +10,6 @@ function main ( argv )
 
     file.ioctl( f, 0x0703, 0x4c )
     file.write( f, "\7\1" )
-    file.write( f, "\8\0" )
 
     while true do
 
