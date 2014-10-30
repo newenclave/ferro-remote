@@ -1,4 +1,6 @@
 
+#include <map>
+
 #include "application.h"
 #include "subsys-i2c.h"
 
@@ -6,21 +8,47 @@
 
 #include "vtrc-common/vtrc-closure-holder.h"
 #include "vtrc-memory.h"
+#include "vtrc-stdint.h"
+#include "vtrc-atomic.h"
 
 #include "i2c-helper.h"
+
+#include "vtrc-server/vtrc-channels.h"
+#include "vtrc-common/vtrc-mutex-typedefs.h"
 
 namespace fr { namespace agent { namespace subsys {
 
     namespace {
+
+        const std::string subsys_name( "i2c" );
 
         namespace i2cproto = fr::proto::i2c;
 
         namespace vcomm  = vtrc::common;
         namespace vserv  = vtrc::server;
 
-        const std::string subsys_name( "i2c" );
+
+        using vserv::channels::unicast::create_event_channel;
+        typedef vtrc::shared_ptr<vcomm::rpc_channel> rpc_channel_sptr;
+
+        typedef vtrc::shared_ptr<agent::i2c_helper> i2c_sptr;
+        typedef vtrc::weak_ptr<agent::i2c_helper> i2c_wptr;
+
+        typedef std::map<vtrc::uint32_t, i2c_sptr> device_map;
 
         class i2c_inst_impl: public fr::proto::i2c::instance {
+
+            device_map                           devices_;
+            vtrc::shared_mutex                   devices_lock_;
+            vtrc::atomic<vtrc::uint32_t>         index_;
+            // rpc_channel_sptr                     event_channel_;
+
+        public:
+
+            i2c_inst_impl( fr::agent::application * /*app*/,
+                           vcomm::connection_iface_wptr /*cli*/ )
+                :index_(100)
+            { }
 
             void ping(::google::protobuf::RpcController*    /*controller*/,
                          const ::fr::proto::i2c::empty*     /*request*/,
@@ -39,16 +67,21 @@ namespace fr { namespace agent { namespace subsys {
                 response->
                       set_value( agent::i2c::available( request->bus_id( ) ) );
             }
+
+        public:
+            static const std::string &name( )
+            {
+                return i2cproto::instance::descriptor( )->full_name( );
+            }
         };
 
         application::service_wrapper_sptr create_service(
-                                      fr::agent::application * /*app*/,
+                                      fr::agent::application *app,
                                       vtrc::common::connection_iface_wptr cl )
         {
-            ///vtrc::shared_ptr<impl_type_here>
-            ///        inst(vtrc::make_shared<impl_type_here>( app, cl ));
-
-            return application::service_wrapper_sptr( );
+            vtrc::shared_ptr<i2c_inst_impl>
+                    inst(vtrc::make_shared<i2c_inst_impl>( app, cl ));
+            return app->wrap_service( cl, inst );
         }
     }
 
@@ -102,14 +135,13 @@ namespace fr { namespace agent { namespace subsys {
 
     void i2c::start( )
     {
-
+        impl_->reg_creator( i2c_inst_impl::name( ), create_service );
     }
 
     void i2c::stop( )
     {
-
+        impl_->unreg_creator( i2c_inst_impl::name( ) );
     }
-
 
 }}}
 

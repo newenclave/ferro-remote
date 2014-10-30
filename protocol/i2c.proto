@@ -3,6 +3,10 @@ package fr.proto.i2c;
 
 option cc_generic_services = true;
 
+message handle {
+    optional uint32 value = 1;
+}
+
 message empty { }
 
 message bus_available_req {

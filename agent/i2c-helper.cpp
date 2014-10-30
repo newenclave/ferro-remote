@@ -9,6 +9,8 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 
+#include <sys/ioctl.h>
+
 #include "errno-check.h"
 #include "file-keeper.h"
 
@@ -52,6 +54,29 @@ namespace fr { namespace agent {
         }
     }
 
+    void i2c_helper::ioctl( int code , unsigned long data )
+    {
+        int res = ::ioctl( fd_, code, data );
+        errno_error::errno_assert( res != -1, "ioctl" );
+    }
+
+    void i2c_helper::ioctl( unsigned long *funcs )
+    {
+        int res = ::ioctl( fd_, I2C_FUNCS, funcs );
+        errno_error::errno_assert( res != -1, "ioctl(I2C_FUNCS)" );
+    }
+
+    void i2c_helper::ioctl( i2c_rdwr_ioctl_data *data )
+    {
+        int res = ::ioctl( fd_, I2C_RDWR, data );
+        errno_error::errno_assert( res != -1, "ioctl(I2C_RDWR)" );
+    }
+
+    void i2c_helper::ioctl( i2c_smbus_ioctl_data *data )
+    {
+        int res = ::ioctl( fd_, I2C_SMBUS, data );
+        errno_error::errno_assert( res != -1, "ioctl(I2C_SMBUS)" );
+    }
 
     namespace i2c {
 
