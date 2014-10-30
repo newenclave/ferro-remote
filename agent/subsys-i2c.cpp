@@ -2,12 +2,44 @@
 #include "application.h"
 #include "subsys-i2c.h"
 
-//#include "vtrc-memory.h"
+#include "protocol/i2c.pb.h"
+
+#include "vtrc-common/vtrc-closure-holder.h"
+#include "vtrc-memory.h"
+
+#include "i2c-helper.h"
 
 namespace fr { namespace agent { namespace subsys {
 
     namespace {
+
+        namespace i2cproto = fr::proto::i2c;
+
+        namespace vcomm  = vtrc::common;
+        namespace vserv  = vtrc::server;
+
         const std::string subsys_name( "i2c" );
+
+        class i2c_inst_impl: public fr::proto::i2c::instance {
+
+            void ping(::google::protobuf::RpcController*    /*controller*/,
+                         const ::fr::proto::i2c::empty*     /*request*/,
+                         ::fr::proto::i2c::empty*           /*response*/,
+                         ::google::protobuf::Closure* done) override
+            {
+                if( done ) done->Run( ); // does nothing
+            }
+
+            void bus_available(::google::protobuf::RpcController* controller,
+                         const ::fr::proto::i2c::bus_available_req* request,
+                         ::fr::proto::i2c::bus_available_res* response,
+                         ::google::protobuf::Closure* done) override
+            {
+                vcomm::closure_holder holder( done );
+                response->
+                      set_value( agent::i2c::available( request->bus_id( ) ) );
+            }
+        };
 
         application::service_wrapper_sptr create_service(
                                       fr::agent::application * /*app*/,

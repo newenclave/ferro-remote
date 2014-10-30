@@ -3,3 +3,17 @@ package fr.proto.i2c;
 
 option cc_generic_services = true;
 
+message empty { }
+
+message bus_available_req {
+    optional uint32 bus_id = 1;
+}
+
+message bus_available_res {
+    optional bool value = 1;
+}
+
+service instance {
+    rpc ping( empty ) returns ( empty );
+    rpc bus_available( bus_available_req ) returns ( bus_available_res );
+}
