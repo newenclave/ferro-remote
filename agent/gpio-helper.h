@@ -1,5 +1,5 @@
-#ifndef FR_GPIO_H
-#define FR_GPIO_H
+#ifndef FR_GPIO_HELPER_H
+#define FR_GPIO_HELPER_H
 
 #include <string>
 #include "file-keeper.h"
