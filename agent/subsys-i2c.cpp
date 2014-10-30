@@ -120,6 +120,34 @@ namespace fr { namespace agent { namespace subsys {
                 dev->ioctl( request->code( ), par );
             }
 
+            void read(::google::protobuf::RpcController* controller,
+                         const ::fr::proto::i2c::data_block* request,
+                         ::fr::proto::i2c::data_block* response,
+                         ::google::protobuf::Closure* done) override
+            {
+                vcomm::closure_holder holder( done );
+                i2c_sptr dev(i2c_by_index( request->hdl( ).value( ) ));
+                if( 0 == request->length( ) ) {
+                    return;
+                }
+                std::vector<char> data(request->length( ));
+                size_t res = dev->read( &data[0], data.size( ) );
+                response->set_data( &data[0], res );
+            }
+
+            void write(::google::protobuf::RpcController* controller,
+                         const ::fr::proto::i2c::data_block* request,
+                         ::fr::proto::i2c::data_block* response,
+                         ::google::protobuf::Closure* done) override
+            {
+                vcomm::closure_holder holder( done );
+                i2c_sptr dev(i2c_by_index( request->hdl( ).value( ) ));
+                const std::string &data(request->data( ));
+                size_t res = dev->write( data.empty( ) ? "" : &data[0],
+                                         data.size( ));
+                response->set_length( res );
+            }
+
             void close(::google::protobuf::RpcController* /*controller*/,
                          const ::fr::proto::i2c::handle* request,
                          ::fr::proto::i2c::empty*         /*response*/,

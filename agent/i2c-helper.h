@@ -3,6 +3,7 @@
 
 #include <linux/i2c-dev.h>
 #include <linux/i2c.h>
+#include <unistd.h>
 
 namespace fr { namespace agent {
 
@@ -23,6 +24,11 @@ namespace fr { namespace agent {
         void ioctl( unsigned long *funcs );
         void ioctl( i2c_rdwr_ioctl_data *data );
         void ioctl( i2c_smbus_ioctl_data *data );
+
+        size_t write( const void *data, size_t length );
+        size_t read(        void *data, size_t length );
+
+        int handle( ) const { return fd_; }
     };
 
 }}

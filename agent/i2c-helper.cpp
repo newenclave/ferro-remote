@@ -92,6 +92,20 @@ namespace fr { namespace agent {
         errno_error::errno_assert( res != -1, "ioctl(I2C_SMBUS)" );
     }
 
+    size_t i2c_helper::write(const void *data, size_t length)
+    {
+        ssize_t res = ::write( fd_, data, length );
+        errno_error::errno_assert( -1 != res, "write" );
+        return static_cast<size_t>(res);
+    }
+
+    size_t i2c_helper::read(void *data, size_t length)
+    {
+        ssize_t res = ::read( fd_, data, length );
+        errno_error::errno_assert( -1 != res, "read" );
+        return static_cast<size_t>(res);
+    }
+
     namespace i2c {
 
         bool available( unsigned bus_id )

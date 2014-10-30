@@ -63,12 +63,21 @@ message ioctl_req {
 
 message ioctl_res { }
 
+message data_block {
+    optional handle  hdl     = 1;
+    optional bytes   data    = 2;
+    optional uint32  length  = 3;
+}
+
 service instance {
 
     rpc ping( empty ) returns ( empty );
     rpc bus_available( bus_available_req ) returns ( bus_available_res );
 
     rpc open( open_req ) returns ( open_res );
+
+    rpc read(  data_block )  returns ( data_block );
+    rpc write( data_block )  returns ( data_block );
 
     rpc ioctl( ioctl_req ) returns ( ioctl_res );
 

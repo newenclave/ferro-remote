@@ -83,7 +83,6 @@ namespace fr { namespace client { namespace interfaces { namespace i2c {
         calls.call( &stub_type::bus_available, &req, &res );
         return res.value( );
     }
-
 }
 
 }}}
