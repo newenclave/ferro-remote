@@ -10,17 +10,22 @@ function main ( argv )
 
     file.ioctl( f, 0x0703, 0x4c )
     file.write( f, "\7\1" )
+    file.write( f, "\8\0" )
 
     while true do
 
-        d = file.read( f, 10 )
+        d = file.read( f, 7 )
 
-        printi( "X=", d:byte( 1 ), "\t",
-                "Y=", d:byte( 2 ), "\t",
-                "Z=", d:byte( 3 ),
-                "                   \n" )
-
+        printi( "X=",     d:byte( 1 ), "\t",
+                "Y=",     d:byte( 2 ), "\t",
+                "Z=",     d:byte( 3 ), "\t",
+                "TILT=",  d:byte( 4 ), "\t",
+                "SRST=",  d:byte( 5 ), "\t",
+                "SPCNT=", d:byte( 6 ), "\t",
+                "INTSU=", d:byte( 7 ), "\t",
+                "                       \n" )
         --sleep( 1 )
+
     end
 
 end
