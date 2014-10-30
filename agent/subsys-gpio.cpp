@@ -9,7 +9,7 @@
 #include "protocol/ferro.pb.h"
 #include "protocol/gpio.pb.h"
 
-#include "gpio.h"
+#include "gpio-helper.h"
 
 #include "vtrc-common/vtrc-closure-holder.h"
 

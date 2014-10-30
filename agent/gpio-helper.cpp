@@ -5,7 +5,7 @@
 #include <stdlib.h>
 #include <fcntl.h>
 
-#include "gpio.h"
+#include "gpio-helper.h"
 
 #include "boost/filesystem.hpp"
 #include "boost/system/error_code.hpp"
