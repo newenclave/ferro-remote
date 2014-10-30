@@ -23,7 +23,9 @@ namespace interfaces { namespace i2c {
 
     struct iface {
         virtual ~iface( ) { }
-        virtual void ioctl( unsigned code, vtrc::uint64_t );
+        virtual void   ioctl( unsigned code, vtrc::uint64_t )   const = 0;
+        virtual size_t  read( void *data,       size_t length ) const = 0;
+        virtual size_t write( const void *data, size_t length ) const = 0;
     };
 
     typedef iface * iface_ptr;

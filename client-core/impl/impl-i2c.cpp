@@ -37,21 +37,49 @@ namespace fr { namespace client { namespace interfaces { namespace i2c {
 
         struct i2s_impl: public iface {
 
-            client_type client_;
-            unsigned    hdl_;
+            mutable client_type client_;
+            unsigned            hdl_;
 
             i2s_impl( core::client_core &cc, unsigned bid, unsigned sa, bool sf)
                 :client_(cc.create_channel( ), true)
                 ,hdl_(open_device( client_, bid, sa, sf ))
             { }
 
-            void ioctl( unsigned code, vtrc::uint64_t par )
+            void ioctl( unsigned code, vtrc::uint64_t par ) const
             {
                 i2cproto::ioctl_req req;
                 req.mutable_hdl( )->set_value( hdl_ );
                 req.set_code( code );
                 req.set_parameter( par );
                 client_.call_request( &stub_type::ioctl, &req );
+            }
+
+            size_t read( void *data, size_t length ) const
+            {
+                i2cproto::data_block req;
+                i2cproto::data_block res;
+
+                req.set_length( length );
+
+                client_.call( &stub_type::read, &req, &res );
+
+                memcpy( data,
+                        res.data( ).empty( ) ? "" : &res.data( )[0],
+                        res.data( ).size( ) );
+
+                return res.data( ).size( );
+            }
+
+            size_t write( const void *data, size_t length ) const
+            {
+                i2cproto::data_block req;
+                i2cproto::data_block res;
+
+                req.set_data( data, length );
+
+                client_.call( &stub_type::write, &req, &res );
+
+                return res.length( );
             }
         };
     }
