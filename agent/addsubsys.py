@@ -11,7 +11,7 @@ def header_file():
 
 #include "subsystem-iface.h"
 
-namespace fr { namespace server {
+namespace fr { namespace agent {
 
     class application;
 
@@ -53,13 +53,13 @@ def source_file():
 
 //#include "vtrc-memory.h"
 
-namespace fr { namespace server { namespace subsys {
+namespace fr { namespace agent { namespace subsys {
 
     namespace {
         const std::string subsys_name( "%ss-name%" );
 
         application::service_wrapper_sptr create_service(
-                                      fr::server::application * /*app*/,
+                                      fr::agent::application * /*app*/,
                                       vtrc::common::connection_iface_wptr cl )
         {
             ///vtrc::shared_ptr<impl_type_here>

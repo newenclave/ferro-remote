@@ -5,3 +5,4 @@
 #include "subsys-listeners.h"
 #include "subsys-reactor.h"
 #include "subsys-gpio.h"
+#include "subsys-i2c.h"
