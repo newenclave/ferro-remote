@@ -62,6 +62,7 @@ namespace fr { namespace lua {
         int lcall_fs_file_flags(    lua_State *L );
         int lcall_fs_file_open(     lua_State *L );
         int lcall_fs_file_open_dev( lua_State *L );
+        int lcall_fs_file_ioctl(    lua_State *L );
         int lcall_fs_file_seek(     lua_State *L );
         int lcall_fs_file_tell(     lua_State *L );
         int lcall_fs_file_flush(    lua_State *L );
@@ -141,6 +142,8 @@ namespace fr { namespace lua {
                         objects::new_function( &lcall_fs_file_open ));
                 f->add( objects::new_string( "open_device" ),
                         objects::new_function( &lcall_fs_file_open_dev ));
+                f->add( objects::new_string( "ioctl" ),
+                        objects::new_function( &lcall_fs_file_ioctl ));
                 f->add( objects::new_string( "seek" ),
                         objects::new_function( &lcall_fs_file_seek ));
                 f->add( objects::new_string( "tell" ),
@@ -635,6 +638,32 @@ namespace fr { namespace lua {
         file::seek_whence from_unsigned( unsigned v )
         {
             return file::whence_value2enum( v );
+        }
+
+        int lcall_fs_file_ioctl( lua_State *L )
+        {
+            lua::state ls(L);
+            file_sptr f( get_file( L, 1 ) );
+
+            int code = -1;
+            unsigned long param = 0;
+
+            int n = ls.get_top( );
+
+            if( n > 1 ) {
+                code = ls.get<unsigned>( 2 );
+            }
+            if( n > 2 ) {
+                param = ls.get<unsigned long>( 3 );
+            }
+
+            try {
+                f->ioctl( code, param );
+                ls.push( );
+            } catch( const std::exception &ex ) {
+                ls.push( ex.what( ) );
+            }
+            return 1;
         }
 
         int lcall_fs_file_seek(  lua_State *L )
