@@ -3,8 +3,14 @@
 #include <string>
 #include <sstream>
 
+#include <stdlib.h>
+#include <fcntl.h>
+
 #include <sys/types.h>
 #include <sys/stat.h>
+
+#include "errno-check.h"
+#include "file-keeper.h"
 
 namespace fr { namespace agent {
 
@@ -23,7 +29,29 @@ namespace fr { namespace agent {
                 return oss.str( );
             }
         }
+
+        int open_bus( unsigned bus_id )
+        {
+            std::string bus_path( bus2path( bus_id ) );
+            file_keeper fk( open( bus_path.c_str( ), O_RDWR ));
+            errno_error::errno_assert( fk.hdl( ) != -1, "open_bus" );
+
+            return fk.release( );
+        }
+
     }
+
+    i2c_helper::i2c_helper( unsigned bus_id )
+        :fd_(open_bus(bus_id))
+    { }
+
+    i2c_helper::~i2c_helper(  )
+    {
+        if( -1 != fd_ ) {
+            close( fd_ );
+        }
+    }
+
 
     namespace i2c {
 

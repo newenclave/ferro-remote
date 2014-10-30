@@ -12,6 +12,13 @@ namespace fr { namespace agent {
 
     class i2c_helper {
 
+        int fd_;
+
+    public:
+
+        i2c_helper( unsigned bus_id );
+        ~i2c_helper(  );
+
     };
 
 }}
