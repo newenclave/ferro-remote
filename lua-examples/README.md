@@ -119,6 +119,7 @@ fr = {
                               Every time you read or write this file,
                               agent sets its position to 0 after operation;
                               Easy way to read v2r_xxx devices =)
+                ioctl       = function( code, parameter ) -> nil
                 read        = function( file_inst[, max_len] ) -> data,
                 write       = function( file_inst, data) -> nil,
                 flags       = function( flag1, flag2, ..., flagN ) -> flags,
