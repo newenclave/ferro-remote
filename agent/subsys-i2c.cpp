@@ -45,10 +45,15 @@ namespace fr { namespace agent { namespace subsys {
 
         public:
 
-            i2c_inst_impl( fr::agent::application * /*app*/,
+            i2c_inst_impl( fr::agent::application *     /*app*/,
                            vcomm::connection_iface_wptr /*cli*/ )
                 :index_(100)
             { }
+
+            inline vtrc::uint32_t next_index( )
+            {
+                return ++index_;
+            }
 
             void ping(::google::protobuf::RpcController*    /*controller*/,
                          const ::fr::proto::i2c::empty*     /*request*/,
@@ -58,7 +63,7 @@ namespace fr { namespace agent { namespace subsys {
                 if( done ) done->Run( ); // does nothing
             }
 
-            void bus_available(::google::protobuf::RpcController* controller,
+            void bus_available(::google::protobuf::RpcController* /*cont*/,
                          const ::fr::proto::i2c::bus_available_req* request,
                          ::fr::proto::i2c::bus_available_res* response,
                          ::google::protobuf::Closure* done) override
@@ -66,6 +71,22 @@ namespace fr { namespace agent { namespace subsys {
                 vcomm::closure_holder holder( done );
                 response->
                       set_value( agent::i2c::available( request->bus_id( ) ) );
+            }
+
+            void open(::google::protobuf::RpcController* /*controller*/,
+                         const ::fr::proto::i2c::open_req* request,
+                         ::fr::proto::i2c::open_res* response,
+                         ::google::protobuf::Closure* done) override
+            {
+                vcomm::closure_holder holder( done );
+                unsigned bid = request->bus_id( );
+                vtrc::uint32_t next_hdl = next_index( );
+
+                i2c_sptr new_dev( vtrc::make_shared<i2c_helper>( bid ) );
+                response->mutable_hdl( )->set_value( next_hdl );
+
+                vtrc::unique_shared_lock lck(devices_lock_);
+                devices_.insert( std::make_pair(next_hdl, new_dev ) );
             }
 
         public:

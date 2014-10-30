@@ -17,7 +17,18 @@ message bus_available_res {
     optional bool value = 1;
 }
 
+message open_req {
+    optional uint32 bus_id = 1;
+}
+
+message open_res {
+    optional handle hdl = 1;
+}
+
 service instance {
+
     rpc ping( empty ) returns ( empty );
     rpc bus_available( bus_available_req ) returns ( bus_available_res );
+
+    rpc open( open_req ) returns ( open_res );
 }
