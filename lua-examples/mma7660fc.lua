@@ -1,3 +1,7 @@
+--[[
+    %ferro_remote_client -s xx.xx.xx.xx:xxxx -clua -e script.lua
+--]]
+
 -- test mma7660fc device as file
 
 file = fr.client.fs.file
