@@ -654,7 +654,7 @@ namespace fr { namespace lua {
                 code = ls.get<unsigned>( 2 );
             }
             if( n > 2 ) {
-                param = ls.get<unsigned long>( 3 );
+                param = ls.get<lua_Integer>( 3 );
             }
 
             try {
