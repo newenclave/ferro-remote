@@ -12,12 +12,13 @@ function main ( argv )
     file.write( f, "\7\1" )
 
     while true do
-        file.ioctl( f, 0x0703, 0x4c )
+
         d = file.read( f, 10 )
 
-        println( "X=", d:byte( 1 ), " ",
-                 "Y=", d:byte( 2 ), " ",
-                 "Z=", d:byte( 3 ) )
+        print( "X=", d:byte( 1 ), "  ",
+               "Y=", d:byte( 2 ), "  ",
+               "Z=", d:byte( 3 ),
+               "                   \r" )
 
         --sleep( 1 )
     end
