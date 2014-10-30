@@ -198,7 +198,7 @@ service file {
     rpc tell( handle)             returns ( file_position );
     rpc seek( file_set_position ) returns ( file_position );
 
-    rpc ioctl( ioctl_res ) returns ( ioctl_res );
+    rpc ioctl( ioctl_req ) returns ( ioctl_res );
     rpc read(  file_data_block )  returns ( file_data_block );
     rpc write( file_data_block )  returns ( file_data_block );
 

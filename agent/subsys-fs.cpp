@@ -680,7 +680,7 @@ namespace fr { namespace agent { namespace subsys {
             }
 
             void ioctl(::google::protobuf::RpcController* controller,
-                         const ::fr::proto::fs::ioctl_res* request,
+                         const ::fr::proto::fs::ioctl_req* request,
                          ::fr::proto::fs::ioctl_res* response,
                          ::google::protobuf::Closure* done) override
             {
