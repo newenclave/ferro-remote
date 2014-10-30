@@ -18,23 +18,37 @@ namespace fr { namespace agent {
 
     namespace {
 
-        std::string bus2path( unsigned bus_id )
+        std::string bus2path( unsigned bus_id, char sep )
         {
             if( bus_id < 10 ) {
-                std::string res = "/dev/i2c-?";
+                std::string res = "/dev/i2c??";
+                res[8] = sep;
                 res[9] = (char)(bus_id + '0');
                 return res;
             } else {
-                static const std::string prefix_path("/dev/i2c-");
+                static const std::string prefix_path("/dev/i2c");
                 std::ostringstream oss;
-                oss << prefix_path << bus_id;
+                oss << prefix_path << sep << bus_id;
                 return oss.str( );
             }
         }
 
+        char available_sep( unsigned bus_id )
+        {
+            struct stat ss = { 0 };
+            if( stat( bus2path(bus_id, '-').c_str( ), &ss ) == 0 ) {
+                return '-';
+            } else if( stat( bus2path(bus_id, '/').c_str( ), &ss ) == 0 ) {
+                return '/';
+            }
+            return '\0';
+        }
+
         int open_bus( unsigned bus_id )
         {
-            std::string bus_path( bus2path( bus_id ) );
+            char sep = available_sep( bus_id );
+            std::string bus_path( bus2path( bus_id, sep ) );
+
             file_keeper fk( open( bus_path.c_str( ), O_RDWR ));
             errno_error::errno_assert( fk.hdl( ) != -1, "open_bus" );
 
@@ -82,9 +96,7 @@ namespace fr { namespace agent {
 
         bool available( unsigned bus_id )
         {
-            struct stat ss = { 0 };
-            int res = stat( bus2path(bus_id).c_str( ), &ss );
-            return res != -1;
+            return available_sep( bus_id ) != '\0';
         }
     }
 }}

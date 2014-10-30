@@ -131,6 +131,7 @@ namespace fr { namespace agent { namespace subsys {
             }
 
         public:
+
             static const std::string &name( )
             {
                 return i2cproto::instance::descriptor( )->full_name( );
