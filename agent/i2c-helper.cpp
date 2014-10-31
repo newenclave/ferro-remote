@@ -173,6 +173,36 @@ namespace fr { namespace agent {
         return data.word;
     }
 
+    std::string i2c_helper::smbus_block_process_call( uint8_t cmd,
+                                                      const std::string &data )
+    {
+        i2c_smbus_data ldata;
+        uint8_t len = data.size( ) > I2C_SMBUS_BLOCK_MAX
+                                   ? I2C_SMBUS_BLOCK_MAX
+                                   : static_cast<uint8_t>( data.size( ) );
+        ldata.block[0] = len;
+        memcpy( &ldata.block[1], len ? &data[0] : "", len );
+        smbus_write( cmd, &ldata, I2C_SMBUS_BLOCK_PROC_CALL );
+        return std::string( &ldata.block[1], &ldata.block[1] + ldata.block[0] );
+    }
+
+    uint8_t i2c_helper::smbus_block_process_call( uint8_t cmd,
+                                                  uint8_t *data,
+                                                  uint8_t len )
+    {
+        i2c_smbus_data ldata;
+
+        len = len > I2C_SMBUS_BLOCK_MAX ? I2C_SMBUS_BLOCK_MAX : len;
+
+        memcpy( &ldata.block[1], data, len );
+
+        smbus_write( cmd, &ldata, I2C_SMBUS_BLOCK_PROC_CALL );
+
+        memcpy( data, &ldata.block[1], ldata.block[0] );
+
+        return ldata.block[0];
+    }
+
     std::string i2c_helper::smbus_read_block_data( uint8_t cmd )
     {
         i2c_smbus_data data;
@@ -188,26 +218,28 @@ namespace fr { namespace agent {
         return ldata.block[0];
     }
 
-    std::string i2c_helper::smbus_read_block_data( uint8_t cmd, uint8_t length )
+    std::string i2c_helper::smbus_read_block_broken( uint8_t cmd, uint8_t len )
     {
         i2c_smbus_data data;
-        length = length > 32 ? 32 : length;
-        data.block[0] = length;
+        len = len > I2C_SMBUS_BLOCK_MAX ? I2C_SMBUS_BLOCK_MAX : len;
+        data.block[0] = len;
         smbus_read( cmd, &data,
-                    length == 32 ? I2C_SMBUS_I2C_BLOCK_BROKEN
-                                 : I2C_SMBUS_BLOCK_DATA );
+                    len == I2C_SMBUS_BLOCK_MAX
+                         ? I2C_SMBUS_I2C_BLOCK_BROKEN
+                         : I2C_SMBUS_BLOCK_DATA );
         return std::string( &data.block[1], &data.block[1] + data.block[0] );
     }
 
-    uint8_t i2c_helper::smbus_read_block_data( uint8_t cmd,
-                                               uint8_t *data, uint8_t length )
+    uint8_t i2c_helper::smbus_read_block_broken( uint8_t cmd,
+                                                 uint8_t *data, uint8_t length )
     {
         i2c_smbus_data ldata;
-        length = length > 32 ? 32 : length;
+        length = length > I2C_SMBUS_BLOCK_MAX ? I2C_SMBUS_BLOCK_MAX : length;
         ldata.block[0] = length;
         smbus_read( cmd, &ldata,
-                    length == 32 ? I2C_SMBUS_I2C_BLOCK_BROKEN
-                                 : I2C_SMBUS_BLOCK_DATA );
+                    length == I2C_SMBUS_BLOCK_MAX
+                            ? I2C_SMBUS_I2C_BLOCK_BROKEN
+                            : I2C_SMBUS_BLOCK_DATA );
         memcpy( data, &ldata.block[1], ldata.block[0] );
         return ldata.block[0];
     }
@@ -225,11 +257,34 @@ namespace fr { namespace agent {
                                              uint8_t length)
     {
         i2c_smbus_data ldata;
-        uint8_t len = length > 32 ? 32 : length;
+        uint8_t len = length > I2C_SMBUS_BLOCK_MAX
+                             ? I2C_SMBUS_BLOCK_MAX : length;
         ldata.block[0] = len;
         memcpy( &ldata.block[1], data, len );
         smbus_write( cmd, &ldata, I2C_SMBUS_BLOCK_DATA );
     }
+
+    void i2c_helper::smbus_write_block_broken( uint8_t cmd,
+                                               const std::string &data )
+    {
+        uint8_t len = static_cast<uint8_t>( data.size( ) );
+        smbus_write_block_broken( cmd,
+               reinterpret_cast<const uint8_t *>(len ? &data[0] : ""), len );
+    }
+
+    void i2c_helper::smbus_write_block_broken( uint8_t cmd,
+                                               const uint8_t *data,
+                                               uint8_t length )
+    {
+        i2c_smbus_data ldata;
+        uint8_t len = length > I2C_SMBUS_BLOCK_MAX
+                             ? I2C_SMBUS_BLOCK_MAX : length;
+        ldata.block[0] = len;
+        memcpy( &ldata.block[1], data, len );
+        smbus_write( cmd, &ldata, I2C_SMBUS_I2C_BLOCK_BROKEN );
+    }
+
+
 
     size_t i2c_helper::write( const void *data, size_t length )
     {
