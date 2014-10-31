@@ -205,6 +205,7 @@ namespace fr { namespace cc { namespace cmd {
             tmp.insert( FR_INTERFACE_PAIR( os,   cd.state_, *cd.core_ ) );
             tmp.insert( FR_INTERFACE_PAIR( fs,   cd.state_, *cd.core_ ) );
             tmp.insert( FR_INTERFACE_PAIR( gpio, cd.state_, *cd.core_ ) );
+            tmp.insert( FR_INTERFACE_PAIR( i2c,  cd.state_, *cd.core_ ) );
 
             lo::table_sptr client_table( lo::new_table( ) );
 

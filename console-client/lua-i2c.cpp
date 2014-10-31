@@ -13,9 +13,13 @@ namespace fr { namespace lua {
             data( std::shared_ptr<lua::state> &ls,
                   client::core::client_core &cc )
             { }
+
+            virtual lua::objects::table_sptr init_table( )
+            {
+                return objects::table_sptr( new objects::table );
+            }
         };
     }
-
 
 namespace i2c {
 

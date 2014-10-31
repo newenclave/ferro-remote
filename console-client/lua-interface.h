@@ -91,6 +91,7 @@ namespace fr { namespace lua {
     FR_DEFINE_NAMESPACE_FOR_LUA( os )
     FR_DEFINE_NAMESPACE_FOR_LUA( fs )
     FR_DEFINE_NAMESPACE_FOR_LUA( gpio )
+    FR_DEFINE_NAMESPACE_FOR_LUA( i2c )
 
 #undef FR_DEFINE_NAMESPACE_FOR_LUA
 
