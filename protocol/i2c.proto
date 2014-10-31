@@ -72,6 +72,7 @@ message data_block {
 service instance {
 
     rpc ping( empty ) returns ( empty );
+
     rpc bus_available( bus_available_req ) returns ( bus_available_res );
 
     rpc open( open_req ) returns ( open_res );

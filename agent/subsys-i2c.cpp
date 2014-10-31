@@ -120,7 +120,7 @@ namespace fr { namespace agent { namespace subsys {
                 dev->ioctl( request->code( ), par );
             }
 
-            void read(::google::protobuf::RpcController* controller,
+            void read(::google::protobuf::RpcController* /*controller*/,
                          const ::fr::proto::i2c::data_block* request,
                          ::fr::proto::i2c::data_block* response,
                          ::google::protobuf::Closure* done) override
@@ -142,7 +142,7 @@ namespace fr { namespace agent { namespace subsys {
                 response->set_data( &data[0], res );
             }
 
-            void write(::google::protobuf::RpcController* controller,
+            void write(::google::protobuf::RpcController* /*controller*/,
                          const ::fr::proto::i2c::data_block* request,
                          ::fr::proto::i2c::data_block* response,
                          ::google::protobuf::Closure* done) override

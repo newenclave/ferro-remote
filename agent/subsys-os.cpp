@@ -7,6 +7,7 @@
 #include "vtrc-common/vtrc-exception.h"
 
 #include <stdlib.h>
+#include <endian.h>
 
 namespace fr { namespace agent { namespace subsys {
 
@@ -21,7 +22,7 @@ namespace fr { namespace agent { namespace subsys {
             void execute(::google::protobuf::RpcController* controller,
                          const ::fr::proto::os::execute_req* request,
                          ::fr::proto::os::execute_res* response,
-                         ::google::protobuf::Closure* done)
+                         ::google::protobuf::Closure* done) override
             {
                 vcomm::closure_holder holder(done);
                 int res = system( request->cmd( ).c_str( ) );
@@ -30,6 +31,20 @@ namespace fr { namespace agent { namespace subsys {
                 }
                 response->set_result( res );
             }
+
+            void byte_order(::google::protobuf::RpcController*  /*controller*/,
+                         const ::fr::proto::os::byte_order_req* /*request*/,
+                         ::fr::proto::os::byte_order_res* response,
+                         ::google::protobuf::Closure* done) override
+            {
+                vcomm::closure_holder holder(done);
+#if __BYTE_ORDER == __LITTLE_ENDIAN
+                response->set_big_endian( false );
+#else
+                response->set_big_endian( true );
+#endif
+            }
+
         public:
             static const std::string &name( )
             {
