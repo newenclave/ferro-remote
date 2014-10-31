@@ -55,6 +55,17 @@ namespace fr { namespace agent {
             return fk.release( );
         }
 
+        int smbus_read_write( int fd, uint8_t rw, uint8_t cmd,
+                              uint32_t len, i2c_smbus_data *data )
+        {
+            i2c_smbus_ioctl_data params;
+            params.read_write   = rw;
+            params.command      = cmd;
+            params.data         = data;
+            params.size         = len;
+            return ioctl( fd, I2C_SMBUS, &params );
+        }
+
     }
 
     i2c_helper::i2c_helper( unsigned bus_id )
@@ -92,14 +103,118 @@ namespace fr { namespace agent {
         errno_error::errno_assert( res != -1, "ioctl(I2C_SMBUS)" );
     }
 
-    size_t i2c_helper::write(const void *data, size_t length)
+    void i2c_helper::smbus_read( uint8_t command,
+                                 i2c_smbus_data *data, uint32_t len )
+    {
+        int res = smbus_read_write( fd_, I2C_SMBUS_READ,
+                                    command, len, data );
+        errno_error::errno_assert( -1 != res, "smbus_read" );
+    }
+
+    void i2c_helper::smbus_write( uint8_t command,
+                                  i2c_smbus_data *data, uint32_t len )
+    {
+        int res = smbus_read_write( fd_, I2C_SMBUS_WRITE,
+                                    command, len, data );
+        errno_error::errno_assert( -1 != res, "smbus_write" );
+    }
+
+    void i2c_helper::smbus_write_quick( uint8_t value )
+    {
+        int res = smbus_read_write( fd_, value, 0, I2C_SMBUS_QUICK, NULL );
+        errno_error::errno_assert( -1 != res, "smbus_write_quick" );
+    }
+
+    uint8_t i2c_helper::smbus_read_byte( )
+    {
+        i2c_smbus_data data;
+        smbus_read( 0, &data, I2C_SMBUS_BYTE );
+        return data.byte;
+    }
+
+    void i2c_helper::smbus_write_byte( uint8_t value )
+    {
+        smbus_write( value, NULL, I2C_SMBUS_BYTE );
+    }
+
+    uint8_t i2c_helper::smbus_read_byte_data( uint8_t cmd )
+    {
+        i2c_smbus_data data;
+        smbus_read( cmd, &data, I2C_SMBUS_BYTE_DATA );
+        return data.byte;
+    }
+
+    void i2c_helper::smbus_write_byte_data( uint8_t cmd, uint8_t value )
+    {
+        i2c_smbus_data data;
+        data.byte = value;
+        smbus_write( cmd, &data, I2C_SMBUS_BYTE_DATA );
+    }
+
+    uint16_t i2c_helper::smbus_read_word_data( uint8_t cmd )
+    {
+        i2c_smbus_data data;
+        smbus_read( cmd, &data, I2C_SMBUS_WORD_DATA );
+        return data.word;
+    }
+
+    void i2c_helper::smbus_write_word_data( uint8_t cmd, uint16_t value )
+    {
+        i2c_smbus_data data;
+        data.word = value;
+        smbus_write( cmd, &data, I2C_SMBUS_WORD_DATA );
+    }
+
+    uint16_t i2c_helper::smbus_process_call( uint8_t cmd, uint16_t value )
+    {
+        i2c_smbus_data data;
+        data.word = value;
+        smbus_write( cmd, &data, I2C_SMBUS_PROC_CALL );
+        return data.word;
+    }
+
+    std::string i2c_helper::smbus_read_block_data( uint8_t cmd )
+    {
+        i2c_smbus_data data;
+        smbus_read( cmd, &data, I2C_SMBUS_BLOCK_DATA );
+        return std::string( &data.block[1], &data.block[1] + data.block[0] );
+    }
+
+    uint8_t i2c_helper::smbus_read_block_data( uint8_t cmd, uint8_t *data )
+    {
+        i2c_smbus_data ldata;
+        smbus_read( cmd, &ldata, I2C_SMBUS_BLOCK_DATA );
+        memcpy( data, &ldata.block[1], ldata.block[0] );
+        return ldata.block[0];
+    }
+
+    void i2c_helper::smbus_write_block_data( uint8_t cmd,
+                                             const std::string &data )
+    {
+        uint8_t len = static_cast<uint8_t>( data.size( ) );
+        smbus_write_block_data( cmd,
+               reinterpret_cast<const uint8_t *>(len ? &data[0] : ""), len );
+    }
+
+    void i2c_helper::smbus_write_block_data( uint8_t cmd,
+                                             const uint8_t *data,
+                                             uint8_t length)
+    {
+        i2c_smbus_data ldata;
+        uint8_t len = length > 32 ? 32 : length;
+        ldata.block[0] = len;
+        memcpy( &ldata.block[1], data, len );
+        smbus_write( cmd, &ldata, I2C_SMBUS_BLOCK_DATA );
+    }
+
+    size_t i2c_helper::write( const void *data, size_t length )
     {
         ssize_t res = ::write( fd_, data, length );
         errno_error::errno_assert( -1 != res, "write" );
         return static_cast<size_t>(res);
     }
 
-    size_t i2c_helper::read(void *data, size_t length)
+    size_t i2c_helper::read( void *data, size_t length )
     {
         ssize_t res = ::read( fd_, data, length );
         errno_error::errno_assert( -1 != res, "read" );

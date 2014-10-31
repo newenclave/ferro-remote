@@ -43,6 +43,7 @@ namespace interfaces { namespace i2c {
     };
 
     struct iface {
+
         virtual ~iface( ) { }
 
         virtual vtrc::uint64_t function_mask( ) const = 0; // see function_codes
