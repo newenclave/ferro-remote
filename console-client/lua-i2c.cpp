@@ -10,13 +10,26 @@ namespace fr { namespace lua {
 
     namespace {
         struct data: public base_data {
+
+            client::core::client_core    &cc_;
+
             data( std::shared_ptr<lua::state> &ls,
                   client::core::client_core &cc )
+                :cc_(cc)
             { }
 
             virtual lua::objects::table_sptr init_table( )
             {
-                return objects::table_sptr( new objects::table );
+                objects::table_sptr t( new objects::table );
+
+                using objects::new_string;
+                using objects::new_function;
+                using objects::new_light_userdata;
+
+                t->add( new_string( names::inst_field ),
+                        new_light_userdata( this ));
+
+                return t;
             }
         };
     }
