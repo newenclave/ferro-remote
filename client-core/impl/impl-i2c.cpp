@@ -40,7 +40,8 @@ namespace fr { namespace client { namespace interfaces { namespace i2c {
             mutable client_type client_;
             unsigned            hdl_;
 
-            i2s_impl( core::client_core &cc, unsigned bid, unsigned sa, bool sf)
+            i2s_impl( core::client_core &cc,
+                      unsigned bid, unsigned sa, bool sf )
                 :client_(cc.create_channel( ), true)
                 ,hdl_(open_device( client_, bid, sa, sf ))
             { }
