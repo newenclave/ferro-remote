@@ -165,7 +165,6 @@ namespace fr { namespace client { namespace interfaces { namespace i2c {
                 client_.call( &stub_type::read_block, &req, &res );
 
                 return res.data( ).block( );
-
             }
 
             void write_block_broken( uint8_t cmd, const std::string &val ) const
