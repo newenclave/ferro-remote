@@ -48,7 +48,7 @@ namespace interfaces { namespace i2c {
 
         virtual uint64_t function_mask( ) const = 0; // see function_codes
 
-        virtual void   set_address( uint8_t addr ) const = 0;
+        virtual void   set_address( uint16_t addr ) const = 0;
         virtual void   ioctl( unsigned code,    uint64_t param ) const = 0;
         virtual size_t  read( void *data,       size_t length  ) const = 0;
         virtual size_t write( const void *data, size_t length  ) const = 0;

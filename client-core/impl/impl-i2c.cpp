@@ -67,7 +67,7 @@ namespace fr { namespace client { namespace interfaces { namespace i2c {
                 return res.mask( );
             }
 
-            void  set_address( uint8_t addr ) const
+            void  set_address( uint16_t addr ) const
             {
                 ioctl( i2cproto::CODE_I2C_SLAVE, addr );
             }
