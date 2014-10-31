@@ -13,7 +13,16 @@ function main( argv )
     local avail_table = { [false]="not available", [true]="available" }
 
     while i < 10 do
-        println( "Bus ", i, " is ", avail_table[i2c.bus_available(i)] )
+        local a = i2c.bus_available(i)
+        if a then
+            print( "Bus ", i, " is ", avail_table[a] )
+            local err, i = i2c.open( i )
+            f = i2c.functions( i )
+            println( ": ", f )
+            i2c.close( i )
+        else
+            println( "Bus ", i, " is ", avail_table[a] )
+        end
         i = i + 1
     end
 

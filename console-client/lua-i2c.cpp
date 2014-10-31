@@ -33,6 +33,8 @@ namespace fr { namespace lua {
         int lcall_i2c_bus_close( lua_State *L );
         int lcall_i2c_set_addr(  lua_State *L );
 
+        int lcall_i2c_functions(  lua_State *L );
+
         int lcall_i2c_read(  lua_State *L );
         int lcall_i2c_write( lua_State *L );
 
@@ -67,6 +69,9 @@ namespace fr { namespace lua {
                 t->add( new_string( "bus_available" ),
                         new_function( &lcall_i2c_bus_avail ) );
 
+                t->add( new_string( "functions" ),
+                        new_function( &lcall_i2c_functions ) );
+
                 t->add( new_string( "open" ),
                         new_function( &lcall_i2c_bus_open ) );
                 t->add( new_string( "close" ),
@@ -83,6 +88,11 @@ namespace fr { namespace lua {
                         new_function( &lcall_i2c_read_byte ) );
                 t->add( new_string( "write_byte" ),
                         new_function( &lcall_i2c_write_byte ) );
+
+                t->add( new_string( "read_block" ),
+                        new_function( &lcall_i2c_read_block ) );
+                t->add( new_string( "write_block" ),
+                        new_function( &lcall_i2c_write_block ) );
 
                 return t;
             }
@@ -164,6 +174,50 @@ namespace fr { namespace lua {
             ls.clean_stack( );
 
             return 0;
+        }
+
+#define I2C_ADD_FUNCTIONAL_SUPPORT( t, m, flag )        \
+        t->add( objects::new_string( #flag ),           \
+                objects::new_boolean( ii2c::flag & m ));
+
+        objects::table_sptr table_mask( uint64_t m )
+        {
+            objects::table_sptr res( objects::new_table( ) );
+
+            I2C_ADD_FUNCTIONAL_SUPPORT( res, m, FUNC_I2C );
+            I2C_ADD_FUNCTIONAL_SUPPORT( res, m, FUNC_10BIT_ADDR );
+            I2C_ADD_FUNCTIONAL_SUPPORT( res, m, FUNC_PROTOCOL_MANGLING );
+            I2C_ADD_FUNCTIONAL_SUPPORT( res, m, FUNC_SMBUS_PEC );
+            I2C_ADD_FUNCTIONAL_SUPPORT( res, m, FUNC_NOSTART );
+            I2C_ADD_FUNCTIONAL_SUPPORT( res, m, FUNC_SMBUS_BLOCK_PROC_CALL );
+            I2C_ADD_FUNCTIONAL_SUPPORT( res, m, FUNC_SMBUS_QUICK );
+            I2C_ADD_FUNCTIONAL_SUPPORT( res, m, FUNC_SMBUS_READ_BYTE );
+            I2C_ADD_FUNCTIONAL_SUPPORT( res, m, FUNC_SMBUS_WRITE_BYTE );
+            I2C_ADD_FUNCTIONAL_SUPPORT( res, m, FUNC_SMBUS_READ_BYTE_DATA );
+            I2C_ADD_FUNCTIONAL_SUPPORT( res, m, FUNC_SMBUS_WRITE_BYTE_DATA );
+            I2C_ADD_FUNCTIONAL_SUPPORT( res, m, FUNC_SMBUS_READ_WORD_DATA );
+            I2C_ADD_FUNCTIONAL_SUPPORT( res, m, FUNC_SMBUS_WRITE_WORD_DATA );
+            I2C_ADD_FUNCTIONAL_SUPPORT( res, m, FUNC_SMBUS_PROC_CALL );
+            I2C_ADD_FUNCTIONAL_SUPPORT( res, m, FUNC_SMBUS_READ_BLOCK_DATA );
+            I2C_ADD_FUNCTIONAL_SUPPORT( res, m, FUNC_SMBUS_WRITE_BLOCK_DATA );
+            I2C_ADD_FUNCTIONAL_SUPPORT( res, m, FUNC_SMBUS_READ_I2C_BLOCK );
+            I2C_ADD_FUNCTIONAL_SUPPORT( res, m, FUNC_SMBUS_WRITE_I2C_BLOCK );
+
+            return res;
+        }
+#undef I2C_ADD_FUNCTIONALITY_SUPPORT
+
+        int lcall_i2c_functions(  lua_State *L )
+        {
+            lua::state ls( L );
+            iface_sptr dev( get_device( L, 1 ) );
+            ls.clean_stack( );
+
+            uint64_t mask = dev->function_mask( );
+            objects::table_sptr t( table_mask( mask ) );
+
+            t->push( L );
+            return 1;
         }
 
         int lcall_i2c_read(  lua_State *L )
