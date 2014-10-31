@@ -28,10 +28,10 @@ namespace fr { namespace lua {
             return reinterpret_cast<data *>( p );
         }
 
-        int lcall_i2c_bus_avail(    lua_State *L );
-        int lcall_i2c_bus_open(     lua_State *L );
-        int lcall_i2c_bus_close(    lua_State *L );
-        int lcall_i2c_set_addr(     lua_State *L );
+        int lcall_i2c_bus_avail( lua_State *L );
+        int lcall_i2c_bus_open(  lua_State *L );
+        int lcall_i2c_bus_close( lua_State *L );
+        int lcall_i2c_set_addr(  lua_State *L );
 
         struct data: public base_data {
 
