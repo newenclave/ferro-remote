@@ -33,6 +33,9 @@ namespace fr { namespace lua {
         int lcall_i2c_bus_close( lua_State *L );
         int lcall_i2c_set_addr(  lua_State *L );
 
+        int lcall_i2c_read(  lua_State *L );
+        int lcall_i2c_write( lua_State *L );
+
         int lcall_i2c_read_byte(  lua_State *L );
         int lcall_i2c_write_byte( lua_State *L );
 
@@ -68,6 +71,10 @@ namespace fr { namespace lua {
                 t->add( new_string( "set_address" ),
                         new_function( &lcall_i2c_set_addr ) );
 
+                t->add( new_string( "read" ),
+                        new_function( &lcall_i2c_read ) );
+                t->add( new_string( "write" ),
+                        new_function( &lcall_i2c_write ) );
                 t->add( new_string( "read_byte" ),
                         new_function( &lcall_i2c_read_byte ) );
                 t->add( new_string( "write_byte" ),
@@ -151,6 +158,44 @@ namespace fr { namespace lua {
             dev->set_address( ls.get<unsigned>( 1 ) );
             ls.clean_stack( );
             return 0;
+        }
+
+        int lcall_i2c_read(  lua_State *L )
+        {
+            lua::state ls(L);
+            int n = ls.get_top( );
+            unsigned maximum = 44000;
+            iface_sptr f(get_device( L, 1 ));
+            if( n > 1 ) {
+                maximum = ls.get<unsigned>( 2 );
+                if( maximum > 44000 ) maximum = 44000;
+            }
+            ls.pop( n );
+            if( maximum ) {
+                std::vector<char> data(maximum);
+                size_t r = f->read( &data[0], maximum );
+                ls.push( &data[0], r );
+                return 1;
+            }
+            return 0;
+        }
+
+        int lcall_i2c_write( lua_State *L )
+        {
+            lua::state ls(L);
+
+            iface_sptr f(get_device( L, 1 ));
+            std::string data( ls.get<std::string>( 2 ) );
+
+            ls.clean_stack( );
+
+            size_t pos = 0;
+            const size_t w = data.size( );
+            while( pos != w ) {
+                pos += f->write( &data[pos], w - pos );
+            }
+            ls.push( w );
+            return 1;
         }
 
         int lcall_i2c_read_byte(  lua_State *L )

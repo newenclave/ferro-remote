@@ -359,7 +359,7 @@ namespace fr { namespace cc { namespace cmd {
                                   << " was not found in the script.\n";
                     }
                 }
-                cl.disconnect( );
+                //cl.disconnect( );
             }
 
             void add_options( po::options_description &desc )
