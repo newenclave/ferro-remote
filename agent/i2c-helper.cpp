@@ -296,9 +296,6 @@ namespace fr { namespace agent {
     size_t i2c_helper::read( void *data, size_t length )
     {
         ssize_t res = ::read( fd_, data, length );
-
-        std::cout << "Read result " << res << ": " << fd_ << "\n";
-
         errno_error::errno_assert( -1 != res, "read" );
         return static_cast<size_t>(res);
     }

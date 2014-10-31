@@ -185,6 +185,7 @@ namespace fr { namespace client { namespace interfaces { namespace i2c {
                 i2cproto::data_block res;
 
                 req.set_length( length );
+                req.mutable_hdl( )->set_value( hdl_ );
 
                 client_.call( &stub_type::read, &req, &res );
 
@@ -201,6 +202,7 @@ namespace fr { namespace client { namespace interfaces { namespace i2c {
                 i2cproto::data_block res;
 
                 req.set_data( data, length );
+                req.mutable_hdl( )->set_value( hdl_ );
 
                 client_.call( &stub_type::write, &req, &res );
 
