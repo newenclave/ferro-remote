@@ -36,9 +36,9 @@ namespace fr { namespace agent {
         char available_sep( unsigned bus_id )
         {
             struct stat ss = { 0 };
-            if( stat( bus2path(bus_id, '-').c_str( ), &ss ) == 0 ) {
+            if( ::stat( bus2path(bus_id, '-').c_str( ), &ss ) == 0 ) {
                 return '-';
-            } else if( stat( bus2path(bus_id, '/').c_str( ), &ss ) == 0 ) {
+            } else if( ::stat( bus2path(bus_id, '/').c_str( ), &ss ) == 0 ) {
                 return '/';
             }
             return '\0';
