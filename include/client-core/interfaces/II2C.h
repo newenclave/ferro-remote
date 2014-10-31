@@ -6,6 +6,8 @@
 
 #include <string>
 
+#include "IFile.h"
+
 namespace fr { namespace client {
 
 namespace core {
@@ -44,16 +46,13 @@ namespace interfaces { namespace i2c {
         ,FUNC_SMBUS_WRITE_I2C_BLOCK  = 0x08000000 /* w/ 1-byte reg. addr. */
     };
 
-    struct iface {
+    struct iface: public file::base_file_iface {
 
         virtual ~iface( ) { }
 
         virtual uint64_t function_mask( ) const = 0; // see function_codes
 
         virtual void   set_address( uint16_t addr ) const = 0;
-        virtual void   ioctl( unsigned code,    uint64_t param ) const = 0;
-        virtual size_t  read( void *data,       size_t length  ) const = 0;
-        virtual size_t write( const void *data, size_t length  ) const = 0;
 
         virtual uint8_t read_byte( uint8_t command ) const = 0;
         virtual void write_byte( uint8_t command, uint8_t value ) const = 0;

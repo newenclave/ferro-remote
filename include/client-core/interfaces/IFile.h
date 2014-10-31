@@ -68,17 +68,19 @@ namespace interfaces { namespace file {
             void (unsigned, const std::string &)
     > file_event_callback;
 
-    struct iface {
+    struct base_file_iface {
+        virtual ~base_file_iface( ) { }
+        virtual size_t  read( void *data,       size_t length  ) const = 0;
+        virtual size_t write( const void *data, size_t length  ) const = 0;
+        virtual void   ioctl( unsigned code,    uint64_t param ) const = 0;
+    };
+
+    struct iface: public base_file_iface {
         virtual ~iface( ) { }
 
         virtual int64_t seek( int64_t pos, seek_whence whence ) const = 0;
-
         virtual int64_t tell( )  const = 0;
         virtual void    flush( ) const = 0;
-
-        virtual void   ioctl( unsigned code,    uint64_t param ) const = 0;
-        virtual size_t  read( void *data,       size_t length  ) const = 0;
-        virtual size_t write( const void *data, size_t length  ) const = 0;
 
         virtual void register_for_events( file_event_callback cb ) = 0;
         virtual void unregister( ) = 0;
