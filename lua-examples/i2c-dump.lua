@@ -1,6 +1,6 @@
 --[[
     %ferro_remote_client -s xx.xx.xx.xx:xxxx -clua -e script.lua \
-    -p"bus=XX" -p"address=0xXX"
+    -p"bus=XX" -p"address=XX"
 --]]
 
 -- shows i2c dump
