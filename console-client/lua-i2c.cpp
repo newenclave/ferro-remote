@@ -28,9 +28,10 @@ namespace fr { namespace lua {
             return reinterpret_cast<data *>( p );
         }
 
-        int lcall_i2c_bus_avail( lua_State *L );
-        int lcall_i2c_bus_open( lua_State *L );
-        int lcall_i2c_bus_close( lua_State *L );
+        int lcall_i2c_bus_avail(    lua_State *L );
+        int lcall_i2c_bus_open(     lua_State *L );
+        int lcall_i2c_bus_close(    lua_State *L );
+        int lcall_i2c_set_addr(     lua_State *L );
 
         struct data: public base_data {
 
@@ -61,6 +62,8 @@ namespace fr { namespace lua {
                         new_function( &lcall_i2c_bus_open ) );
                 t->add( new_string( "close" ),
                         new_function( &lcall_i2c_bus_close ) );
+                t->add( new_string( "set_address" ),
+                        new_function( &lcall_i2c_set_addr ) );
 
                 return t;
             }
@@ -131,6 +134,15 @@ namespace fr { namespace lua {
             }
             ls.push( res );
             return 2;
+        }
+
+        int lcall_i2c_set_addr( lua_State *L )
+        {
+            iface_sptr dev( get_device( L ) );
+            lua::state ls( L );
+            dev->set_address( ls.get<unsigned>( 1 ) );
+            ls.clean_stack( );
+            return 0;
         }
 
         int lcall_i2c_bus_close( lua_State *L )
