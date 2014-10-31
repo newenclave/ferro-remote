@@ -79,6 +79,36 @@ namespace lua { namespace types {
         }
     };
 
+    struct id_boolean: public base_id<LUA_TBOOLEAN> {
+
+        static bool check( lua_State *L, int idx )
+        {
+            int r = lua_type( L, idx );
+            return r == LUA_TNUMBER  ||
+                   r == LUA_TBOOLEAN ||
+                   r == LUA_TNIL     ||
+                   r == LUA_TLIGHTUSERDATA;
+        }
+
+        static bool get( lua_State *L, int idx )
+        {
+            int r = lua_type( L, idx );
+            switch (r) {
+            case LUA_TNUMBER:
+                return !!lua_tointeger( L, idx );
+            case LUA_TBOOLEAN:
+                return lua_toboolean( L, idx );
+            case LUA_TNIL:
+                return false;
+            case LUA_TLIGHTUSERDATA:
+                return lua_topointer( L, idx ) != NULL;
+            default:
+                break;
+            }
+            return false;
+        }
+    };
+
     template <typename T>
     struct id_numeric: public base_id<LUA_TNUMBER> {
         static T get( lua_State *L, int idx )
@@ -222,6 +252,10 @@ namespace lua { namespace types {
     template <>
     struct id_traits<const void *> : public
            id_pointer<const void *> { };
+
+    template <>
+    struct id_traits<bool> : public
+           id_boolean { };
 
 }}
 

@@ -29,6 +29,8 @@ namespace fr { namespace lua {
         }
 
         int lcall_i2c_bus_avail( lua_State *L );
+        int lcall_i2c_bus_open( lua_State *L );
+        int lcall_i2c_bus_close( lua_State *L );
 
         struct data: public base_data {
 
@@ -53,11 +55,37 @@ namespace fr { namespace lua {
                         new_light_userdata( this ));
 
                 t->add( new_string( "bus_available" ),
-                        new_function( lcall_i2c_bus_avail ) );
+                        new_function( &lcall_i2c_bus_avail ) );
+
+                t->add( new_string( "open" ),
+                        new_function( &lcall_i2c_bus_open ) );
+                t->add( new_string( "close" ),
+                        new_function( &lcall_i2c_bus_close ) );
 
                 return t;
             }
         };
+
+        /// CALLS
+        iface_sptr get_device( lua_State *L, int id = -1 )
+        {
+            lua::state ls(L);
+            void *p = ls.get<void *>( id );
+            iface_sptr ni;
+            data *i = get_iface( L );
+            {
+                std::lock_guard<std::mutex> lck(i->devices_lock_);
+                std::map<
+                        void *,
+                        iface_sptr
+                >::const_iterator f( i->devices_.find( p ) );
+
+                if( f != i->devices_.end( ) ) {
+                    ni = f->second;
+                }
+            }
+            return ni;
+        }
 
         int lcall_i2c_bus_avail( lua_State *L )
         {
@@ -68,6 +96,54 @@ namespace fr { namespace lua {
             ls.clean_stack( );
             ls.push( res );
             return 1;
+        }
+
+        int lcall_i2c_bus_open( lua_State *L )
+        {
+            lua::state ls( L );
+            data * i = get_iface( L );
+
+            int n = ls.get_top(  );
+
+            unsigned bus_id = ls.get<unsigned>( 1 );
+            unsigned slave_addr = 0xFFFFFFFF;
+            bool slave_force = false;
+
+            if( n > 1 ) {
+                slave_addr = ls.get<unsigned>( 2 );
+            }
+
+            if( n > 2 ) {
+                slave_force = ls.get<bool>( 3 );
+            }
+
+            void *res = NULL;
+
+            try {
+                iface_sptr new_inst( ii2c::open( i->cc_, bus_id,
+                                                 slave_addr, slave_force ) );
+                std::lock_guard<std::mutex> lck(i->devices_lock_);
+                res = new_inst.get( );
+                i->devices_[res] = new_inst;
+                ls.push( );
+            } catch ( const std::exception &ex ) {
+                ls.push( ex.what( ) );
+            }
+            ls.push( res );
+            return 2;
+        }
+
+        int lcall_i2c_bus_close( lua_State *L )
+        {
+            lua::state ls( L );
+            data * i   = get_iface( L );
+            void * dev = ls.get<void *>(  );
+            ls.clean_stack( );
+            do {
+                std::lock_guard<std::mutex> lck( i->devices_lock_ );
+                i->devices_.erase( dev );
+            } while ( 0 );
+            return 0;
         }
 
     }
