@@ -205,7 +205,7 @@ namespace fr { namespace lua {
 
             return res;
         }
-#undef I2C_ADD_FUNCTIONALITY_SUPPORT
+#undef I2C_ADD_FUNCTIONAL_SUPPORT
 
         int lcall_i2c_functions(  lua_State *L )
         {
