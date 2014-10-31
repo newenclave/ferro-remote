@@ -36,6 +36,9 @@ namespace fr { namespace lua {
         int lcall_i2c_read(  lua_State *L );
         int lcall_i2c_write( lua_State *L );
 
+        int lcall_i2c_read_block(  lua_State *L );
+        int lcall_i2c_write_block( lua_State *L );
+
         int lcall_i2c_read_byte(  lua_State *L );
         int lcall_i2c_write_byte( lua_State *L );
 
@@ -75,6 +78,7 @@ namespace fr { namespace lua {
                         new_function( &lcall_i2c_read ) );
                 t->add( new_string( "write" ),
                         new_function( &lcall_i2c_write ) );
+
                 t->add( new_string( "read_byte" ),
                         new_function( &lcall_i2c_read_byte ) );
                 t->add( new_string( "write_byte" ),
@@ -215,9 +219,29 @@ namespace fr { namespace lua {
             iface_sptr dev( get_device( L, 1 ) );
             lua::state ls( L );
             unsigned cmd  = ls.get<unsigned>( 1 );
-            unsigned data = ls.get<unsigned>( 1 );
+            unsigned data = ls.get<unsigned>( 2 );
             ls.clean_stack( );
             dev->write_byte( cmd, data );
+            return 0;
+        }
+
+        int lcall_i2c_read_block(  lua_State *L )
+        {
+            iface_sptr dev( get_device( L ,1 ) );
+            lua::state ls( L );
+            unsigned cmd = ls.get<unsigned>( 1 );
+            ls.clean_stack( );
+            ls.push( dev->read_block( cmd ) );
+            return 1;
+        }
+
+        int lcall_i2c_write_block( lua_State *L )
+        {
+            iface_sptr dev( get_device( L, 1 ) );
+            lua::state ls( L );
+            unsigned cmd     = ls.get<unsigned>( 1 );
+            std::string data = ls.get<std::string>( 2 );
+            dev->write_block( cmd, data );
             return 0;
         }
 
