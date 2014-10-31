@@ -6,12 +6,30 @@
 
 #include "fr-lua/lua-wrapper.hpp"
 
+#include <map>
+#include <mutex>
+
 namespace fr { namespace lua {
 
     namespace {
+
+        using namespace client;
+        typedef interfaces::i2c::iface  iface;
+        typedef std::shared_ptr<iface>  iface_sptr;
+
+        struct data;
+
+        data * get_iface( lua_State *L )
+        {
+            void * p = get_component_iface( L, i2c::table_path( ) );
+            return reinterpret_cast<data *>( p );
+        }
+
         struct data: public base_data {
 
             client::core::client_core    &cc_;
+            std::map<void *, iface_sptr>  devices_;
+            std::mutex                    devices_lock_;
 
             data( std::shared_ptr<lua::state> &ls,
                   client::core::client_core &cc )
