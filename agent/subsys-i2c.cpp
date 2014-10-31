@@ -141,7 +141,6 @@ namespace fr { namespace agent { namespace subsys {
                          ::fr::proto::i2c::data_block* response,
                          ::google::protobuf::Closure* done) override
             {
-                std::cout << "Read enter\n";
                 vcomm::closure_holder holder( done );
                 i2c_sptr dev(i2c_by_index( request->hdl( ).value( ) ));
 
