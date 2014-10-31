@@ -4,8 +4,6 @@
 
 -- test for the bus availability
 
-fr_print = print
-
 open( "base" )
 
 i2c = fr.client.i2c
