@@ -4,6 +4,8 @@
 #include <stdint.h>
 #include "vtrc-memory.h"
 
+#include <string>
+
 namespace fr { namespace client {
 
 namespace core {
