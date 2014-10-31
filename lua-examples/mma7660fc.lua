@@ -11,13 +11,14 @@ open( "string" )
 
 function main ( argv )
 
-    local err, i = i2c.open( 1, 0x4c )
+    local err, i = i2c.open( 1 )
 
-    println( err, i )
---    local f = file.open( "/dev/i2c-1", file.RDWR )
+    if err then
+        println( "Bus error: ", err )
+        return 1
+    end
 
---    file.ioctl( f, 0x0703, 0x4c )
---    file.write( f, "\7\1" )
+    i2c.set_address( i, 0x4c )
 
     while true do
 

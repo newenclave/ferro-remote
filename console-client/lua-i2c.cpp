@@ -153,10 +153,12 @@ namespace fr { namespace lua {
 
         int lcall_i2c_set_addr( lua_State *L )
         {
-            iface_sptr dev( get_device( L ) );
             lua::state ls( L );
-            dev->set_address( ls.get<unsigned>( 1 ) );
+            iface_sptr dev( get_device( L, 1 ) );
+
+            dev->set_address( ls.get<unsigned>( 2 ) );
             ls.clean_stack( );
+
             return 0;
         }
 
@@ -200,7 +202,7 @@ namespace fr { namespace lua {
 
         int lcall_i2c_read_byte(  lua_State *L )
         {
-            iface_sptr dev( get_device( L ) );
+            iface_sptr dev( get_device( L ,1 ) );
             lua::state ls( L );
             unsigned cmd = ls.get<unsigned>( 1 );
             ls.clean_stack( );
@@ -210,7 +212,7 @@ namespace fr { namespace lua {
 
         int lcall_i2c_write_byte( lua_State *L )
         {
-            iface_sptr dev( get_device( L ) );
+            iface_sptr dev( get_device( L, 1 ) );
             lua::state ls( L );
             unsigned cmd  = ls.get<unsigned>( 1 );
             unsigned data = ls.get<unsigned>( 1 );
