@@ -108,9 +108,9 @@ namespace fr { namespace lua {
 
             int n = ls.get_top(  );
 
-            unsigned bus_id = ls.get<unsigned>( 1 );
-            unsigned slave_addr = 0xFFFFFFFF;
-            bool slave_force = false;
+            unsigned bus_id     = ls.get<unsigned>( 1 );
+            unsigned slave_addr = ii2c::I2C_SLAVE_INVALID_ADDRESS;
+            bool slave_force    = false;
 
             if( n > 1 ) {
                 slave_addr = ls.get<unsigned>( 2 );

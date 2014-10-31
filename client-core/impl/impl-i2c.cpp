@@ -27,7 +27,7 @@ namespace fr { namespace client { namespace interfaces { namespace i2c {
             i2cproto::open_req req;
             i2cproto::open_res res;
             req.set_bus_id( bus_id );
-            if( slave_addr != 0xFFFFFFFF ) {
+            if( slave_addr != I2C_SLAVE_INVALID_ADDRESS ) {
                 req.set_slave_id( slave_addr );
                 req.set_force_slave( slave_force );
             }
@@ -212,7 +212,7 @@ namespace fr { namespace client { namespace interfaces { namespace i2c {
 
     iface_ptr open( core::client_core &cc, unsigned bus_id )
     {
-        return new i2s_impl( cc, bus_id, 0xFFFFFFFF, false );
+        return new i2s_impl( cc, bus_id, I2C_SLAVE_INVALID_ADDRESS, false );
     }
 
     iface_ptr open( core::client_core &cc,

@@ -75,6 +75,8 @@ namespace interfaces { namespace i2c {
     typedef iface * iface_ptr;
     typedef vtrc::shared_ptr<iface> iface_sptr;
 
+    enum { I2C_SLAVE_INVALID_ADDRESS = 0xFFFFFFFF };
+
     iface_ptr open( core::client_core &cc, unsigned bus_id );
     iface_ptr open( core::client_core &cc,
                     unsigned bus_id, unsigned slave_addr );
