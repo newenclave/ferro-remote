@@ -1,5 +1,6 @@
 #include "i2c-helper.h"
 
+#include <iostream>
 #include <string>
 #include <sstream>
 
