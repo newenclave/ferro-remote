@@ -19,7 +19,7 @@ namespace fr { namespace agent { namespace subsys {
 
         class os_proto_impl: public fr::proto::os::instance {
 
-            void execute(::google::protobuf::RpcController* controller,
+            void execute(::google::protobuf::RpcController* /*controller*/,
                          const ::fr::proto::os::execute_req* request,
                          ::fr::proto::os::execute_res* response,
                          ::google::protobuf::Closure* done) override
