@@ -144,13 +144,12 @@ namespace fr { namespace client { namespace interfaces { namespace i2c {
             void write_block( uint8_t cmd, const std::string &value ) const
             {
                 i2cproto::write_read_data_req req;
-                i2cproto::write_read_data_res res;
 
                 req.mutable_hdl( )->set_value( hdl_ );
                 req.set_code( cmd );
                 req.mutable_data( )->set_block( value );
 
-                client_.call( &stub_type::write_block, &req, &res );
+                client_.call_request( &stub_type::write_block, &req );
             }
 
             std::string read_block_broken( uint8_t cmd, uint8_t len ) const
@@ -172,14 +171,13 @@ namespace fr { namespace client { namespace interfaces { namespace i2c {
             void write_block_broken( uint8_t cmd, const std::string &val ) const
             {
                 i2cproto::write_read_data_req req;
-                i2cproto::write_read_data_res res;
 
                 req.mutable_hdl( )->set_value( hdl_ );
                 req.set_code( cmd );
                 req.mutable_data( )->set_block( val );
                 req.mutable_data( )->set_broken_block( true );
 
-                client_.call( &stub_type::write_block, &req, &res );
+                client_.call_request( &stub_type::write_block, &req );
             }
 
             size_t read( void *data, size_t length ) const
