@@ -7,7 +7,7 @@
 #include "vtrc-common/vtrc-exception.h"
 
 #include <stdlib.h>
-#include <endian.h>
+#include <stdint.h>
 
 namespace fr { namespace agent { namespace subsys {
 
@@ -38,11 +38,7 @@ namespace fr { namespace agent { namespace subsys {
                          ::google::protobuf::Closure* done) override
             {
                 vcomm::closure_holder holder(done);
-#if __BYTE_ORDER == __LITTLE_ENDIAN
-                response->set_big_endian( false );
-#else
-                response->set_big_endian( true );
-#endif
+                response->set_big_endian( (*(uint16_t *)"\0\xff") < 0x100 );
             }
 
         public:
