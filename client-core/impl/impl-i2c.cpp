@@ -46,6 +46,18 @@ namespace fr { namespace client { namespace interfaces { namespace i2c {
                 ,hdl_(open_device( client_, bid, sa, sf ))
             { }
 
+            ~i2s_impl( )
+            {
+                close_impl( );
+            }
+
+            void close_impl( ) try
+            {
+                i2cproto::handle req;
+                req.set_value( hdl_ );
+                client_.call_request( &stub_type::close, &req );
+            } catch( ... ) { ;;; }
+
             vtrc::uint64_t function_mask( ) const
             {
                 i2cproto::func_mask_req req;
