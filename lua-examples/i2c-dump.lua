@@ -26,8 +26,8 @@ function main( argv )
     local i = 0
     local r = 0
     println("     ",
-            "0  1  2  3  4  5  6  7  8  9  a  b  c  d  e  f    ",
-            "0123456789abcdef")
+            "0  1  2  3  4  5  6  7  8  9  a  b  c  d  e  f",
+            "    0123456789abcdef")
     print( string.format('%02X: ', r ) )
     local str = ""
     while i < 256 do
