@@ -7,6 +7,7 @@
 #include "fr-lua/lua-wrapper.hpp"
 
 #include <map>
+#include <iostream>
 #include <mutex>
 
 namespace fr { namespace lua {
@@ -17,6 +18,8 @@ namespace fr { namespace lua {
         typedef interfaces::i2c::iface  iface;
         typedef std::shared_ptr<iface>  iface_sptr;
 
+        namespace ii2c = interfaces::i2c;
+
         struct data;
 
         data * get_iface( lua_State *L )
@@ -24,6 +27,8 @@ namespace fr { namespace lua {
             void * p = get_component_iface( L, i2c::table_path( ) );
             return reinterpret_cast<data *>( p );
         }
+
+        int lcall_i2c_bus_avail( lua_State *L );
 
         struct data: public base_data {
 
@@ -47,9 +52,24 @@ namespace fr { namespace lua {
                 t->add( new_string( names::inst_field ),
                         new_light_userdata( this ));
 
+                t->add( new_string( "bus_available" ),
+                        new_function( lcall_i2c_bus_avail ) );
+
                 return t;
             }
         };
+
+        int lcall_i2c_bus_avail( lua_State *L )
+        {
+            lua::state ls( L );
+            data * i = get_iface( L );
+            bool res = false;
+            res = ii2c::bus_available( i->cc_, ls.get<unsigned>( 1 ));
+            ls.clean_stack( );
+            ls.push( res );
+            return 1;
+        }
+
     }
 
 namespace i2c {
