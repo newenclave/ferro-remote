@@ -31,9 +31,9 @@ enum i2c_control_codes { /// from linux/i2c-dev.h
 
 /* /dev/i2c-X ioctl commands.  The ioctl's parameter is always an
  * unsigned long, except for:
- *	- I2C_FUNCS, takes pointer to an unsigned long
- *	- I2C_RDWR, takes pointer to struct i2c_rdwr_ioctl_data
- *	- I2C_SMBUS, takes pointer to struct i2c_smbus_ioctl_data
+ *    - I2C_FUNCS, takes pointer to an unsigned long
+ *    - I2C_RDWR, takes pointer to struct i2c_rdwr_ioctl_data
+ *    - I2C_SMBUS, takes pointer to struct i2c_smbus_ioctl_data
  */
 
     CODE_I2C_RETRIES     = 0x0701;  /* number of times a device address should
@@ -69,6 +69,35 @@ message data_block {
     optional uint32  length  = 3;
 }
 
+enum i2c_funcs_codes { /// linux/i2c.h
+    FUNC_I2C                    = 0x00000001;
+    FUNC_10BIT_ADDR             = 0x00000002;
+    FUNC_PROTOCOL_MANGLING      = 0x00000004; /* I2C_M_IGNORE_NAK etc. */
+    FUNC_SMBUS_PEC              = 0x00000008;
+    FUNC_NOSTART                = 0x00000010; /* I2C_M_NOSTART */
+    FUNC_SMBUS_BLOCK_PROC_CALL  = 0x00008000; /* SMBus 2.0 */
+    FUNC_SMBUS_QUICK            = 0x00010000;
+    FUNC_SMBUS_READ_BYTE        = 0x00020000;
+    FUNC_SMBUS_WRITE_BYTE       = 0x00040000;
+    FUNC_SMBUS_READ_BYTE_DATA   = 0x00080000;
+    FUNC_SMBUS_WRITE_BYTE_DATA  = 0x00100000;
+    FUNC_SMBUS_READ_WORD_DATA   = 0x00200000;
+    FUNC_SMBUS_WRITE_WORD_DATA  = 0x00400000;
+    FUNC_SMBUS_PROC_CALL        = 0x00800000;
+    FUNC_SMBUS_READ_BLOCK_DATA  = 0x01000000;
+    FUNC_SMBUS_WRITE_BLOCK_DATA = 0x02000000;
+    FUNC_SMBUS_READ_I2C_BLOCK   = 0x04000000; /* I2C-like block xfer  */
+    FUNC_SMBUS_WRITE_I2C_BLOCK  = 0x08000000; /* w/ 1-byte reg. addr. */
+}
+
+message func_mask_req {
+    optional handle  hdl = 1;
+}
+
+message func_mask_res {
+    optional uint64 mask = 1;
+}
+
 service instance {
 
     rpc ping( empty ) returns ( empty );
@@ -81,6 +110,7 @@ service instance {
     rpc write( data_block )  returns ( data_block );
 
     rpc ioctl( ioctl_req ) returns ( ioctl_res );
+    rpc func_mask( func_mask_req ) returns ( func_mask_res );
 
     rpc close( handle ) returns ( empty );
 }

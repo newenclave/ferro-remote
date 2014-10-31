@@ -21,7 +21,7 @@ namespace fr { namespace agent {
         ~i2c_helper(  );
 
         void ioctl( int code, unsigned long data );
-        void ioctl( unsigned long *funcs );
+        void ioctl_funcs( unsigned long *funcs );
         void ioctl( i2c_rdwr_ioctl_data *data );
         void ioctl( i2c_smbus_ioctl_data *data );
 

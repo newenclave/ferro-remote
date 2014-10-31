@@ -74,7 +74,7 @@ namespace fr { namespace agent {
         errno_error::errno_assert( res != -1, "ioctl" );
     }
 
-    void i2c_helper::ioctl( unsigned long *funcs )
+    void i2c_helper::ioctl_funcs( unsigned long *funcs )
     {
         int res = ::ioctl( fd_, I2C_FUNCS, funcs );
         errno_error::errno_assert( res != -1, "ioctl(I2C_FUNCS)" );

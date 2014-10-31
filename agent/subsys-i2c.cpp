@@ -28,6 +28,8 @@ namespace fr { namespace agent { namespace subsys {
 
         namespace vcomm  = vtrc::common;
         namespace vserv  = vtrc::server;
+        namespace gpb    = google::protobuf;
+
 
         using vserv::channels::unicast::create_event_channel;
         typedef vtrc::shared_ptr<vcomm::rpc_channel> rpc_channel_sptr;
@@ -118,6 +120,20 @@ namespace fr { namespace agent { namespace subsys {
                         static_cast<unsigned long>( request->parameter( ) );
 
                 dev->ioctl( request->code( ), par );
+            }
+
+            void func_mask(::google::protobuf::RpcController* /*controller*/,
+                         const ::fr::proto::i2c::func_mask_req* request,
+                         ::fr::proto::i2c::func_mask_res* response,
+                         ::google::protobuf::Closure* done) override
+            {
+                vcomm::closure_holder holder( done );
+                i2c_sptr dev(i2c_by_index( request->hdl( ).value( ) ));
+
+                unsigned long mask = 0;
+                dev->ioctl_funcs( &mask );
+
+                response->set_mask( static_cast<gpb::uint64>( mask ) );
             }
 
             void read(::google::protobuf::RpcController* /*controller*/,

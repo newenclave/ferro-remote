@@ -45,6 +45,15 @@ namespace fr { namespace client { namespace interfaces { namespace i2c {
                 ,hdl_(open_device( client_, bid, sa, sf ))
             { }
 
+            vtrc::uint64_t function_mask( ) const
+            {
+                i2cproto::func_mask_req req;
+                i2cproto::func_mask_res res;
+                req.mutable_hdl( )->set_value( hdl_ );
+                client_.call( &stub_type::func_mask, &req, &res );
+                return res.mask( );
+            }
+
             void ioctl( unsigned code, vtrc::uint64_t par ) const
             {
                 i2cproto::ioctl_req req;
