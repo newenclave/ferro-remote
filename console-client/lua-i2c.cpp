@@ -33,6 +33,9 @@ namespace fr { namespace lua {
         int lcall_i2c_bus_close( lua_State *L );
         int lcall_i2c_set_addr(  lua_State *L );
 
+        int lcall_i2c_read_byte(  lua_State *L );
+        int lcall_i2c_write_byte( lua_State *L );
+
         struct data: public base_data {
 
             client::core::client_core    &cc_;
@@ -64,6 +67,11 @@ namespace fr { namespace lua {
                         new_function( &lcall_i2c_bus_close ) );
                 t->add( new_string( "set_address" ),
                         new_function( &lcall_i2c_set_addr ) );
+
+                t->add( new_string( "read_byte" ),
+                        new_function( &lcall_i2c_read_byte ) );
+                t->add( new_string( "write_byte" ),
+                        new_function( &lcall_i2c_write_byte ) );
 
                 return t;
             }
@@ -142,6 +150,27 @@ namespace fr { namespace lua {
             lua::state ls( L );
             dev->set_address( ls.get<unsigned>( 1 ) );
             ls.clean_stack( );
+            return 0;
+        }
+
+        int lcall_i2c_read_byte(  lua_State *L )
+        {
+            iface_sptr dev( get_device( L ) );
+            lua::state ls( L );
+            unsigned cmd = ls.get<unsigned>( 1 );
+            ls.clean_stack( );
+            ls.push( dev->read_byte( cmd ) );
+            return 1;
+        }
+
+        int lcall_i2c_write_byte( lua_State *L )
+        {
+            iface_sptr dev( get_device( L ) );
+            lua::state ls( L );
+            unsigned cmd  = ls.get<unsigned>( 1 );
+            unsigned data = ls.get<unsigned>( 1 );
+            ls.clean_stack( );
+            dev->write_byte( cmd, data );
             return 0;
         }
 
