@@ -260,9 +260,9 @@ namespace fr { namespace lua {
 
         int lcall_i2c_read_byte(  lua_State *L )
         {
-            iface_sptr dev( get_device( L ,1 ) );
+            iface_sptr dev( get_device( L, 1 ) );
             lua::state ls( L );
-            unsigned cmd = ls.get<unsigned>( 1 );
+            unsigned cmd = ls.get<unsigned>( 2 );
             ls.clean_stack( );
             ls.push( dev->read_byte( cmd ) );
             return 1;
@@ -272,8 +272,8 @@ namespace fr { namespace lua {
         {
             iface_sptr dev( get_device( L, 1 ) );
             lua::state ls( L );
-            unsigned cmd  = ls.get<unsigned>( 1 );
-            unsigned data = ls.get<unsigned>( 2 );
+            unsigned cmd  = ls.get<unsigned>( 2 );
+            unsigned data = ls.get<unsigned>( 3 );
             ls.clean_stack( );
             dev->write_byte( cmd, data );
             return 0;
@@ -283,7 +283,7 @@ namespace fr { namespace lua {
         {
             iface_sptr dev( get_device( L ,1 ) );
             lua::state ls( L );
-            unsigned cmd = ls.get<unsigned>( 1 );
+            unsigned cmd = ls.get<unsigned>( 2 );
             ls.clean_stack( );
             ls.push( dev->read_block( cmd ) );
             return 1;
@@ -293,8 +293,8 @@ namespace fr { namespace lua {
         {
             iface_sptr dev( get_device( L, 1 ) );
             lua::state ls( L );
-            unsigned cmd     = ls.get<unsigned>( 1 );
-            std::string data = ls.get<std::string>( 2 );
+            unsigned cmd     = ls.get<unsigned>( 2 );
+            std::string data = ls.get<std::string>( 3 );
             dev->write_block( cmd, data );
             return 0;
         }
