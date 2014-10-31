@@ -171,6 +171,92 @@ namespace fr { namespace agent { namespace subsys {
                 response->set_length( res );
             }
 
+            void read_byte(::google::protobuf::RpcController* /*controller*/,
+                         const ::fr::proto::i2c::write_read_data_req* request,
+                         ::fr::proto::i2c::write_read_data_res* response,
+                         ::google::protobuf::Closure* done) override
+            {
+                vcomm::closure_holder holder( done );
+                i2c_sptr dev(i2c_by_index( request->hdl( ).value( ) ));
+                response->mutable_data( )
+                        ->set_value( dev->smbus_read_byte_data(
+                                     request->code( ) ) );
+            }
+
+            void write_byte(::google::protobuf::RpcController* /*controller*/,
+                         const ::fr::proto::i2c::write_read_data_req* request,
+                         ::fr::proto::i2c::write_read_data_res* /*response*/,
+                         ::google::protobuf::Closure* done) override
+            {
+                vcomm::closure_holder holder( done );
+                i2c_sptr dev(i2c_by_index( request->hdl( ).value( ) ));
+                dev->smbus_write_byte_data( request->code( ),
+                                            request->data( ).value( ) );
+            }
+
+            void read_word(::google::protobuf::RpcController* /*controller*/,
+                         const ::fr::proto::i2c::write_read_data_req* request,
+                         ::fr::proto::i2c::write_read_data_res* response,
+                         ::google::protobuf::Closure* done) override
+            {
+                vcomm::closure_holder holder( done );
+                i2c_sptr dev(i2c_by_index( request->hdl( ).value( ) ));
+                response->mutable_data( )
+                        ->set_value( dev->smbus_read_word_data(
+                                     request->code( ) ) );
+            }
+
+            void write_word(::google::protobuf::RpcController* /*controller*/,
+                         const ::fr::proto::i2c::write_read_data_req* request,
+                         ::fr::proto::i2c::write_read_data_res* response,
+                         ::google::protobuf::Closure* done) override
+            {
+                vcomm::closure_holder holder( done );
+                i2c_sptr dev(i2c_by_index( request->hdl( ).value( ) ));
+                dev->smbus_write_word_data( request->code( ),
+                                            request->data( ).value( ) );
+            }
+
+            void read_block(::google::protobuf::RpcController* /*controller*/,
+                         const ::fr::proto::i2c::write_read_data_req* request,
+                         ::fr::proto::i2c::write_read_data_res* response,
+                         ::google::protobuf::Closure* done) override
+            {
+                vcomm::closure_holder holder( done );
+                i2c_sptr dev(i2c_by_index( request->hdl( ).value( ) ));
+
+                bool broken_block = request->data( ).broken_block( );
+
+                if( broken_block ) {
+                    response->mutable_data( )
+                        ->set_block( dev->smbus_read_block_broken(
+                                        request->code( ),
+                                        request->data( ).value( ) ) );
+                } else {
+                    response->mutable_data( )
+                        ->set_block( dev->smbus_read_block_data(
+                                     request->code( ) ) );
+                }
+            }
+
+            void write_block(::google::protobuf::RpcController* /*controller*/,
+                         const ::fr::proto::i2c::write_read_data_req* request,
+                         ::fr::proto::i2c::write_read_data_res* response,
+                         ::google::protobuf::Closure* done) override
+            {
+                vcomm::closure_holder holder( done );
+                i2c_sptr dev(i2c_by_index( request->hdl( ).value( ) ));
+                bool broken_block = request->data( ).broken_block( );
+
+                if( broken_block ) {
+                    dev->smbus_write_block_broken( request->code( ),
+                                                   request->data( ).block( ) );
+                } else {
+                    dev->smbus_write_block_data( request->code( ),
+                                                 request->data( ).block( ) );
+                }
+            }
+
             void close(::google::protobuf::RpcController* /*controller*/,
                          const ::fr::proto::i2c::handle* request,
                          ::fr::proto::i2c::empty*         /*response*/,
