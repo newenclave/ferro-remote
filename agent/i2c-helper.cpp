@@ -188,6 +188,30 @@ namespace fr { namespace agent {
         return ldata.block[0];
     }
 
+    std::string i2c_helper::smbus_read_block_data( uint8_t cmd, uint8_t length )
+    {
+        i2c_smbus_data data;
+        length = length > 32 ? 32 : length;
+        data.block[0] = length;
+        smbus_read( cmd, &data,
+                    length == 32 ? I2C_SMBUS_I2C_BLOCK_BROKEN
+                                 : I2C_SMBUS_BLOCK_DATA );
+        return std::string( &data.block[1], &data.block[1] + data.block[0] );
+    }
+
+    uint8_t i2c_helper::smbus_read_block_data( uint8_t cmd,
+                                               uint8_t *data, uint8_t length )
+    {
+        i2c_smbus_data ldata;
+        length = length > 32 ? 32 : length;
+        ldata.block[0] = length;
+        smbus_read( cmd, &ldata,
+                    length == 32 ? I2C_SMBUS_I2C_BLOCK_BROKEN
+                                 : I2C_SMBUS_BLOCK_DATA );
+        memcpy( data, &ldata.block[1], ldata.block[0] );
+        return ldata.block[0];
+    }
+
     void i2c_helper::smbus_write_block_data( uint8_t cmd,
                                              const std::string &data )
     {

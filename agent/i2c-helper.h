@@ -50,10 +50,15 @@ namespace fr { namespace agent {
         std::string smbus_read_block_data( uint8_t cmd );
         uint8_t smbus_read_block_data( uint8_t cmd, uint8_t *data );
 
+        std::string smbus_read_block_data( uint8_t cmd, uint8_t length );
+        uint8_t smbus_read_block_data( uint8_t cmd,
+                                       uint8_t *data, uint8_t length );
+
         void smbus_write_block_data( uint8_t cmd, const std::string &data );
         void smbus_write_block_data( uint8_t cmd,
                                      const uint8_t *data, uint8_t length );
 
+        /// read and write as file
         size_t write( const void *data, size_t length );
         size_t read(        void *data, size_t length );
 
