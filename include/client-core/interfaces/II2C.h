@@ -1,7 +1,7 @@
 #ifndef FR_II2C_H
 #define FR_II2C_H
 
-#include "vtrc-stdint.h"
+#include <stdint.h>
 #include "vtrc-memory.h"
 
 namespace fr { namespace client {
@@ -46,11 +46,28 @@ namespace interfaces { namespace i2c {
 
         virtual ~iface( ) { }
 
-        virtual vtrc::uint64_t function_mask( ) const = 0; // see function_codes
+        virtual uint64_t function_mask( ) const = 0; // see function_codes
 
-        virtual void   ioctl( unsigned code,    vtrc::uint64_t ) const = 0;
+        virtual void   set_address( uint8_t addr ) const = 0;
+        virtual void   ioctl( unsigned code,    uint64_t param ) const = 0;
         virtual size_t  read( void *data,       size_t length  ) const = 0;
         virtual size_t write( const void *data, size_t length  ) const = 0;
+
+        virtual uint8_t read_byte( uint8_t command ) const = 0;
+        virtual void write_byte( uint8_t command, uint8_t value ) const = 0;
+
+        virtual uint16_t read_word( uint8_t command ) const = 0;
+        virtual void write_word( uint8_t command, uint16_t value ) const = 0;
+
+        virtual std::string read_block( uint8_t command ) const = 0;
+        virtual void write_block( uint8_t command,
+                                  const std::string &value ) const = 0;
+
+        virtual std::string read_block_broken( uint8_t command,
+                                               uint8_t len ) const = 0;
+        virtual void write_block_broken( uint8_t command,
+                                         const std::string &value ) const = 0;
+
     };
 
     typedef iface * iface_ptr;

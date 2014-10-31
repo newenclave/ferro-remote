@@ -58,7 +58,7 @@ namespace fr { namespace client { namespace interfaces { namespace i2c {
                 client_.call_request( &stub_type::close, &req );
             } catch( ... ) { ;;; }
 
-            vtrc::uint64_t function_mask( ) const
+            uint64_t function_mask( ) const
             {
                 i2cproto::func_mask_req req;
                 i2cproto::func_mask_res res;
@@ -67,13 +67,119 @@ namespace fr { namespace client { namespace interfaces { namespace i2c {
                 return res.mask( );
             }
 
-            void ioctl( unsigned code, vtrc::uint64_t par ) const
+            void  set_address( uint8_t addr ) const
+            {
+                ioctl( i2cproto::CODE_I2C_SLAVE, addr );
+            }
+
+            void ioctl( unsigned code, uint64_t par ) const
             {
                 i2cproto::ioctl_req req;
                 req.mutable_hdl( )->set_value( hdl_ );
                 req.set_code( code );
                 req.set_parameter( par );
                 client_.call_request( &stub_type::ioctl, &req );
+            }
+
+            template <typename CallType>
+            uint32_t read_impl( CallType call, uint8_t cmd ) const
+            {
+                i2cproto::write_read_data_req req;
+                i2cproto::write_read_data_res res;
+
+                req.mutable_hdl( )->set_value( hdl_ );
+                req.set_code( cmd );
+
+                client_.call( call, &req, &res );
+                return res.data( ).value( );
+            }
+
+            template <typename CallType>
+            void write_impl( CallType call, uint8_t cmd, uint32_t val ) const
+            {
+                i2cproto::write_read_data_req req;
+
+                req.mutable_hdl( )->set_value( hdl_ );
+                req.set_code( cmd );
+                req.mutable_data( )->set_value( val );
+
+                client_.call_request( call, &req  );
+            }
+
+            uint8_t read_byte( uint8_t cmd ) const
+            {
+                return static_cast<uint8_t>
+                        ( read_impl( &stub_type::read_byte, cmd ) );
+            }
+
+            void write_byte( uint8_t cmd, uint8_t value ) const
+            {
+                write_impl( &stub_type::write_byte, cmd, value );
+            }
+
+            uint16_t read_word( uint8_t cmd ) const
+            {
+                return static_cast<uint8_t>
+                        ( read_impl( &stub_type::read_word, cmd ) );
+            }
+
+            void write_word( uint8_t cmd, uint16_t value ) const
+            {
+                write_impl( &stub_type::write_word, cmd, value );
+            }
+
+            std::string read_block( uint8_t cmd ) const
+            {
+                i2cproto::write_read_data_req req;
+                i2cproto::write_read_data_res res;
+
+                req.mutable_hdl( )->set_value( hdl_ );
+                req.set_code( cmd );
+
+                client_.call( &stub_type::read_block, &req, &res );
+
+                return res.data( ).block( );
+            }
+
+            void write_block( uint8_t cmd, const std::string &value ) const
+            {
+                i2cproto::write_read_data_req req;
+                i2cproto::write_read_data_res res;
+
+                req.mutable_hdl( )->set_value( hdl_ );
+                req.set_code( cmd );
+                req.mutable_data( )->set_block( value );
+
+                client_.call( &stub_type::write_block, &req, &res );
+            }
+
+            std::string read_block_broken( uint8_t cmd, uint8_t len ) const
+            {
+                i2cproto::write_read_data_req req;
+                i2cproto::write_read_data_res res;
+
+                req.mutable_hdl( )->set_value( hdl_ );
+                req.set_code( cmd );
+                req.mutable_data( )->set_broken_block( true );
+                req.mutable_data( )->set_value( len );
+
+                client_.call( &stub_type::read_block, &req, &res );
+
+                return res.data( ).block( );
+
+            }
+
+            void write_block_broken( uint8_t cmd, const std::string &val ) const
+            {
+                i2cproto::write_read_data_req req;
+                i2cproto::write_read_data_res res;
+
+                req.mutable_hdl( )->set_value( hdl_ );
+                req.set_code( cmd );
+                req.mutable_data( )->set_block( val );
+                req.mutable_data( )->set_broken_block( true );
+
+                client_.call( &stub_type::write_block, &req, &res );
             }
 
             size_t read( void *data, size_t length ) const
