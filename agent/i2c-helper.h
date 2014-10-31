@@ -31,7 +31,7 @@ namespace fr { namespace agent {
         void ioctl( i2c_rdwr_ioctl_data *data );
         void ioctl( i2c_smbus_ioctl_data *data );
 
-        void smbus_read(uint8_t command, i2c_smbus_data *data, uint32_t len );
+        void smbus_read( uint8_t command, i2c_smbus_data *data, uint32_t len );
         void smbus_write( uint8_t command, i2c_smbus_data *data, uint32_t len );
 
         void smbus_write_quick( uint8_t value );
