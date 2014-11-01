@@ -23,7 +23,7 @@ end
 
 function main ( argv )
 
-    local err, i = i2c.open( 1 )
+    local i, err = i2c.open( 1 )
 
     if err then
         println( "Bus error: ", err )

@@ -169,17 +169,15 @@ namespace fr { namespace cc { namespace cmd {
                 ls.set( lua::names::client_table ); // set to nil
                 cd->core_->connect( server );
                 general_init( server, *cd );
+                ls.push( success );
+                ls.push( );
             } catch( const std::exception &ex ) {
-                ls.push( ex.what( ) );
                 success = false;
+                ls.push( ex.what( ) );
             }
 
             set_client_info( *cd );
 
-            if( success ) {
-                ls.push( );
-            }
-            ls.push( success );
             return 2;
         }
 

@@ -21,7 +21,7 @@ function main( argv )
 
     println( "bus: ", bus, " address: ", address )
 
-    local err, ic = i2c.open( bus, address )
+    local ic, err = i2c.open( bus, address )
 
     local i = 0
     local r = 0

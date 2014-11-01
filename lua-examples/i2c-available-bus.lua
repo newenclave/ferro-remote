@@ -24,7 +24,7 @@ function main( argv )
         local a = i2c.bus_available(i)
         if a then
             println( "Bus ", i, " is ", avail_table[a] )
-            local err, i = i2c.open( i )
+            local i, err = i2c.open( i )
             f = i2c.functions( i )
             print_functions( f )
             i2c.close( i )

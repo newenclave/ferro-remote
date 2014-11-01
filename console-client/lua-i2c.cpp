@@ -157,11 +157,12 @@ namespace fr { namespace lua {
                 std::lock_guard<std::mutex> lck(i->devices_lock_);
                 res = new_inst.get( );
                 i->devices_[res] = new_inst;
+                ls.push( res );
                 ls.push( );
             } catch ( const std::exception &ex ) {
+                ls.push( );
                 ls.push( ex.what( ) );
             }
-            ls.push( res );
             return 2;
         }
 

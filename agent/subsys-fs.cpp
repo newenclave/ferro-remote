@@ -559,9 +559,12 @@ namespace fr { namespace agent { namespace subsys {
                 ,events_(event_channel_.get( ))
             { }
 
-            ~proto_file_impl( ) try {
-                destroy_all( );
-            } catch( ... ) { }
+            ~proto_file_impl( )
+            {
+                try {
+                    destroy_all( );
+                } catch( ... ) { }
+            }
 
             void destroy_all( )
             {

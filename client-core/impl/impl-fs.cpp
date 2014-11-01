@@ -178,13 +178,18 @@ namespace filesystem {
                 ,hdl_(open_fs_inst(client_, path_))
             { }
 
-            ~fs_impl( ) try {
+            ~fs_impl( )
+            {
+                try {
 
-                fproto::handle req;
-                req.set_value( hdl_ );
-                client_.call_request( &stub_type::close, &req );
+                    fproto::handle req;
+                    req.set_value( hdl_ );
+                    client_.call_request( &stub_type::close, &req );
 
-            } catch( ... ) { }
+                } catch( ... ) {
+                    ;;;
+                }
+            }
 
             void fill_request( fproto::handle_path &req,
                                const std::string &path ) const

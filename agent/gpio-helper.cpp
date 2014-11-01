@@ -149,12 +149,15 @@ namespace fr { namespace agent {
             own_export_ = false;
         }
 
-        ~impl( ) try {
-            if( -1 != value_fd_ ) {
-                close( value_fd_ );
+        ~impl( )
+        {
+            try {
+                if( -1 != value_fd_ ) {
+                    close( value_fd_ );
+                }
+            } catch ( ... ) {
+                ;;;
             }
-        } catch ( ... ) {
-            ;;;
         }
 
     };

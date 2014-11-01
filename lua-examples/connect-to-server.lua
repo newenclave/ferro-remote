@@ -14,7 +14,7 @@ function main( argv )
     println( 'Main table before: \n========\n', fr, '\n========' )
     print( 'Trying connect to '..argv.server..'..' )
 
-    err, res = client.connect( argv.server ) 
+    res, err = client.connect( argv.server )
 
     print( ({ [false] = "failed! ", [true] = "success!\n" })[res] )
 
