@@ -7,8 +7,8 @@
 
 old_print = print
 
-open( "string" )
 open( "base" )
+open( "string" )
 
 print = old_print
 
@@ -25,10 +25,14 @@ function main( argv )
 
     local i = 0
     local r = 0
+
     println("     ",
             "0  1  2  3  4  5  6  7  8  9  a  b  c  d  e  f",
             "    0123456789abcdef")
+
+    string = ""
     print( string.format('%02X: ', r ) )
+
     local str = ""
     while i < 256 do
         local b = i2c.read_byte( ic, i  )

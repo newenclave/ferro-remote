@@ -10,6 +10,8 @@
 #include "google/protobuf/descriptor.h"
 #include "interfaces/IInternal.h"
 
+#include "vtrc-common/vtrc-exception.h"
+
 namespace po = boost::program_options;
 
 namespace vcommon = vtrc::common;
@@ -256,6 +258,12 @@ int main( int argc, const char **argv ) try
 
     return 0;
 
+} catch( const vtrc::common::exception &ex ) {
+    std::cerr << "General client error: "
+              << ex.what( ) << ": "
+              << ex.additional( )
+              << "\n";
+    return 10;
 } catch( const std::exception &ex ) {
     std::cerr << "General client error: " << ex.what( ) << "\n";
     return 10;
