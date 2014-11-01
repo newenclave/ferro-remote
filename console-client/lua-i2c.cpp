@@ -292,8 +292,9 @@ namespace fr { namespace lua {
 
                 typedef ii2c::cmd_uint8_vector::const_iterator citr;
                 for( citr b(res.begin( )), e(res.end( )); b!=e; ++b ) {
-                    nt->add( objects::new_integer( b->first ),
-                             objects::new_integer( b->second ) );
+                    nt->add( objects::new_table( )
+                             ->add( objects::new_integer( b->first ) )
+                             ->add( objects::new_integer( b->second ) ) );
                 }
                 nt->push( L );
                 return 1;
