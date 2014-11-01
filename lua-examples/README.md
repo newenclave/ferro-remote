@@ -69,6 +69,7 @@ fr = {
             close           =function( device ) -> nil
 
             read_byte       =function( device, command ) -> number
+            read_byte       =function( device, { command1, command2 } ) -> { { command1, value1 }, { command2, value2 } }
             write_byte      =function( device, command, value ) -> nil
 
             set_address     =function( device, slave_addr ) -> nil
