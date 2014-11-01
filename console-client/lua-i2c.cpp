@@ -179,30 +179,30 @@ namespace fr { namespace lua {
 
 #define I2C_ADD_FUNCTIONAL_SUPPORT( t, m, flag )        \
         t->add( objects::new_string( #flag ),           \
-                objects::new_boolean( ii2c::flag & m ));
+                objects::new_boolean( ii2c::FUNC_##flag & m ));
 
         objects::table_sptr table_mask( uint64_t m )
         {
             objects::table_sptr res( objects::new_table( ) );
 
-            I2C_ADD_FUNCTIONAL_SUPPORT( res, m, FUNC_I2C );
-            I2C_ADD_FUNCTIONAL_SUPPORT( res, m, FUNC_10BIT_ADDR );
-            I2C_ADD_FUNCTIONAL_SUPPORT( res, m, FUNC_PROTOCOL_MANGLING );
-            I2C_ADD_FUNCTIONAL_SUPPORT( res, m, FUNC_SMBUS_PEC );
-            I2C_ADD_FUNCTIONAL_SUPPORT( res, m, FUNC_NOSTART );
-            I2C_ADD_FUNCTIONAL_SUPPORT( res, m, FUNC_SMBUS_BLOCK_PROC_CALL );
-            I2C_ADD_FUNCTIONAL_SUPPORT( res, m, FUNC_SMBUS_QUICK );
-            I2C_ADD_FUNCTIONAL_SUPPORT( res, m, FUNC_SMBUS_READ_BYTE );
-            I2C_ADD_FUNCTIONAL_SUPPORT( res, m, FUNC_SMBUS_WRITE_BYTE );
-            I2C_ADD_FUNCTIONAL_SUPPORT( res, m, FUNC_SMBUS_READ_BYTE_DATA );
-            I2C_ADD_FUNCTIONAL_SUPPORT( res, m, FUNC_SMBUS_WRITE_BYTE_DATA );
-            I2C_ADD_FUNCTIONAL_SUPPORT( res, m, FUNC_SMBUS_READ_WORD_DATA );
-            I2C_ADD_FUNCTIONAL_SUPPORT( res, m, FUNC_SMBUS_WRITE_WORD_DATA );
-            I2C_ADD_FUNCTIONAL_SUPPORT( res, m, FUNC_SMBUS_PROC_CALL );
-            I2C_ADD_FUNCTIONAL_SUPPORT( res, m, FUNC_SMBUS_READ_BLOCK_DATA );
-            I2C_ADD_FUNCTIONAL_SUPPORT( res, m, FUNC_SMBUS_WRITE_BLOCK_DATA );
-            I2C_ADD_FUNCTIONAL_SUPPORT( res, m, FUNC_SMBUS_READ_I2C_BLOCK );
-            I2C_ADD_FUNCTIONAL_SUPPORT( res, m, FUNC_SMBUS_WRITE_I2C_BLOCK );
+            I2C_ADD_FUNCTIONAL_SUPPORT( res, m, I2C );
+            I2C_ADD_FUNCTIONAL_SUPPORT( res, m, 10BIT_ADDR );
+            I2C_ADD_FUNCTIONAL_SUPPORT( res, m, PROTOCOL_MANGLING );
+            I2C_ADD_FUNCTIONAL_SUPPORT( res, m, SMBUS_PEC );
+            I2C_ADD_FUNCTIONAL_SUPPORT( res, m, NOSTART );
+            I2C_ADD_FUNCTIONAL_SUPPORT( res, m, SMBUS_BLOCK_PROC_CALL );
+            I2C_ADD_FUNCTIONAL_SUPPORT( res, m, SMBUS_QUICK );
+            I2C_ADD_FUNCTIONAL_SUPPORT( res, m, SMBUS_READ_BYTE );
+            I2C_ADD_FUNCTIONAL_SUPPORT( res, m, SMBUS_WRITE_BYTE );
+            I2C_ADD_FUNCTIONAL_SUPPORT( res, m, SMBUS_READ_BYTE_DATA );
+            I2C_ADD_FUNCTIONAL_SUPPORT( res, m, SMBUS_WRITE_BYTE_DATA );
+            I2C_ADD_FUNCTIONAL_SUPPORT( res, m, SMBUS_READ_WORD_DATA );
+            I2C_ADD_FUNCTIONAL_SUPPORT( res, m, SMBUS_WRITE_WORD_DATA );
+            I2C_ADD_FUNCTIONAL_SUPPORT( res, m, SMBUS_PROC_CALL );
+            I2C_ADD_FUNCTIONAL_SUPPORT( res, m, SMBUS_READ_BLOCK_DATA );
+            I2C_ADD_FUNCTIONAL_SUPPORT( res, m, SMBUS_WRITE_BLOCK_DATA );
+            I2C_ADD_FUNCTIONAL_SUPPORT( res, m, SMBUS_READ_I2C_BLOCK );
+            I2C_ADD_FUNCTIONAL_SUPPORT( res, m, SMBUS_WRITE_I2C_BLOCK );
 
             return res;
         }
