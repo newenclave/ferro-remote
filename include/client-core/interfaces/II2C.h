@@ -5,6 +5,8 @@
 #include "vtrc-memory.h"
 
 #include <string>
+#include <vector>
+#include <map>
 
 #include "IFile.h"
 
@@ -46,6 +48,15 @@ namespace interfaces { namespace i2c {
         ,FUNC_SMBUS_WRITE_I2C_BLOCK  = 0x08000000 /* w/ 1-byte reg. addr. */
     };
 
+    typedef std::vector<uint8_t>  uint8_vector;
+    typedef std::vector<uint16_t> uint16_vector;
+
+    typedef std::pair<uint8_t, uint8_t>  cmd_uint8;
+    typedef std::pair<uint8_t, uint16_t> cmd_uint16;
+
+    typedef std::vector<cmd_uint8>  cmd_uint8_vector;
+    typedef std::vector<cmd_uint16> cmd_uint16_vector;
+
     struct iface: public file::base_file_iface {
 
         virtual ~iface( ) { }
@@ -57,8 +68,16 @@ namespace interfaces { namespace i2c {
         virtual uint8_t read_byte( uint8_t command ) const = 0;
         virtual void write_byte( uint8_t command, uint8_t value ) const = 0;
 
+        virtual cmd_uint8_vector read_bytes(
+                                  const uint8_vector &cmds ) const = 0;
+        virtual void write_bytes( const cmd_uint8_vector &cmds ) const = 0;
+
         virtual uint16_t read_word( uint8_t command ) const = 0;
         virtual void write_word( uint8_t command, uint16_t value ) const = 0;
+
+        virtual cmd_uint16_vector read_words(
+                                  const uint16_vector &cmds ) const = 0;
+        virtual void write_words( const cmd_uint16_vector &cmds ) const = 0;
 
         virtual std::string read_block( uint8_t command ) const = 0;
         virtual void write_block( uint8_t command,

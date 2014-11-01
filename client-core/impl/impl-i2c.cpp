@@ -117,6 +117,66 @@ namespace fr { namespace client { namespace interfaces { namespace i2c {
                 write_impl( &stub_type::write_byte, cmd, value );
             }
 
+            template <typename CallType, typename Res, typename Par>
+            void read_many_impl( CallType call, const Par &cmds, Res &o ) const
+            {
+                typedef typename Par::value_type value_type;
+
+                Res result;
+
+                i2cproto::write_read_datas_req req;
+                i2cproto::write_read_datas_res res;
+
+                req.mutable_hdl( )->set_value( hdl_ );
+
+                typedef typename Par::const_iterator citr;
+                for( citr b(cmds.begin( )), e(cmds.end( )); b!=e; ++b ) {
+                    req.mutable_request( )->add_value( )->set_code( *b );
+                }
+
+                client_.call( call, &req, &res );
+
+                for( int i=0; i<res.response( ).value_size( ); ++i ) {
+
+                    const
+                    i2cproto::code_data &next( res.response( ).value( i ) );
+
+                    result.push_back( std::make_pair(
+                        static_cast<value_type>( next.code( ) ),
+                        static_cast<value_type>( next.data( ).value( ) ) ) );
+                }
+                o.swap( result );
+            }
+
+            cmd_uint8_vector read_bytes( const uint8_vector &cmds ) const
+            {
+                cmd_uint8_vector result;
+                read_many_impl(&stub_type::read_bytes, cmds, result);
+                return result;
+            }
+
+            template <typename CallType, typename Par>
+            void write_many_impl( CallType call, const Par &cmds ) const
+            {
+                typedef typename Par::const_iterator citr;
+
+                i2cproto::write_read_datas_req req;
+                req.mutable_hdl( )->set_value( hdl_ );
+
+                for( citr b(cmds.begin( )), e(cmds.end( )); b!=e; ++b ) {
+                    i2cproto::code_data *next
+                            ( req.mutable_request( )->add_value( ) );
+                    next->set_code( b->first );
+                    next->mutable_data( )->set_value( b->second );
+                }
+                client_.call_request( call, &req );
+            }
+
+            void write_bytes( const cmd_uint8_vector &cmds ) const
+            {
+                write_many_impl( &stub_type::write_bytes, cmds );
+            }
+
             uint16_t read_word( uint8_t cmd ) const
             {
                 return static_cast<uint8_t>
@@ -126,6 +186,18 @@ namespace fr { namespace client { namespace interfaces { namespace i2c {
             void write_word( uint8_t cmd, uint16_t value ) const
             {
                 write_impl( &stub_type::write_word, cmd, value );
+            }
+
+            cmd_uint16_vector read_words( const uint16_vector &cmds ) const
+            {
+                cmd_uint16_vector result;
+                read_many_impl(&stub_type::read_words, cmds, result);
+                return result;
+            }
+
+            void write_words( const cmd_uint16_vector &cmds ) const
+            {
+                write_many_impl( &stub_type::write_words, cmds );
             }
 
             std::string read_block( uint8_t cmd ) const
