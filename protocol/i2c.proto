@@ -102,16 +102,35 @@ message write_read_data {
     optional uint32 value        = 1;
     optional bytes  block        = 2;
     optional bool   broken_block = 3;
+    message list {
+        repeated write_read_data value = 1;
+    }
+}
+
+message code_data {
+    optional uint32             code = 1;
+    optional write_read_data    data = 2;
+    message list {
+        repeated code_data value = 1;
+    }
 }
 
 message write_read_data_req {
-    optional handle             hdl  = 1;
-    optional uint32             code = 2;
-    optional write_read_data    data = 3;
+    optional handle             hdl     = 1;
+    optional code_data          request = 2;
 }
 
 message write_read_data_res {
     optional write_read_data    data = 1;
+}
+
+message write_read_datas_req {
+    optional handle             hdl     = 1;
+    optional code_data.list     request = 2;
+}
+
+message write_read_datas_res {
+    optional write_read_data.list  response = 1;
 }
 
 service instance {
@@ -127,6 +146,9 @@ service instance {
 
     rpc read_byte( write_read_data_req ) returns ( write_read_data_res );
     rpc write_byte( write_read_data_req ) returns ( write_read_data_res );
+
+    rpc read_bytes( write_read_datas_req ) returns ( write_read_datas_res );
+    rpc write_bytes( write_read_datas_req ) returns ( write_read_datas_res );
 
     rpc read_word( write_read_data_req ) returns ( write_read_data_res );
     rpc write_word( write_read_data_req ) returns ( write_read_data_res );

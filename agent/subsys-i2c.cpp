@@ -180,7 +180,7 @@ namespace fr { namespace agent { namespace subsys {
                 i2c_sptr dev(i2c_by_index( request->hdl( ).value( ) ));
                 response->mutable_data( )
                         ->set_value( dev->smbus_read_byte_data(
-                                     request->code( ) ) );
+                                     request->request( ).code( ) ) );
             }
 
             void write_byte(::google::protobuf::RpcController* /*controller*/,
@@ -190,8 +190,8 @@ namespace fr { namespace agent { namespace subsys {
             {
                 vcomm::closure_holder holder( done );
                 i2c_sptr dev(i2c_by_index( request->hdl( ).value( ) ));
-                dev->smbus_write_byte_data( request->code( ),
-                                            request->data( ).value( ) );
+                dev->smbus_write_byte_data( request->request( ).code( ),
+                                        request->request( ).data( ).value( ) );
             }
 
             void read_word(::google::protobuf::RpcController* /*controller*/,
@@ -203,7 +203,7 @@ namespace fr { namespace agent { namespace subsys {
                 i2c_sptr dev(i2c_by_index( request->hdl( ).value( ) ));
                 response->mutable_data( )
                         ->set_value( dev->smbus_read_word_data(
-                                     request->code( ) ) );
+                                     request->request( ).code( ) ) );
             }
 
             void write_word(::google::protobuf::RpcController* /*controller*/,
@@ -213,8 +213,8 @@ namespace fr { namespace agent { namespace subsys {
             {
                 vcomm::closure_holder holder( done );
                 i2c_sptr dev(i2c_by_index( request->hdl( ).value( ) ));
-                dev->smbus_write_word_data( request->code( ),
-                                            request->data( ).value( ) );
+                dev->smbus_write_word_data( request->request( ).code( ),
+                                         request->request( ).data( ).value( ) );
             }
 
             void read_block(::google::protobuf::RpcController* /*controller*/,
@@ -225,17 +225,17 @@ namespace fr { namespace agent { namespace subsys {
                 vcomm::closure_holder holder( done );
                 i2c_sptr dev(i2c_by_index( request->hdl( ).value( ) ));
 
-                bool broken_block = request->data( ).broken_block( );
+                bool broken_block = request->request( ).data( ).broken_block( );
 
                 if( broken_block ) {
                     response->mutable_data( )
                         ->set_block( dev->smbus_read_block_broken(
-                                        request->code( ),
-                                        request->data( ).value( ) ) );
+                                    request->request( ).code( ),
+                                    request->request( ).data( ).value( ) ) );
                 } else {
                     response->mutable_data( )
                         ->set_block( dev->smbus_read_block_data(
-                                     request->code( ) ) );
+                                     request->request( ).code( ) ) );
                 }
             }
 
@@ -246,14 +246,14 @@ namespace fr { namespace agent { namespace subsys {
             {
                 vcomm::closure_holder holder( done );
                 i2c_sptr dev(i2c_by_index( request->hdl( ).value( ) ));
-                bool broken_block = request->data( ).broken_block( );
+                bool broken_block = request->request( ).data( ).broken_block( );
 
                 if( broken_block ) {
-                    dev->smbus_write_block_broken( request->code( ),
-                                                   request->data( ).block( ) );
+                    dev->smbus_write_block_broken( request->request( ).code( ),
+                                       request->request( ).data( ).block( ) );
                 } else {
-                    dev->smbus_write_block_data( request->code( ),
-                                                 request->data( ).block( ) );
+                    dev->smbus_write_block_data( request->request( ).code( ),
+                                     request->request( ).data( ).block( ) );
                 }
             }
 

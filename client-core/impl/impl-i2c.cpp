@@ -88,7 +88,7 @@ namespace fr { namespace client { namespace interfaces { namespace i2c {
                 i2cproto::write_read_data_res res;
 
                 req.mutable_hdl( )->set_value( hdl_ );
-                req.set_code( cmd );
+                req.mutable_request( )->set_code( cmd );
 
                 client_.call( call, &req, &res );
                 return res.data( ).value( );
@@ -100,8 +100,8 @@ namespace fr { namespace client { namespace interfaces { namespace i2c {
                 i2cproto::write_read_data_req req;
 
                 req.mutable_hdl( )->set_value( hdl_ );
-                req.set_code( cmd );
-                req.mutable_data( )->set_value( val );
+                req.mutable_request( )->set_code( cmd );
+                req.mutable_request( )->mutable_data( )->set_value( val );
 
                 client_.call_request( call, &req  );
             }
@@ -134,7 +134,7 @@ namespace fr { namespace client { namespace interfaces { namespace i2c {
                 i2cproto::write_read_data_res res;
 
                 req.mutable_hdl( )->set_value( hdl_ );
-                req.set_code( cmd );
+                req.mutable_request( )->set_code( cmd );
 
                 client_.call( &stub_type::read_block, &req, &res );
 
@@ -146,8 +146,8 @@ namespace fr { namespace client { namespace interfaces { namespace i2c {
                 i2cproto::write_read_data_req req;
 
                 req.mutable_hdl( )->set_value( hdl_ );
-                req.set_code( cmd );
-                req.mutable_data( )->set_block( value );
+                req.mutable_request( )->set_code( cmd );
+                req.mutable_request( )->mutable_data( )->set_block( value );
 
                 client_.call_request( &stub_type::write_block, &req );
             }
@@ -158,9 +158,11 @@ namespace fr { namespace client { namespace interfaces { namespace i2c {
                 i2cproto::write_read_data_res res;
 
                 req.mutable_hdl( )->set_value( hdl_ );
-                req.set_code( cmd );
-                req.mutable_data( )->set_broken_block( true );
-                req.mutable_data( )->set_value( len );
+                req.mutable_request( )->set_code( cmd );
+                i2cproto::write_read_data *mdata =
+                        req.mutable_request( )->mutable_data( );
+                mdata->set_broken_block( true );
+                mdata->set_value( len );
 
                 client_.call( &stub_type::read_block, &req, &res );
 
@@ -172,9 +174,11 @@ namespace fr { namespace client { namespace interfaces { namespace i2c {
                 i2cproto::write_read_data_req req;
 
                 req.mutable_hdl( )->set_value( hdl_ );
-                req.set_code( cmd );
-                req.mutable_data( )->set_block( val );
-                req.mutable_data( )->set_broken_block( true );
+                req.mutable_request( )->set_code( cmd );
+                i2cproto::write_read_data *mdata =
+                        req.mutable_request( )->mutable_data( );
+                mdata->set_block( val );
+                mdata->set_broken_block( true );
 
                 client_.call_request( &stub_type::write_block, &req );
             }
