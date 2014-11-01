@@ -10,8 +10,6 @@ old_print = print
 open( "base" )
 open( "string" )
 
-print( table )
-
 print = old_print
 
 i2c = fr.client.i2c
