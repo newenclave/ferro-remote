@@ -63,10 +63,11 @@ fr = {
 
         i2c={
             bus_available   =function( bus_id ) -> boolean,
-            functions       =function( bus_id ) -> table { }
 
             open            =function( bus_id[, slave_addr[, force_slave]] ) ->device
             close           =function( device ) -> nil
+
+            functions       =function( device ) -> table { }
 
             read_byte       =function( device, command ) -> number
             read_byte       =function( device, { command1, command2 } ) -> { { command1, value1 }, { command2, value2 } }
