@@ -60,6 +60,25 @@ fr = {
 
             close = function( device_instance )
         },
+
+        i2c={
+            bus_available   =function( bus_id ) -> boolean,
+            functions       =function( bus_id ) -> table { }
+
+            open            =function( bus_id[, slave_addr[, force_slave]] ) ->device
+            close           =function( device ) -> nil
+
+            read_byte       =function( device, command ) -> number
+            write_byte      =function( device, command, value ) -> nil
+
+            set_address     =function( device, slave_addr ) -> nil
+
+            read            =function( device[, maximum] ) -> string
+            write           =function( device, data ) -> nil
+
+            read_block      =function( device, command ) -> string
+            write_block     =function( device, command, value ) -> nil
+        },
         fs = {
         
             read    = function( path_to_file, max_length ) -> data,
