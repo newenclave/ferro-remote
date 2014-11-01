@@ -66,7 +66,7 @@ namespace lua { namespace objects {
             throw std::runtime_error( "push for 'none' is not available" );
         }
 
-        const base * at( size_t /*index*/ ) const
+        virtual const base * at( size_t /*index*/ ) const
         {
             throw std::out_of_range( "bad index" );
         }
@@ -460,10 +460,15 @@ namespace lua { namespace objects {
             return true;
         }
 
+        size_t count( ) const
+        {
+            return list_.size( );
+        }
+
         const base * at( size_t index ) const
         {
-            return list_.at(index).get( );
-        }
+            return list_[index].get( );
+        }        
 
         void push_back( const pair_sptr &val )
         {

@@ -259,14 +259,47 @@ namespace fr { namespace lua {
             return 1;
         }
 
-        int lcall_i2c_read_byte(  lua_State *L )
+        ii2c::uint8_vector create_from_table( lua_State *L, int id = 2 )
+        {
+            lua::state ls( L );
+            ii2c::uint8_vector res;
+            objects::base_sptr o = ls.get_object( id );
+
+            for( size_t i=0; i<o->count( ); ++i ) {
+                res.push_back(
+                        static_cast<uint8_t>(o->at( i )->at( 1 )->num( )) );
+            }
+            return res;
+        }
+
+        int lcall_i2c_read_byte( lua_State *L )
         {
             iface_sptr dev( get_device( L, 1 ) );
+
             lua::state ls( L );
-            unsigned cmd = ls.get<unsigned>( 2 );
-            ls.clean_stack( );
-            ls.push( dev->read_byte( cmd ) );
-            return 1;
+            int t = ls.get_type( 2 );
+
+            if( t == LUA_TNUMBER ) {
+                unsigned cmd = ls.get<unsigned>( 2 );
+                ls.clean_stack( );
+                ls.push( dev->read_byte( cmd ) );
+                return 1;
+            } else if( t == LUA_TTABLE ) {
+                ii2c::uint8_vector tab = create_from_table( L, 2 );
+                ls.clean_stack( );
+                ii2c::cmd_uint8_vector res = dev->read_bytes( tab );
+                objects::table_sptr nt( objects::new_table( ) );
+
+                typedef ii2c::cmd_uint8_vector::const_iterator citr;
+                for( citr b(res.begin( )), e(res.end( )); b!=e; ++b ) {
+                    nt->add( objects::new_integer( b->first ),
+                             objects::new_integer( b->second ) );
+                }
+                nt->push( L );
+                return 1;
+            }
+
+            return 0;
         }
 
         int lcall_i2c_write_byte( lua_State *L )

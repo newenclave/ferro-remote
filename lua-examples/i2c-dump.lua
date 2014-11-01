@@ -33,10 +33,18 @@ function main( argv )
     string = ""
     print( string.format('%02X: ', r ) )
 
+    local test = i2c.read_byte( ic, { 0, 1, 2, 3, 255 } )
+
+    println( test )
+
+    die "11111"
+
     local str = ""
     while i < 256 do
-        local b = i2c.read_byte( ic, i  )
+
+        local b = i2c.read_byte( ic, i )
         print( string.format('%02X ', b ) )
+
         str = str..string.char(b)
         i = i + 1
         if i % 16 == 0 then
