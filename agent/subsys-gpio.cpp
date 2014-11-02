@@ -19,6 +19,8 @@
 #include "vtrc-function.h"
 #include "vtrc-bind.h"
 
+#include "vtrc-chrono.h"
+
 #include "vtrc-common/vtrc-mutex-typedefs.h"
 
 #include "vtrc-server/vtrc-channels.h"
@@ -36,6 +38,8 @@ namespace fr { namespace agent { namespace subsys {
 
         namespace vcomm  = vtrc::common;
         namespace vserv  = vtrc::server;
+
+        namespace chrono = vtrc::chrono;
 
         typedef sproto::events::Stub events_stub_type;
 
@@ -82,6 +86,11 @@ namespace fr { namespace agent { namespace subsys {
             rpc_channel_sptr                     event_channel_;
             subsys::reactor                     &reactor_;
 
+            typedef chrono::high_resolution_clock::time_point time_point;
+
+            time_point                           event_last_time_;
+
+
         public:
 
             gpio_impl( fr::agent::application *app,
@@ -90,6 +99,7 @@ namespace fr { namespace agent { namespace subsys {
                 ,client_(cli)
                 ,event_channel_(create_event_channel(client_.lock( )))
                 ,reactor_(app->subsystem<subsys::reactor>( ))
+                ,event_last_time_(chrono::high_resolution_clock::now( ))
             { }
 
             ~gpio_impl( ) try
@@ -263,49 +273,59 @@ namespace fr { namespace agent { namespace subsys {
                 { }
             };
 
-            bool value_changed( unsigned events,
+            bool value_changed( unsigned /*events*/,
                                 value_data &data,
-                                vcomm::connection_iface_wptr cli ) try
+                                vcomm::connection_iface_wptr cli )
             {
-                vcomm::connection_iface_sptr lck( cli.lock( ) );
-                if( !lck ) {
+                try {
+                    vcomm::connection_iface_sptr lck( cli.lock( ) );
+                    if( !lck ) {
+                        return false;
+                    }
+
+                    time_point this_event =
+                                         chrono::high_resolution_clock::now( );
+                    time_point::duration dur = event_last_time_ - this_event;
+
+                    event_last_time_ = this_event;
+
+                    gpio_sptr gpio( data.weak_gpio.lock( ) );
+
+                    bool               success = true;
+                    std::string        err;
+                    unsigned           error_code;
+                    events_stub_type   events(event_channel_.get( ));
+
+                    sproto::async_op_data       op_data;
+                    gproto::value_change_data   vdat;
+
+                    op_data.set_id( data.op_id );
+
+
+                    try {
+
+                        vdat.set_interval( dur.count( ) );
+                        vdat.set_new_value( gpio->value_by_fd( data.fd ) );
+                        op_data.set_data( vdat.SerializeAsString( ) );
+
+                    } catch( const std::exception &ex ) {
+                        error_code = errno;
+                        err.assign( ex.what( ) );
+                        success = false;
+                    }
+
+                    if( !success ) {
+                        op_data.mutable_error( )->set_code( error_code );
+                        op_data.mutable_error( )->set_text( err );
+                    }
+
+                    events.async_op( NULL, &op_data, NULL, NULL );
+
+                    return success;
+
+                } catch( ... ) {
                     return false;
                 }
-
-                gpio_sptr gpio( data.weak_gpio.lock( ) );
-
-                bool               success = true;
-                std::string        err;
-                unsigned           error_code;
-                events_stub_type   events(event_channel_.get( ));
-
-                sproto::async_op_data       op_data;
-                gproto::value_change_data   vdat;
-
-                op_data.set_id( data.op_id );
-
-                try {
-
-                    vdat.set_new_value( gpio->value_by_fd( data.fd ) );
-                    op_data.set_data( vdat.SerializeAsString( ) );
-
-                } catch( const std::exception &ex ) {
-                    error_code = errno;
-                    err.assign( ex.what( ) );
-                    success = false;
-                }
-
-                if( !success ) {
-                    op_data.mutable_error( )->set_code( error_code );
-                    op_data.mutable_error( )->set_text( err );
-                }
-
-                events.async_op( NULL, &op_data, NULL, NULL );
-
-                return success;
-
-            } catch( ... ) {
-                return false;
             }
 
             void register_for_change(::google::protobuf::RpcController* ,
