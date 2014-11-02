@@ -14,9 +14,8 @@ if not gpio.available then
     die( "GPIO is not available on the"..fr.client.server.."machine :(" )
 end
 
-function change_handler( new_value, last_interval, device_id ) -- other thread
-    println( "Value for gpio "..device_id.." changed to ", new_value,
-             " interval is ", last_interval )
+function change_handler( new_value, device_id ) -- other thread
+    println( "Value for gpio ", device_id, " changed to ", new_value )
 end
 
 function main( argv ) --- main lua thread
