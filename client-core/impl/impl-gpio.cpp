@@ -243,7 +243,7 @@ namespace fr { namespace client { namespace interfaces {
             }
 
             void event_handler2( unsigned err,
-                                const std::string &data,
+                                 const std::string &data,
                                 gpio::value_change_interval_callback &cb ) const
             {
                 gproto::value_change_data vcd;

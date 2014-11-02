@@ -333,7 +333,8 @@ namespace fr { namespace lua {
             { }
         };
 
-        void gpio_event_handler( unsigned error, unsigned value,
+        void gpio_event_handler( unsigned /*error*/, unsigned value,
+                                 uint64_t interval,
                                  handler_params &p )
         try {
 
@@ -343,7 +344,7 @@ namespace fr { namespace lua {
                 return;
             }
 
-            p.thread_->exec_function( p.call_name_.c_str( ), value,
+            p.thread_->exec_function( p.call_name_.c_str( ), value, interval,
                                       p.params_ );
 
         } catch( ... ) {
@@ -377,9 +378,10 @@ namespace fr { namespace lua {
                         std::make_shared<lua::state>(
                             ls.create_thread( tmp_path.c_str( ) ) ) );
 
-            dev->register_for_change( std::bind( gpio_event_handler,
+            dev->register_for_change_int( std::bind( gpio_event_handler,
                                                  std::placeholders::_1,
                                                  std::placeholders::_2,
+                                                 std::placeholders::_3,
                                                  handler_params(
                                                      i->state_, thread,
                                                      call, params
