@@ -285,7 +285,7 @@ namespace fr { namespace agent { namespace subsys {
 
                     time_point this_event =
                                          chrono::high_resolution_clock::now( );
-                    time_point::duration dur = event_last_time_ - this_event;
+                    time_point::duration dur = this_event - event_last_time_;
 
                     event_last_time_ = this_event;
 

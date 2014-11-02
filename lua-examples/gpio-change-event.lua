@@ -15,8 +15,8 @@ if not gpio.available then
 end
 
 function change_handler( new_value, last_interval, device_id ) -- other thread
-    println( "Value for gpio "..device_id.." changed to "..new_value,
-             " interval is "..last_interval )
+    printi( "Value for gpio "..device_id.." changed to "..new_value,
+            " interval is "..last_interval, "\n" )
 end
 
 function main( argv ) --- main lua thread
