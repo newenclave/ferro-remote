@@ -249,7 +249,6 @@ namespace fr { namespace client { namespace interfaces {
             {
                 gproto::value_change_data vcd;
                 vcd.ParseFromString( data );
-                std::cout << "Get inteval " << vcd.interval( ) << "\n";
                 cb( err, vcd.new_value( ), vcd.interval( ) );
             }
 //            void event_handler0( unsigned err,
