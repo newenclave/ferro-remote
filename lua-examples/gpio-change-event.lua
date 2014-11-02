@@ -24,7 +24,7 @@ function main( argv ) --- main lua thread
     dev = gpio.export( tonumber( argv.gpio ) )
 
     if not gpio.edge_supported( dev ) then
-        die("GPIO doesn't "..dev.."support edge. No edge -> no events")
+        die("GPIO "..dev.." doesn't support edge. No edge -> no events")
     end
 
     gpio.set_edge( dev, gpio.EDGE_BOTH )
