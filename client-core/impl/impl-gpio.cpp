@@ -242,6 +242,14 @@ namespace fr { namespace client { namespace interfaces {
                 cb( err, vcd.new_value( ) );
             }
 
+            void event_handler2( unsigned err,
+                                const std::string &data,
+                                gpio::value_change_interval_callback &cb ) const
+            {
+                gproto::value_change_data vcd;
+                vcd.ParseFromString( data );
+                cb( err, vcd.new_value( ), vcd.interval( ) );
+            }
 //            void event_handler0( unsigned err,
 //                                 const std::string &data,
 //                                 gpio::value_change_callback0 &cb ) const
@@ -251,8 +259,8 @@ namespace fr { namespace client { namespace interfaces {
 //                cb( vcd.new_value( ) );
 //            }
 
-            void register_for_change(
-                    gpio::value_change_callback cb ) const override
+            void register_for_change( gpio
+                                   ::value_change_callback cb ) const override
             {
                 gproto::register_req req;
                 gproto::register_res res;
@@ -263,6 +271,25 @@ namespace fr { namespace client { namespace interfaces {
 
                 async_op_callback_type acb(
                             vtrc::bind( &gpio_impl::event_handler, this,
+                                        vtrc::placeholders::_1,
+                                        vtrc::placeholders::_2,
+                                        cb ) );
+
+                core_.register_async_op( res.async_op_id( ), acb );
+            }
+
+            void register_for_change_int( gpio
+                         ::value_change_interval_callback cb ) const override
+            {
+                gproto::register_req req;
+                gproto::register_res res;
+
+                req.mutable_hdl( )->set_value( ii_.hdl_ );
+
+                client_.call( &stub_type::register_for_change, &req, &res );
+
+                async_op_callback_type acb(
+                            vtrc::bind( &gpio_impl::event_handler2, this,
                                         vtrc::placeholders::_1,
                                         vtrc::placeholders::_2,
                                         cb ) );
@@ -314,6 +341,7 @@ namespace fr { namespace client { namespace interfaces {
     }
 
     namespace gpio {
+
         iface_ptr create( core::client_core &cl, unsigned gpio_id )
         {
             return new gpio_impl( cl, gpio_id );
