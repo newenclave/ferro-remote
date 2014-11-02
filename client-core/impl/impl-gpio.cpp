@@ -1,3 +1,4 @@
+#include <iostream>
 
 #include "client-core/interfaces/IGPIO.h"
 #include "client-core/interfaces/IAsyncOperation.h"
