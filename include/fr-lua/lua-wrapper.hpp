@@ -11,7 +11,7 @@ extern "C" {
 #include "lua.h"
 }
 
-#if (LUA_VERSION_NUM < 501)
+#if( LUA_VERSION_NUM < 501 )
 #error "Lua version is too old; Use 5.1 or higher"
 #endif
 
@@ -106,8 +106,15 @@ namespace lua {
 
             for( size_t i=0; i<libs_count; ++i ) {
                 if( 0 == libs[i].name.compare( libname ) ) {
+
+#if( LUA_VERSION_NUM < 502 )
                     push( libs[i].func );
                     lua_call( vm_, 0, 0 );
+#else
+                    push( libs[i].func );
+                    lua_call( vm_, 0, 1 );
+                    lua_setglobal( vm_, libname );
+#endif
                     return 1;
                 }
             }
