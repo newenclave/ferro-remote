@@ -51,12 +51,14 @@ namespace fr { namespace client { namespace interfaces { namespace i2c {
                 close_impl( );
             }
 
-            void close_impl( ) try
+            void close_impl( )
             {
-                i2cproto::handle req;
-                req.set_value( hdl_ );
-                client_.call_request( &stub_type::close, &req );
-            } catch( ... ) { ;;; }
+                try {
+                    i2cproto::handle req;
+                    req.set_value( hdl_ );
+                    client_.call_request( &stub_type::close, &req );
+                } catch( ... ) { ;;; }
+            }
 
             uint64_t function_mask( ) const
             {
