@@ -18,7 +18,7 @@ mma7660fc = {
 }
 
 function mma7660fc_activate( dev )
-    i2c.write_byte( dev, mma7660fc.mode, mma7660fc.active )
+    i2c.write_byte( dev, { [mma7660fc.mode] = mma7660fc.active } )
 end
 
 function main ( argv )

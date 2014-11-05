@@ -43,10 +43,12 @@ function main( argv )
 
     local test = i2c.read_byte( ic, request )
 
+    --println( test )
+
     local str = ""
     while i < 256 do
 
-        local b = test[i+1][2] --i2c.read_byte( ic, i )
+        local b = test[i]
         print( string.format('%02X ', b ) )
 
         str = str..string.char(b)

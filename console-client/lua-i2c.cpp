@@ -304,16 +304,20 @@ namespace fr { namespace lua {
         {
             lua::state ls( L );
             typedef std::vector< std::pair<uint8_t, T> > pair_vector;
+
             pair_vector res;
 
             objects::base_sptr o = ls.get_object( id );
 
             for( size_t i=0; i<o->count( ); ++i ) {
-                if( o->at( i )->count( ) >= 2 ) {
+                const objects::base * next = o->at( i );
+                if( next->count( ) >= 2 ) {
+                    const objects::base * id  = next->at( 0 );
+                    const objects::base * val = next->at( 1 );
                     res.push_back(
                         std::make_pair(
-                            static_cast<uint8_t>( o->at( i )->at( 1 )->num( ) ),
-                            static_cast<T>( o->at( i )->at( 2 )->num( ) ) ) );
+                            static_cast<uint8_t>( id->num( ) ),
+                            static_cast<T>( val->num( ) ) ) );
                 }
             }
             return res;
@@ -361,9 +365,8 @@ namespace fr { namespace lua {
 
                 typedef typename pair_vector::const_iterator citr;
                 for( citr b(res.begin( )), e(res.end( )); b!=e; ++b ) {
-                    nt->add( objects::new_table( )
-                             ->add( objects::new_integer( b->first ) )
-                             ->add( objects::new_integer( b->second ) ) );
+                    nt->add( objects::new_integer( b->first ),
+                             objects::new_integer( b->second ) );
                 }
                 nt->push( L );
                 return 1;

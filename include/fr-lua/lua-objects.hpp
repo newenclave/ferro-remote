@@ -398,6 +398,11 @@ namespace lua { namespace objects {
             return new pair( *this );
         }
 
+        size_t count( ) const
+        {
+            return 2;
+        }
+
         void push( lua_State *L ) const
         {
             if( !pair_.first->none_or_nil( ) )  {
