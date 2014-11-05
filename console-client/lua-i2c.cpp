@@ -300,7 +300,7 @@ namespace fr { namespace lua {
         template <typename T>
         std::vector<
             std::pair<uint8_t, T>
-        > create_cmd_params( lua_State *L, int id = 2 )
+        > create_cmd_params( lua_State *L, int id )
         {
             lua::state ls( L );
             typedef std::vector< std::pair<uint8_t, T> > pair_vector;
@@ -321,7 +321,7 @@ namespace fr { namespace lua {
         }
 
         template <typename T>
-        std::vector<T> create_cmd_from_table( lua_State *L, int id = 2 )
+        std::vector<T> create_cmd_from_table( lua_State *L, int id )
         {
             lua::state ls( L );
 
@@ -407,21 +407,33 @@ namespace fr { namespace lua {
 //            return 0;
         }
 
-        template <typename CallType>
-        int lcall_i2c_write_impl( CallType call, lua_State *L )
+        template <typename T, typename CallType, typename CallListType>
+        int lcall_i2c_write_impl( CallType call, CallListType calllist,
+                                  lua_State *L )
         {
+            typedef std::vector< std::pair<uint8_t, T> > pair_vector;
+
             iface_sptr dev( get_device( L, 1 ) );
             lua::state ls( L );
-            unsigned cmd  = ls.get<unsigned>( 2 );
-            unsigned data = ls.get<unsigned>( 3 );
-            ls.clean_stack( );
-            (dev.get( )->*call)( cmd, data );
+            int t = ls.get_type( 2 );
+            if( LUA_TNUMBER == t ) {
+                unsigned cmd  = ls.get<unsigned>( 2 );
+                unsigned data = ls.get<unsigned>( 3 );
+                ls.clean_stack( );
+                (dev.get( )->*call)( static_cast<uint8_t>( cmd ),
+                                     static_cast<T>( data ) );
+            } else if( LUA_TTABLE == t ) {
+                pair_vector tab = create_cmd_params<T>( L, 3 );
+                (dev.get( )->*calllist)( tab );
+            }
             return 0;
         }
 
         int lcall_i2c_write_byte( lua_State *L )
         {
-            return lcall_i2c_write_impl( &iface::write_byte, L );
+            return lcall_i2c_write_impl<uint8_t>( &iface::write_byte,
+                                                  &iface::write_bytes,
+                                                  L );
 //            iface_sptr dev( get_device( L, 1 ) );
 //            lua::state ls( L );
 //            unsigned cmd  = ls.get<unsigned>( 2 );
@@ -468,7 +480,9 @@ namespace fr { namespace lua {
 
         int lcall_i2c_write_word( lua_State *L )
         {
-            return lcall_i2c_write_impl( &iface::write_word, L );
+            return lcall_i2c_write_impl<uint16_t>( &iface::write_word,
+                                                   &iface::write_words,
+                                                   L );
 //            iface_sptr dev( get_device( L, 1 ) );
 //            lua::state ls( L );
 //            unsigned cmd  = ls.get<unsigned>( 2 );

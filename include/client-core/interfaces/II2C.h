@@ -110,9 +110,15 @@ namespace interfaces { namespace i2c {
 
     enum { I2C_SLAVE_INVALID_ADDRESS = 0xFFFFFFFF };
 
+    /// open device
     iface_ptr open( core::client_core &cc, unsigned bus_id );
+
+    /// open and set_address as I2C_SLAVE
     iface_ptr open( core::client_core &cc,
                     unsigned bus_id, unsigned slave_addr );
+
+    /// open and set_address as I2C_SLAVE_FORCE if slave_force is true
+    ///  and I2C_SLAVE otherwise
     iface_ptr open( core::client_core &cc,
                     unsigned bus_id, unsigned slave_addr, bool slave_force );
 
