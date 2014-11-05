@@ -380,7 +380,7 @@ namespace fr { namespace lua {
                                                  L );
 //            iface_sptr dev( get_device( L, 1 ) );
 
-//            lua::state ls( L );
+//             lua::state ls( L );
 //            int t = ls.get_type( 2 );
 
 //            if( t == LUA_TNUMBER ) {
