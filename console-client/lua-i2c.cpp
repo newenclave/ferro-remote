@@ -310,8 +310,13 @@ namespace fr { namespace lua {
             return res;
         }
 
-        int lcall_i2c_read_byte( lua_State *L )
+        template <typename T, typename CallType, typename CallListType>
+        int lcall_i2c_read_impl( CallType call, CallListType calllist,
+                                 lua_State *L )
         {
+            typedef std::vector< std::pair<uint8_t, T> > pair_vector;
+            typedef std::vector<uint8_t>                 data_vector;
+
             iface_sptr dev( get_device( L, 1 ) );
 
             lua::state ls( L );
@@ -320,15 +325,17 @@ namespace fr { namespace lua {
             if( t == LUA_TNUMBER ) {
                 unsigned cmd = ls.get<unsigned>( 2 );
                 ls.clean_stack( );
-                ls.push( dev->read_byte( cmd ) );
+                ls.push( (dev.get( )->*call)( cmd ) );
                 return 1;
             } else if( t == LUA_TTABLE ) {
-                ii2c::uint8_vector tab = create_from_table<uint8_t>( L, 2 );
+
+                data_vector tab = create_from_table<uint8_t>( L, 2 );
+
                 ls.clean_stack( );
-                ii2c::cmd_uint8_vector res = dev->read_bytes( tab );
+                pair_vector res = (dev.get( )->*calllist)( tab );
                 objects::table_sptr nt( objects::new_table( ) );
 
-                typedef ii2c::cmd_uint8_vector::const_iterator citr;
+                typedef typename pair_vector::const_iterator citr;
                 for( citr b(res.begin( )), e(res.end( )); b!=e; ++b ) {
                     nt->add( objects::new_table( )
                              ->add( objects::new_integer( b->first ) )
@@ -339,6 +346,40 @@ namespace fr { namespace lua {
             }
 
             return 0;
+        }
+
+        int lcall_i2c_read_byte( lua_State *L )
+        {
+            return lcall_i2c_read_impl<uint8_t>( &iface::read_byte,
+                                                 &iface::read_bytes,
+                                                 L );
+//            iface_sptr dev( get_device( L, 1 ) );
+
+//            lua::state ls( L );
+//            int t = ls.get_type( 2 );
+
+//            if( t == LUA_TNUMBER ) {
+//                unsigned cmd = ls.get<unsigned>( 2 );
+//                ls.clean_stack( );
+//                ls.push( dev->read_byte( cmd ) );
+//                return 1;
+//            } else if( t == LUA_TTABLE ) {
+//                ii2c::uint8_vector tab = create_from_table<uint8_t>( L, 2 );
+//                ls.clean_stack( );
+//                ii2c::cmd_uint8_vector res = dev->read_bytes( tab );
+//                objects::table_sptr nt( objects::new_table( ) );
+
+//                typedef ii2c::cmd_uint8_vector::const_iterator citr;
+//                for( citr b(res.begin( )), e(res.end( )); b!=e; ++b ) {
+//                    nt->add( objects::new_table( )
+//                             ->add( objects::new_integer( b->first ) )
+//                             ->add( objects::new_integer( b->second ) ) );
+//                }
+//                nt->push( L );
+//                return 1;
+//            }
+
+//            return 0;
         }
 
         template <typename CallType>
@@ -367,34 +408,37 @@ namespace fr { namespace lua {
 
         int lcall_i2c_read_word( lua_State *L )
         {
-            iface_sptr dev( get_device( L, 1 ) );
+            return lcall_i2c_read_impl<uint16_t>( &iface::read_word,
+                                                  &iface::read_words,
+                                                  L );
+//            iface_sptr dev( get_device( L, 1 ) );
 
-            lua::state ls( L );
-            int t = ls.get_type( 2 );
+//            lua::state ls( L );
+//            int t = ls.get_type( 2 );
 
-            if( t == LUA_TNUMBER ) {
-                unsigned cmd = ls.get<unsigned>( 2 );
-                ls.clean_stack( );
-                ls.push( dev->read_word( cmd ) );
-                return 1;
-            } else if( t == LUA_TTABLE ) {
-                ii2c::uint16_vector tab = create_from_table<uint16_t>( L, 2 );
-                ls.clean_stack( );
+//            if( t == LUA_TNUMBER ) {
+//                unsigned cmd = ls.get<unsigned>( 2 );
+//                ls.clean_stack( );
+//                ls.push( dev->read_word( cmd ) );
+//                return 1;
+//            } else if( t == LUA_TTABLE ) {
+//                ii2c::uint16_vector tab = create_from_table<uint16_t>( L, 2 );
+//                ls.clean_stack( );
 
-                ii2c::cmd_uint16_vector res = dev->read_words( tab );
-                objects::table_sptr nt( objects::new_table( ) );
+//                ii2c::cmd_uint16_vector res = dev->read_words( tab );
+//                objects::table_sptr nt( objects::new_table( ) );
 
-                typedef ii2c::cmd_uint16_vector::const_iterator citr;
-                for( citr b(res.begin( )), e(res.end( )); b!=e; ++b ) {
-                    nt->add( objects::new_table( )
-                             ->add( objects::new_integer( b->first ) )
-                             ->add( objects::new_integer( b->second ) ) );
-                }
-                nt->push( L );
-                return 1;
-            }
+//                typedef ii2c::cmd_uint16_vector::const_iterator citr;
+//                for( citr b(res.begin( )), e(res.end( )); b!=e; ++b ) {
+//                    nt->add( objects::new_table( )
+//                             ->add( objects::new_integer( b->first ) )
+//                             ->add( objects::new_integer( b->second ) ) );
+//                }
+//                nt->push( L );
+//                return 1;
+//            }
 
-            return 0;
+//            return 0;
         }
 
         int lcall_i2c_write_word( lua_State *L )

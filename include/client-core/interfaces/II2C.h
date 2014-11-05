@@ -74,7 +74,7 @@ namespace interfaces { namespace i2c {
         /// WORDS -> I2C_SMBUS_WORD_DATA
         virtual uint16_t read_word( uint8_t command )         const = 0;
         virtual cmd_uint16_vector read_words(
-                                  const uint16_vector &cmds ) const = 0;
+                                  const uint8_vector &cmds )  const = 0;
         /// BLOCKS -> I2C_SMBUS_BLOCK_DATA
         virtual std::string read_block( uint8_t command )     const = 0;
         ///        -> I2C_SMBUS_I2C_BLOCK_BROKEN

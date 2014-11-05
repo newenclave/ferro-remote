@@ -190,10 +190,10 @@ namespace fr { namespace client { namespace interfaces { namespace i2c {
                 write_impl( &stub_type::write_word, cmd, value );
             }
 
-            cmd_uint16_vector read_words( const uint16_vector &cmds ) const
+            cmd_uint16_vector read_words( const uint8_vector &cmds ) const
             {
                 cmd_uint16_vector result;
-                read_many_impl(&stub_type::read_words, cmds, result);
+                read_many_impl( &stub_type::read_words, cmds, result );
                 return result;
             }
 
