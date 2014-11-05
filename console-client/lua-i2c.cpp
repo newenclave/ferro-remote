@@ -311,10 +311,9 @@ namespace fr { namespace lua {
             for( size_t i=0; i<o->count( ); ++i ) {
                 if( o->at( i )->count( ) >= 2 ) {
                     res.push_back(
-                       std::make_pair(
+                        std::make_pair(
                             static_cast<uint8_t>( o->at( i )->at( 1 )->num( ) ),
-                            static_cast<T>( o->at( i )->at( 2 )->num( ) )
-                       ) );
+                            static_cast<T>( o->at( i )->at( 2 )->num( ) ) ) );
                 }
             }
             return res;
