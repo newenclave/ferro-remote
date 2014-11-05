@@ -37,6 +37,7 @@ namespace fr { namespace lua {
 
         int lcall_i2c_read(  lua_State *L );
         int lcall_i2c_write( lua_State *L );
+        int lcall_i2c_ioctl( lua_State *L );
 
         int lcall_i2c_read_block(  lua_State *L );
         int lcall_i2c_write_block( lua_State *L );
@@ -86,6 +87,8 @@ namespace fr { namespace lua {
                         new_function( &lcall_i2c_read ) );
                 t->add( new_string( "write" ),
                         new_function( &lcall_i2c_write ) );
+                t->add( new_string( "ioctl" ),
+                        new_function( &lcall_i2c_ioctl ) );
 
                 t->add( new_string( "read_byte" ),
                         new_function( &lcall_i2c_read_byte ) );
@@ -264,6 +267,33 @@ namespace fr { namespace lua {
                 pos += f->write( &data[pos], w - pos );
             }
             ls.push( w );
+            return 1;
+        }
+
+        int lcall_i2c_ioctl( lua_State *L )
+        {
+            lua::state ls(L);
+            iface_sptr dev(get_device( L, 1 ));
+
+            int code = -1;
+            unsigned long param = 0;
+
+            int n = ls.get_top( );
+
+            if( n > 1 ) {
+                code = ls.get<unsigned>( 2 );
+            }
+
+            if( n > 2 ) {
+                param = ls.get<lua_Integer>( 3 );
+            }
+
+            try {
+                dev->ioctl( code, param );
+                ls.push( );
+            } catch( const std::exception &ex ) {
+                ls.push( ex.what( ) );
+            }
             return 1;
         }
 
