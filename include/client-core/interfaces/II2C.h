@@ -63,7 +63,7 @@ namespace interfaces { namespace i2c {
 
         virtual uint64_t function_mask( ) const = 0; // see emun function_codes
 
-        /// I2C_SLAVE
+        /// ioctl( I2C_SLAVE, addr )
         virtual void set_address( uint16_t addr ) const = 0;
 
         /// read
