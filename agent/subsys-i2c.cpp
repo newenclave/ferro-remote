@@ -330,6 +330,39 @@ namespace fr { namespace agent { namespace subsys {
                 }
             }
 
+            void process_call(::google::protobuf::RpcController* /*controller*/,
+                         const ::fr::proto::i2c::write_read_data_req* request,
+                         ::fr::proto::i2c::write_read_data_res* response,
+                         ::google::protobuf::Closure* done) override
+            {
+                vcomm::closure_holder holder( done );
+                i2c_sptr dev(i2c_by_index( request->hdl( ).value( ) ));
+
+                uint16_t cmd = request->request( ).code( ) & 0xFFFF;
+
+                if( request->request( ).data( ).has_value( ) ) {
+
+                    uint16_t code = request->request( ).data( ).value( )
+                                  & 0xFFFF;
+
+                    response->mutable_data( )
+                            ->set_value( dev->smbus_process_call( cmd, code ) );
+
+                } else if( request->request( ).data( ).has_block( ) ) {
+
+                    const std::string &code( request->request( )
+                                                     .data( ).block( ) );
+
+                    response->mutable_data( )
+                            ->set_block(
+                                   dev->smbus_block_process_call( cmd, code ) );
+
+                } else {
+                    throw vcomm::exception( EINVAL,
+                                            "Empty data or code received." );
+                }
+            }
+
             void close(::google::protobuf::RpcController* /*controller*/,
                          const ::fr::proto::i2c::handle* request,
                          ::fr::proto::i2c::empty*         /*response*/,

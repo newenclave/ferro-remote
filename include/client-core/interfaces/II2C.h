@@ -57,7 +57,7 @@ namespace interfaces { namespace i2c {
     typedef std::vector<cmd_uint8>  cmd_uint8_vector;
     typedef std::vector<cmd_uint16> cmd_uint16_vector;
 
-    struct iface: public file::base_file_iface {
+    struct iface: public file::base_file_iface { /// read, write, ioctl
 
         virtual ~iface( ) { }
 
@@ -65,28 +65,43 @@ namespace interfaces { namespace i2c {
 
         virtual void   set_address( uint16_t addr ) const = 0;
 
+        /// read
+        ///  BYTE -> I2C_SMBUS_BYTE_DATA
         virtual uint8_t read_byte( uint8_t command ) const = 0;
-        virtual void write_byte( uint8_t command, uint8_t value ) const = 0;
-
         virtual cmd_uint8_vector read_bytes(
-                                  const uint8_vector &cmds ) const = 0;
-        virtual void write_bytes( const cmd_uint8_vector &cmds ) const = 0;
-
+                                 const uint8_vector &cmds ) const = 0;
+        /// WORDS -> I2C_SMBUS_WORD_DATA
         virtual uint16_t read_word( uint8_t command ) const = 0;
-        virtual void write_word( uint8_t command, uint16_t value ) const = 0;
-
         virtual cmd_uint16_vector read_words(
                                   const uint16_vector &cmds ) const = 0;
-        virtual void write_words( const cmd_uint16_vector &cmds ) const = 0;
-
+        /// BLOCKS -> I2C_SMBUS_BLOCK_DATA
         virtual std::string read_block( uint8_t command ) const = 0;
-        virtual void write_block( uint8_t command,
-                                  const std::string &value ) const = 0;
-
+        /// -> I2C_SMBUS_I2C_BLOCK_BROKEN
         virtual std::string read_block_broken( uint8_t command,
                                                uint8_t len ) const = 0;
+
+        /// write
+        /// BYTES -> I2C_SMBUS_BYTE_DATA
+        virtual void write_byte( uint8_t command, uint8_t value )   const = 0;
+        virtual void write_bytes( const cmd_uint8_vector &cmds )    const = 0;
+
+        /// WORDS -> I2C_SMBUS_WORD_DATA
+        virtual void write_word( uint8_t command, uint16_t value )  const = 0;
+        virtual void write_words( const cmd_uint16_vector &cmds )   const = 0;
+
+        /// BLOCKS -> I2C_SMBUS_BLOCK_DATA
+        virtual void write_block( uint8_t command,
+                                  const std::string &value ) const = 0;
+        /// -> I2C_SMBUS_I2C_BLOCK_BROKEN
         virtual void write_block_broken( uint8_t command,
                                          const std::string &value ) const = 0;
+
+        /// process -> I2C_SMBUS_PROC_CALL
+        virtual uint16_t process_call( uint8_t command,
+                                       uint16_t value ) const = 0;
+        /// -> I2C_SMBUS_BLOCK_PROC_CALL
+        virtual std::string process_call( uint8_t command,
+                                          const std::string &value ) const = 0;
 
     };
 

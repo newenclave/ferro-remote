@@ -255,6 +255,37 @@ namespace fr { namespace client { namespace interfaces { namespace i2c {
                 client_.call_request( &stub_type::write_block, &req );
             }
 
+
+            virtual uint16_t process_call( uint8_t command,
+                                           uint16_t value ) const
+            {
+                i2cproto::write_read_data_req req;
+                i2cproto::write_read_data_res res;
+
+                req.mutable_hdl( )->set_value( hdl_ );
+                req.mutable_request( )->set_code( command );
+                req.mutable_request( )->mutable_data( )->set_value( value );
+
+                client_.call( &stub_type::process_call, &req, &res );
+
+                return static_cast<uint16_t>(res.data( ).value( ));
+            }
+
+            virtual std::string process_call( uint8_t command,
+                                              const std::string &value ) const
+            {
+                i2cproto::write_read_data_req req;
+                i2cproto::write_read_data_res res;
+
+                req.mutable_hdl( )->set_value( hdl_ );
+                req.mutable_request( )->set_code( command );
+                req.mutable_request( )->mutable_data( )->set_block( value );
+
+                client_.call( &stub_type::process_call, &req, &res );
+
+                return res.data( ).block( );
+            }
+
             size_t read( void *data, size_t length ) const
             {
                 i2cproto::data_block req;

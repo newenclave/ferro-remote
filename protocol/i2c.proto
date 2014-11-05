@@ -163,6 +163,10 @@ service instance {
     rpc read_block( write_read_data_req ) returns ( write_read_data_res );
     rpc write_block( write_read_data_req ) returns ( write_read_data_res );
 
+    /// word  -> I2C_SMBUS_PROC_CALL -> word as result
+    /// or data block -> I2C_SMBUS_BLOCK_PROC_CALL -> data block as result
+    rpc process_call( write_read_data_req ) returns ( write_read_data_res );
+
     rpc ioctl( ioctl_req ) returns ( ioctl_res );
     rpc func_mask( func_mask_req ) returns ( func_mask_res );
 
