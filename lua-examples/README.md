@@ -62,32 +62,32 @@ fr = {
         },
 
         i2c = {
-            bus_available   = function( bus_id ) -> boolean,
+            bus_available = function( bus_id ) -> boolean,
 
-            open            = function( bus_id[, slave_addr[, force_slave]] ) ->device
-            close           = function( device ) -> nil
+            open          = function( bus_id[, slave_addr[, force_slave]] ) ->device
+            close         = function( device ) -> nil
 
-            functions       = function( device ) -> table { }
+            functions     = function( device ) -> table { }
 
-            read_byte       = function( device, command ) -> number
-            read_byte       = function( device, { command1, command2 } ) -> { { command1, value1 }, { command2, value2 } }
-            write_byte      = function( device, command, value ) -> nil
-            write_byte      = function( device, { { command1, value1 }, { command1, value1 } ... } ) -> nil
+            read_byte     = function( device, command ) -> number
+            read_byte     = function( device, { command1, command2 } ) -> { { command1, value1 }, { command2, value2 } }
+            write_byte    = function( device, command, value ) -> nil
+            write_byte    = function( device, { { command1, value1 }, { command1, value1 } ... } ) -> nil
 
-            set_address     = function( device, slave_addr ) -> nil
+            set_address   = function( device, slave_addr ) -> nil
 
-            read            = function( device[, maximum] ) -> string
-            write           = function( device, data ) -> nil
+            read          = function( device[, maximum] ) -> string
+            write         = function( device, data ) -> nil
 
-            read_block      = function( device, command ) -> string
-            write_block     = function( device, command, value ) -> nil
+            read_block    = function( device, command ) -> string
+            write_block   = function( device, command, value ) -> nil
 
-            read_word       = function( device, command ) -> number
-            read_word       = function( device, { command1, command2 } ) -> { { command1, value1 }, { command2, value2 } }
-            write_word      = function( device, command, value ) -> nil
-            write_word      = function( device, { { command1, value1 }, { command1, value1 } ... } ) -> nil
+            read_word     = function( device, command ) -> number
+            read_word     = function( device, { command1, command2 } ) -> { { command1, value1 }, { command2, value2 } }
+            write_word    = function( device, command, value ) -> nil
+            write_word    = function( device, { { command1, value1 }, { command2, value2 } ... } ) -> nil
 
-            ioctl           = function( device, code, parameter ) -> error
+            ioctl         = function( device, code, parameter ) -> error
 
         },
 
