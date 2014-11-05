@@ -422,7 +422,7 @@ namespace fr { namespace lua {
                 (dev.get( )->*call)( static_cast<uint8_t>( cmd ),
                                      static_cast<T>( data ) );
             } else if( LUA_TTABLE == t ) {
-                pair_vector tab = create_cmd_params<T>( L, 3 );
+                pair_vector tab = create_cmd_params<T>( L, 2 );
                 (dev.get( )->*calllist)( tab );
             }
             return 0;
