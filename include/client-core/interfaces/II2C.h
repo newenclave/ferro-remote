@@ -63,7 +63,8 @@ namespace interfaces { namespace i2c {
 
         virtual uint64_t function_mask( ) const = 0; // see function_codes
 
-        virtual void   set_address( uint16_t addr ) const = 0;
+        /// I2C_SLAVE
+        virtual void set_address( uint16_t addr ) const = 0;
 
         /// read
         ///  BYTE -> I2C_SMBUS_BYTE_DATA
