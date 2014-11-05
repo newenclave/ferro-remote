@@ -59,6 +59,7 @@ message info_req {
 
 message value_change_data {
     optional uint32 new_value = 1;
+    optional uint64 interval  = 2;
 }
 
 message register_req {

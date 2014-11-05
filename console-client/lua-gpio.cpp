@@ -333,7 +333,9 @@ namespace fr { namespace lua {
             { }
         };
 
-        void gpio_event_handler( unsigned error, unsigned value,
+        void gpio_event_handler( unsigned /*error*/, unsigned value,
+                                 bool inter,
+                                 uint64_t interval,
                                  handler_params &p )
         try {
 
@@ -343,7 +345,7 @@ namespace fr { namespace lua {
                 return;
             }
 
-            p.thread_->exec_function( p.call_name_.c_str( ), value,
+            p.thread_->exec_function( p.call_name_.c_str( ), value, interval,
                                       p.params_ );
 
         } catch( ... ) {
@@ -380,6 +382,44 @@ namespace fr { namespace lua {
             dev->register_for_change( std::bind( gpio_event_handler,
                                                  std::placeholders::_1,
                                                  std::placeholders::_2,
+                                                 0, false,
+                                                 handler_params(
+                                                     i->state_, thread,
+                                                     call, params
+                                                 ) ) );
+            return 0;
+        }
+
+        int lcall_gpio_reg_for_change2( lua_State *L )
+        {
+            lua::state ls( L );
+            int n = ls.get_top( );
+            data * i = get_iface( L );
+
+            iface_sptr dev = get_gpio_dev( L, 1 );
+            std::string call(ls.get<const char *>( 2 ));
+
+            std::vector<objects::base_sptr> params;
+
+            if( n > 2 ) {
+                params.reserve( n - 2 );
+                for( int i=3; i<=n; ++i ) {
+                    params.push_back( ls.get_object( i ) );
+                }
+            }
+
+            ls.pop( n );
+
+            std::string tmp_path(create_ref_table_path( dev.get( ) ));
+
+            lua::state_sptr thread(
+                        std::make_shared<lua::state>(
+                            ls.create_thread( tmp_path.c_str( ) ) ) );
+
+            dev->register_for_change_int( std::bind( gpio_event_handler,
+                                                 std::placeholders::_1,
+                                                 std::placeholders::_2,
+                                                 std::placeholders::_3, true,
                                                  handler_params(
                                                      i->state_, thread,
                                                      call, params

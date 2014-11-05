@@ -27,6 +27,8 @@
 #define sleep_( x ) sleep( x ) /// seconds
 #endif
 
+#include "vtrc-chrono.h"
+
 namespace fr { namespace lua {
 
     namespace names {
@@ -156,6 +158,20 @@ namespace fr { namespace cc { namespace cmd {
             return 0;
         }
 
+        int global_hr_clock( lua_State *L )
+        {
+            lua::state ls( L );
+
+            using namespace vtrc::chrono;
+
+            high_resolution_clock::time_point
+                    value(high_resolution_clock::now( ));
+
+            ls.push( value.time_since_epoch( ).count( ) );
+
+            return 1;
+        }
+
         int global_connect( lua_State *L )
         {
             lua::state ls( L );
@@ -233,13 +249,14 @@ namespace fr { namespace cc { namespace cmd {
         {
             lua_state ls( L );
 
-            ls.register_call( "print",    &global_print );
-            ls.register_call( "println",  &global_println );
-            ls.register_call( "printi",   &global_printi );
-            ls.register_call( "printiln", &global_printiln );
-            ls.register_call( "die",      &global_throw );
-            ls.register_call( "open",     &global_open );
-            ls.register_call( "sleep",    &global_sleep );
+            ls.register_call( "print",          &global_print );
+            ls.register_call( "println",        &global_println );
+            ls.register_call( "printi",         &global_printi );
+            ls.register_call( "printiln",       &global_printiln );
+            ls.register_call( "die",            &global_throw );
+            ls.register_call( "open",           &global_open );
+            ls.register_call( "sleep",          &global_sleep );
+            ls.register_call( "hight_clock",    &global_hr_clock );
         }
 
         void set_client_info( fr::lua::core_data &cd )

@@ -2,6 +2,7 @@
 #define FR_IGPIO_H
 
 #include "vtrc-function.h"
+#include "vtrc-stdint.h"
 
 namespace fr { namespace client {
 
@@ -54,6 +55,13 @@ namespace interfaces { namespace gpio {
             void (unsigned, unsigned)
     > value_change_callback;
 
+    ///
+    /// error, new_state, vtrc::interval
+    ///
+    typedef vtrc::function<
+            void (unsigned, unsigned, uint64_t)
+    > value_change_interval_callback;
+
     struct info {
         unsigned        id;
         unsigned        value;
@@ -87,6 +95,8 @@ namespace interfaces { namespace gpio {
 
         /// to do fix
         virtual void register_for_change( value_change_callback  cb ) const = 0;
+        virtual void register_for_change_int(
+                                  value_change_interval_callback cb ) const = 0;
         virtual void unregister( ) const = 0;
 
     };

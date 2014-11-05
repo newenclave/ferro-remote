@@ -11,19 +11,19 @@ open( "base" ) -- for tonumber
 print = old_print -- restore our print
 
 if not gpio.available then
-    die "GPIO is not available on the "..fr.client.server.." :("
+    die( "GPIO is not available on the"..fr.client.server.."machine :(" )
 end
 
-function change_handler( new_value, device_id ) -- other lua thread
-    println( "Value for gpio "..device_id.." changed to "..new_value )
+function change_handler( new_value, device_id ) -- other thread
+    println( "Value for gpio ", device_id, " changed to ", new_value )
 end
 
 function main( argv ) --- main lua thread
 
     dev = gpio.export( tonumber( argv.gpio ) )
 
-    if not gpio.edge_supported( dev )
-        die "GPIO "..argv.gpio.." doesn't support edge. No edge -> no events"
+    if not gpio.edge_supported( dev ) then
+        die("GPIO "..dev.." doesn't support edge. No edge -> no events")
     end
 
     gpio.set_edge( dev, gpio.EDGE_BOTH )
