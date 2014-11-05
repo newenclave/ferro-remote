@@ -23,16 +23,9 @@ function main( argv )
     println( "bus: ", bus, " address: ", address )
 
     local ic, err = i2c.open( bus, address )
-
-    local i = 0
-    local r = 0
-
     println("     ",
             "0  1  2  3  4  5  6  7  8  9  a  b  c  d  e  f",
             "    0123456789abcdef")
-
-    string = ""
-    print( string.format('%02X: ', r ) )
 
     --- just values 1-255
     request = {}
@@ -41,11 +34,15 @@ function main( argv )
         table.insert( request, i )
     end
 
+
     local test = i2c.read_byte( ic, request )
 
-    --println( test )
-
+    local i = 0
+    local r = 0
     local str = ""
+
+    print( string.format('%02X: ', r ) )
+
     while i < 256 do
 
         local b = test[i]
