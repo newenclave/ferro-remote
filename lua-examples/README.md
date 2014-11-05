@@ -70,9 +70,9 @@ fr = {
             functions     = function( device ) -> table { }
 
             read_byte     = function( device, command ) -> number
-            read_byte     = function( device, { command1, command2 } ) -> { { command1, value1 }, { command2, value2 } }
+            read_byte     = function( device, { command1, command2 } ) -> { command1=value1, command2=value2 }
             write_byte    = function( device, command, value ) -> nil
-            write_byte    = function( device, { { command1, value1 }, { command1, value1 } ... } ) -> nil
+            write_byte    = function( device, { command1=value1, command2=value2 } ) -> nil
 
             set_address   = function( device, slave_addr ) -> nil
 
@@ -83,9 +83,9 @@ fr = {
             write_block   = function( device, command, value ) -> nil
 
             read_word     = function( device, command ) -> number
-            read_word     = function( device, { command1, command2 } ) -> { { command1, value1 }, { command2, value2 } }
+            read_word     = function( device, { command1, command2 } ) -> { command1=value1, command2=value2 }
             write_word    = function( device, command, value ) -> nil
-            write_word    = function( device, { { command1, value1 }, { command2, value2 } ... } ) -> nil
+            write_word    = function( device, { { command1=value1, command2=value2 } ) -> nil
 
             ioctl         = function( device, code, parameter ) -> error
 
