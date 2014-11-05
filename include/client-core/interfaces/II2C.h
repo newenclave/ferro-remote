@@ -48,11 +48,10 @@ namespace interfaces { namespace i2c {
         ,FUNC_SMBUS_WRITE_I2C_BLOCK  = 0x08000000 /* w/ 1-byte reg. addr. */
     };
 
-    typedef std::vector<uint8_t>  uint8_vector;
-    typedef std::vector<uint16_t> uint16_vector;
+    typedef std::vector<uint8_t>  uint8_vector; /// smbus_commands only
 
-    typedef std::pair<uint8_t, uint8_t>  cmd_uint8;
-    typedef std::pair<uint8_t, uint16_t> cmd_uint16;
+    typedef std::pair<uint8_t, uint8_t>  cmd_uint8;  /// smbus_command + val8
+    typedef std::pair<uint8_t, uint16_t> cmd_uint16; /// smbus_command + val16
 
     typedef std::vector<cmd_uint8>  cmd_uint8_vector;
     typedef std::vector<cmd_uint16> cmd_uint16_vector;
