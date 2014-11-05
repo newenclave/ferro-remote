@@ -298,9 +298,34 @@ namespace fr { namespace lua {
         }
 
         template <typename T>
-        std::vector<T> create_from_table( lua_State *L, int id = 2 )
+        std::vector<
+            std::pair<uint8_t, T>
+        > create_cmd_params( lua_State *L, int id = 2 )
         {
             lua::state ls( L );
+            typedef std::vector< std::pair<uint8_t, T> > pair_vector;
+            pair_vector res;
+
+            objects::base_sptr o = ls.get_object( id );
+
+            for( size_t i=0; i<o->count( ); ++i ) {
+                if( o->at( i )->count( ) >= 2 ) {
+                    res.push_back(
+                       std::make_pair(
+                            static_cast<uint8_t>( o->at( i )->at( 1 )->num( ) ),
+                            static_cast<T>( o->at( i )->at( 2 )->num( ) )
+                       ) );
+                }
+            }
+            return res;
+        }
+
+        template <typename T>
+        std::vector<T> create_cmd_from_table( lua_State *L, int id = 2 )
+        {
+            lua::state ls( L );
+
+
             std::vector<T> res;
             objects::base_sptr o = ls.get_object( id );
 
@@ -329,7 +354,7 @@ namespace fr { namespace lua {
                 return 1;
             } else if( t == LUA_TTABLE ) {
 
-                data_vector tab = create_from_table<uint8_t>( L, 2 );
+                data_vector tab = create_cmd_from_table<uint8_t>( L, 2 );
 
                 ls.clean_stack( );
                 pair_vector res = (dev.get( )->*calllist)( tab );
