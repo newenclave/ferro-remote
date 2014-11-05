@@ -77,7 +77,7 @@ namespace interfaces { namespace i2c {
                                   const uint16_vector &cmds ) const = 0;
         /// BLOCKS -> I2C_SMBUS_BLOCK_DATA
         virtual std::string read_block( uint8_t command )     const = 0;
-        /// -> I2C_SMBUS_I2C_BLOCK_BROKEN
+        ///        -> I2C_SMBUS_I2C_BLOCK_BROKEN
         virtual std::string read_block_broken( uint8_t command,
                                                uint8_t len )  const = 0;
 
@@ -93,14 +93,14 @@ namespace interfaces { namespace i2c {
         /// BLOCKS -> I2C_SMBUS_BLOCK_DATA
         virtual void write_block( uint8_t command,
                                   const std::string &value )        const = 0;
-        /// -> I2C_SMBUS_I2C_BLOCK_BROKEN
+        ///       -> I2C_SMBUS_I2C_BLOCK_BROKEN
         virtual void write_block_broken( uint8_t command,
                                          const std::string &value ) const = 0;
 
         /// process -> I2C_SMBUS_PROC_CALL
         virtual uint16_t process_call( uint8_t command,
                                        uint16_t value )     const = 0;
-        /// -> I2C_SMBUS_BLOCK_PROC_CALL
+        ///         -> I2C_SMBUS_BLOCK_PROC_CALL
         virtual std::string process_call( uint8_t command,
                                  const std::string &value ) const = 0;
 
