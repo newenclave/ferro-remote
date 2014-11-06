@@ -6,6 +6,8 @@
 
 #include "fr-lua/lua-wrapper.hpp"
 
+//#include <linux/spi/spidev.h>
+
 #include <map>
 #include <iostream>
 #include <mutex>
