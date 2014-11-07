@@ -194,7 +194,10 @@ namespace fr { namespace agent {
                                       const std::string &service_name );
 
         std::string get_session_key( vtrc::common::connection_iface* c,
-                                     const std::string &id);
+                                     const std::string &id );
+
+        bool session_key_required( vtrc::common::connection_iface* c,
+                                   const std::string &id );
 
     };
 

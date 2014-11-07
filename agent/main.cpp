@@ -31,6 +31,10 @@ namespace {
 
             ("only-pool,o", "use io pool for io operations and rpc calls")
 
+            ("key,k", po::value< std::vector< std::string> >( ),
+                     "format is: key=id:key; "
+                     "key will use for client with this id; "
+                     "or key=key for key for any connections")
             ;
     }
 

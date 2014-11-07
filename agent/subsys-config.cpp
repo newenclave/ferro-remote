@@ -12,13 +12,12 @@ namespace fr { namespace agent { namespace subsys {
     }
 
     struct config::impl {
-        application         *app_;
+        application        *app_;
         po::variables_map   vm_;
         impl( application *app, po::variables_map vm )
             :app_(app)
             ,vm_(vm)
         { }
-
     };
 
     config::config( application *app, const po::variables_map &vm )
@@ -31,8 +30,8 @@ namespace fr { namespace agent { namespace subsys {
     }
 
     /// static
-    vtrc::shared_ptr<config> config::create(application *app,
-                                            const po::variables_map &vm )
+    vtrc::shared_ptr<config> config::create( application *app,
+                                             const po::variables_map &vm )
     {
         vtrc::shared_ptr<config> new_inst(new config(app, vm));
 

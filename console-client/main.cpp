@@ -11,6 +11,7 @@
 #include "interfaces/IInternal.h"
 
 #include "vtrc-common/vtrc-exception.h"
+#include "vtrc-common/vtrc-hash-iface.h"
 
 namespace po = boost::program_options;
 
@@ -46,6 +47,12 @@ namespace {
 
             ("server,s", po::value<std::string>( ),
                     "endpoint name; <tcp address>:<port> or <file name>")
+
+            ("id", po::value<std::string>( ),
+                    "set client ID for the remote agent")
+
+            ("key", po::value<std::string>( ),
+                    "set client KEY for the remote agent")
 
             ("io-pool-size,i",  po::value<unsigned>( ),
                     "threads for io operations; default = 1")
@@ -219,9 +226,27 @@ int main( int argc, const char **argv ) try
         return 3;
     }
 
+    std::string c_id( vm.count("id")
+                        ? vm["id"].as<std::string>( )
+                        : "");
+
+    std::string c_key( vm.count("key")
+                        ? vm["key"].as<std::string>( )
+                        : "");
+
     pool_pair_sptr pp(pp_from_cmd( vm ));
 
     fr::client::core::client_core client(*pp);
+
+    if( !c_id.empty( ) ) {
+        client.set_id( c_id );
+    }
+
+    if( !c_key.empty( ) ) {
+        vcommon::hash_iface_sptr s(vcommon::hash::sha2::create256( ));
+        std::string hs(s->get_data_hash( &c_key[0], c_key.size( ) ));
+        client.set_key( hs );
+    }
 
 #if 0
     client.on_connect_connect(    &on_connect    );

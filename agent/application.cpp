@@ -10,8 +10,14 @@
 #include "vtrc-mutex.h"
 #include "vtrc-bind.h"
 
+#include "subsys-config.h"
+
+#include "vtrc-common/vtrc-hash-iface.h"
+
 #include "google/protobuf/descriptor.h"
 #include "protocol/ferro.pb.h"
+
+#include "boost/program_options.hpp"
 
 #include "vtrc-common/vtrc-closure-holder.h"
 #include "vtrc-common/vtrc-connection-list.h"
@@ -26,6 +32,8 @@ namespace fr { namespace agent {
     typedef std::vector<subsystem_sptr>                   subsys_vector;
 
     typedef std::map<std::string, application::service_getter_type> service_map;
+
+    typedef std::map<std::string, std::string> key_map_type;
 
     struct subsystem_comtrainer {
         subsys_map      subsys_;
@@ -74,6 +82,9 @@ namespace fr { namespace agent {
         service_map              services_;
         vtrc::mutex              services_lock_;
 
+        key_map_type             keys_;
+        std::string              empty_key_;
+
         impl( vtrc::common::pool_pair &pools )
             :pools_(pools)
         { }
@@ -90,6 +101,48 @@ namespace fr { namespace agent {
                 return application::service_wrapper_sptr( );
             }
         }
+
+        static
+        std::pair<std::string, std::string> split_key( const std::string &key )
+        {
+            std::string::size_type pos = key.find( ':' );
+
+            if( pos == std::string::npos ) {
+                return std::make_pair( "", key );
+            }
+
+            return std::make_pair(
+                        std::string( key.begin( ), key.begin( ) + pos ),
+                        std::string( key.begin( ) + pos + 1, key.end( ) ) );
+        }
+
+        void init_keys( )
+        {
+            subsys::config &conf( parent_->subsystem<subsys::config>( ) );
+            if( conf.variables( ).count( "key" ) ) {
+                typedef std::vector<std::string>::const_iterator citr;
+
+                vtrc::unique_ptr<vcomm::hash_iface>
+                                     s2( vcomm::hash::sha2::create256( ) );
+
+                std::vector<std::string> keys =
+                      conf.variables( )["key"].as<std::vector<std::string> >( );
+
+                for( citr b(keys.begin( )), e(keys.end( )); b!=e; ++b ) {
+
+                    std::pair<std::string, std::string> pair = split_key( *b );
+
+                    std::string hash( s2->get_data_hash( pair.second.c_str( ),
+                                                         pair.second.size( )));
+                    if( pair.first.empty( ) ) {
+                        empty_key_ = hash;
+                    } else {
+                        keys_[pair.first] = hash;
+                    }
+                }
+            }
+        }
+
     };
 
 //////// service wrapper
@@ -162,6 +215,8 @@ namespace fr { namespace agent {
         for( iter_type b(vec.begin( )), e(vec.end( )); b!=e; ++b ) {
             (*b)->start( );
         }
+
+        impl_->init_keys( );
     }
 
     void application::stop_all( )
@@ -260,9 +315,21 @@ namespace fr { namespace agent {
     }
 
     std::string application::get_session_key( vcomm::connection_iface* c,
-                                               const std::string &id)
+                                               const std::string &id )
     {
-        return std::string( );
+        key_map_type::const_iterator f( impl_->keys_.find( c->id( ) ) );
+
+        if( f == impl_->keys_.end( ) ) {
+            return impl_->empty_key_;
+        } else {
+            return f->second;
+        }
+    }
+
+    bool application::session_key_required( vtrc::common::connection_iface* c,
+                                            const std::string &id )
+    {
+        return !impl_->keys_.empty( );
     }
 
 }}
