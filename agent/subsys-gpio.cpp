@@ -2,6 +2,7 @@
 #include <map>
 #include <sys/epoll.h>
 #include <unistd.h>
+#include <time.h>
 
 #include "application.h"
 #include "subsys-gpio.h"
@@ -243,9 +244,9 @@ namespace fr { namespace agent { namespace subsys {
 
             }
 
-            void make_pulse(::google::protobuf::RpcController* controller,
+            void make_pulse(::google::protobuf::RpcController* /*controller*/,
                          const ::fr::proto::gpio::pulse_req* request,
-                         ::fr::proto::gpio::pulse_res* response,
+                         ::fr::proto::gpio::pulse_res*         /*response*/,
                          ::google::protobuf::Closure* done) override
             {
                 vcomm::closure_holder holder(done);
@@ -254,14 +255,27 @@ namespace fr { namespace agent { namespace subsys {
                 unsigned b = request->has_set_value( )
                            ? request->set_value( )
                            : 1;
+
                 unsigned a = request->has_reset_value( )
                            ? request->reset_value( )
                            : 0;
 
-                useconds_t sv = request->length( );
+                timespec init = { 0, 0 };
+
+                const uint64_t pl = request->length( );
+
+                init.tv_nsec = ( pl % ( 1000 * 1000 ) ) * 1000;
+                init.tv_sec  =   pl / ( 1000 * 1000 );
 
                 g->set_value( b );
-                ::usleep( sv );
+
+                int res = -1;
+                while( -1 == res ) {
+                    res = ::nanosleep( &init, &init );
+                    if( ( -1 == res ) && ( errno != EINTR ) ) {
+                        vcomm::throw_system_error( errno, "nanosleep failed." );
+                    }
+                }
                 g->set_value( a );
             }
 
