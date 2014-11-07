@@ -366,7 +366,7 @@ namespace fr { namespace lua {
         };
 
         void gpio_event_handler( unsigned /*error*/, unsigned value,
-                                 uint64_t interval,
+                                 uint64_t interval, bool inter,
                                  handler_params &p )
         try {
 
@@ -376,8 +376,14 @@ namespace fr { namespace lua {
                 return;
             }
 
-            p.thread_->exec_function( p.call_name_.c_str( ), value, interval,
-                                      p.params_ );
+            if( inter ) {
+                p.thread_->exec_function( p.call_name_.c_str( ), value,
+                                          interval,
+                                          p.params_ );
+            } else {
+                p.thread_->exec_function( p.call_name_.c_str( ), value,
+                                          p.params_ );
+            }
 
         } catch( ... ) {
             //std::cout << "call erro " << "\n";
@@ -413,7 +419,7 @@ namespace fr { namespace lua {
             dev->register_for_change( std::bind( gpio_event_handler,
                                                  std::placeholders::_1,
                                                  std::placeholders::_2,
-                                                 0,
+                                                 0, false,
                                                  handler_params(
                                                      i->state_, thread,
                                                      call, params
@@ -450,7 +456,7 @@ namespace fr { namespace lua {
             dev->register_for_change_int( std::bind( gpio_event_handler,
                                                  std::placeholders::_1,
                                                  std::placeholders::_2,
-                                                 std::placeholders::_3,
+                                                 std::placeholders::_3, true,
                                                  handler_params(
                                                      i->state_, thread,
                                                      call, params
