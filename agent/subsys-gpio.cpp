@@ -1,6 +1,7 @@
 #include <iostream>
 #include <map>
 #include <sys/epoll.h>
+#include <unistd.h>
 
 #include "application.h"
 #include "subsys-gpio.h"
@@ -240,6 +241,28 @@ namespace fr { namespace agent { namespace subsys {
                     response->set_active_low( g->active_low( ) );
                 }
 
+            }
+
+            void make_pulse(::google::protobuf::RpcController* controller,
+                         const ::fr::proto::gpio::pulse_req* request,
+                         ::fr::proto::gpio::pulse_res* response,
+                         ::google::protobuf::Closure* done) override
+            {
+                vcomm::closure_holder holder(done);
+                gpio_sptr g( gpio_by_index(request->hdl( ).value( ) ) );
+
+                unsigned b = request->has_set_value( )
+                           ? request->set_value( )
+                           : 1;
+                unsigned a = request->has_reset_value( )
+                           ? request->reset_value( )
+                           : 0;
+
+                useconds_t sv = request->length( );
+
+                g->set_value( b );
+                ::usleep( sv );
+                g->set_value( a );
             }
 
             void close(::google::protobuf::RpcController* /*controller*/,

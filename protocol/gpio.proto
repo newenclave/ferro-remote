@@ -70,6 +70,15 @@ message register_res {
     optional uint32  async_op_id  = 1;
 }
 
+message pulse_req {
+    optional handle hdl         = 1;
+    optional uint32 set_value   = 2 [default = 1]; // 1 or 0
+    optional uint32 reset_value = 3 [default = 0]; // 0 or 1
+    optional uint64 length      = 4; // microseconds
+}
+
+message pulse_res { }
+
 service instance {
 
     rpc ping( empty ) returns ( empty );
@@ -80,6 +89,8 @@ service instance {
     rpc unexp ( export_req ) returns ( empty );
 
     rpc info  ( info_req )   returns ( setup_data );
+
+    rpc make_pulse( pulse_req ) returns ( pulse_res );
 
     rpc close ( handle )     returns ( empty );
 
