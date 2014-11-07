@@ -269,6 +269,8 @@ namespace fr { namespace agent { namespace subsys {
 
                 g->set_value( b );
 
+                event_last_time_ = chrono::high_resolution_clock::now( );
+
                 int res = -1;
                 while( -1 == res ) {
                     res = ::nanosleep( &init, &init );

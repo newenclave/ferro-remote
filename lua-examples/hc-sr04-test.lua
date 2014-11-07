@@ -9,9 +9,10 @@ gpio = fr.client.gpio
 
 last_event = 0
 
-function change_handler( new_value )
+function change_handler( new_value, l_event )
     local now_event = hight_clock( )
     println( "Events duration: ", (now_event - last_event) / 1000 )
+    printiln( l_event )
 end
 
 function main( argv )
@@ -25,11 +26,10 @@ function main( argv )
     sleep( 2 )
     gpio.set_value( devout, 0 )
 
-    gpio.register_for_change( devin, "change_handler" )
+    gpio.register_for_change_int( devin, "change_handler" )
 
     last_event = hight_clock( )
-    gpio.set_value( devout, 1 )
-    gpio.set_value( devout, 0 )
+    gpio.make_pulse( devout, 10 )
 
     sleep( 1 )
 

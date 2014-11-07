@@ -36,6 +36,7 @@ namespace fr { namespace lua {
         int lcall_gpio_dir(     lua_State *L );
 
         int lcall_gpio_reg_for_change( lua_State *L );
+        int lcall_gpio_reg_for_change2( lua_State *L );
         int lcall_gpio_unreg( lua_State *L );
 
         int lcall_gpio_close( lua_State *L );
@@ -133,6 +134,9 @@ namespace fr { namespace lua {
                     t->add( new_string( "register_for_change" ),
                             new_function( &lcall_gpio_reg_for_change ) );
 
+                    t->add( new_string( "register_for_change_int" ),
+                            new_function( &lcall_gpio_reg_for_change2 ) );
+
                     t->add( new_string( "unregister" ),
                             new_function( &lcall_gpio_unreg ) );
                 }
@@ -144,7 +148,7 @@ namespace fr { namespace lua {
         };
 
         /// doesn't pop stack!!!
-        iface_sptr get_gpio_dev( lua_State *L, int id = -1 )
+        iface_sptr get_gpio_dev( lua_State *L, int id = 1 )
         {
             lua::state ls(L);
             void *p = ls.get<void *>( id );
@@ -362,7 +366,6 @@ namespace fr { namespace lua {
         };
 
         void gpio_event_handler( unsigned /*error*/, unsigned value,
-                                 bool inter,
                                  uint64_t interval,
                                  handler_params &p )
         try {
@@ -410,7 +413,7 @@ namespace fr { namespace lua {
             dev->register_for_change( std::bind( gpio_event_handler,
                                                  std::placeholders::_1,
                                                  std::placeholders::_2,
-                                                 0, false,
+                                                 0,
                                                  handler_params(
                                                      i->state_, thread,
                                                      call, params
@@ -447,7 +450,7 @@ namespace fr { namespace lua {
             dev->register_for_change_int( std::bind( gpio_event_handler,
                                                  std::placeholders::_1,
                                                  std::placeholders::_2,
-                                                 std::placeholders::_3, true,
+                                                 std::placeholders::_3,
                                                  handler_params(
                                                      i->state_, thread,
                                                      call, params
