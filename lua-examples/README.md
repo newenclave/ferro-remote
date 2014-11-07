@@ -49,6 +49,11 @@ fr = {
             value           = function( device_instance ) -> value
             set_value       = function( device_instance, value ) -> nil,
 
+            /// make_pulse sets pin's value to 'set_value',
+            /// sleeps pulse_length microseconds
+            /// sets pin's value to 'reset_value',
+            make_pulse      = function( device_instance, pulse_length[, set_value = 1[, reset_value = 0]] ) -> nil,
+
             edge_supported  = function( device_instance ) -> boolean,
             edge            = function( device_instance ) -> edge,
             set_edge        = function( device_instance, edge ) -> nil,

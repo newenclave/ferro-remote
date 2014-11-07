@@ -146,6 +146,17 @@ namespace fr { namespace client { namespace interfaces {
                 client_.call_request( &stub_type::setup, &req );
             }
 
+            void  make_pulse( vtrc::uint64_t length,
+                              unsigned sv, unsigned rv ) const
+            {
+                gproto::pulse_req req;
+                req.mutable_hdl( )->set_value( ii_.hdl_ );
+                req.set_length( length );
+                req.set_set_value( sv );
+                req.set_reset_value( rv );
+                client_.call_request( &stub_type::make_pulse, &req );
+            }
+
             unsigned active_low( ) const
             {
                 gproto::info_req    req;

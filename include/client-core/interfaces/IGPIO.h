@@ -80,6 +80,13 @@ namespace interfaces { namespace gpio {
         virtual unsigned value( ) const = 0;
         virtual void  set_value( unsigned value ) const = 0;
 
+        /// - sets value to 'set_value',
+        /// - sleeps 'length' microseconds
+        /// - sets value to 'reset_value'
+        virtual void  make_pulse( vtrc::uint64_t length,
+                                  unsigned set_value = 1,
+                                  unsigned reset_value = 0 ) const = 0;
+
         virtual unsigned active_low( ) const = 0;
         virtual void  set_active_low( unsigned value ) const = 0;
 

@@ -24,8 +24,9 @@ namespace fr { namespace lua {
         int lcall_gpio_info(     lua_State *L );
         int lcall_gpio_unexport( lua_State *L );
 
-        int lcall_gpio_set_value( lua_State *L );
-        int lcall_gpio_value(     lua_State *L );
+        int lcall_gpio_set_value(  lua_State *L );
+        int lcall_gpio_value(      lua_State *L );
+        int lcall_gpio_make_pulse( lua_State *L );
 
         int lcall_gpio_test_edge( lua_State *L );
         int lcall_gpio_set_edge(  lua_State *L );
@@ -109,6 +110,8 @@ namespace fr { namespace lua {
                             new_function( &lcall_gpio_value ) );
                     t->add( new_string( "set_value" ),
                             new_function( &lcall_gpio_set_value ) );
+                    t->add( new_string( "make_pulse" ),
+                            new_function( &lcall_gpio_make_pulse ) );
 
                     t->add( new_string( "edge_supported" ),
                             new_function( &lcall_gpio_test_edge ) );
@@ -140,6 +143,7 @@ namespace fr { namespace lua {
 
         };
 
+        /// doesn't pop stack!!!
         iface_sptr get_gpio_dev( lua_State *L, int id = -1 )
         {
             lua::state ls(L);
@@ -247,6 +251,30 @@ namespace fr { namespace lua {
             ls.clean_stack( );
             ls.push( dev->value( ) );
             return 1;
+        }
+
+        int lcall_gpio_make_pulse( lua_State *L )
+        {
+            lua::state ls( L );
+            iface_sptr dev = get_gpio_dev( L );
+            int n = ls.get_top( );
+
+            vtrc::uint64_t len = ls.get<vtrc::uint64_t>( 2 );
+            unsigned sv = 1;
+            unsigned rv = 0;
+
+            if( n > 2 ) {
+                sv = ls.get<unsigned>( 3 );
+            }
+
+            if( n > 3 ) {
+                sv = ls.get<unsigned>( 4 );
+            }
+            ls.clean_stack(  );
+
+            dev->make_pulse( len, sv, rv );
+
+            return 0;
         }
 
         int lcall_gpio_test_edge( lua_State *L )
