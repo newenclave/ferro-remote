@@ -5,6 +5,8 @@ extern "C" {
 #include "lua.h"
 }
 
+#include <stdint.h>
+
 #ifdef LUA_WRAPPER_TOP_NAMESPACE
 
 namespace LUA_WRAPPER_TOP_NAMESPACE {
@@ -207,6 +209,10 @@ namespace lua { namespace types {
     template <>
     struct id_traits<lua_Unsigned> : public
            id_integer<lua_Unsigned> { };
+#else
+    template <>
+    struct id_traits<uint64_t> : public
+           id_integer<uint64_t> { };
 #endif
 
     template <>
