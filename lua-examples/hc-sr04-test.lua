@@ -29,7 +29,7 @@ function main( argv )
     gpio.register_for_change_int( devin, "change_handler" )
 
     last_event = hight_clock( )
-    gpio.make_pulse( devout, 50 )
+    gpio.make_pulse( devout, 10 )
 
     sleep( 1 )
 
