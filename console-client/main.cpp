@@ -243,7 +243,7 @@ int main( int argc, const char **argv ) try
     }
 
     if( !c_key.empty( ) ) {
-        vcommon::hash_iface_sptr s(vcommon::hash::sha2::create256( ));
+        vcommon::hash_iface_uptr s(vcommon::hash::sha2::create256( ));
         std::string hs(s->get_data_hash( &c_key[0], c_key.size( ) ));
         client.set_key( hs );
     }

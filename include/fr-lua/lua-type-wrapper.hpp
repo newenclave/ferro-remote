@@ -210,9 +210,9 @@ namespace lua { namespace types {
     struct id_traits<lua_Unsigned> : public
            id_integer<lua_Unsigned> { };
 #else
-    template <>
-    struct id_traits<uint64_t> : public
-           id_integer<uint64_t> { };
+//    template <>
+//    struct id_traits<uint64_t> : public
+//           id_integer<uint64_t> { };
 #endif
 
     template <>
