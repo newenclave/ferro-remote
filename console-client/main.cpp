@@ -178,8 +178,9 @@ namespace {
     }
 }
 
-int main( int argc, const char **argv ) try
-{    
+int main( int argc, const char **argv )
+{ try {
+
     po::options_description desc("Common options");
     fill_common_options( desc );
     po::variables_map vm( parse_common( argc, argv, desc ) );
@@ -292,4 +293,4 @@ int main( int argc, const char **argv ) try
 } catch( const std::exception &ex ) {
     std::cerr << "General client error: " << ex.what( ) << "\n";
     return 10;
-}
+} }
