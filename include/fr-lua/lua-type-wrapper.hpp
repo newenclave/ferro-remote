@@ -156,7 +156,7 @@ namespace lua { namespace types {
         {
             size_t length = 0;
             const char *t = lua_tolstring( L, idx, &length );
-            return t ? T( t, length ) : T( );
+            return t ? T( t, t + length ) : T( );
         }
     };
 
