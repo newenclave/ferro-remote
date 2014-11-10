@@ -26,7 +26,8 @@ function main( argv ) -- main lua thread
         return
     end
 
-    file.register_for_events( f, "handler", argv.dev )
+    file.register_for_events( f, handler, argv.dev )
+
     local i = 0;
 
     while true do

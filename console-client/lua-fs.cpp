@@ -788,7 +788,19 @@ namespace fr { namespace lua {
             int n = ls.get_top( );
 
             file_sptr f(get_file( L, 1 ));
-            std::string call(ls.get<const char *>( 2 ));
+
+            std::string call;
+            int ct = ls.get_type( 2 );
+            if( ct == LUA_TSTRING ) {
+                call = ls.get<const char *>( 2 );
+            } else if( ct == LUA_TFUNCTION )  {
+                const void *ptr = lua_topointer( L, 2 );
+                std::ostringstream tmp;
+                tmp << "call@" << std::hex << ptr;
+                call = tmp.str( );
+                ls.push_value( 2 );
+                lua_setglobal( L, call.c_str( ) );
+            }
 
             std::vector<objects::base_sptr> params;
 

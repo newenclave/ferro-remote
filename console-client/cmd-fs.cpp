@@ -149,10 +149,10 @@ namespace fr { namespace cc { namespace cmd {
                     vtrc::unique_ptr<fsf::iface> i(
                                 fsf::create( cl, p, fsf::flags::RDONLY ) );
 
-                    fsf::file_event_callback cb(vtrc::bind(
+                    fsf::file_event_callback cb( vtrc::bind(
                                                     &impl::event_cb, this,
                                                     vtrc::placeholders::_1,
-                                                    vtrc::placeholders::_2 ));
+                                                    vtrc::placeholders::_2 ) );
                     i->register_for_events( cb );
 
                     sleep_( MILLISECONDS(to) * 1000 );
