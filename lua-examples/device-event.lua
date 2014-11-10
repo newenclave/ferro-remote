@@ -19,7 +19,12 @@ end
 
 function main( argv ) -- main lua thread
 
-    f = file.open_device( argv.dev )
+    f, err = file.open_device( argv.dev )
+
+    if err then
+        println( "Open device failed: ", err )
+        return
+    end
 
     file.register_for_events( f, "handler", argv.dev )
     local i = 0;

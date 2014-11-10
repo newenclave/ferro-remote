@@ -617,11 +617,12 @@ namespace fr { namespace lua {
                 i->files_.insert( std::make_pair( f.get( ), f ) );
 
                 ls.push( f.get( ) );
-                return 1;
-            } catch( ... ) {
-
+                ls.push( );
+            } catch( const std::exception &ex ) {
+                ls.push( );
+                ls.push( ex.what( ) );
             }
-            return 0;
+            return 2;
 
         }
 
