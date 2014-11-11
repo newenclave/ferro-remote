@@ -26,7 +26,14 @@ function main( argv ) -- main lua thread
         return
     end
 
-    file.register_for_events( f, handler, argv.dev )
+    --file.register_for_events( f, 'handler', argv.dev ) -- also possible
+    --file.register_for_events( f, handler, argv.dev )   -- also possible
+
+    file.register_for_events( f,
+        function( err, data )
+            println( 'read from '..argv.dev..' <- ', data ) --show data
+        end
+    )
 
     local i = 0;
 
