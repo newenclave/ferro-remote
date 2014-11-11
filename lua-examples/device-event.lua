@@ -28,8 +28,6 @@ function main( argv ) -- main lua thread
 
     file.register_for_events( f, handler, argv.dev )
 
-    println( fr.client.fs.refs )
-
     local i = 0;
 
     while i < 2 do
@@ -39,8 +37,6 @@ function main( argv ) -- main lua thread
     end
 
     file.unregister( f )
-
-    println( fr.client.fs.refs )
 
 end
 
