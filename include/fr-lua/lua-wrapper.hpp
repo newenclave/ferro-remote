@@ -581,14 +581,14 @@ namespace lua {
             }
         }
 
-        /// COPY-PASTE-COPY-PASTE-COPY-PASTE
         lua_State *create_thread( const char *path )
         {
-
-            lua_State *res = lua_newthread( vm_ );
-            set_value( path );
+            lua_State *res = lua_newthread( vm_ ); // push new value 'state'
+            set_value( path );                     // copy here
+            pop( 1 );                              // pop state from stack
             return res;
 #if 0
+            /// COPY-PASTE-COPY-PASTE-COPY-PASTE
             //// crutch ... WILL FIX IT LATER
             set( path, 0 );
             ////////////////////
