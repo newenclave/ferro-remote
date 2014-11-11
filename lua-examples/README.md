@@ -7,8 +7,8 @@
     printiln = function( ... )  // prints numbers as Integers
     die      = function( reason ) // quits execution with 'reason' error
     open     = function( libaname or path_to_lua_script )
-            available libs: 'base', 'table', 'io', 'math',
-                            'debug', 'package', 'string', 'os'
+               available libs: 'base', 'table', 'io', 'math',
+                               'debug', 'package', 'string', 'os'
 
     sleep    = function( seconds )
 ```
