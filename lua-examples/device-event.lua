@@ -31,7 +31,7 @@ function main( argv ) -- main lua thread
 
     file.register_for_events( f,
         function( err, data )
-            println( 'read from '..argv.dev..' <- ', data ) --show data
+            println( 'read from ', argv.dev, ' <- ', data ) --show data
         end
     )
 
