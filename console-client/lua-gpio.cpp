@@ -403,12 +403,10 @@ namespace fr { namespace lua {
             if( ct == LUA_TSTRING ) {
                 call = ls.get<const char *>( 2 );
             } else if( ct == LUA_TFUNCTION )  {
-                const void *ptr = lua_topointer( L, 2 );
-                std::ostringstream tmp;
-                tmp << "call@" << std::hex << ptr;
-                call = tmp.str( );
-                ls.push_value( 2 );
-                lua_setglobal( L, call.c_str( ) );
+                std::ostringstream oss;
+                oss << "call@" << std::hex << dev.get( );
+                call = oss.str( );
+                ls.set_value( call.c_str( ), 2 );
             }
 
             std::vector<objects::base_sptr> params;
@@ -452,12 +450,10 @@ namespace fr { namespace lua {
             if( ct == LUA_TSTRING ) {
                 call = ls.get<const char *>( 2 );
             } else if( ct == LUA_TFUNCTION )  {
-                const void *ptr = lua_topointer( L, 2 );
-                std::ostringstream tmp;
-                tmp << "call@" << std::hex << ptr;
-                call = tmp.str( );
-                ls.push_value( 2 );
-                lua_setglobal( L, call.c_str( ) );
+                std::ostringstream oss;
+                oss << "call@" << std::hex << dev.get( );
+                call = oss.str( );
+                ls.set_value( call.c_str( ), 2 );
             }
 
             std::vector<objects::base_sptr> params;
@@ -492,8 +488,18 @@ namespace fr { namespace lua {
         {
             lua::state ls( L );
             iface_sptr dev = get_gpio_dev( L );
-            ls.clean_stack( );
             dev->unregister( );
+
+
+            std::string tmp_path(create_ref_table_path( dev.get( ) ));
+            std::ostringstream oss;
+            oss << "call@" << std::hex << dev.get( );
+
+            ls.set( tmp_path.c_str( ) );    /// clean thread reference
+                                            /// thread state will be free
+            ls.set( oss.str( ).c_str( ) );  /// clean call reference
+
+
             return 0;
         }
     }
