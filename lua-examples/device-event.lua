@@ -26,8 +26,8 @@ function main( argv ) -- main lua thread
         return
     end
 
-    --file.register_for_events( f, 'handler', argv.dev ) -- also possible
-    --file.register_for_events( f, handler, argv.dev )   -- also possible
+    -- file.register_for_events( f, 'handler', argv.dev ) -- also possible
+    -- file.register_for_events( f, handler, argv.dev )   -- also possible
 
     file.register_for_events( f,
         function( err, data )
