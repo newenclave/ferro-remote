@@ -30,9 +30,10 @@ function main( argv ) -- main lua thread
 
     local i = 0;
 
-    while true do
+    while i < 10 do
         sleep( 1 )
         print( '.' ) --- some work! =)
+        i = i + 1
     end
 
     file.unregister( f )

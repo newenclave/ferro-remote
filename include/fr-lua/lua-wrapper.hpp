@@ -549,8 +549,46 @@ namespace lua {
             }
         }
 
+        void set_value( const char *path, int idx = -1 )
+        {
+            //// crutch ... WILL FIX IT LATER
+            set( path, 0 );
+            ////////////////////
+
+            const char *pl = path_leaf( path );
+
+            if( pl == path ) {
+
+                push_value( idx );
+                set_global( pl );
+
+            } else {
+
+                std::string tpath( path, (pl - path) );
+
+                int level = get_table( tpath.c_str( ) ); // set table level
+
+                if( level ) {
+
+                    lua_getfield( vm_, -1, pl + 1 );
+                    pop( );             // old value
+                    push( pl + 1 );     // name
+                    push_value( idx );  // value by index
+                    set_table( );
+                    pop( level );       // clean table level
+                }
+
+            }
+        }
+
+        /// COPY-PASTE-COPY-PASTE-COPY-PASTE
         lua_State *create_thread( const char *path )
         {
+
+            lua_State *res = lua_newthread( vm_ );
+            set_value( path );
+            return res;
+#if 0
             //// crutch ... WILL FIX IT LATER
             set( path, 0 );
             ////////////////////
@@ -561,7 +599,6 @@ namespace lua {
 
             if( pl == path ) {
 
-                get_global( pl );
                 res = lua_newthread( vm_ );
                 set_global( pl );
 
@@ -581,6 +618,7 @@ namespace lua {
                 }
             }
             return res;
+#endif
         }
 
         int exec_function( const char* func,
