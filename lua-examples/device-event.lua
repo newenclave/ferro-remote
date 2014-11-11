@@ -30,7 +30,7 @@ function main( argv ) -- main lua thread
     -- file.register_for_events( f, handler, argv.dev )   -- also possible
 
     file.register_for_events( f,
-        function( err, data )
+        function( err, data ) -- other thread used will be
             println( 'read from ', argv.dev, ' <- ', data ) --show data
         end
     )
