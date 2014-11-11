@@ -104,6 +104,7 @@ namespace fr { namespace cc { namespace cmd {
 
             void exec( po::variables_map &vm, core::client_core &cl )
             {
+
                 if( vm.count( "list" ) ) {
                     std::string p(vm["list"].as<std::string>( ));
                     vtrc::unique_ptr<fs::iface> i( fs::create( cl, p ) );
