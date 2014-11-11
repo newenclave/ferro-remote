@@ -26,17 +26,21 @@ function main( argv ) -- main lua thread
         return
     end
 
-    file.register_for_events( f, 'handler', argv.dev )
+    file.register_for_events( f, handler, argv.dev )
+
+    println( fr.client.fs.refs )
 
     local i = 0;
 
-    while i < 10 do
+    while i < 2 do
         sleep( 1 )
         print( '.' ) --- some work! =)
         i = i + 1
     end
 
     file.unregister( f )
+
+    println( fr.client.fs.refs )
 
 end
 

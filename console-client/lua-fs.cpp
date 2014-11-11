@@ -789,17 +789,17 @@ namespace fr { namespace lua {
 
             file_sptr f(get_file( L, 1 ));
 
+            std::string tmp_path( create_ref_table_path( f.get( ) ) );
+
             std::string call;
             int ct = ls.get_type( 2 );
             if( ct == LUA_TSTRING ) {
                 call = ls.get<const char *>( 2 );
             } else if( ct == LUA_TFUNCTION )  {
-                const void *ptr = lua_topointer( L, 2 );
-                std::ostringstream tmp;
-                tmp << "call@" << std::hex << ptr;
-                call = tmp.str( );
-                ls.push_value( 2 );
-                lua_setglobal( L, call.c_str( ) );
+                std::ostringstream oss;
+                oss << "call@" << std::hex << f.get( );
+                call = oss.str( );
+                ls.set_value( call.c_str( ), 2 );
             }
 
             std::vector<objects::base_sptr> params;
@@ -812,8 +812,6 @@ namespace fr { namespace lua {
             }
 
             ls.pop( n );
-
-            std::string tmp_path( create_ref_table_path( f.get( ) ) );
 
             /// create new lua thread and store it to the table for referencing
             lua::state_sptr thread(
@@ -840,8 +838,12 @@ namespace fr { namespace lua {
             f->unregister( );
 
             std::string tmp_path(create_ref_table_path( f.get( ) ));
-            ls.set( tmp_path.c_str( ) ); /// clean thread reference
-                                         /// thread state will be free
+            std::ostringstream oss;
+            oss << "call@" << std::hex << f.get( );
+
+            ls.set( tmp_path.c_str( ) );    /// clean thread reference
+                                            /// thread state will be free
+            ls.set( oss.str( ).c_str( ) );  /// clean call reference
 
             return 0;
         }
