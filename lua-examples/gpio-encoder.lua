@@ -15,12 +15,25 @@ end
 current_state = 0
 current_count = 0
 last_direct   = nil
+last_start    = 0
 
-function change_handler( new_value, device_id, direct ) -- other thread
+function change_handler( new_value, time_diff, direct )
 
-    println( "Value for gpio ", device_id, " changed to ", direct )
+    --printiln( "Value for gpio ", direct, ' ', time_diff )
 
-    if last_direct == direct and current_state == 1 then
+--    stop = hight_clock( )
+--    if stop - last_start > 10000000 then
+--        last_direct = nil
+--        current_state = 0
+--        last_start = hight_clock( )
+--    end
+
+--    if time_diff > 10000 then -- microseconds
+--        last_direct = nil
+--        current_state = 0
+--    end
+
+    if last_direct == direct then
         --println( direct, ' ', current_state )
         return
     end
@@ -37,9 +50,8 @@ function change_handler( new_value, device_id, direct ) -- other thread
         else
             current_count = current_count - 1
         end
-        --println( current_count )
+        println( current_count )
     else
-        last_direct = nil
         current_state = 0
     end
 
@@ -50,19 +62,15 @@ function main( argv ) --- main lua thread
     dev1 = gpio.export( tonumber( argv.gpio1 ) )
     dev2 = gpio.export( tonumber( argv.gpio2 ) )
 
-    if not gpio.edge_supported( dev1 ) then
-        die("GPIO "..dev.." doesn't support edge. No edge -> no events")
-    end
-
-    if not gpio.edge_supported( dev2 ) then
-        die("GPIO "..dev.." doesn't support edge. No edge -> no events")
+    if not gpio.edge_supported( dev1 ) or not gpio.edge_supported( dev2 ) then
+        die("GPIO doesn't support edge. No edge -> no events")
     end
 
     gpio.set_edge( dev1, gpio.EDGE_FALLING )
     gpio.set_edge( dev2, gpio.EDGE_FALLING )
 
-    gpio.register_for_change( dev1, change_handler, argv.gpio1, false )
-    gpio.register_for_change( dev2, change_handler, argv.gpio2, true )
+    gpio.register_for_change_int( dev1, change_handler, false )
+    gpio.register_for_change_int( dev2, change_handler, true )
 
     while true do  --- do work
         --print('.')
