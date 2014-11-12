@@ -9,18 +9,26 @@ open( "base" )
 print = old_print
 
 if not gpio.available then
-    die( "GPIO is not available on the"..fr.client.server.."machine :(" )
+    die( "GPIO is not available on the "..fr.client.server.." machine :(" )
 end
 
 current_state = 0
 current_count = 0
+last_direct   = nil
 
 function change_handler( new_value, device_id, direct ) -- other thread
 
     println( "Value for gpio ", device_id, " changed to ", direct )
 
-    current_state = current_state + 1
+    if last_direct == direct and current_state == 1 then
+        --println( direct, ' ', current_state )
+        return
+    end
 
+    current_state = current_state + 1
+    last_direct = direct
+
+    --println( current_state, " ", direct, " " )
     --print( current_state, " " )
 
     if current_state == 1 then
@@ -30,7 +38,8 @@ function change_handler( new_value, device_id, direct ) -- other thread
             current_count = current_count - 1
         end
         --println( current_count )
-    elseif current_state == 2 then
+    else
+        last_direct = nil
         current_state = 0
     end
 
@@ -52,8 +61,8 @@ function main( argv ) --- main lua thread
     gpio.set_edge( dev1, gpio.EDGE_FALLING )
     gpio.set_edge( dev2, gpio.EDGE_FALLING )
 
-    gpio.register_for_change( dev1, "change_handler", argv.gpio1, false )
-    gpio.register_for_change( dev2, "change_handler", argv.gpio2, true )
+    gpio.register_for_change( dev1, change_handler, argv.gpio1, false )
+    gpio.register_for_change( dev2, change_handler, argv.gpio2, true )
 
     while true do  --- do work
         --print('.')
