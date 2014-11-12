@@ -439,6 +439,8 @@ namespace fr { namespace lua {
 
         int lcall_gpio_reg_for_change2( lua_State *L )
         {
+            std::cout << "register_for_change" << "\n";
+
             lua::state ls( L );
             int n = ls.get_top( );
             data * i = get_iface( L );
