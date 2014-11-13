@@ -13,8 +13,8 @@ int main(int argc, char *argv[])
     QGuiApplication app( argc, argv );
 
     QtQuick2ApplicationViewer viewer;
-    viewer.setMainQmlFile(QStringLiteral("qml/gui-client/main.qml"));
-    viewer.showExpanded();
+    viewer.setMainQmlFile( QStringLiteral( "qml/gui-client/main.qml" ) );
+    viewer.showExpanded( );
 
     return app.exec( );
 }
