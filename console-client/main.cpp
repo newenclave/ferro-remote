@@ -285,7 +285,7 @@ int main( int argc, const char **argv )
     return 0;
 
 } catch( const vtrc::common::exception &ex ) {
-    std::cerr << "General client error: "
+    std::cerr << "Protocol client error: "
               << ex.what( ) << ": "
               << ex.additional( )
               << "\n";
