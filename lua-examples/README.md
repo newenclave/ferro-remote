@@ -58,8 +58,9 @@ fr = {
             edge            = function( device_instance ) -> edge,
             set_edge        = function( device_instance, edge ) -> nil,
 
-            register_for_change = function( device_instance, call_name, ... ) -> nil,
-            unregister          = function( device_instance ) -> nil,
+            register_for_change     = function( device_instance, call_name, ... ) -> nil,
+            register_for_change_int = function( device_instance, call_name, ... ) -> nil,
+            unregister              = function( device_instance ) -> nil,
 
             info  = function( device_instance ) -> { ... },
 
@@ -163,8 +164,9 @@ fr = {
                 tell        = function( file_inst ) -> position),
                 flush       = function( file_inst ) -> nil,
 
-                register_for_events = function( file_inst, handler_name, ... ) -> nil,
-                unregister          = function( file_inst ) -> nil,
+                register_for_events     = function( file_inst, handler_name, ... ) -> nil,
+                register_for_events_int = function( file_inst, handler_name, ... ) -> nil,
+                unregister              = function( file_inst ) -> nil,
 
             },
         }
