@@ -89,28 +89,21 @@ namespace lua {
         int openlib( const char *libname )
         {
             static const struct {
-                std::string name;
-                lua_CFunction func;
+                std::string     name;
+                lua_CFunction   func;
+                int             results;
             } libs[ ] = {
-                 { LUA_TABLIBNAME,  &luaopen_table   }
-                ,{ LUA_IOLIBNAME,   &luaopen_io      }
-                ,{ LUA_OSLIBNAME,   &luaopen_os      }
-                ,{ LUA_STRLIBNAME,  &luaopen_string  }
-                ,{ LUA_MATHLIBNAME, &luaopen_math    }
-                ,{ LUA_DBLIBNAME,   &luaopen_debug   }
-                ,{ LUA_LOADLIBNAME, &luaopen_package }
-                //,{ "base",          &luaopen_base    }
+                 { LUA_TABLIBNAME,  &luaopen_table,   1 }
+                ,{ LUA_IOLIBNAME,   &luaopen_io,      1 }
+                ,{ LUA_OSLIBNAME,   &luaopen_os,      1 }
+                ,{ LUA_STRLIBNAME,  &luaopen_string,  1 }
+                ,{ LUA_MATHLIBNAME, &luaopen_math,    1 }
+                ,{ LUA_DBLIBNAME,   &luaopen_debug,   1 }
+                ,{ LUA_LOADLIBNAME, &luaopen_package, 1 }
+                ,{ "base",          &luaopen_base,    0 }
             };
 
             const size_t libs_count = sizeof( libs ) / sizeof( libs[0] );
-
-            static const std::string base_name("base");
-
-            if( base_name.compare( libname ) == 0 ) {
-                push( &luaopen_base );
-                lua_call( vm_, 0, 0 );
-                return 1;
-            }
 
             for( size_t i=0; i<libs_count; ++i ) {
                 if( 0 == libs[i].name.compare( libname ) ) {
@@ -120,8 +113,10 @@ namespace lua {
                     lua_call( vm_, 0, 0 );
 #else
                     push( libs[i].func );
-                    lua_call( vm_, 0, 1 );
-                    lua_setglobal( vm_, libname );
+                    lua_call( vm_, 0, libs[i].results );
+                    if( libs[i].results > 0 ) {
+                        lua_setglobal( vm_, libname );
+                    }
 #endif
                     return 1;
                 }
