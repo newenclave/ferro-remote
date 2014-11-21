@@ -92,17 +92,25 @@ namespace lua {
                 std::string name;
                 lua_CFunction func;
             } libs[ ] = {
-                 { "base",          &luaopen_base    }
-                ,{ LUA_TABLIBNAME,  &luaopen_table   }
+                 { LUA_TABLIBNAME,  &luaopen_table   }
                 ,{ LUA_IOLIBNAME,   &luaopen_io      }
                 ,{ LUA_OSLIBNAME,   &luaopen_os      }
                 ,{ LUA_STRLIBNAME,  &luaopen_string  }
                 ,{ LUA_MATHLIBNAME, &luaopen_math    }
                 ,{ LUA_DBLIBNAME,   &luaopen_debug   }
                 ,{ LUA_LOADLIBNAME, &luaopen_package }
+                //,{ "base",          &luaopen_base    }
             };
 
             const size_t libs_count = sizeof( libs ) / sizeof( libs[0] );
+
+            static const std::string base_name("base");
+
+            if( base_name.compare( libname ) == 0 ) {
+                push( &luaopen_base );
+                lua_call( vm_, 0, 0 );
+                return 1;
+            }
 
             for( size_t i=0; i<libs_count; ++i ) {
                 if( 0 == libs[i].name.compare( libname ) ) {
