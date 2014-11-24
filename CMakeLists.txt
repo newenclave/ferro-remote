@@ -129,16 +129,13 @@ add_subdirectory( hub-core )
 
 
 ###############################################
-## make some staff for gui client
+## make some stuff for gui client
 ###############################################
 set( GUI_LIBRARIES ${${INTERNAL_PROJECT_NAME}_client_core_LIBRARIES}
                    ${${INTERNAL_PROJECT_NAME}_protocol_LIBRARIES}
                    ${VTRC_CLIENT_LIBRARIES}
                    ${VTRC_COMMON_LIBRARIES}
                    ${Boost_LIBRARIES} ${PROTOBUF_LIBRARY} )
-
-
-#message( "PROTOLIBS!" ${PROTOBUF_LIBRARIES} )
 
 set( GUI_LIBS_RES "" )
 
