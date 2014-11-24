@@ -20,3 +20,6 @@ LIBS += /usr/lib/x86_64-linux-gnu/libboost_system.a          \
 
 LIBS += /usr/lib/x86_64-linux-gnu/libprotobuf.so
 
+OTHER_FILES += \
+    ferro-remote_t.pri
+
