@@ -131,6 +131,8 @@ add_subdirectory( hub-core )
 ###############################################
 ## make some stuff for gui client
 ###############################################
+
+# LIBS +=
 set( GUI_LIBRARIES ${${INTERNAL_PROJECT_NAME}_client_core_LIBRARIES}
                    ${${INTERNAL_PROJECT_NAME}_protocol_LIBRARIES}
                    ${VTRC_CLIENT_LIBRARIES}
@@ -145,9 +147,14 @@ endforeach( )
 
 set( GUI_LIBRARIES ${GUI_LIBS_RES} )
 
+# INCLUDEPATH +=
+
 set( GUI_INCLUDE_RES "" )
 
-foreach( gui_inc ${VTRC_INCLUDE_DIRS} )
+foreach( gui_inc ${VTRC_INCLUDE_DIRS}
+                 ${Boost_INCLUDE_DIRS}
+                 ${PROTOBUF_INCLUDE_DIRS}
+                 ${FR_INCLUDE_DIRS})
     set( GUI_INCLUDE_RES "${GUI_INCLUDE_RES} \\\n\t${gui_inc}" )
 endforeach( )
 
