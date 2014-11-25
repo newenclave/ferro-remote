@@ -2,6 +2,7 @@
 #define FRCLIENT_H
 
 #include <QObject>
+#include <QtGui/QGuiApplication>
 
 namespace fr { namespace declarative {
 
@@ -11,6 +12,10 @@ namespace fr { namespace declarative {
         Q_PROPERTY( bool connected
                     READ connected
                     NOTIFY connectedChanged )
+
+        Q_PROPERTY( QGuiApplication *app
+                    READ app WRITE setApp
+                    NOTIFY appChanged )
 
         struct impl;
         impl  *impl_;
@@ -23,9 +28,12 @@ namespace fr { namespace declarative {
     public:
 
         bool connected( ) const;
+        QGuiApplication *app( );
+        void setApp(QGuiApplication *app);
 
     signals:
         void connectedChanged( bool new_state );
+
     public slots:
         void connect( const QString &server );
         void disconnect( );

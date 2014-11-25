@@ -1,3 +1,5 @@
+#include <iostream>
+
 #include "frclient.h"
 
 namespace fr { namespace declarative {
@@ -14,7 +16,9 @@ namespace fr { namespace declarative {
     FrClient::FrClient( QObject *parent )
         :QObject(parent)
         ,impl_(new impl)
-    { }
+    {
+        std::cout << parent << " " << std::endl;
+    }
 
     FrClient::~FrClient( )
     {
@@ -35,5 +39,16 @@ namespace fr { namespace declarative {
     {
 
     }
+
+    QGuiApplication *app( )
+    {
+
+    }
+
+    void setApp( QGuiApplication *app )
+    {
+
+    }
+
 
 }}

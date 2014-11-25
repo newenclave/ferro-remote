@@ -25,7 +25,7 @@ int main( int argc, char *argv[] )
 
     vtrc::common::pool_pair pp( 1, 1 );
 
-    fr::client::core::client_core cc(pp);
+    //fr::client::core::client_core cc(pp);
 
     QGuiApplication app( argc, argv );
 
@@ -33,6 +33,7 @@ int main( int argc, char *argv[] )
 
     qmlRegisterType<fr::declarative::FrClient>( "my.test", 1, 0, "FrClient" );
 
+    viewer.rootContext( )->setContextProperty( "pool", &app );
     viewer.setMainQmlFile( QString(path) );
     viewer.setClearBeforeRendering(false);
     viewer.showExpanded( );
