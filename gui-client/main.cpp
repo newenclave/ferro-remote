@@ -4,10 +4,14 @@
 #include <QtGui/QGuiApplication>
 #include "qtquick2applicationviewer.h"
 
-#include "client-core/fr-client.h"
-#include "vtrc-common/vtrc-pool-pair.h"
+#include "vtrc-common/vtrc-exception.h"
 
 #include "frclient.h"
+#include "application-data.h"
+
+namespace fr {  namespace declarative {
+    application_data global_app_data;
+}}
 
 void usage( )
 {
@@ -15,7 +19,8 @@ void usage( )
 }
 
 int main( int argc, char *argv[] )
-{
+{ try {
+
     if( argc < 2 ) {
         usage( );
         return 1;
@@ -23,15 +28,13 @@ int main( int argc, char *argv[] )
 
     const char *path = argv[1];
 
-    vtrc::common::pool_pair pp( 1, 1 );
-
-    //fr::client::core::client_core cc(pp);
+    fr::declarative::global_app_data.reset_pools( 1, 1 );
 
     QGuiApplication app( argc, argv );
 
     QtQuick2ApplicationViewer viewer;
 
-    qmlRegisterType<fr::declarative::FrClient>( "my.test", 1, 0, "FrClient" );
+    qmlRegisterType<fr::declarative::FrClient>( "fr.client", 1, 0, "FrClient" );
 
     viewer.rootContext( )->setContextProperty( "pool", &app );
     viewer.setMainQmlFile( QString(path) );
@@ -39,5 +42,16 @@ int main( int argc, char *argv[] )
     viewer.showExpanded( );
 
     return app.exec( );
-}
+
+} catch( const vtrc::common::exception &ex ) {
+    std::cerr << "Protocol client error: "
+              << ex.what( ) << ": "
+              << ex.additional( )
+              << "\n";
+    return 10;
+} catch( const std::exception &ex ) {
+    std::cerr << "General client error: " << ex.what( ) << "\n";
+    return 10;
+} }
+
 

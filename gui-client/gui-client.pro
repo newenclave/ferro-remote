@@ -11,7 +11,8 @@ QML_IMPORT_PATH =
 
 # The .cpp file which was generated for your project. Feel free to hack it.
 SOURCES += main.cpp \
-    frclient.cpp
+    frclient.cpp \
+    application-data.cpp
 
 include( ferro-remote-templ.pri )
 
@@ -26,5 +27,6 @@ OTHER_FILES += \
     ferro-remote.pri.in
 
 HEADERS += \
-    frclient.h
+    frclient.h \
+    application-data.h
 
