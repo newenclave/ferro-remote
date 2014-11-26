@@ -3,7 +3,7 @@
 
 #include <QException>
 
-#include "frclient.h"
+#include "fr-client.h"
 #include "application-data.h"
 #include "client-core/fr-client.h"
 
