@@ -4,7 +4,13 @@
 #include <QObject>
 #include <QtGui/QGuiApplication>
 
-namespace fr { namespace declarative {
+namespace fr {
+
+    namespace client { namespace core {
+        class client_core;
+    }}
+
+namespace declarative {
 
     class FrClient : public QObject
     {
@@ -24,6 +30,8 @@ namespace fr { namespace declarative {
     public:
 
         bool connected( ) const;
+
+        client::core::client_core &core_client( );
 
     signals:
 

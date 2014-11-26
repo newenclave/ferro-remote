@@ -51,4 +51,9 @@ namespace fr { namespace declarative {
         emit connectedChanged( false );
     }
 
+    client::core::client_core &FrClient::core_client( )
+    {
+        return impl_->client_;
+    }
+
 }}
