@@ -37,9 +37,18 @@ namespace fr { namespace declarative {
     {
         if( new_value != impl_->client_ ) {
             impl_->client_ = new_value;
-            impl_->os_iface_.reset(
+
+            QObject::connect( impl_->client_,
+                              SIGNAL( connectedChanged(bool) ),
+                              this, SLOT( onClientConnectChange(bool) )
+                            );
+
+            if( impl_->client_->connected( ) ) {
+                impl_->os_iface_.reset(
                         ifaces::os::create(
                             impl_->client_->core_client( ) ) );
+            }
+
             emit clientChanged( impl_->client_ );
         }
     }
@@ -50,6 +59,15 @@ namespace fr { namespace declarative {
             return impl_->os_iface_->execute( cmd.toLocal8Bit( ).constData( ) );
         }
         return -1;
+    }
+
+    void FrClientOS::onClientConnectChange( bool value )
+    {
+        if( value ) {
+            impl_->os_iface_.reset(
+                        ifaces::os::create(
+                            impl_->client_->core_client( ) ) );
+        }
     }
 
 }}

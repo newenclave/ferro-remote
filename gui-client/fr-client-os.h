@@ -32,6 +32,8 @@ namespace fr { namespace declarative {
 
     public slots:
 
+        void onClientConnectChange( bool value );
+
     };
 
 }}
