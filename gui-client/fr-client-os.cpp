@@ -40,7 +40,7 @@ namespace fr { namespace declarative {
 
             QObject::connect( impl_->client_,
                               SIGNAL( channelReady( ) ),
-                              this, SLOT( onReady( ) ) );
+                              this, SLOT( ready( ) ) );
 
             if( impl_->client_->ready( ) ) {
                 impl_->os_iface_.reset(
@@ -60,7 +60,7 @@ namespace fr { namespace declarative {
         return -1;
     }
 
-    void FrClientOS::onReady(  )
+    void FrClientOS::ready(  )
     {
         impl_->os_iface_.reset( ifaces::os::create(
                                 impl_->client_->core_client( ) ) );

@@ -34,7 +34,7 @@ namespace fr { namespace declarative {
 
     private slots:
 
-        void onReady( );
+        void ready( );
 
     };
 
