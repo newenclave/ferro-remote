@@ -79,19 +79,24 @@ Rectangle {
         Text {
             id: status
             text: qsTr("wait")
+            color: "black"
             Connections {
                target: generalClient
                onChannelReady: {
                    status.text = qsTr("ready")
+                   status.color = "green"
                }
                onConnected: {
                    status.text = qsTr("connected")
+                   status.color = "yellow"
                }
                onDisconnected: {
                    status.text = qsTr("disconnected")
+                   status.color = "black"
                }
                onInitError: {
                    status.text = qsTr("init error: ") + message
+                   status.color = "red"
                }
             }
         }
