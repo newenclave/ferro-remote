@@ -28,9 +28,9 @@ Rectangle {
             }
 
             Button {
+                text: qsTr("Connect")
                 onClicked: {
                     generalClient.connect( address.text )
-                    //osIface.client = generalClient
                 }
             }
         }
@@ -41,11 +41,38 @@ Rectangle {
                 id: command
                 width: 200
             }
+
             Button {
+                enabled: false
                 id: run
-                onClicked: osIface.execute( command.text )
+                text: qsTr("Run")
+                onClicked: {
+                    osIface.execute( command.text )
+                }
+                Connections {
+                    target: generalClient
+                    onChannelReady: { enabled = true }
+                }
+            }
+        }
+        Text {
+            id: status
+            text: qsTr("wait")
+            Connections {
+               target: generalClient
+               onChannelReady: {
+                   status.text = qsTr("ready")
+               }
+               onConnected: {
+                   status.text = qsTr("connected")
+               }
+               onDisconnected: {
+                   status.text = qsTr("disconnected")
+               }
+               onInitError: {
+                   status.text = qsTr("init error: ") + message
+               }
             }
         }
     }
-
 }

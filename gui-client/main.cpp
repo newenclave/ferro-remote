@@ -42,7 +42,6 @@ int main( int argc, char *argv[] )
     qmlRegisterType<FrClient>( "fr.client", 1, 0, "FrClient" );
     qmlRegisterType<FrClientOS>( "fr.client", 1, 0, "FrClientOS" );
 
-    viewer.rootContext( )->setContextProperty( "pool", &app );
     viewer.setMainQmlFile( QString(path) );
     viewer.setClearBeforeRendering(false);
     viewer.showExpanded( );

@@ -39,11 +39,10 @@ namespace fr { namespace declarative {
             impl_->client_ = new_value;
 
             QObject::connect( impl_->client_,
-                              SIGNAL( connectedChanged(bool) ),
-                              this, SLOT( onClientConnectChange(bool) )
-                            );
+                              SIGNAL( channelReady( ) ),
+                              this, SLOT( onReady( ) ) );
 
-            if( impl_->client_->connected( ) ) {
+            if( impl_->client_->ready( ) ) {
                 impl_->os_iface_.reset(
                         ifaces::os::create(
                             impl_->client_->core_client( ) ) );
@@ -61,13 +60,10 @@ namespace fr { namespace declarative {
         return -1;
     }
 
-    void FrClientOS::onClientConnectChange( bool value )
+    void FrClientOS::onReady(  )
     {
-        if( value ) {
-            impl_->os_iface_.reset(
-                        ifaces::os::create(
-                            impl_->client_->core_client( ) ) );
-        }
+        impl_->os_iface_.reset( ifaces::os::create(
+                                impl_->client_->core_client( ) ) );
     }
 
 }}

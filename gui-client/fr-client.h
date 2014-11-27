@@ -15,9 +15,7 @@ namespace declarative {
     class FrClient : public QObject
     {
         Q_OBJECT
-        Q_PROPERTY( bool connected
-                    READ connected
-                    NOTIFY connectedChanged )
+        Q_PROPERTY( bool ready READ ready )
 
         struct impl;
         impl  *impl_;
@@ -29,13 +27,16 @@ namespace declarative {
 
     public:
 
-        bool connected( ) const;
+        bool ready( ) const;
 
         client::core::client_core &core_client( );
 
     signals:
 
-        void connectedChanged( bool new_state );
+        void connected( );
+        void disconnected( );
+        void channelReady( );
+        void initError( const QString &message );
 
     public slots:
         void connect( const QString &server );
