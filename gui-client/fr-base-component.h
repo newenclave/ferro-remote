@@ -12,6 +12,7 @@ namespace fr { namespace declarative {
         Q_PROPERTY( fr::declarative::FrClient *client
                     READ client WRITE setClient NOTIFY clientChanged )
 
+        FrClient *client_;
     public:
 
         explicit FrBaseComponent(QObject *parent = 0);
