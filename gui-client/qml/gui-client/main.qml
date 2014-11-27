@@ -24,13 +24,34 @@ Rectangle {
             spacing: 10
             TextField {
                 id: address
+                text: "127.0.0.1:12345"
                 width: 200
             }
 
             Button {
+
                 text: qsTr("Connect")
+                id: connectButton
+                property bool connected: false
+
                 onClicked: {
-                    generalClient.connect( address.text )
+                    if( !connected ) {
+                        generalClient.connect( address.text )
+                    } else {
+                        generalClient.disconnect( )
+                    }
+                }
+
+                Connections {
+                    target: generalClient
+                    onReadyChanged: {
+                        connectButton.connected = value
+                        if( value ) {
+                            connectButton.text = qsTr("Disconnect")
+                        } else {
+                            connectButton.text = qsTr("Connect")
+                        }
+                    }
                 }
             }
         }
@@ -51,7 +72,7 @@ Rectangle {
                 }
                 Connections {
                     target: generalClient
-                    onChannelReady: { enabled = true }
+                    onReadyChanged: { run.enabled = value }
                 }
             }
         }

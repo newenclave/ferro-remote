@@ -6,6 +6,10 @@ folder_01.source = qml/gui-client
 folder_01.target = qml
 DEPLOYMENTFOLDERS = folder_01
 
+#QMAKE_CFLAGS_RELEASE += -Os -momit-leaf-frame-pointer
+#QMAKE_LFLAGS         += -static -static-libgcc
+#DEFINES              += QT_STATIC_BUILD
+
 # Additional import path used to resolve QML modules in Creator's code model
 QML_IMPORT_PATH =
 

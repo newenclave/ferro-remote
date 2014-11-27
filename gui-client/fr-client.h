@@ -15,7 +15,7 @@ namespace declarative {
     class FrClient : public QObject
     {
         Q_OBJECT
-        Q_PROPERTY( bool ready READ ready )
+        Q_PROPERTY( bool ready READ ready NOTIFY readyChanged )
 
         struct impl;
         impl  *impl_;
@@ -37,6 +37,7 @@ namespace declarative {
         void disconnected( );
         void channelReady( );
         void initError( const QString &message );
+        void readyChanged( bool value );
 
     public slots:
         void connect( const QString &server );

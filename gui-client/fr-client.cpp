@@ -51,12 +51,14 @@ namespace fr { namespace declarative {
         {
             state_ = state_none;
             emit parent_->disconnected( );
+            emit parent_->readyChanged( false );
         }
 
         void on_ready( )
         {
             state_ = state_ready;
             emit parent_->channelReady( );
+            emit parent_->readyChanged( true );
         }
 
         void on_initerror( const char *message  )
