@@ -1,12 +1,13 @@
 import QtQuick 2.0
 import QtQuick.Controls 1.1
 
-import fr.client 1.0
+import FR.Client 1.0
 
 Rectangle {
 
+    id: mainWindow
     width: 480
-    height: 640
+    height: 200
 
     FrClient {
         id: generalClient
@@ -15,6 +16,7 @@ Rectangle {
     Column {
         anchors.margins: 10
         spacing: 10
+        anchors.fill: parent
         FrClientOS {
             id: osIface
             client: generalClient
@@ -67,6 +69,7 @@ Rectangle {
                 enabled: false
                 id: run
                 text: qsTr("Run")
+                anchors.right: mainWindow.right
                 onClicked: {
                     osIface.execute( command.text )
                 }

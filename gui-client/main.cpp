@@ -2,6 +2,7 @@
 
 #include <QtQml>
 #include <QtGui/QGuiApplication>
+
 #include "qtquick2applicationviewer.h"
 
 #include "vtrc-common/vtrc-exception.h"
@@ -39,8 +40,8 @@ int main( int argc, char *argv[] )
 
     QtQuick2ApplicationViewer viewer;
 
-    qmlRegisterType<FrClient>( "fr.client", 1, 0, "FrClient" );
-    qmlRegisterType<FrClientOS>( "fr.client", 1, 0, "FrClientOS" );
+    qmlRegisterType<FrClient>( "FR.Client", 1, 0, "FrClient" );
+    qmlRegisterType<FrClientOS>( "FR.Client", 1, 0, "FrClientOS" );
 
     viewer.setMainQmlFile( QString(path) );
     viewer.setClearBeforeRendering(false);

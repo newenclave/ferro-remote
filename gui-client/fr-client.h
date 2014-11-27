@@ -12,8 +12,8 @@ namespace fr {
 
 namespace declarative {
 
-    class FrClient : public QObject
-    {
+    class FrClient : public QObject {
+
         Q_OBJECT
         Q_PROPERTY( bool ready READ ready NOTIFY readyChanged )
 

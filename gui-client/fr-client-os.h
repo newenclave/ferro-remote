@@ -6,8 +6,8 @@
 
 namespace fr { namespace declarative {
 
-    class FrClientOS: public QObject
-    {
+    class FrClientOS: public QObject {
+
         Q_OBJECT
         Q_PROPERTY( fr::declarative::FrClient *client
                     READ client WRITE setClient NOTIFY clientChanged )
