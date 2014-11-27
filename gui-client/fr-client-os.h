@@ -32,6 +32,7 @@ namespace fr { namespace declarative {
     signals:
 
     public slots:
+
     private slots:
         void ready(  );
     };

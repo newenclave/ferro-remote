@@ -40,6 +40,7 @@ namespace declarative {
         void readyChanged( bool value );
 
     public slots:
+
         void connect( const QString &server );
         void disconnect( );
     };
