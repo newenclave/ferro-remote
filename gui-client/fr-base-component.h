@@ -13,6 +13,10 @@ namespace fr { namespace declarative {
                     READ client WRITE setClient NOTIFY clientChanged )
 
         FrClient *client_;
+    private:
+
+        virtual void reinit( ) { }
+
     public:
 
         explicit FrBaseComponent(QObject *parent = 0);

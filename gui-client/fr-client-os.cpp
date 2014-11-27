@@ -8,16 +8,14 @@ namespace fr { namespace declarative {
     namespace ifaces = fr::client::interfaces;
 
     struct FrClientOS::impl {
-        FrClient                            *client_;
         std::shared_ptr<ifaces::os::iface>   os_iface_;
         impl( )
-            :client_(nullptr)
-            ,os_iface_(nullptr)
+            :os_iface_(nullptr)
         { }
     };
 
     FrClientOS::FrClientOS( QObject *parent )
-        :QObject(parent)
+        :FrBaseComponent(parent)
         ,impl_(new impl)
     {
 
@@ -28,27 +26,17 @@ namespace fr { namespace declarative {
         delete impl_;
     }
 
-    FrClient *FrClientOS::client( ) const
+    void FrClientOS::reinit( )
     {
-        return impl_->client_;
-    }
-
-    void FrClientOS::setClient( FrClient *new_value )
-    {
-        if( new_value != impl_->client_ ) {
-            impl_->client_ = new_value;
-
-            QObject::connect( impl_->client_,
-                              SIGNAL( channelReady( ) ),
+        FrClient *cl = client( );
+        if( cl ) {
+            QObject::connect( cl, SIGNAL( channelReady( ) ),
                               this, SLOT( ready( ) ) );
 
-            if( impl_->client_->ready( ) ) {
+            if( cl->ready( ) ) {
                 impl_->os_iface_.reset(
-                        ifaces::os::create(
-                            impl_->client_->core_client( ) ) );
+                            ifaces::os::create( cl->core_client( ) ) );
             }
-
-            emit clientChanged( impl_->client_ );
         }
     }
 
@@ -62,8 +50,8 @@ namespace fr { namespace declarative {
 
     void FrClientOS::ready(  )
     {
-        impl_->os_iface_.reset( ifaces::os::create(
-                                impl_->client_->core_client( ) ) );
+        impl_->os_iface_.reset(
+                    ifaces::os::create( client( )->core_client( ) ) );
     }
 
 }}

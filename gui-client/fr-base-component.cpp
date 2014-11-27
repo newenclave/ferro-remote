@@ -16,6 +16,7 @@ namespace fr { namespace declarative {
     {
         if( new_value != client_ ) {
             client_ = new_value;
+            reinit( );
             emit clientChanged( client_ );
         }
     }
