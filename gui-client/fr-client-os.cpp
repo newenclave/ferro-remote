@@ -17,9 +17,7 @@ namespace fr { namespace declarative {
     FrClientOS::FrClientOS( QObject *parent )
         :FrBaseComponent(parent)
         ,impl_(new impl)
-    {
-
-    }
+    { }
 
     FrClientOS::~FrClientOS( )
     {
