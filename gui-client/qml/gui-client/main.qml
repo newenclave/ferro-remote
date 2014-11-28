@@ -22,8 +22,8 @@ Rectangle {
             client: generalClient
         }
         Row {
-            anchors.margins: 10
             spacing: 10
+
             TextField {
                 id: address
                 text: "127.0.0.1:12345"
