@@ -21,6 +21,7 @@ Rectangle {
             id: osIface
             client: generalClient
         }
+
         Row {
             spacing: 10
 
