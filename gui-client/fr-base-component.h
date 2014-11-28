@@ -15,7 +15,8 @@ namespace fr { namespace declarative {
         FrClient *client_;
     private:
 
-        virtual void reinit( ) { }
+        virtual void on_reinit( ) { }
+        virtual void on_ready( bool value ) { Q_UNUSED(value) }
 
     public:
 
@@ -26,9 +27,12 @@ namespace fr { namespace declarative {
 
     signals:
 
-        void clientChanged( const fr::declarative::FrClient *new_value );
+        void clientChanged( const fr::declarative::FrClient *value );
 
     public slots:
+    private slots:
+
+        void onReady( bool value );
 
     };
 

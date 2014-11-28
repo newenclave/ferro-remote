@@ -17,7 +17,7 @@ namespace fr { namespace declarative {
 
     private:
 
-        void reinit( );
+        void on_reinit( );
 
     public:
 

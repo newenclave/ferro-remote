@@ -1,15 +1,17 @@
 #include "fr-client-os.h"
 #include "client-core/interfaces/IOS.h"
 
+#include <QSharedPointer>
+
 #include <iostream>
-#include <memory>
 
 namespace fr { namespace declarative {
 
     namespace ifaces = fr::client::interfaces;
+    typedef QSharedPointer<ifaces::os::iface> iface_qsptr;
 
     struct FrClientOS::impl {
-        std::shared_ptr<ifaces::os::iface>   os_iface_;
+        iface_qsptr  os_iface_;
         impl( )
             :os_iface_(nullptr)
         { }
@@ -26,7 +28,7 @@ namespace fr { namespace declarative {
         delete impl_;
     }
 
-    void FrClientOS::reinit( )
+    void FrClientOS::on_reinit( )
     {
         FrClient *cl = client( );
         if( cl ) {
