@@ -21,10 +21,10 @@ namespace fr { namespace declarative {
 
     public:
 
-        Q_INVOKABLE QObject *newClient( QObject *parent = nullptr );
-        Q_INVOKABLE QObject *newOs( FrClient *client = nullptr );
+        Q_INVOKABLE QObject *newClient( QObject *parent = nullptr ) const;
+        Q_INVOKABLE QObject *newOs( FrClient *client = nullptr ) const;
         Q_INVOKABLE QObject *newFs( FrClient *client = nullptr,
-                                    const QString &path = QString( ));
+                                    const QString &path = QString( )) const;
 
     };
 

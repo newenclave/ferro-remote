@@ -23,17 +23,18 @@ namespace fr { namespace declarative {
 
     }
 
-    QObject *FrComponentCreator::newClient( QObject *parent )
+    QObject *FrComponentCreator::newClient( QObject *parent ) const
     {
         return new FrClient( parent );
     }
 
-    QObject *FrComponentCreator::newOs( FrClient *client )
+    QObject *FrComponentCreator::newOs( FrClient *client ) const
     {
         return create_component<FrClientOS>( client );
     }
 
-    QObject *FrComponentCreator::newFs( FrClient *client, const QString &path )
+    QObject *FrComponentCreator::newFs( FrClient *client,
+                                        const QString &path ) const
     {
         FrClientFs *inst = create_component<FrClientFs>( client );
         if( path != "" ) {
