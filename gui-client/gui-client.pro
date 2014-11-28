@@ -20,7 +20,7 @@ SOURCES += main.cpp \
     fr-client-os.cpp \
     fr-base-component.cpp \
     fr-component-creator.cpp \
-    fr-filesystem.cpp
+    fr-client-fs.cpp
 
 include( ferro-remote-templ.pri )
 
@@ -40,5 +40,5 @@ HEADERS += \
     fr-client-os.h \
     fr-base-component.h \
     fr-component-creator.h \
-    fr-filesystem.h
+    fr-client-fs.h
 

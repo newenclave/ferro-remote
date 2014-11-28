@@ -6,7 +6,7 @@
 
 namespace fr { namespace declarative {
 
-    class FrFilesystem: public FrBaseComponent {
+    class FrClientFs: public FrBaseComponent {
 
         struct impl;
         impl  *impl_;
@@ -22,8 +22,8 @@ namespace fr { namespace declarative {
 
     public:
 
-        explicit FrFilesystem(QObject *parent = 0);
-        ~FrFilesystem( );
+        explicit FrClientFs(QObject *parent = 0);
+        ~FrClientFs( );
 
         void setPath( const QString &new_value );
         QString path( ) const ;

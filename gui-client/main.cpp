@@ -9,6 +9,7 @@
 
 #include "fr-client.h"
 #include "fr-client-os.h"
+#include "fr-client-fs.h"
 
 #include "application-data.h"
 #include "vtrc-common/vtrc-pool-pair.h"
@@ -47,6 +48,7 @@ int main( int argc, char *argv[] )
 
     qmlRegisterType<FrClient>( "Fr.Client", 1, 0, "FrClient" );
     qmlRegisterType<FrClientOS>( "Fr.Client", 1, 0, "FrClientOS" );
+    qmlRegisterType<FrClientFs>( "Fr.Client", 1, 0, "FrClientFilesystem" );
 
     viewer.rootContext( )->setContextProperty( "frComponents",
                                                QVariant::fromValue( &cc ) );
