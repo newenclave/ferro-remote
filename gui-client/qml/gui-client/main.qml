@@ -69,7 +69,6 @@ Rectangle {
                 enabled: false
                 id: run
                 text: qsTr("Run")
-                anchors.right: mainWindow.right
                 onClicked: {
                     osIface.execute( command.text )
                 }
