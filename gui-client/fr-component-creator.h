@@ -2,10 +2,10 @@
 #define FRCOMPONENTCREATOR_H
 
 #include <QObject>
-#include "fr-client-os.h"
+
+#include "fr-client.h"
 
 namespace fr { namespace declarative {
-
 
     class FrComponentCreator : public QObject
     {
@@ -13,7 +13,7 @@ namespace fr { namespace declarative {
 
     public:
 
-        explicit FrComponentCreator(QObject *parent = 0);
+        explicit FrComponentCreator( QObject *parent = 0 );
 
     signals:
 
@@ -23,6 +23,8 @@ namespace fr { namespace declarative {
 
         Q_INVOKABLE QObject *newClient( QObject *parent = nullptr );
         Q_INVOKABLE QObject *newOs( FrClient *client = nullptr );
+        Q_INVOKABLE QObject *newFs( FrClient *client = nullptr,
+                                    const QString &path = QString( ));
 
     };
 

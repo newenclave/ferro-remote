@@ -75,6 +75,9 @@ Rectangle {
                     //t.client = generalClient
                     t.execute( command.text )
                     t.destroy( )
+                    var f = frComponents.newFs( generalClient )
+                    file.text = "file /dev/random " + f.exists( "/dev/random" )
+                    f.destroy( )
                 }
                 Connections {
                     target: generalClient
@@ -105,6 +108,9 @@ Rectangle {
                    status.color = "red"
                }
             }
+        }
+        Text {
+            id: file
         }
     }
 }

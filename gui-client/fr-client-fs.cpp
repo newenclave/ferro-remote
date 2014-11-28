@@ -4,6 +4,7 @@
 
 #include "client-core/interfaces/IFilesystem.h"
 
+#include <iostream>
 #include <string>
 
 namespace fr { namespace declarative {
@@ -16,7 +17,7 @@ namespace fr { namespace declarative {
         iface_qsptr iface_;
     };
 
-    FrClientFs::FrClientFs(QObject *parent)
+    FrClientFs::FrClientFs( QObject *parent )
         :FrBaseComponent(parent)
         ,impl_(new impl)
     {
@@ -31,7 +32,6 @@ namespace fr { namespace declarative {
     void FrClientFs::on_reinit( )
     {
         if( client( ) ) {
-            std::string path();
             impl_->iface_.reset(
                 iface::filesystem::create( client( )->core_client( ),
                                            impl_->currentPath_ ) );
@@ -64,10 +64,8 @@ namespace fr { namespace declarative {
         return QString::fromLocal8Bit( impl_->currentPath_.c_str( ) );
     }
 
-
     bool FrClientFs::exists( const QString &path ) const
     {
-
         if( impl_->iface_.data( ) ) {
             return impl_->iface_->exists( path.toLocal8Bit( ).constData( ) );
         }

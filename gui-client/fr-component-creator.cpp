@@ -1,6 +1,21 @@
+
 #include "fr-component-creator.h"
+#include "fr-client-os.h"
+#include "fr-client-fs.h"
+
+#include <QSharedPointer>
 
 namespace fr { namespace declarative {
+
+    template<typename T>
+    T * create_component( FrClient *client )
+    {
+        T *inst = new T;
+        if( client ) {
+            inst->setClient( client );
+        }
+        return inst;
+    }
 
     FrComponentCreator::FrComponentCreator(QObject *parent) :
         QObject(parent)
@@ -15,9 +30,14 @@ namespace fr { namespace declarative {
 
     QObject *FrComponentCreator::newOs( FrClient *client )
     {
-        FrClientOS *inst = new FrClientOS;
-        if( client ) {
-            inst->setClient( client );
+        return create_component<FrClientOS>( client );
+    }
+
+    QObject *FrComponentCreator::newFs( FrClient *client, const QString &path )
+    {
+        FrClientFs *inst = create_component<FrClientFs>( client );
+        if( path != "" ) {
+            inst->setPath( path );
         }
         return inst;
     }
