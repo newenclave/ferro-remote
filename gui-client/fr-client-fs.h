@@ -28,6 +28,8 @@ namespace fr { namespace declarative {
         void setPath( const QString &new_value );
         QString path( ) const ;
 
+        Q_INVOKABLE bool exists( const QString &path ) const;
+
     signals:
 
         void pathChanged( const QString &value );

@@ -45,6 +45,8 @@ namespace fr { namespace declarative {
     {
         if( value ) {
             impl_->iface_->cd( impl_->currentPath_ );
+        } else {
+            impl_->iface_.reset( );
         }
     }
 
@@ -60,6 +62,17 @@ namespace fr { namespace declarative {
     QString FrClientFs::path( ) const
     {
         return QString::fromLocal8Bit( impl_->currentPath_.c_str( ) );
+    }
+
+
+    bool FrClientFs::exists( const QString &path ) const
+    {
+
+        if( impl_->iface_.data( ) ) {
+            return impl_->iface_->exists( path.toLocal8Bit( ).constData( ) );
+        }
+
+        return false;
     }
 
 }}

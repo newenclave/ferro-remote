@@ -46,9 +46,9 @@ int main( int argc, char *argv[] )
 
     FrComponentCreator cc;
 
-    qmlRegisterType<FrClient>( "Fr.Client", 1, 0, "FrClient" );
+    qmlRegisterType<FrClient>(   "Fr.Client", 1, 0, "FrClient" );
     qmlRegisterType<FrClientOS>( "Fr.Client", 1, 0, "FrClientOS" );
-    qmlRegisterType<FrClientFs>( "Fr.Client", 1, 0, "FrClientFilesystem" );
+    qmlRegisterType<FrClientFs>( "Fr.Client", 1, 0, "FrClientFs" );
 
     viewer.rootContext( )->setContextProperty( "frComponents",
                                                QVariant::fromValue( &cc ) );
