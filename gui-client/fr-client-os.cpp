@@ -1,6 +1,7 @@
 #include "fr-client-os.h"
 #include "client-core/interfaces/IOS.h"
 
+#include <iostream>
 #include <memory>
 
 namespace fr { namespace declarative {
@@ -21,6 +22,7 @@ namespace fr { namespace declarative {
 
     FrClientOS::~FrClientOS( )
     {
+        std::cout << "Os delete!" << std::endl;
         delete impl_;
     }
 

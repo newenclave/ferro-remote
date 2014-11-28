@@ -1,7 +1,7 @@
 import QtQuick 2.0
 import QtQuick.Controls 1.1
 
-import FR.Client 1.0
+import Fr.Client 1.0
 
 Rectangle {
 
@@ -37,7 +37,7 @@ Rectangle {
                 id: connectButton
                 property bool connected: false
 
-                onClicked: {
+                onClicked: {                    
                     if( !connected ) {
                         generalClient.connect( address.text )
                     } else {
@@ -71,7 +71,10 @@ Rectangle {
                 id: run
                 text: qsTr("Run")
                 onClicked: {
-                    osIface.execute( command.text )
+                    var t = frComponents.newOs( generalClient )
+                    //t.client = generalClient
+                    t.execute( command.text )
+                    t.destroy( )
                 }
                 Connections {
                     target: generalClient

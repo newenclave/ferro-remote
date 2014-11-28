@@ -13,6 +13,8 @@
 #include "application-data.h"
 #include "vtrc-common/vtrc-pool-pair.h"
 
+#include "fr-component-creator.h"
+
 namespace fr {  namespace declarative {
     application_data global_app_data;
 }}
@@ -21,6 +23,7 @@ void usage( )
 {
     std::cout << "usage: gui-client /path/to/qml/file.qml" << std::endl;
 }
+
 
 int main( int argc, char *argv[] )
 { try {
@@ -40,8 +43,13 @@ int main( int argc, char *argv[] )
 
     QtQuick2ApplicationViewer viewer;
 
-    qmlRegisterType<FrClient>( "FR.Client", 1, 0, "FrClient" );
-    qmlRegisterType<FrClientOS>( "FR.Client", 1, 0, "FrClientOS" );
+    FrComponentCreator cc;
+
+    qmlRegisterType<FrClient>( "Fr.Client", 1, 0, "FrClient" );
+    qmlRegisterType<FrClientOS>( "Fr.Client", 1, 0, "FrClientOS" );
+
+    viewer.rootContext( )->setContextProperty( "frComponents",
+                                               QVariant::fromValue( &cc ) );
 
     viewer.setMainQmlFile( QString(path) );
     viewer.setClearBeforeRendering(false);

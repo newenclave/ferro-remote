@@ -19,7 +19,7 @@ namespace fr { namespace declarative {
 
     public:
 
-        explicit FrBaseComponent(QObject *parent = 0);
+        explicit FrBaseComponent( QObject *parent = 0 );
 
         FrClient *client( ) const;
         void setClient( FrClient *new_value );
