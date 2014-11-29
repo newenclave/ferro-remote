@@ -18,14 +18,6 @@ Rectangle {
         var t = frComponents.newOs( generalClient )
         t.execute( command.text )
         t.destroy( )
-        try {
-            var f = frComponents.newFs( generalClient )
-            console.log( "make!" )
-            f.mkdir( "/dev/random2" )
-            t.destroy( )
-        } catch( ex ) {
-            console.log( ex )
-        }
     }
 
     Column {
