@@ -13,6 +13,7 @@ namespace fr { namespace declarative {
                     READ client WRITE setClient NOTIFY clientChanged )
 
         FrClient *client_;
+
     private:
 
         virtual void on_reinit( ) { }
@@ -28,8 +29,10 @@ namespace fr { namespace declarative {
     signals:
 
         void clientChanged( const fr::declarative::FrClient *value );
+        //void callFailed( const QString &what );
 
     public slots:
+
     private slots:
 
         void onReady( bool value );

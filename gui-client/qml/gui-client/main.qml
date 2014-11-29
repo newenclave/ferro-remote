@@ -3,6 +3,7 @@ import QtQuick.Controls 1.1
 
 import Fr.Client 1.0
 
+
 Rectangle {
 
     id: mainWindow
@@ -11,6 +12,20 @@ Rectangle {
 
     FrClient {
         id: generalClient
+    }
+
+    function call( ) {
+        var t = frComponents.newOs( generalClient )
+        t.execute( command.text )
+        t.destroy( )
+        try {
+            var f = frComponents.newFs( generalClient )
+            console.log( "make!" )
+            f.mkdir( "/dev/random2" )
+            t.destroy( )
+        } catch( ex ) {
+            console.log( ex )
+        }
     }
 
     Column {
@@ -71,10 +86,7 @@ Rectangle {
                 id: run
                 text: qsTr("Run")
                 onClicked: {
-                    var t = frComponents.newOs( generalClient )
-                    //t.client = generalClient
-                    t.execute( command.text )
-                    t.destroy( )
+                    call( )
                     var f = frComponents.newFs( generalClient )
                     file.text = "file /dev/random " + f.exists( "/dev/random" )
                     f.destroy( )

@@ -29,6 +29,9 @@ namespace fr { namespace declarative {
         QString path( ) const ;
 
         Q_INVOKABLE bool exists( const QString &path ) const;
+        Q_INVOKABLE void mkdir( const QString &path ) const;
+        Q_INVOKABLE void remove( const QString &path ) const;
+        Q_INVOKABLE void removeAll( const QString &path ) const;
 
     signals:
 

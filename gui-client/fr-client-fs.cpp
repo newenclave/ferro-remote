@@ -7,6 +7,8 @@
 #include <iostream>
 #include <string>
 
+#include <QException>
+
 namespace fr { namespace declarative {
 
     namespace iface = fr::client::interfaces;
@@ -52,7 +54,7 @@ namespace fr { namespace declarative {
 
     void FrClientFs::setPath( const QString &new_value )
     {
-        std::string path(new_value.toLocal8Bit( ).constData( ));
+        std::string path(new_value.toUtf8( ).constData( ));
         if( impl_->currentPath_ != path ) {
             impl_->currentPath_ = path;
             emit pathChanged( new_value );
@@ -61,16 +63,36 @@ namespace fr { namespace declarative {
 
     QString FrClientFs::path( ) const
     {
-        return QString::fromLocal8Bit( impl_->currentPath_.c_str( ) );
+        return QString::fromUtf8( impl_->currentPath_.c_str( ) );
     }
 
     bool FrClientFs::exists( const QString &path ) const
     {
         if( impl_->iface_.data( ) ) {
-            return impl_->iface_->exists( path.toLocal8Bit( ).constData( ) );
+            return impl_->iface_->exists( path.toUtf8( ).constData( ) );
         }
-
         return false;
+    }
+
+    void FrClientFs::mkdir( const QString &path ) const
+    {
+        if( impl_->iface_.data( ) ) {
+            impl_->iface_->mkdir( path.toUtf8( ).constData( ) );
+        }
+    }
+
+    void FrClientFs::remove( const QString &path ) const
+    {
+        if( impl_->iface_.data( ) ) {
+            impl_->iface_->del( path.toUtf8( ).constData( ) );
+        }
+    }
+
+    void FrClientFs::removeAll( const QString &path ) const
+    {
+        if( impl_->iface_.data( ) ) {
+            impl_->iface_->remove_all( path.toUtf8( ).constData( ) );
+        }
     }
 
 }}
