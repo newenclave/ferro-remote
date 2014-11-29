@@ -4,8 +4,11 @@
 
 #include "client-core/interfaces/IFilesystem.h"
 
+#include "vtrc-common/vtrc-exception.h"
+
 #include <iostream>
 #include <string>
+#include <functional>
 
 #include <QException>
 
@@ -17,6 +20,14 @@ namespace fr { namespace declarative {
     struct FrClientFs::impl {
         std::string currentPath_;
         iface_qsptr iface_;
+    };
+
+
+    class MyException : public QException
+    {
+    public:
+        void raise( ) const { throw *this; }
+        MyException *clone( ) const { return new MyException(*this); }
     };
 
     FrClientFs::FrClientFs( QObject *parent )

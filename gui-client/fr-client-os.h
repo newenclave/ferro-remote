@@ -2,8 +2,6 @@
 #define FRCLIENTOS_H
 
 #include <QObject>
-//#include "fr-client.h"
-
 #include "fr-base-component.h"
 
 namespace fr { namespace declarative {
@@ -27,7 +25,7 @@ namespace fr { namespace declarative {
 
     public:
 
-        Q_INVOKABLE int execute( const QString &cmd ) const;
+        Q_INVOKABLE QVariant execute( const QString &cmd ) const;
 
     signals:
 

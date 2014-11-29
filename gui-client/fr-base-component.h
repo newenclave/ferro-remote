@@ -2,6 +2,8 @@
 #define FRBASECOMPONENT_H
 
 #include <QObject>
+#include <QVariant>
+
 #include "fr-client.h"
 
 namespace fr { namespace declarative {

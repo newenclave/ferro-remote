@@ -42,12 +42,13 @@ namespace fr { namespace declarative {
         }
     }
 
-    int FrClientOS::execute( const QString &cmd ) const
+    QVariant FrClientOS::execute( const QString &cmd ) const
     {
         if( impl_->os_iface_ ) {
-            return impl_->os_iface_->execute( cmd.toLocal8Bit( ).constData( ) );
+            int res = impl_->os_iface_->execute( cmd.toUtf8( ).constData( ) );
+            return QVariant( res );
         }
-        return -1;
+        return QVariant( "Channel is empty" );
     }
 
     void FrClientOS::ready(  )
