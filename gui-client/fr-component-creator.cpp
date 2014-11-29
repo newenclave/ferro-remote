@@ -4,6 +4,7 @@
 #include "fr-client-fs.h"
 
 #include <QSharedPointer>
+#include <QQmlEngine>
 
 namespace fr { namespace declarative {
 
@@ -14,6 +15,8 @@ namespace fr { namespace declarative {
         if( client ) {
             inst->setClient( client );
         }
+        //QQmlEngine::setObjectOwnership( inst, QQmlEngine::JavaScriptOwnership );
+        inst->deleteLater( );
         return inst;
     }
 
@@ -30,7 +33,8 @@ namespace fr { namespace declarative {
 
     QObject *FrComponentCreator::newOs( FrClient *client )
     {
-        return create_component<FrClientOS>( client );
+        QObject *inst = create_component<FrClientOS>( client );
+        return inst;
     }
 
     QObject *FrComponentCreator::newFs( FrClient *client, const QString &path )

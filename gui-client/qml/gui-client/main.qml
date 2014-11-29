@@ -17,7 +17,7 @@ Rectangle {
     function call( ) {
         var t = frComponents.newOs( generalClient )
         t.execute( command.text )
-        t.destroy( )
+        return t
     }
 
     Column {
@@ -78,10 +78,11 @@ Rectangle {
                 id: run
                 text: qsTr("Run")
                 onClicked: {
-                    call( )
+                    var m = call( )
                     var f = frComponents.newFs( generalClient )
                     file.text = "file /dev/random " + f.exists( "/dev/random" )
                     f.destroy( )
+                    m.execute( command.text )
                 }
                 Connections {
                     target: generalClient

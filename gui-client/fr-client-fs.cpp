@@ -39,6 +39,7 @@ namespace fr { namespace declarative {
 
     FrClientFs::~FrClientFs( )
     {
+        //std::cout << "Fs delete!" << std::endl;
         delete impl_;
     }
 

@@ -24,7 +24,7 @@ namespace fr { namespace declarative {
 
     FrClientOS::~FrClientOS( )
     {
-        //std::cout << "Os delete!" << std::endl;
+        std::cout << "Os delete!" << std::endl;
         delete impl_;
     }
 
