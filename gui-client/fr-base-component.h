@@ -30,8 +30,8 @@ namespace fr { namespace declarative {
 
     signals:
 
-        void clientChanged( const fr::declarative::FrClient *value );
-        //void callFailed( const QString &what );
+        void clientChanged( const fr::declarative::FrClient *value ) const;
+        void callFailed( const QString &what ) const;
 
     public slots:
 

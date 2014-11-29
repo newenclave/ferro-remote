@@ -25,7 +25,7 @@ namespace fr { namespace declarative {
 
     public:
 
-        Q_INVOKABLE QVariant execute( const QString &cmd ) const;
+        Q_INVOKABLE int execute( const QString &cmd ) const;
 
     signals:
 
