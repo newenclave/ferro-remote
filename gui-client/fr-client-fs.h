@@ -76,6 +76,12 @@ namespace fr { namespace declarative {
 
         Q_INVOKABLE QObject *info( const QString &path ) const;
 
+        Q_INVOKABLE QByteArray readFile( const QString &path,
+                                         unsigned maximum ) const;
+
+        Q_INVOKABLE unsigned writeFile( const QString &path,
+                                        const QByteArray &data ) const;
+
     signals:
 
         void pathChanged( const QString &value );

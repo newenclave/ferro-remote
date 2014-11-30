@@ -87,6 +87,8 @@ Rectangle {
                             + i.empty + " "
                             + i.regular + " "
                             + i.symlink + " "
+                    f.writeFile( "/home/data/test.rnd",
+                                 f.readFile( "/dev/random", 10 ) )
                     f.destroy( )
                     m.execute( command.text )
                 }

@@ -351,14 +351,16 @@ namespace filesystem {
                 return result;
             }
 
-            void  write_file( const std::string &path,
-                              const void *data, size_t max ) const override
+            size_t  write_file( const std::string &path,
+                                const void *data, size_t max ) const override
             {
                 fproto::write_file_req req;
+                fproto::write_file_res res;
                 req.mutable_dst( )->mutable_hdl( )->set_value( hdl_ );
                 req.mutable_dst( )->set_path( path );
                 req.set_data( data, max );
-                client_.call_request( &stub_type::write_file, &req );
+                client_.call( &stub_type::write_file, &req, &res );
+                return res.len( );
             }
 
         };

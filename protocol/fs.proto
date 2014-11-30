@@ -68,6 +68,10 @@ message write_file_req {
     optional bytes        data = 2;
 }
 
+message write_file_res {
+    optional uint32       len = 1;
+}
+
 service instance {
 
     // open instance
@@ -115,7 +119,7 @@ service instance {
     /// read and write file fast
 
     rpc read_file( read_file_req )   returns( read_file_res );
-    rpc write_file( write_file_req ) returns( empty );
+    rpc write_file( write_file_req ) returns( write_file_res );
 
 }
 

@@ -154,5 +154,29 @@ namespace fr { namespace declarative {
         return nullptr;
     }
 
+    QByteArray FrClientFs::readFile( const QString &path,
+                                     unsigned maximum ) const
+    {
+        if( maximum > 0 && impl_->iface_.data( ) ) {
+            std::vector<char> data( maximum );
+            size_t r = impl_->iface_->read_file( path.toUtf8( ).constData( ),
+                                                 &data[0], maximum );
+            return QByteArray( r ? &data[0] : "", r );
+        }
+        return QByteArray( );
+    }
+
+    unsigned FrClientFs::writeFile( const QString &path,
+                                    const QByteArray &data ) const
+    {
+        if( impl_->iface_.data( ) ) {
+            size_t r = impl_->iface_->write_file( path.toUtf8( ).constData( ),
+                                                  data.constData( ),
+                                                  data.size( ) );
+            return (unsigned)(r);
+        }
+        return 0;
+    }
+
 }}
 

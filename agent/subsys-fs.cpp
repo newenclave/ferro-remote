@@ -502,7 +502,7 @@ namespace fr { namespace agent { namespace subsys {
 
             void write_file(::google::protobuf::RpcController*  /*controller*/,
                          const ::fr::proto::fs::write_file_req* request,
-                         ::fr::proto::fs::empty*                /*response*/,
+                         ::fr::proto::fs::write_file_res* response,
                          ::google::protobuf::Closure* done) override
             {
                 vcomm::closure_holder holder(done);
@@ -516,7 +516,7 @@ namespace fr { namespace agent { namespace subsys {
                 vtrc::shared_ptr<file_iface> f( file::create( p.string( ),
                                                 O_WRONLY | O_CREAT | O_TRUNC,
                                                 S_IRUSR | S_IWUSR ) );
-                f->write( request->data( ).c_str( ), len );
+                response->set_len( f->write( request->data( ).c_str( ), len ) );
             }
 
         public:
