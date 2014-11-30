@@ -1,7 +1,6 @@
 #include <QSharedPointer>
 
 #include "fr-client-fs.h"
-
 #include "client-core/interfaces/IFilesystem.h"
 
 #include "vtrc-common/vtrc-exception.h"
@@ -16,6 +15,42 @@ namespace fr { namespace declarative {
 
     namespace iface = fr::client::interfaces;
     typedef QSharedPointer<iface::filesystem::iface> iface_qsptr;
+
+    typedef fr::client::interfaces::filesystem::info_data fs_info_data;
+
+    FrFilesystemInfo::FrFilesystemInfo( const fs_info_data &data )
+        :data_(new fs_info_data(data))
+    { }
+
+    FrFilesystemInfo::~FrFilesystemInfo( )
+    {
+        delete data_;
+    }
+
+    bool FrFilesystemInfo::exists( ) const
+    {
+        return data_->is_exist;
+    }
+
+    bool FrFilesystemInfo::directory( ) const
+    {
+        return data_->is_directory;
+    }
+
+    bool FrFilesystemInfo::empty( ) const
+    {
+        return data_->is_empty;
+    }
+
+    bool FrFilesystemInfo::regular( ) const
+    {
+        return data_->is_regular;
+    }
+
+    bool FrFilesystemInfo::symlink( ) const
+    {
+        return data_->is_symlink;
+    }
 
     struct FrClientFs::impl {
         std::string currentPath_;
@@ -105,6 +140,18 @@ namespace fr { namespace declarative {
         if( impl_->iface_.data( ) ) {
             impl_->iface_->remove_all( path.toUtf8( ).constData( ) );
         }
+    }
+
+    QObject *FrClientFs::info( const QString &path ) const
+    {
+        if( impl_->iface_.data( ) ) {
+            fs_info_data fid;
+            impl_->iface_->info( path.toUtf8( ).constData( ), fid );
+            FrFilesystemInfo *inst = new FrFilesystemInfo( fid );
+            inst->deleteLater( );
+            return inst;
+        }
+        return nullptr;
     }
 
 }}

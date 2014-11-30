@@ -80,7 +80,13 @@ Rectangle {
                 onClicked: {
                     var m = call( )
                     var f = frComponents.newFs( generalClient )
-                    file.text = "file /dev/random " + f.exists( "/dev/random" )
+                    var i = f.info( "/dev/random" )
+                    file.text = "file /dev/random: "
+                            + i.exists + " "
+                            + i.directory + " "
+                            + i.empty + " "
+                            + i.regular + " "
+                            + i.symlink + " "
                     f.destroy( )
                     m.execute( command.text )
                 }
