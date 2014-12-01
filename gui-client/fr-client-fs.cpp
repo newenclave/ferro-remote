@@ -58,7 +58,7 @@ namespace fr { namespace declarative {
     };
 
 
-    class MyException : public QException
+    class MyException:  public QException
     {
     public:
         void raise( ) const { throw *this; }
@@ -179,4 +179,3 @@ namespace fr { namespace declarative {
     }
 
 }}
-
