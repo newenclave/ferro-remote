@@ -174,7 +174,7 @@ namespace fr { namespace declarative {
             std::vector<char> data( maximum );
             size_t r = impl_->iface_->read_file( path.toUtf8( ).constData( ),
                                                  &data[0], maximum );
-            return QByteArray( r ? &data[0] : "", r );
+            return QByteArray( &data[0], r );
         }
         FR_QML_CALL_EPILOGUE( QByteArray( ) )
     }
