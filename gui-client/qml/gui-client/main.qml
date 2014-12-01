@@ -77,6 +77,7 @@ Rectangle {
                 enabled: false
                 id: run
                 text: qsTr("Run")
+
                 onClicked: {
                     var m = call( )
                     var f = frComponents.newFs( generalClient )
@@ -88,10 +89,7 @@ Rectangle {
                             + i.regular + " "
                             + i.symlink + " "
                     f.writeFile( "/home/data/test.rnd",
-                                 f.readFile( "/dev/random", 10 ) )
-                    if( f.failed ) {
-                        console.log( "FS failed: " + f.error )
-                    }
+                                 f.readFile( "/dev2/random", 10 ) )
                     f.destroy( )
 //                    m.execute( command.text )
                 }

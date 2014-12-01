@@ -623,6 +623,8 @@ namespace fr { namespace agent { namespace subsys {
                 mode_t mode =  mode_to_native(request->mode( ));
                 int   flags = flags_to_native(request->flags( ));
 
+                std::string fmode( request->strmode( ) );
+
                 if( (flags & O_CREAT) && (0 == mode) ) {
                     mode = S_IRUSR | S_IWUSR;
                 }
@@ -632,16 +634,24 @@ namespace fr { namespace agent { namespace subsys {
                 namespace afile     = fr::agent::file;
                 namespace adevice   = fr::agent::device;
 
-                if( request->as_device( ) ) {
+                if( request->has_strmode( ) ) { // fopen
+
+                    new_file.reset(afile::create( request->path( ), fmode ) );
+
+                } else if( request->as_device( ) ) { // open
+
                     new_file.reset( (mode == 0)
                         ? adevice::create( request->path( ), flags )
                         : adevice::create( request->path( ), flags, mode )
                     );
-                } else {
+
+                } else { // open
+
                     new_file.reset( (mode == 0)
                         ? afile::create( request->path( ), flags )
                         : afile::create( request->path( ), flags, mode )
                     );
+
                 }
 
                 response->set_value( add_file( new_file ) );

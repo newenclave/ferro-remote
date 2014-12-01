@@ -90,6 +90,9 @@ namespace interfaces { namespace file {
     typedef iface* iface_ptr;
 
     iface_ptr create( core::client_core &cl,
+                      const std::string &path, const std::string &mode );
+
+    iface_ptr create( core::client_core &cl,
                       const std::string &path, unsigned flags );
 
     iface_ptr create( core::client_core &cl,

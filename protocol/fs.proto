@@ -158,6 +158,7 @@ message file_open_req {
     optional uint32 flags     = 2; // see open_file_values.flags
     optional uint32 mode      = 3; // see open_file_values.mode
     optional bool   as_device = 4;
+    optional string strmode   = 5;
 }
 
 enum file_position_whence {

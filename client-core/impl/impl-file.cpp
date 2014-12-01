@@ -37,6 +37,19 @@ namespace fr { namespace client { namespace interfaces {
             return res;
         }
 
+        fproto::handle open_file( client_type &cl, const std::string &path,
+                                  const std::string &mode )
+        {
+            fproto::file_open_req req;
+            fproto::handle        res;
+            req.set_path( path );
+            req.set_strmode( mode );
+            cl.call( &stub_type::open, &req, &res );
+
+            return res;
+        }
+
+
         struct file_impl: public file::iface {
 
             core::client_core     &core_;
@@ -49,6 +62,13 @@ namespace fr { namespace client { namespace interfaces {
                 :core_(ccore)
                 ,client_(core_.create_channel( ), true)
                 ,hdl_(open_file(client_, path, flags, mode, as_device))
+            { }
+
+            file_impl( core::client_core &ccore,
+                       const std::string &path, const std::string &mode )
+                :core_(ccore)
+                ,client_(core_.create_channel( ), true)
+                ,hdl_(open_file(client_, path, mode ))
             { }
 
             ~file_impl( )  {
@@ -183,6 +203,13 @@ namespace fr { namespace client { namespace interfaces {
 
 
     namespace file {
+
+        iface_ptr create( core::client_core &cl,
+                      const std::string &path, const std::string &mode )
+        {
+            return new file_impl( cl, path, mode );
+        }
+
         iface_ptr create( core::client_core &cl,
                           const std::string &path, unsigned  flags )
         {
