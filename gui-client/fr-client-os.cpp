@@ -5,9 +5,13 @@
 
 #include <iostream>
 
+#include "fr-qml-call-wrappers.h"
+
 namespace fr { namespace declarative {
 
     namespace ifaces = fr::client::interfaces;
+    namespace vcomm = vtrc::common;
+
     typedef QSharedPointer<ifaces::os::iface> iface_qsptr;
 
     struct FrClientOS::impl {
@@ -42,15 +46,24 @@ namespace fr { namespace declarative {
         }
     }
 
+    bool FrClientOS::clientFailed( ) const
+    {
+        if( impl_->os_iface_.data( ) == nullptr ) {
+            setError("Channel is empty.");
+            setFailed( true );
+            return true;
+        }
+        return false;
+    }
+
     int FrClientOS::execute( const QString &cmd ) const
     {
-        if( impl_->os_iface_ ) {
-            int res = impl_->os_iface_->execute( cmd.toUtf8( ).constData( ) );
-            return res;
-        } else {
-            emit callFailed( "execute: Channel is empty." );
-        }
-        return -1;
+        FR_QML_CALL_PROLOGUE
+
+        int res = impl_->os_iface_->execute( cmd.toUtf8( ).constData( ) );
+        return res;
+
+        FR_QML_CALL_EPILOGUE( -1 )
     }
 
     void FrClientOS::ready(  )

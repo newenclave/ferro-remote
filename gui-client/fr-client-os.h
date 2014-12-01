@@ -16,6 +16,7 @@ namespace fr { namespace declarative {
     private:
 
         void on_reinit( );
+        bool clientFailed( ) const;
 
     public:
 

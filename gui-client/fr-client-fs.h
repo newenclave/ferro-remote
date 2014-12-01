@@ -60,6 +60,8 @@ namespace fr { namespace declarative {
         void on_reinit( );
         void on_ready( bool value );
 
+        bool clientFailed( ) const;
+
     public:
 
         explicit FrClientFs(QObject *parent = 0);

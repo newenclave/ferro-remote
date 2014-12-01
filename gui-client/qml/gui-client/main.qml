@@ -89,8 +89,11 @@ Rectangle {
                             + i.symlink + " "
                     f.writeFile( "/home/data/test.rnd",
                                  f.readFile( "/dev/random", 10 ) )
+                    if( f.failed ) {
+                        console.log( "FS failed: " + f.error )
+                    }
                     f.destroy( )
-                    m.execute( command.text )
+//                    m.execute( command.text )
                 }
                 Connections {
                     target: generalClient

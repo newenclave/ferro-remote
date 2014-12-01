@@ -2,6 +2,7 @@
 #define FRCOMPONENTCREATOR_H
 
 #include <QObject>
+#include <QPointer>
 
 #include "fr-client.h"
 

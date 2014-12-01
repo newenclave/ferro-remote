@@ -40,5 +40,6 @@ HEADERS += \
     fr-client-os.h \
     fr-base-component.h \
     fr-component-creator.h \
-    fr-client-fs.h
+    fr-client-fs.h \
+    fr-qml-call-wrappers.h
 

@@ -11,6 +11,8 @@
 
 #include <QException>
 
+#include "fr-qml-call-wrappers.h"
+
 namespace fr { namespace declarative {
 
     namespace iface = fr::client::interfaces;
@@ -57,14 +59,6 @@ namespace fr { namespace declarative {
         iface_qsptr iface_;
     };
 
-
-    class MyException:  public QException
-    {
-    public:
-        void raise( ) const { throw *this; }
-        MyException *clone( ) const { return new MyException(*this); }
-    };
-
     FrClientFs::FrClientFs( QObject *parent )
         :FrBaseComponent(parent)
         ,impl_(new impl)
@@ -85,18 +79,32 @@ namespace fr { namespace declarative {
                 iface::filesystem::create( client( )->core_client( ),
                                            impl_->currentPath_ ) );
             if( client( )->ready( ) ) {
+                FR_QML_CALL_PROLOGUE
                 impl_->iface_->cd( impl_->currentPath_ );
+                FR_QML_CALL_EPILOGUE( )
             }
         }
     }
 
+    bool FrClientFs::clientFailed( ) const
+    {
+        if( impl_->iface_.data( ) == nullptr ) {
+            setError("Channel is empty.");
+            setFailed( true );
+            return true;
+        }
+        return false;
+    }
+
     void FrClientFs::on_ready( bool value )
     {
+        FR_QML_CALL_PROLOGUE
         if( value ) {
             impl_->iface_->cd( impl_->currentPath_ );
         } else {
             impl_->iface_.reset( );
         }
+        FR_QML_CALL_EPILOGUE( )
     }
 
     void FrClientFs::setPath( const QString &new_value )
@@ -115,67 +123,72 @@ namespace fr { namespace declarative {
 
     bool FrClientFs::exists( const QString &path ) const
     {
-        if( impl_->iface_.data( ) ) {
-            return impl_->iface_->exists( path.toUtf8( ).constData( ) );
-        }
-        return false;
+        FR_QML_CALL_PROLOGUE
+        return impl_->iface_->exists( path.toUtf8( ).constData( ) );
+        FR_QML_CALL_EPILOGUE( false )
     }
 
     void FrClientFs::mkdir( const QString &path ) const
     {
-        if( impl_->iface_.data( ) ) {
-            impl_->iface_->mkdir( path.toUtf8( ).constData( ) );
-        }
+        FR_QML_CALL_PROLOGUE
+
+        impl_->iface_->mkdir( path.toUtf8( ).constData( ) );
+
+        FR_QML_CALL_EPILOGUE( )
     }
 
     void FrClientFs::remove( const QString &path ) const
     {
-        if( impl_->iface_.data( ) ) {
-            impl_->iface_->del( path.toUtf8( ).constData( ) );
-        }
+        FR_QML_CALL_PROLOGUE
+        impl_->iface_->del( path.toUtf8( ).constData( ) );
+        FR_QML_CALL_EPILOGUE( )
     }
 
     void FrClientFs::removeAll( const QString &path ) const
     {
-        if( impl_->iface_.data( ) ) {
-            impl_->iface_->remove_all( path.toUtf8( ).constData( ) );
-        }
+        FR_QML_CALL_PROLOGUE
+
+        impl_->iface_->remove_all( path.toUtf8( ).constData( ) );
+
+        FR_QML_CALL_EPILOGUE( )
     }
 
     QObject *FrClientFs::info( const QString &path ) const
     {
-        if( impl_->iface_.data( ) ) {
-            fs_info_data fid;
-            impl_->iface_->info( path.toUtf8( ).constData( ), fid );
-            FrFilesystemInfo *inst = new FrFilesystemInfo( fid );
-            inst->deleteLater( );
-            return inst;
-        }
-        return nullptr;
+        FR_QML_CALL_PROLOGUE
+
+        fs_info_data fid;
+        impl_->iface_->info( path.toUtf8( ).constData( ), fid );
+        FrFilesystemInfo *inst = new FrFilesystemInfo( fid );
+        inst->deleteLater( );
+        return inst;
+
+        FR_QML_CALL_EPILOGUE( nullptr )
     }
 
     QByteArray FrClientFs::readFile( const QString &path,
                                      unsigned maximum ) const
     {
-        if( maximum > 0 && impl_->iface_.data( ) ) {
+        FR_QML_CALL_PROLOGUE
+        if( maximum ) {
             std::vector<char> data( maximum );
             size_t r = impl_->iface_->read_file( path.toUtf8( ).constData( ),
                                                  &data[0], maximum );
             return QByteArray( r ? &data[0] : "", r );
         }
-        return QByteArray( );
+        FR_QML_CALL_EPILOGUE( QByteArray( ) )
     }
 
     unsigned FrClientFs::writeFile( const QString &path,
                                     const QByteArray &data ) const
     {
-        if( impl_->iface_.data( ) ) {
-            size_t r = impl_->iface_->write_file( path.toUtf8( ).constData( ),
-                                                  data.constData( ),
-                                                  data.size( ) );
-            return (unsigned)(r);
-        }
-        return 0;
+        FR_QML_CALL_PROLOGUE
+        size_t r = impl_->iface_->write_file( path.toUtf8( ).constData( ),
+                                              data.constData( ),
+                                              data.size( ) );
+        return (unsigned)(r);
+
+        FR_QML_CALL_EPILOGUE( 0 )
     }
 
 }}
