@@ -21,16 +21,15 @@ namespace fr { namespace client {
 
 namespace fr { namespace declarative {
 
-
     class FrFilesystemInfo: public QObject {
 
         Q_OBJECT
 
-        Q_PROPERTY(bool exists      READ exists     )
-        Q_PROPERTY(bool directory   READ directory  )
-        Q_PROPERTY(bool empty       READ empty      )
-        Q_PROPERTY(bool regular     READ regular    )
-        Q_PROPERTY(bool symlink     READ symlink    )
+        Q_PROPERTY( bool exists      READ exists     )
+        Q_PROPERTY( bool directory   READ directory  )
+        Q_PROPERTY( bool empty       READ empty      )
+        Q_PROPERTY( bool regular     READ regular    )
+        Q_PROPERTY( bool symlink     READ symlink    )
 
         fr::client::interfaces::filesystem::info_data *data_;
 

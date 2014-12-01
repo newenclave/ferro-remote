@@ -265,10 +265,10 @@ namespace fr { namespace agent { namespace subsys {
                 }
             }
 
-            void info(::google::protobuf::RpcController* /*controller*/,
-                         const ::fr::proto::fs::handle_path* request,
-                         ::fr::proto::fs::element_info* response,
-                         ::google::protobuf::Closure* done) override
+            void info( ::google::protobuf::RpcController* /*controller*/,
+                       const ::fr::proto::fs::handle_path* request,
+                       ::fr::proto::fs::element_info* response,
+                       ::google::protobuf::Closure* done) override
             {
                 vcomm::closure_holder holder(done);
                 vtrc::uint32_t hdl;
@@ -276,10 +276,10 @@ namespace fr { namespace agent { namespace subsys {
                 fill_info( p, response );
             }
 
-            void get_stat(::google::protobuf::RpcController* /*controller*/,
-                         const ::fr::proto::fs::handle_path* request,
-                         ::fr::proto::fs::element_stat* response,
-                         ::google::protobuf::Closure* done) override
+            void get_stat( ::google::protobuf::RpcController* /*controller*/,
+                           const ::fr::proto::fs::handle_path* request,
+                           ::fr::proto::fs::element_stat*      response,
+                           ::google::protobuf::Closure* done) override
             {
                 vcomm::closure_holder holder(done);
                 vtrc::uint32_t hdl;
@@ -287,6 +287,7 @@ namespace fr { namespace agent { namespace subsys {
 
                 struct stat ss = { 0 };
                 int res = ::stat( p.string( ).c_str( ), &ss );
+
                 if( -1 == res ) {
                     vcomm::throw_system_error( errno, "::stat" );
                 }
