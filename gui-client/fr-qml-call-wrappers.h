@@ -4,6 +4,9 @@
 #include <sstream>
 #include "vtrc-common/vtrc-exception.h"
 
+#define FR_QML_CALL_PROLOGUE0                       \
+    try {                                           \
+
 #define FR_QML_CALL_PROLOGUE                        \
     if( prologueCall( ) ) try {                     \
 

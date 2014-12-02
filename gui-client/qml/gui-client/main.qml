@@ -80,18 +80,12 @@ Rectangle {
 
                 onClicked: {
                     var m = call( )
-                    var f = frComponents.newFs( generalClient )
-                    var i = f.info( "/dev/random" )
-                    file.text = "file /dev/random: "
-                            + i.exists + " "
-                            + i.directory + " "
-                            + i.empty + " "
-                            + i.regular + " "
-                            + i.symlink + " "
-                    f.writeFile( "/home/data/test.rnd",
-                                 f.readFile( "/dev2/random", 10 ) )
-                    f.destroy( )
-//                    m.execute( command.text )
+                    rfile.open( )
+                    rfile.position = 2
+                    file.text = rfile.read( 100 ).toString( )
+                    if( rfile.failed ) {
+                        status.text = rfile.error
+                    }
                 }
                 Connections {
                     target: generalClient
@@ -123,8 +117,13 @@ Rectangle {
                }
             }
         }
-        Text {
+        Label {
             id: file
+        }
+        FrClientFile {
+            id: rfile
+            client: generalClient
+            path: "/home/data/test.txt"
         }
     }
 }
