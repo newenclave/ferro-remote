@@ -85,7 +85,7 @@ namespace fr { namespace declarative {
 
     signals:
 
-        void pathChanged( const QString &value );
+        void pathChanged( QString value );
 
     public slots:
 
