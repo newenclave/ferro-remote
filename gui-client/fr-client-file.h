@@ -66,8 +66,6 @@ namespace fr { namespace declarative {
         Q_INVOKABLE QByteArray read( unsigned maximum ) const;
         Q_INVOKABLE unsigned write( const QByteArray &data ) const;
 
-        void emitEvent( unsigned error, QByteArray data );
-
     signals:
 
         void pathChanged( QString value ) const;

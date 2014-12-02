@@ -42,8 +42,9 @@ namespace fr { namespace declarative {
 
         void events_handler( unsigned error, const std::string &data )
         {
-            parent_->emitEvent( error,
-                                QByteArray( data.c_str( ), data.size( ) ) );
+            emit parent_->fileEvent( error,
+                                     QByteArray( data.c_str( ),
+                                                 data.size( ) ) );
         }
 
         void register_events( )
@@ -193,11 +194,6 @@ namespace fr { namespace declarative {
         size_t r = impl_->iface_->write( data.constData( ), data.size( ) );
         return (unsigned)(r);
         FR_QML_CALL_EPILOGUE( 0 )
-    }
-
-    void FrClientFile::emitEvent( unsigned error, QByteArray data )
-    {
-        emit fileEvent( error, data );
     }
 
     void FrClientFile::open( )
