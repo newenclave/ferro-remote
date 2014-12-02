@@ -15,7 +15,7 @@ namespace fr { namespace declarative {
         Q_PROPERTY( QString mode
                     READ mode WRITE setMode NOTIFY modeChanged)
 
-        Q_PROPERTY( quint64 position READ position WRITE setPosition )
+        Q_PROPERTY( quint64 position READ position )
 
         Q_PROPERTY( bool opened READ opened )
 
@@ -32,7 +32,15 @@ namespace fr { namespace declarative {
 
         explicit FrClientFile( QObject *parent = 0 );
         ~FrClientFile(  );
+
     public:
+
+        enum seek_whence {
+             POS_SEEK_SET = 0
+            ,POS_SEEK_CUR = 1
+            ,POS_SEEK_END = 2
+        };
+        Q_ENUMS( seek_whence )
 
         QString path( ) const;
         void setPath( const QString &value );
@@ -41,7 +49,6 @@ namespace fr { namespace declarative {
         void setMode( const QString &value );
 
         quint64 position( ) const;
-        void setPosition( quint64 value );
 
         bool opened( ) const;
         void setOpened( bool value ) const;
@@ -63,6 +70,7 @@ namespace fr { namespace declarative {
 
         void open( );
         void close( );
+        void seek( quint64 value, seek_whence whence = POS_SEEK_SET ) const;
 
     };
 

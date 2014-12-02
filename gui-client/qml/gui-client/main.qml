@@ -81,11 +81,11 @@ Rectangle {
                 onClicked: {
                     var m = call( )
                     rfile.open( )
-                    rfile.position = 2
-                    file.text = rfile.read( 100 ).toString( )
-                    if( rfile.failed ) {
-                        status.text = rfile.error
-                    }
+//                    rfile.position = 2
+//                    file.text = rfile.read( 100 ).toString( )
+//                    if( rfile.failed ) {
+//                        status.text = rfile.error
+//                    }
                 }
                 Connections {
                     target: generalClient

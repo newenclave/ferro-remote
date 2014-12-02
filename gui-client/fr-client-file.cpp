@@ -17,9 +17,10 @@ namespace fr { namespace declarative {
         std::string  path_;
         std::string  mode_;
         iface_qsptr  iface_;
-
+        bool         opened_;
         impl( )
             :mode_("rb")
+            ,opened_(false)
         { }
 
         void iface_create( FrClient *cl )
@@ -47,18 +48,20 @@ namespace fr { namespace declarative {
     {
         FrClient *cl = client( );
         if( cl ) {
-            if( cl->ready( ) ) {
+            if( cl->ready( ) && impl_->opened_ ) {
                 FR_QML_CALL_PROLOGUE0
                 impl_->iface_create( cl );
                 FR_QML_CALL_EPILOGUE(  )
             }
+        } else {
+            close( );
         }
     }
 
     void FrClientFile::on_ready( bool value )
     {
         FR_QML_CALL_PROLOGUE0
-        if( value && impl_->iface_.data( ) != nullptr ) {
+        if( value && impl_->opened_  ) {
             impl_->iface_create( client( ) );
         }
         FR_QML_CALL_EPILOGUE( )
@@ -111,15 +114,6 @@ namespace fr { namespace declarative {
         FR_QML_CALL_EPILOGUE( (quint64)(-1) );
     }
 
-    void FrClientFile::setPosition( quint64 value )
-    {
-        FR_QML_CALL_PROLOGUE
-
-        impl_->iface_->seek( value, fiface::POS_SEEK_SET );
-
-        FR_QML_CALL_EPILOGUE( );
-    }
-
     bool FrClientFile::opened( ) const
     {
         return impl_->iface_.data( ) != nullptr;
@@ -160,12 +154,22 @@ namespace fr { namespace declarative {
         FR_QML_CALL_PROLOGUE0
         setFailed( false );
         impl_->iface_create( client( ) );
+        impl_->opened_ = true;
         FR_QML_CALL_EPILOGUE( )
     }
 
     void FrClientFile::close( )
     {
         impl_->iface_.reset( );
+        impl_->opened_ = false;
     }
+
+    void FrClientFile::seek( quint64 value, seek_whence whence ) const
+    {
+        FR_QML_CALL_PROLOGUE
+        impl_->iface_->seek( value, fiface::whence_value2enum( whence ) );
+        FR_QML_CALL_EPILOGUE( )
+    }
+
 
 }}
