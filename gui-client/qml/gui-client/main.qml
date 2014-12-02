@@ -81,6 +81,7 @@ Rectangle {
                 onClicked: {
                     var m = call( )
                     rfile.open( )
+                    rfile.events = true
 //                    rfile.position = 2
 //                    file.text = rfile.read( 100 ).toString( )
 //                    if( rfile.failed ) {
@@ -117,13 +118,25 @@ Rectangle {
                }
             }
         }
-        Label {
+        Text {
             id: file
         }
+        Text {
+            id: dataDile
+            Connections {
+                target: rfile
+                onFileEvent: {
+                    if( error == 0 ) {
+                        dataDile.text = data.toString( )
+                    }
+                }
+            }
+        }
+
         FrClientFile {
             id: rfile
             client: generalClient
-            path: "/home/data/test.txt"
+            path: "/dev/random"
         }
     }
 }

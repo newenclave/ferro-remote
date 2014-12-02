@@ -10,12 +10,15 @@ namespace fr { namespace declarative {
     {
         Q_OBJECT
         Q_PROPERTY( QString path
-                    READ path WRITE setPath NOTIFY pathChanged)
+                    READ path WRITE setPath NOTIFY pathChanged )
 
         Q_PROPERTY( QString mode
-                    READ mode WRITE setMode NOTIFY modeChanged)
+                    READ mode WRITE setMode NOTIFY modeChanged )
 
         Q_PROPERTY( quint64 position READ position )
+
+        Q_PROPERTY( bool events READ events
+                    WRITE setEvents NOTIFY eventsChanged )
 
         Q_PROPERTY( bool opened READ opened )
 
@@ -45,6 +48,9 @@ namespace fr { namespace declarative {
         QString path( ) const;
         void setPath( const QString &value );
 
+        bool events( ) const;
+        void setEvents( bool value );
+
         QString mode( ) const;
         void setMode( const QString &value );
 
@@ -60,11 +66,16 @@ namespace fr { namespace declarative {
         Q_INVOKABLE QByteArray read( unsigned maximum ) const;
         Q_INVOKABLE unsigned write( const QByteArray &data ) const;
 
+        void emitEvent( unsigned error, QByteArray data );
+
     signals:
 
         void pathChanged( QString value ) const;
         void modeChanged( QString value ) const;
         void openedChanged( bool value ) const;
+        void eventsChanged( bool value ) const;
+
+        void fileEvent( unsigned error, QByteArray data ) const;
 
     public slots:
 

@@ -6,6 +6,7 @@
 
 #include "fr-qml-call-wrappers.h"
 
+#include <functional>
 
 namespace fr { namespace declarative {
 
@@ -14,14 +15,47 @@ namespace fr { namespace declarative {
     typedef QSharedPointer<fiface::iface> iface_qsptr;
 
     struct FrClientFile::impl {
-        std::string  path_;
-        std::string  mode_;
-        iface_qsptr  iface_;
-        bool         opened_;
+
+        FrClientFile *parent_;
+        std::string   path_;
+        std::string   mode_;
+        iface_qsptr   iface_;
+        bool          opened_;
+        bool          events_;
+
+        fiface::file_event_callback event_cb_;
+
         impl( )
             :mode_("rb")
             ,opened_(false)
-        { }
+            ,events_(false)
+        {
+            event_cb_ = mkevent_cb( );
+        }
+
+        fiface::file_event_callback mkevent_cb( )
+        {
+            return std::bind( &impl::events_handler, this,
+                              std::placeholders::_1,
+                              std::placeholders::_2 );
+        }
+
+        void events_handler( unsigned error, const std::string &data )
+        {
+            parent_->emitEvent( error,
+                                QByteArray( data.c_str( ), data.size( ) ) );
+        }
+
+        void register_events( )
+        {
+            if( events_ ) {
+                if( iface_ ) {
+                    iface_->register_for_events( event_cb_ );
+                }
+            } else {
+                iface_->unregister( );
+            }
+        }
 
         void iface_create( FrClient *cl )
         {
@@ -35,7 +69,7 @@ namespace fr { namespace declarative {
         :FrBaseComponent(parent)
         ,impl_(new impl)
     {
-
+        impl_->parent_ = this;
     }
 
     FrClientFile::~FrClientFile(  )
@@ -49,9 +83,7 @@ namespace fr { namespace declarative {
         FrClient *cl = client( );
         if( cl ) {
             if( cl->ready( ) && impl_->opened_ ) {
-                FR_QML_CALL_PROLOGUE0
-                impl_->iface_create( cl );
-                FR_QML_CALL_EPILOGUE(  )
+                open( );
             }
         } else {
             close( );
@@ -88,6 +120,20 @@ namespace fr { namespace declarative {
         if( nvalue != impl_->path_ ) {
             impl_->path_ = nvalue;
             emit pathChanged( value );
+        }
+    }
+
+    bool FrClientFile::events( ) const
+    {
+        return impl_->events_;
+    }
+
+    void FrClientFile::setEvents( bool value )
+    {
+        if( impl_->events_ != value ) {
+            impl_->events_ = value;
+            impl_->register_events( );
+            emit eventsChanged( impl_->events_ );
         }
     }
 
@@ -149,11 +195,17 @@ namespace fr { namespace declarative {
         FR_QML_CALL_EPILOGUE( 0 )
     }
 
+    void FrClientFile::emitEvent( unsigned error, QByteArray data )
+    {
+        emit fileEvent( error, data );
+    }
+
     void FrClientFile::open( )
     {
         FR_QML_CALL_PROLOGUE0
         setFailed( false );
         impl_->iface_create( client( ) );
+        impl_->register_events( );
         impl_->opened_ = true;
         FR_QML_CALL_EPILOGUE( )
     }
@@ -170,6 +222,5 @@ namespace fr { namespace declarative {
         impl_->iface_->seek( value, fiface::whence_value2enum( whence ) );
         FR_QML_CALL_EPILOGUE( )
     }
-
 
 }}
