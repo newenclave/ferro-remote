@@ -370,6 +370,7 @@ namespace fr { namespace agent { namespace subsys {
                 if( !response->end( ) ) {
                     std::string path( iter->path( ).string( ) );
                     response->set_path( path );
+                    fill_info( iter->path( ), response->mutable_info( ) );
                 }
             }
 
