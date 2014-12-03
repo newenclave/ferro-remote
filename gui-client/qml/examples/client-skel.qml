@@ -1,5 +1,4 @@
 import QtQuick 2.0
-import QtQuick.Controls 1.1
 
 import Fr.Client 1.0
 
@@ -7,53 +6,77 @@ Rectangle {
 
     id: mainWindow
     width: 480
-    height: 200
+    height: 42
 
     FrClient {
         id: generalClient
     }
 
-    Column {
-        anchors.margins: 10
+    Row {
+
         spacing: 10
-        anchors.fill: parent
+        anchors.margins: 10
+        anchors.top: parent.top
+        anchors.left: parent.left
+        anchors.right: parent.right
 
-        Row {
-            spacing: 10
+        Rectangle {
 
-            TextField {
+            width: 200
+            height: 22
+
+            border.color: "black"
+            border.width: 1
+
+            TextInput {
+                anchors.centerIn: parent
                 id: address
                 text: "127.0.0.1:12345"
-                width: 200
+            }
+        }
+
+        Rectangle {
+
+            id: connectRect
+
+            height: 22
+            width: 80
+
+            border.color: "black"
+            border.width: 1
+
+            property bool connected: false
+
+            Text {
+                id: connectButton
+                anchors.centerIn: parent
+                text: qsTr("Connect")
             }
 
-            Button {
-
-                text: qsTr("Connect")
-                id: connectButton
-                property bool connected: false
-
-                onClicked: {                    
-                    if( !connected ) {
+            MouseArea {
+                anchors.fill: parent
+                onClicked: {
+                    if( !connectRect.connected ) {
                         generalClient.connect( address.text )
                     } else {
                         generalClient.disconnect( )
                     }
                 }
+            }
 
-                Connections {
-                    target: generalClient
-                    onReadyChanged: {
-                        connectButton.connected = value
-                        if( value ) {
-                            connectButton.text = qsTr("Disconnect")
-                        } else {
-                            connectButton.text = qsTr("Connect")
-                        }
+            Connections {
+                target: generalClient
+                onReadyChanged: {
+                    connectRect.connected = value
+                    if( value ) {
+                        connectButton.text = qsTr("Disconnect")
+                    } else {
+                        connectButton.text = qsTr("Connect")
                     }
                 }
             }
         }
+
         Text {
             id: status
             text: qsTr("wait")
