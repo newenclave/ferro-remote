@@ -29,7 +29,9 @@ Rectangle {
             border.width: 1
 
             TextInput {
-                anchors.centerIn: parent
+                anchors.left: parent.left
+                anchors.right: parent.right
+                anchors.verticalCenter: parent.verticalCenter
                 id: address
                 text: "127.0.0.1:12345"
             }
