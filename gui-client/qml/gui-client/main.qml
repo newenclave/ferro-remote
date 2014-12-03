@@ -130,6 +130,7 @@ Rectangle {
                     }
                 }
             }
+
         }
 
         FrClientFile {
