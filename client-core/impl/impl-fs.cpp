@@ -14,11 +14,22 @@
 namespace fr { namespace client { namespace interfaces {
 
     namespace {
+
         namespace vcomm  = vtrc::common;
         namespace fproto = proto::fs;
 
         typedef fproto::instance::Stub          stub_type;
         typedef vcomm::stub_wrapper<stub_type>  client_type;
+
+        void proto2info(fproto::element_info const &data,
+                        filesystem::info_data      &info)
+        {
+            info.is_directory = data.is_directory( );
+            info.is_empty     = data.is_empty( );
+            info.is_exist     = data.is_exist( );
+            info.is_regular   = data.is_regular( );
+            info.is_symlink   = data.is_symlink( );
+        }
 
         struct dir_iter_impl: public filesystem::directory_iterator_impl {
 
@@ -28,6 +39,7 @@ namespace fr { namespace client { namespace interfaces {
             vtrc::uint32_t              hdl_;
             filesystem::iterator_value  val_;
             bool                        end_;
+            filesystem::info_data       info_;
 
             dir_iter_impl( const vtrc::shared_ptr<vcomm::rpc_channel> &c,
                            const fproto::iterator_info &info )
@@ -36,6 +48,7 @@ namespace fr { namespace client { namespace interfaces {
                 ,hdl_(info.hdl( ).value( ))
             {
                 copy_data( info );
+                proto2info( info.info( ), info_ );
             }
 
             void copy_data( const fproto::iterator_info &info )
@@ -79,6 +92,10 @@ namespace fr { namespace client { namespace interfaces {
                 return val_;
             }
 
+            const filesystem::info_data &info( ) const
+            {
+                return info_;
+            }
         };
     }
 

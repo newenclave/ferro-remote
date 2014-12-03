@@ -56,6 +56,8 @@ namespace interfaces { namespace filesystem {
         virtual iterator_value &get( ) = 0;
         virtual const iterator_value &get( ) const = 0;
 
+        virtual const info_data &info( ) const = 0;
+
     };
 
     typedef std::iterator < std::input_iterator_tag,
