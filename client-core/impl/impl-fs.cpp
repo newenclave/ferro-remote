@@ -48,13 +48,13 @@ namespace fr { namespace client { namespace interfaces {
                 ,hdl_(info.hdl( ).value( ))
             {
                 copy_data( info );
-                proto2info( info.info( ), info_ );
             }
 
             void copy_data( const fproto::iterator_info &info )
             {
                 val_.path   = info.path( );
                 end_        = info.end( );
+                proto2info( info.info( ), info_ );
             }
 
             directory_iterator_impl *clone( ) const
