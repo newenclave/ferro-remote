@@ -81,7 +81,6 @@ Rectangle {
                 onClicked: {
                     var m = call( )
                     rfile.open( )
-                    rfile.events = true
 //                    rfile.position = 2
 //                    file.text = rfile.read( 100 ).toString( )
 //                    if( rfile.failed ) {
@@ -136,6 +135,7 @@ Rectangle {
         FrClientFile {
             id: rfile
             client: generalClient
+            events: true
             path: "/dev/random"
         }
     }
