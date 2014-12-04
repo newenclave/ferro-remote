@@ -2,7 +2,42 @@
 
 namespace fr { namespace declarative {
 
-    struct FrBaseComponent::impl {
+
+    FrBaseComponent::FrBaseComponent( QObject *parent )
+        :QObject(parent)
+        ,failed_(false)
+    { }
+
+    QString FrBaseComponent::error( ) const
+    {
+        return error_;
+    }
+
+    bool FrBaseComponent::failed( ) const
+    {
+        return failed_;
+    }
+
+    void FrBaseComponent::setFailed( bool value ) const
+    {
+        if( value != failed_ ) {
+            failed_ = value;
+            emit failedChanged( failed_ );
+        }
+    }
+
+    bool FrBaseComponent::prologueCall( ) const
+    {
+        return !clientFailed( ) && !failed( );
+    }
+
+    void FrBaseComponent::setError( const QString &value ) const
+    {
+        error_ = value;
+    }
+
+
+    struct FrComponent::impl {
         mutable bool               failed_;
         mutable QString            error_;
         impl( )
@@ -10,23 +45,23 @@ namespace fr { namespace declarative {
         { }
     };
 
-    FrBaseComponent::FrBaseComponent( QObject *parent )
-        :QObject(parent)
+    FrComponent::FrComponent( QObject *parent )
+        :FrBaseComponent(parent)
         ,impl_(new impl)
         ,client_(nullptr)
     { }
 
-    FrBaseComponent::~FrBaseComponent( )
+    FrComponent::~FrComponent( )
     {
         delete impl_;
     }
 
-    FrClient *FrBaseComponent::client( ) const
+    FrClient *FrComponent::client( ) const
     {
         return client_;
     }
 
-    void FrBaseComponent::setClient( FrClient *new_value )
+    void FrComponent::setClient( FrClient *new_value )
     {
         if( new_value != client_ ) {
 
@@ -46,35 +81,7 @@ namespace fr { namespace declarative {
         }
     }
 
-    QString FrBaseComponent::error( ) const
-    {
-        return impl_->error_;
-    }
-
-    bool FrBaseComponent::failed( ) const
-    {
-        return impl_->failed_;
-    }
-
-    void FrBaseComponent::setFailed( bool value ) const
-    {
-        if( value != impl_->failed_ ) {
-            impl_->failed_ = value;
-            emit failedChanged( impl_->failed_ );
-        }
-    }
-
-    bool FrBaseComponent::prologueCall( ) const
-    {
-        return !clientFailed( ) && !failed( );
-    }
-
-    void FrBaseComponent::setError( const QString &value ) const
-    {
-        impl_->error_ = value;
-    }
-
-    void FrBaseComponent::onReady( bool value )
+    void FrComponent::onReady( bool value )
     {
         on_ready( value );
     }

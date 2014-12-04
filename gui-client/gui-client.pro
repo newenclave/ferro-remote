@@ -21,7 +21,8 @@ SOURCES += main.cpp \
     fr-base-component.cpp \
     fr-component-creator.cpp \
     fr-client-fs.cpp \
-    fr-client-file.cpp
+    fr-client-file.cpp \
+    fr-client-fs-iterator.cpp
 
 include( ferro-remote-templ.pri )
 
@@ -43,5 +44,6 @@ HEADERS += \
     fr-component-creator.h \
     fr-client-fs.h \
     fr-qml-call-wrappers.h \
-    fr-client-file.h
+    fr-client-file.h \
+    fr-client-fs-iterator.h
 

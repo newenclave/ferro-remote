@@ -11,13 +11,43 @@ namespace fr { namespace declarative {
     class FrBaseComponent: public QObject {
 
         Q_OBJECT
-        Q_PROPERTY( fr::declarative::FrClient *client
-                    READ client WRITE setClient NOTIFY clientChanged )
 
         Q_PROPERTY( bool failed
                     READ failed WRITE setFailed NOTIFY failedChanged )
 
         Q_PROPERTY( QString error READ error )
+
+        mutable bool    failed_;
+        mutable QString error_;
+
+    public:
+
+        explicit FrBaseComponent( QObject *parent = 0 );
+
+    protected:
+
+        void setError( const QString &value ) const;
+        bool prologueCall( ) const;
+
+        virtual bool clientFailed( ) const { return false; }
+
+    public:
+
+        QString error( ) const;
+
+        bool failed( ) const;
+        void setFailed( bool value ) const;
+
+    signals:
+        void failedChanged( bool value ) const;
+    };
+
+    class FrComponent: public FrBaseComponent {
+
+        Q_OBJECT
+        Q_PROPERTY( fr::declarative::FrClient *client
+                    READ client WRITE setClient NOTIFY clientChanged )
+
 
         struct  impl;
         impl   *impl_;
@@ -29,31 +59,17 @@ namespace fr { namespace declarative {
         virtual void on_reinit( ) { }
         virtual void on_ready( bool value ) { Q_UNUSED(value) }
 
-    protected:
-
-        void setError( const QString &value ) const;
-        virtual bool clientFailed( ) const { return false; }
-
-        bool prologueCall( ) const;
-
     public:
 
-        explicit FrBaseComponent( QObject *parent = 0 );
-        ~FrBaseComponent( );
+        explicit FrComponent( QObject *parent = 0 );
+        ~FrComponent( );
 
         FrClient *client( ) const;
         void setClient( FrClient *new_value );
 
-        QString error( ) const;
-
-        bool failed( ) const;
-        void setFailed( bool value ) const;
-
     signals:
 
         void clientChanged( const fr::declarative::FrClient *value ) const;
-        void callFailed( const QString &what ) const;
-        void failedChanged( bool value ) const;
 
     public slots:
 

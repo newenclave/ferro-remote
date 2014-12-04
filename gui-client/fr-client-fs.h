@@ -8,6 +8,7 @@ namespace fr { namespace client {
 
     namespace interfaces { namespace filesystem {
         struct info_data;
+        struct directory_iterator_impl;
     }}
 
 }}
@@ -46,7 +47,7 @@ namespace fr { namespace declarative {
         bool symlink( )   const;
     };
 
-    class FrClientFs: public FrBaseComponent {
+    class FrClientFs: public FrComponent {
 
         struct impl;
         impl  *impl_;
@@ -77,11 +78,16 @@ namespace fr { namespace declarative {
 
         Q_INVOKABLE QObject *info( const QString &path ) const;
 
+        Q_INVOKABLE QObject *begin( const QString &path = QString( ) ) const;
+
         Q_INVOKABLE QByteArray readFile( const QString &path,
                                          unsigned maximum ) const;
 
         Q_INVOKABLE unsigned writeFile( const QString &path,
                                         const QByteArray &data ) const;
+
+        fr::client::interfaces::filesystem
+        ::directory_iterator_impl *begin_iterate( const QString &path  ) const;
 
     signals:
 

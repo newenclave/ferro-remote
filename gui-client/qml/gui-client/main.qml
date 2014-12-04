@@ -24,6 +24,13 @@ Rectangle {
         anchors.margins: 10
         spacing: 10
         anchors.fill: parent
+
+        FrClientFs {
+            id: dirPath
+            path: "/home/data"
+            client: generalClient
+        }
+
         FrClientOS {
             id: osIface
             client: generalClient
@@ -81,6 +88,17 @@ Rectangle {
                 onClicked: {
                     var m = call( )
                     rfile.open( )
+                    var i = dirPath.begin( "" )
+                    console.log( i.name )
+                    while( !i.end ) {
+                        i.next( )
+                        var t = i.info
+                        if( i.info.directory ) {
+                            console.log( "[" + i.name + "]" )
+                        } else {
+                            console.log( " " + i.name )
+                        }
+                    }
 //                    rfile.position = 2
 //                    file.text = rfile.read( 100 ).toString( )
 //                    if( rfile.failed ) {

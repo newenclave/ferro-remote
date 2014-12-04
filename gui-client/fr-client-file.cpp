@@ -67,7 +67,7 @@ namespace fr { namespace declarative {
     };
 
     FrClientFile::FrClientFile(QObject *parent)
-        :FrBaseComponent(parent)
+        :FrComponent(parent)
         ,impl_(new impl)
     {
         impl_->parent_ = this;

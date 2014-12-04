@@ -12,6 +12,7 @@
 #include <QException>
 
 #include "fr-qml-call-wrappers.h"
+#include "fr-client-fs-iterator.h"
 
 namespace fr { namespace declarative {
 
@@ -60,7 +61,7 @@ namespace fr { namespace declarative {
     };
 
     FrClientFs::FrClientFs( QObject *parent )
-        :FrBaseComponent(parent)
+        :FrComponent(parent)
         ,impl_(new impl)
     {
 
@@ -74,15 +75,13 @@ namespace fr { namespace declarative {
 
     void FrClientFs::on_reinit( )
     {
-        if( client( ) ) {
+        if( client( ) && client( )->ready( ) ) {
             impl_->iface_.reset(
                 iface::filesystem::create( client( )->core_client( ),
                                            impl_->currentPath_ ) );
-            if( client( )->ready( ) ) {
-                FR_QML_CALL_PROLOGUE
-                impl_->iface_->cd( impl_->currentPath_ );
-                FR_QML_CALL_EPILOGUE( )
-            }
+            FR_QML_CALL_PROLOGUE
+            impl_->iface_->cd( impl_->currentPath_ );
+            FR_QML_CALL_EPILOGUE( )
         }
     }
 
@@ -98,8 +97,11 @@ namespace fr { namespace declarative {
 
     void FrClientFs::on_ready( bool value )
     {
-        FR_QML_CALL_PROLOGUE
+        FR_QML_CALL_PROLOGUE0
         if( value ) {
+            impl_->iface_.reset(
+                iface::filesystem::create( client( )->core_client( ),
+                                           impl_->currentPath_ ) );
             impl_->iface_->cd( impl_->currentPath_ );
         } else {
             impl_->iface_.reset( );
@@ -166,6 +168,16 @@ namespace fr { namespace declarative {
         FR_QML_CALL_EPILOGUE( nullptr )
     }
 
+    QObject *FrClientFs::begin( const QString &path ) const
+    {
+        FR_QML_CALL_PROLOGUE
+        FrClientFsIterator *inst =
+                new FrClientFsIterator( begin_iterate( path ) );
+        inst->deleteLater( );
+        return inst;
+        FR_QML_CALL_EPILOGUE( nullptr )
+    }
+
     QByteArray FrClientFs::readFile( const QString &path,
                                      unsigned maximum ) const
     {
@@ -190,5 +202,17 @@ namespace fr { namespace declarative {
 
         FR_QML_CALL_EPILOGUE( 0 )
     }
+
+    iface::filesystem::directory_iterator_impl *
+                        FrClientFs::begin_iterate( const QString &path ) const
+    {
+        if( impl_->iface_ ) {
+            return impl_->iface_->begin_iterate( path.toUtf8( ).constData( ) );
+        } else {
+            return nullptr;
+        }
+    }
+
+
 
 }}

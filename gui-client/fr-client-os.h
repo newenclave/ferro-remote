@@ -6,7 +6,7 @@
 
 namespace fr { namespace declarative {
 
-    class FrClientOS: public FrBaseComponent {
+    class FrClientOS: public FrComponent {
 
         Q_OBJECT
 

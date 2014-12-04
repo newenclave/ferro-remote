@@ -6,7 +6,7 @@
 
 namespace fr { namespace declarative {
 
-    class FrClientFile: public FrBaseComponent
+    class FrClientFile: public FrComponent
     {
         Q_OBJECT
         Q_PROPERTY( QString path
