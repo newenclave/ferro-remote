@@ -116,7 +116,7 @@ Rectangle {
                     mode: "wb"
                     path: "/dev/v2r_gpio"
                 }
-                text: ""
+                text: "!!!"
                 width: 40
                 height: 40
                 radius: 40
