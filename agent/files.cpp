@@ -239,6 +239,67 @@ namespace fr { namespace agent {
             }
 
         };
+
+        struct device2_file_impl: public file_iface {
+
+            FILE *fid_;
+            int fd_;
+
+            device2_file_impl( std::string const &path,
+                               std::string const &mode )
+                :fid_(open_wrapper(path.c_str( ), mode.c_str( )))
+                ,fd_(fileno(fid_))
+            { }
+
+            ~device2_file_impl( )
+            {
+                close( fd_ );
+            }
+
+            vtrc::int64_t seek( vtrc::int64_t /*offset*/,
+                                seek_whence   /*whence*/ )
+            {
+                return 0;
+            }
+
+            vtrc::int64_t tell( ) const
+            {
+                return 0;
+            }
+
+            void ioctl( int code, unsigned long data )
+            {
+                int res = ::ioctl( fd_, code, data );
+                errno_error::errno_assert( res != -1, "ioctl" );
+            }
+
+            size_t write( const void *data, size_t length )
+            {
+                ssize_t res = ::write( fd_, data, length );
+                lseek( fd_, 0, SEEK_SET );
+                errno_error::errno_assert( -1 != res, "write" );
+                return static_cast<size_t>(res);
+            }
+
+            size_t read( void *data, size_t length )
+            {
+                ssize_t res = ::read( fd_, data, length );
+                lseek( fd_, 0, SEEK_SET );
+                errno_error::errno_assert( -1 != res, "read" );
+                return static_cast<size_t>(res);
+            }
+
+            void flush( )
+            {
+                syncfs( fd_ );
+            }
+
+            int handle( ) const
+            {
+                return fd_;
+            }
+
+        };
     }
 
 
@@ -270,6 +331,12 @@ namespace fr { namespace agent {
         {
             return new device_file_impl( path, flags, mode );
         }
+
+        file_ptr create( std::string const &path, const std::string &mode )
+        {
+            return new device2_file_impl( path, mode );
+        }
+
     }
 
 }}

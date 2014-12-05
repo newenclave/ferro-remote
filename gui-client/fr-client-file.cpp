@@ -61,7 +61,7 @@ namespace fr { namespace declarative {
         void iface_create( FrClient *cl )
         {
             iface_.reset( fiface::create( cl->core_client( ),
-                                          path_, mode_ ) );
+                                          path_, mode_, false ) );
         }
 
     };

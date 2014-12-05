@@ -38,12 +38,13 @@ namespace fr { namespace client { namespace interfaces {
         }
 
         fproto::handle open_file( client_type &cl, const std::string &path,
-                                  const std::string &mode )
+                                  const std::string &mode, bool as_device )
         {
             fproto::file_open_req req;
             fproto::handle        res;
             req.set_path( path );
             req.set_strmode( mode );
+            req.set_as_device( as_device );
             cl.call( &stub_type::open, &req, &res );
 
             return res;
@@ -65,10 +66,11 @@ namespace fr { namespace client { namespace interfaces {
             { }
 
             file_impl( core::client_core &ccore,
-                       const std::string &path, const std::string &mode )
+                       const std::string &path, const std::string &mode,
+                       bool as_device )
                 :core_(ccore)
                 ,client_(core_.create_channel( ), true)
-                ,hdl_(open_file(client_, path, mode ))
+                ,hdl_(open_file(client_, path, mode, as_device ))
             { }
 
             ~file_impl( )  {
@@ -212,9 +214,10 @@ namespace fr { namespace client { namespace interfaces {
     namespace file {
 
         iface_ptr create( core::client_core &cl,
-                      const std::string &path, const std::string &mode )
+                      const std::string &path, const std::string &mode,
+                      bool as_device )
         {
-            return new file_impl( cl, path, mode );
+            return new file_impl( cl, path, mode, as_device );
         }
 
         iface_ptr create( core::client_core &cl,
