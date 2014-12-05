@@ -129,6 +129,16 @@ Rectangle {
             }
         }
 
+        Rectangle {
+            height: 25
+            width: mainWindow.width - 10
+            Text {
+                id: errorText
+                text: qsTr("")
+                color: "red"
+            }
+        }
+
         ListView {
 
             id: dirView
@@ -144,7 +154,9 @@ Rectangle {
                     var files = [ ]
                     dirInst.failed = false // drop fail-state for instance
                     var i = dirInst.begin( path )
-                    if( !i ) throw dirInst.error
+                    if( dirInst.failed ) {
+                        throw dirInst.error
+                    }
                     while( !i.end ) {
                         if( i.info.directory  ) {
                             dirs.push( { "name": i.name, "is_dir": true } )
@@ -162,7 +174,15 @@ Rectangle {
             Connections {
                 target: dirRefresh
                 onClicked: {
-                    dirModel.refresh( dirPath.text )
+                    try {
+                        dirModel.refresh( dirPath.text )
+                        errorText.text  = "Success"
+                        errorText.color = "green"
+                    } catch( ex ) {
+                        dirModel.clear( )
+                        errorText.text = ex
+                        errorText.color = "red"
+                    }
                 }
             }
             Component {
