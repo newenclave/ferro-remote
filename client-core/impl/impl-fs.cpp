@@ -183,13 +183,15 @@ namespace filesystem {
 
         struct fs_impl: public filesystem::iface {
 
+            core::client_core   &core_;
             vtrc::shared_ptr<vcomm::rpc_channel> channel_;
             mutable client_type client_;
             std::string         path_;
             vtrc::uint32_t      hdl_;
 
             fs_impl( core::client_core &cl, const std::string &path )
-                :channel_(cl.create_channel( ))
+                :core_(cl)
+                ,channel_(cl.create_channel( ))
                 ,client_(channel_)
                 ,path_(path)
                 ,hdl_(open_fs_inst(client_, path_))
@@ -199,9 +201,13 @@ namespace filesystem {
             {
                 try {
 
+                    client_type dnwc(
+                            core_.create_channel(
+                                  vcomm::rpc_channel::DISABLE_WAIT ) );
+
                     fproto::handle req;
                     req.set_value( hdl_ );
-                    client_.call_request( &stub_type::close, &req );
+                    dnwc.call_request( &stub_type::close, &req );
 
                 } catch( ... ) {
                     ;;;

@@ -73,8 +73,20 @@ namespace fr { namespace client { namespace interfaces {
 
             ~file_impl( )  {
                 try {
-                    close_impl( );
+                    close_impl( false );
                 } catch( ... ) {  }
+            }
+
+            void close_impl( bool wait = true )
+            {
+                if( wait ) {
+                    client_.call_request( &stub_type::close, &hdl_ );
+                } else {
+                    client_type dnwc(
+                            core_.create_channel(
+                                  vcomm::rpc_channel::DISABLE_WAIT ) );
+                    dnwc.call_request( &stub_type::close, &hdl_ );
+                }
             }
 
             int64_t seek( int64_t pos, file::seek_whence whence ) const override
@@ -179,11 +191,6 @@ namespace fr { namespace client { namespace interfaces {
                                         cb ) );
 
                 core_.register_async_op( res.async_op_id( ), acb );
-            }
-
-            void close_impl( )
-            {
-                client_.call_request( &stub_type::close, &hdl_ );
             }
 
             void unregister_impl( )
