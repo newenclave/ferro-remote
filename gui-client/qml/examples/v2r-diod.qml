@@ -111,6 +111,7 @@ Rectangle {
                 id: button
                 FrClientFile {
                     id: v2rFile
+                    //device: true
                     client: generalClient
                     mode: "wb"
                     path: "/dev/v2r_gpio"
