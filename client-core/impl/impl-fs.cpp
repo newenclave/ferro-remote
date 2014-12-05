@@ -66,7 +66,10 @@ namespace fr { namespace client { namespace interfaces {
             ~dir_iter_impl( )
             {
                 try {
-                    handle_close_impl( core_, hdl_ );
+                    //handle_close_impl( core_, hdl_ );
+                    fproto::handle req;
+                    req.set_value( hdl_ );
+                    client_.call_request( &stub_type::close, &req );
                 } catch( ... ) { }
             }
 
