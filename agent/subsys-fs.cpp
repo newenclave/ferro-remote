@@ -675,11 +675,9 @@ namespace fr { namespace agent { namespace subsys {
             {
                 switch ( v ) {
                 case proto::fs::POS_SEEK_CUR:
-                    return agent::file_iface::F_SEEK_CUR;
                 case proto::fs::POS_SEEK_SET:
-                    return agent::file_iface::F_SEEK_SET;
                 case proto::fs::POS_SEEK_END:
-                    return agent::file_iface::F_SEEK_END;
+                    return static_cast<agent::file_iface::seek_whence>(v);
                 }
                 return agent::file_iface::F_SEEK_SET;
             }
