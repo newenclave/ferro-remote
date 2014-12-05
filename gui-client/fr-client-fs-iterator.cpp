@@ -37,7 +37,7 @@ namespace fr { namespace declarative {
     QString FrClientFsIterator::next( )
     {
         FR_QML_CALL_PROLOGUE
-        if( end( ) ) {
+        if( !end( ) ) {
             impl_->next( );
             emit changed( );
             if( end( ) ) {

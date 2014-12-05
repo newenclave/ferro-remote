@@ -27,7 +27,7 @@ Rectangle {
 
         FrClientFs {
             id: dirPath
-            path: "/home/data"
+            path: "/home/failer"
             client: generalClient
         }
 
@@ -93,7 +93,7 @@ Rectangle {
                     while( !i.end ) {
                         i.next( )
                         var t = i.info
-                        if( i.info.directory ) {
+                        if( t.directory ) {
                             console.log( "[" + i.name + "]" )
                         } else {
                             console.log( " " + i.name )
