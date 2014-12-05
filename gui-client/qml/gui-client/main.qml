@@ -26,8 +26,8 @@ Rectangle {
         var res = [ ]
         var i = dirPath.begin( path )
         while( !i.end ) {
-            var t = i.info
-            res.push( { name: i.name, is_dir: t.directory } )
+            //res.push( i.name )
+            res.push( { name: i.name, is_dir: i.info.directory } )
             i.next( )
         }
 
@@ -173,15 +173,15 @@ Rectangle {
             width: 200
             delegate: nameDelegate
 
-            footer: Rectangle {
-                width: parent.width;
-                height: 30;
-            }
+//            footer: Rectangle {
+//                width: parent.width;
+//                height: 30;
+//            }
 
-            highlight: Rectangle {
-                width: parent.width
-                color: "lightgray"
-            }
+//            highlight: Rectangle {
+//                width: parent.width
+//                color: "lightgray"
+//            }
         }
 
         FrClientFile {
