@@ -8,9 +8,7 @@ Rectangle {
     width: 480
     height: 640
 
-    FrClient {
-        id: generalClient
-    }
+    FrClient { id: generalClient }
 
     Column {
 
@@ -124,6 +122,10 @@ Rectangle {
                 text: qsTr("Refresh")
 
                 enabled: false
+                Connections {
+                    target: generalClient
+                    onReadyChanged: dirRefresh.enabled = value
+                }
             }
         }
 
@@ -142,6 +144,7 @@ Rectangle {
                     var files = [ ]
                     dirInst.failed = false // drop fail-state for instance
                     var i = dirInst.begin( path )
+                    if( !i ) throw dirInst.error
                     while( !i.end ) {
                         if( i.info.directory  ) {
                             dirs.push( { "name": i.name, "is_dir": true } )
@@ -150,8 +153,8 @@ Rectangle {
                         }
                         i.next( )
                     }
-                    dirs.sort( )
-                    files.sort( )
+//                    dirs.sort( )
+//                    files.sort( )
                     dirModel.clear( )
                     dirModel.append( dirs.concat( files ) )
                 }
@@ -164,13 +167,8 @@ Rectangle {
             }
             Component {
                 id: dirDelegate
-                Rectangle {
-                    height: 22
-                    border.color: "black"
-                    border.width: 1
-                    Text {
-                        text: name
-                    }
+                Text {
+                    text: is_dir ? "<b>" + name + "</b>" : name
                 }
             }
         }
