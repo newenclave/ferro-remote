@@ -775,8 +775,8 @@ namespace fr { namespace agent { namespace subsys {
 
             bool event_handler( unsigned /*events*/,
                                 value_data &data,
-                                vcomm::connection_iface_wptr cli ) try
-            {
+                                vcomm::connection_iface_wptr cli )
+            { try {
                 vcomm::connection_iface_sptr lock(cli.lock( ));
 
                 if( !lock ) {
@@ -802,7 +802,7 @@ namespace fr { namespace agent { namespace subsys {
 
             } catch( ... ) {
                 return false;
-            }
+            } }
 
             void register_for_events(::google::protobuf::RpcController* ,
                          const ::fr::proto::fs::register_req* request,
