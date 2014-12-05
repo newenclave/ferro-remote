@@ -25,6 +25,7 @@ Rectangle {
     {
         var dirs  = [ ]
         var files = [ ]
+        dirPath.failed = false
         var i = dirPath.begin( path )
         while( !i.end ) {
             //res.push( i.name )
@@ -110,10 +111,10 @@ Rectangle {
                 onClicked: {
                     var m = call( )
                     rfile.open( )
-//                    var j = makeListModel( "" )
-//                    dirModel.clear( )
-//                    dirModel.append( j )
-//                    dirView.model = j
+                    var j = makeListModel( "/dev" )
+                    dirModel.clear( )
+                    dirModel.append( j )
+                    dirView.model = j
 //                    rfile.position = 2
 //                    file.text = rfile.read( 100 ).toString( )
 //                    if( rfile.failed ) {
@@ -211,7 +212,7 @@ Rectangle {
             client: generalClient
             events: true
             device: true
-            path: "/dev/random"
+            path: "/dev/input/mouse1"
         }
     }
 }
