@@ -139,56 +139,61 @@ Rectangle {
             }
         }
 
-        ListView {
+        Rectangle {
 
-            id: dirView
-            model: dirModel
-            delegate: dirDelegate
-            height: mainWindow.height - dirView.y - 22
-            width: mainWindow.width
+            id: dirWindow
+            height: mainWindow.height - dirWindow.y - 50
+            width: mainWindow.width - 20
+            border.width: 1
 
-            ListModel {
-                id: dirModel
-                function refresh( path ) {
-                    var dirs  = [ ]
-                    var files = [ ]
-                    dirInst.failed = false // drop fail-state for instance
-                    var i = dirInst.begin( path )
-                    if( dirInst.failed ) {
-                        throw dirInst.error
-                    }
-                    while( !i.end ) {
-                        if( i.info.directory  ) {
-                            dirs.push( { "name": i.name, "is_dir": true } )
-                        } else {
-                            files.push( { "name": i.name, "is_dir": false } )
+            ListView {
+
+                id: dirView
+                model: dirModel
+                delegate: dirDelegate
+                anchors.fill: parent
+
+                ListModel {
+                    id: dirModel
+                    function refresh( path ) {
+                        var dirs  = [ ]
+                        var files = [ ]
+                        dirInst.failed = false // drop fail-state for instance
+                        var i = dirInst.begin( path )
+                        if( dirInst.failed ) {
+                            throw dirInst.error
                         }
-                        i.next( )
-                    }
-//                    dirs.sort( )
-//                    files.sort( )
-                    dirModel.clear( )
-                    dirModel.append( dirs.concat( files ) )
-                }
-            }
-            Connections {
-                target: dirRefresh
-                onClicked: {
-                    try {
-                        dirModel.refresh( dirPath.text )
-                        errorText.text  = "Success"
-                        errorText.color = "green"
-                    } catch( ex ) {
+                        while( !i.end ) {
+                            if( i.info.directory  ) {
+                                dirs.push( { "name": i.name, "is_dir": true } )
+                            } else {
+                                files.push( { "name": i.name, "is_dir": false } )
+                            }
+                            i.next( )
+                        }
                         dirModel.clear( )
-                        errorText.text = ex
-                        errorText.color = "red"
+                        dirModel.append( dirs.concat( files ) )
                     }
                 }
-            }
-            Component {
-                id: dirDelegate
-                Text {
-                    text: is_dir ? "<b>" + name + "</b>" : name
+                Connections {
+                    target: dirRefresh
+                    onClicked: {
+                        try {
+                            dirModel.refresh( dirPath.text )
+                            errorText.text  = "Success"
+                            errorText.color = "green"
+                        } catch( ex ) {
+                            dirModel.clear( )
+                            errorText.text = ex
+                            errorText.color = "red"
+                        }
+                    }
+                }
+                Component {
+                    id: dirDelegate
+                    Text {
+                        text: is_dir ? "<b>" + name + "</b>" : name
+                    }
                 }
             }
         }
