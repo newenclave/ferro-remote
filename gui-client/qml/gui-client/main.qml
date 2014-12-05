@@ -109,10 +109,10 @@ Rectangle {
 
                 onClicked: {
                     var m = call( )
-                    //rfile.open( )
-                    var j = makeListModel( "" )
-                    dirModel.clear( )
-                    dirModel.append( j )
+                    rfile.open( )
+//                    var j = makeListModel( "" )
+//                    dirModel.clear( )
+//                    dirModel.append( j )
 //                    dirView.model = j
 //                    rfile.position = 2
 //                    file.text = rfile.read( 100 ).toString( )
@@ -210,7 +210,8 @@ Rectangle {
             id: rfile
             client: generalClient
             events: true
-            path: "/dev/input/mouse0"
+            device: true
+            path: "/dev/random"
         }
     }
 }

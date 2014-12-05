@@ -15,6 +15,9 @@ namespace fr { namespace declarative {
         Q_PROPERTY( QString mode
                     READ mode WRITE setMode NOTIFY modeChanged )
 
+        Q_PROPERTY( bool device
+                    READ device WRITE setDevice NOTIFY deviceChanged )
+
         Q_PROPERTY( quint64 position READ position )
 
         Q_PROPERTY( bool events READ events
@@ -54,6 +57,9 @@ namespace fr { namespace declarative {
         QString mode( ) const;
         void setMode( const QString &value );
 
+        bool device( ) const;
+        void setDevice( bool value );
+
         quint64 position( ) const;
 
         bool opened( ) const;
@@ -72,6 +78,7 @@ namespace fr { namespace declarative {
         void modeChanged( QString value ) const;
         void openedChanged( bool value ) const;
         void eventsChanged( bool value ) const;
+        void deviceChanged( bool value ) const;
 
         void fileEvent( unsigned error, QByteArray data ) const;
 

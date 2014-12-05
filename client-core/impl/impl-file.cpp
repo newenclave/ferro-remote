@@ -75,7 +75,7 @@ namespace fr { namespace client { namespace interfaces {
 
             ~file_impl( )  {
                 try {
-                    close_impl( false );
+                    close_impl( true );
                 } catch( ... ) {  }
             }
 

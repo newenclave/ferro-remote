@@ -22,6 +22,7 @@ namespace fr { namespace declarative {
         iface_qsptr   iface_;
         bool          opened_;
         bool          events_;
+        bool          device_;
 
         fiface::file_event_callback event_cb_;
 
@@ -29,6 +30,7 @@ namespace fr { namespace declarative {
             :mode_("rb")
             ,opened_(false)
             ,events_(false)
+            ,device_(false)
         {
             event_cb_ = mkevent_cb( );
         }
@@ -61,7 +63,7 @@ namespace fr { namespace declarative {
         void iface_create( FrClient *cl )
         {
             iface_.reset( fiface::create( cl->core_client( ),
-                                          path_, mode_, false ) );
+                                          path_, mode_, device_ ) );
         }
 
     };
@@ -151,6 +153,20 @@ namespace fr { namespace declarative {
             emit modeChanged( value );
         }
     }
+
+    bool FrClientFile::device( ) const
+    {
+        return impl_->device_;
+    }
+
+    void FrClientFile::setDevice( bool value )
+    {
+        if( value != impl_->device_ ) {
+            impl_->device_ = value;
+            emit deviceChanged( impl_->device_ );
+        }
+    }
+
 
     quint64 FrClientFile::position( ) const
     {
