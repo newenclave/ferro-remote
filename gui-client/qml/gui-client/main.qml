@@ -26,9 +26,9 @@ Rectangle {
         var res = [ ]
         var i = dirPath.begin( path )
         while( !i.end ) {
-            i.next( )
             var t = i.info
             res.push( { name: i.name, is_dir: t.directory } )
+            i.next( )
         }
 
         return res
