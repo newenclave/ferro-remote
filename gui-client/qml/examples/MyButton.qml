@@ -26,9 +26,7 @@ Rectangle {
     MouseArea {
         enabled: parent.enabled
         anchors.fill: parent
-        onClicked: {
-           parent.clicked( )
-        }
+        onClicked: { parent.clicked( ) }
         onPressed: { parent.color = "gray" }
         onReleased: { parent.color = "lightgray" }
     }
