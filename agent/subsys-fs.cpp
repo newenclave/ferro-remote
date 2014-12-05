@@ -637,7 +637,9 @@ namespace fr { namespace agent { namespace subsys {
 
                 if( request->has_strmode( ) ) { // fopen
 
-                    new_file.reset(afile::create( request->path( ), fmode ) );
+                    new_file.reset( request->as_device( )
+                        ? adevice::create( request->path( ), fmode )
+                        : afile::create( request->path( ), fmode ) );
 
                 } else if( request->as_device( ) ) { // open
 
