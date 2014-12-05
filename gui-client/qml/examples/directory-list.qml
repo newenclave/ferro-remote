@@ -152,6 +152,7 @@ Rectangle {
                 model: dirModel
                 delegate: dirDelegate
                 anchors.fill: parent
+                anchors.margins: 10
 
                 ListModel {
                     id: dirModel
@@ -175,17 +176,38 @@ Rectangle {
                         dirModel.append( dirs.concat( files ) )
                     }
                 }
+
+                function listRefresh( path )
+                {
+                    try {
+                        dirModel.refresh( path )
+                        errorText.text  = "Success"
+                        errorText.color = "green"
+                    } catch( ex ) {
+                        dirModel.clear( )
+                        errorText.text = ex
+                        errorText.color = "red"
+                    }
+                }
+
                 Connections {
                     target: dirRefresh
                     onClicked: {
-                        try {
-                            dirModel.refresh( dirPath.text )
-                            errorText.text  = "Success"
-                            errorText.color = "green"
-                        } catch( ex ) {
-                            dirModel.clear( )
-                            errorText.text = ex
+                        dirView.listRefresh( dirPath.text )
+                    }
+                }
+                Connections {
+                    target: dirPath
+                    onTextChanged: {
+                        var i = dirInst.info( dirPath.text )
+                        if( !i.exists ) {
+                            errorText.text = "Not found"
                             errorText.color = "red"
+                        } else if( !i.directory ) {
+                            errorText.text = "Not directory"
+                            errorText.color = "red"
+                        } else {
+                            dirView.listRefresh( dirPath.text )
                         }
                     }
                 }
