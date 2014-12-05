@@ -21,6 +21,17 @@ namespace fr { namespace client { namespace interfaces {
         typedef fproto::instance::Stub          stub_type;
         typedef vcomm::stub_wrapper<stub_type>  client_type;
 
+        void handle_close_impl( core::client_core &core, vtrc::uint32_t hdl )
+        {
+            client_type dnwc(
+                    core.create_channel(
+                          vcomm::rpc_channel::DISABLE_WAIT ) );
+
+            fproto::handle req;
+            req.set_value( hdl );
+            dnwc.call_request( &stub_type::close, &req );
+        }
+
         void proto2info(fproto::element_info const &data,
                         filesystem::info_data      &info)
         {
@@ -33,6 +44,7 @@ namespace fr { namespace client { namespace interfaces {
 
         struct dir_iter_impl: public filesystem::directory_iterator_impl {
 
+            core::client_core &core_;
             vtrc::shared_ptr<vcomm::rpc_channel> channel_;
 
             mutable client_type         client_;
@@ -41,13 +53,22 @@ namespace fr { namespace client { namespace interfaces {
             bool                        end_;
             filesystem::info_data       info_;
 
-            dir_iter_impl( const vtrc::shared_ptr<vcomm::rpc_channel> &c,
+            dir_iter_impl( core::client_core &cl,
+                           const vtrc::shared_ptr<vcomm::rpc_channel> &c,
                            const fproto::iterator_info &info )
-                :channel_(c)
+                :core_(cl)
+                ,channel_(c)
                 ,client_(channel_)
                 ,hdl_(info.hdl( ).value( ))
             {
                 copy_data( info );
+            }
+
+            ~dir_iter_impl( )
+            {
+                try {
+                    handle_close_impl( core_, hdl_ );
+                } catch( ... ) { }
             }
 
             void copy_data( const fproto::iterator_info &info )
@@ -66,7 +87,7 @@ namespace fr { namespace client { namespace interfaces {
             {
                 fproto::iterator_info req_res;
                 client_.call( &stub_type::iter_clone, &req_res, &req_res );
-                return new dir_iter_impl( channel_, req_res );
+                return new dir_iter_impl( core_, channel_, req_res );
             }
 
             void next( )
@@ -200,15 +221,7 @@ namespace filesystem {
             ~fs_impl( )
             {
                 try {
-
-                    client_type dnwc(
-                            core_.create_channel(
-                                  vcomm::rpc_channel::DISABLE_WAIT ) );
-
-                    fproto::handle req;
-                    req.set_value( hdl_ );
-                    dnwc.call_request( &stub_type::close, &req );
-
+                    handle_close_impl( core_, hdl_ );
                 } catch( ... ) {
                     ;;;
                 }
@@ -335,7 +348,7 @@ namespace filesystem {
 
                 client_.call( &stub_type::iter_begin, &req, &res );
 
-                return new dir_iter_impl( channel_, res );
+                return new dir_iter_impl( core_, channel_, res );
             }
 
 
@@ -347,7 +360,7 @@ namespace filesystem {
 
                 client_.call( &stub_type::iter_begin, &req, &res );
 
-                return new dir_iter_impl( channel_, res );
+                return new dir_iter_impl( core_, channel_, res );
             }
 
             filesystem::directory_iterator begin( ) const override
