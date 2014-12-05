@@ -23,9 +23,8 @@ namespace fr { namespace client { namespace interfaces {
 
         void handle_close_impl( core::client_core &core, vtrc::uint32_t hdl )
         {
-            client_type dnwc(
-                    core.create_channel(
-                          vcomm::rpc_channel::DISABLE_WAIT ) );
+            client_type dnwc
+                    ( core.create_channel( vcomm::rpc_channel::DISABLE_WAIT ) );
 
             fproto::handle req;
             req.set_value( hdl );
