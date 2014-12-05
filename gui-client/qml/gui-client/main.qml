@@ -14,10 +14,24 @@ Rectangle {
         id: generalClient
     }
 
-    function call( ) {
+    function call( )
+    {
         var t = frComponents.newOs( generalClient )
         t.execute( command.text )
         return t
+    }
+
+    function makeListModel( path )
+    {
+        var res = [ ]
+        var i = dirPath.begin( path )
+        while( !i.end ) {
+            i.next( )
+            var t = i.info
+            res.push( { name: i.name, is_dir: t.directory } )
+        }
+
+        return res
     }
 
     Column {
@@ -88,17 +102,8 @@ Rectangle {
                 onClicked: {
                     var m = call( )
                     rfile.open( )
-                    var i = dirPath.begin( "" )
-                    console.log( i.name )
-                    while( !i.end ) {
-                        i.next( )
-                        var t = i.info
-                        if( t.directory ) {
-                            console.log( "[" + i.name + "]" )
-                        } else {
-                            console.log( " " + i.name )
-                        }
-                    }
+                    var j = makeListModel( "" )
+                    dirView.model = j
 //                    rfile.position = 2
 //                    file.text = rfile.read( 100 ).toString( )
 //                    if( rfile.failed ) {
@@ -139,16 +144,44 @@ Rectangle {
             id: file
         }
         Text {
-            id: dataDile
+            id: dataFile
             Connections {
                 target: rfile
                 onFileEvent: {
                     if( error == 0 ) {
-                        dataDile.text = data.toString( )
+                        dataFile.text = data.toString( )
                     }
                 }
             }
 
+        }
+
+        Component {
+            id: nameDelegate
+            Text {
+                text: name
+                font.pixelSize: 20
+            }
+        }
+
+        ListView {
+
+            id: dirView
+
+            clip: true
+            height: 200
+            width: 200
+            delegate: nameDelegate
+
+            footer: Rectangle {
+                width: parent.width;
+                height: 30;
+            }
+
+            highlight: Rectangle {
+                width: parent.width
+                color: "lightgray"
+            }
         }
 
         FrClientFile {
