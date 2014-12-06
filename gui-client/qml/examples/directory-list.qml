@@ -154,7 +154,7 @@ Rectangle {
                 model: dirModel
                 delegate: dirDelegate
                 anchors.fill: parent
-                anchors.margins: 20
+                //anchors.margins: 20
 
                 ListModel {
                     id: dirModel
