@@ -8,6 +8,8 @@
 #include "application-data.h"
 #include "client-core/fr-client.h"
 
+#include "fr-qml-call-wrappers.h"
+
 namespace fr { namespace declarative {
 
     struct FrClient::impl {
