@@ -28,6 +28,7 @@ Rectangle {
         dirPath.failed = false
         var i = dirPath.begin( path )
         while( !i.end ) {
+
             //res.push( i.name )
 
             if( i.info.directory  ) {
