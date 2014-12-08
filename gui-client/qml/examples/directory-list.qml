@@ -30,6 +30,8 @@ Rectangle {
                 border.width: 1
 
                 TextInput {
+                    anchors.leftMargin: 5
+                    anchors.rightMargin: 5
                     anchors.left: parent.left
                     anchors.right: parent.right
                     anchors.verticalCenter: parent.verticalCenter
@@ -154,7 +156,10 @@ Rectangle {
                 model: dirModel
                 delegate: dirDelegate
                 anchors.fill: parent
-                //anchors.margins: 20
+                anchors.topMargin: 20
+                anchors.bottomMargin: 20
+                anchors.leftMargin: 10
+                anchors.rightMargin: 10
 
                 ListModel {
                     id: dirModel
@@ -216,7 +221,7 @@ Rectangle {
                 Component {
                     id: dirDelegate
                     Text {
-                        text: is_dir ? "<b>" + name + "</b>" : name
+                        text: is_dir ? "[<b>" + name + "</b>]" : name
                     }
                 }
             }
