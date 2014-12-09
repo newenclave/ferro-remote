@@ -127,8 +127,8 @@ Rectangle {
                     onReadyChanged: {
                         if( value ) {
                             available.text = mainGpio.supported( generalClient )
-                                           ? "Available"
-                                           : "Noe available"
+                                           ? "Supported"
+                                           : "Not Supported"
                         } else {
                             available.text = "Unknown"
                         }
