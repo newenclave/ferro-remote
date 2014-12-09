@@ -44,7 +44,7 @@ namespace fr { namespace declarative {
 
         void reset_iface( FrClient *client )
         {
-            iface_.reset( ( dir_ == Direct_In )
+            iface_.reset( ( dir_ == FrClientGpio::Direct_In )
                     ? gpio_ns::create_input( client->core_client( ), id_ )
                     : gpio_ns::create_output( client->core_client( ), id_ )
                     );
