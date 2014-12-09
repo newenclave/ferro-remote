@@ -119,6 +119,23 @@ Rectangle {
                 events: true
             }
 
+            Text {
+                id: available
+                text: "Unknown"
+                Connections {
+                    target: generalClient
+                    onReadyChanged: {
+                        if( value ) {
+                            available.text = mainGpio.supported( generalClient )
+                                           ? "Available"
+                                           : "Noe available"
+                        } else {
+                            available.text = "Unknown"
+                        }
+                    }
+                }
+            }
+
             MyButton {
                 id: gpioBtn
                 property int val: 0
