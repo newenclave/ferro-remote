@@ -17,8 +17,6 @@ namespace fr { namespace declarative {
 
     const unsigned invalid_gpio = FrClientGpio::IndexInvalid;
 
-
-
     struct FrClientGpio::impl {
         gpio_qsptr iface_;
         FrClientGpio::DirectionType dir_;
