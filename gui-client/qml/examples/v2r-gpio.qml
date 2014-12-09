@@ -36,6 +36,7 @@ Rectangle {
                     anchors.right: parent.right
                     anchors.verticalCenter: parent.verticalCenter
                     id: address
+                    anchors.leftMargin: 5
                     text: "192.168.3.1:12345"
                     //text: "127.0.0.1:12345"
                 }
@@ -115,7 +116,7 @@ Rectangle {
                 edge: FrClientGpio.Edge_Both
                 client: generalClient
                 activeLow: true
-                //events: true
+                events: true
             }
 
             MyButton {

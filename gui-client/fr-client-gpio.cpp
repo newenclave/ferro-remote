@@ -129,6 +129,15 @@ namespace fr { namespace declarative {
         return false;
     }
 
+    bool FrClientGpio::supported( FrClient *client )
+    {
+        try {
+            return gpio_ns::available( client->core_client( ) );
+        } catch( ... ) {
+
+        }
+        return false;
+    }
 
     FrClientGpio::DirectionType FrClientGpio::direction( ) const
     {

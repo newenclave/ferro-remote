@@ -68,6 +68,8 @@ namespace fr { namespace declarative {
 
     public:
 
+        Q_INVOKABLE static bool supported( FrClient *client );
+
         DirectionType direction( ) const;
         void setDirection( DirectionType value ) const;
 
