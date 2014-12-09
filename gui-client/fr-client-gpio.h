@@ -27,6 +27,10 @@ namespace fr { namespace declarative {
 
         Q_PROPERTY( bool edgeSupport READ edgeSupport )
 
+        Q_PROPERTY( bool activeLow
+                    READ activeLow WRITE setActiveLow
+                    NOTIFY activeLowChanged )
+
         Q_PROPERTY( bool events READ events
                     WRITE setEvents NOTIFY eventsChanged )
 
@@ -78,6 +82,9 @@ namespace fr { namespace declarative {
 
         bool edgeSupport( ) const;
 
+        bool activeLow( ) const;
+        void setActiveLow( bool value );
+
         bool events( ) const;
         void setEvents( bool value );
 
@@ -85,6 +92,7 @@ namespace fr { namespace declarative {
 
         void directionChanged( DirectionType value ) const;
         void edgeChanged( EdgeType value ) const;
+        void activeLowChanged( bool value ) const;
 
         void indexChanged( quint32 value ) const;
 

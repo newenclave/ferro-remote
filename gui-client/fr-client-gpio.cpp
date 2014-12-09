@@ -25,6 +25,7 @@ namespace fr { namespace declarative {
         FrClientGpio::EdgeType      edge_;
         unsigned                    id_;
         bool                        events_;
+        bool                        active_low_;
 
         gpio_ns::value_change_interval_callback event_cb_;
 
@@ -35,6 +36,7 @@ namespace fr { namespace declarative {
             ,edge_(FrClientGpio::Edge_None)
             ,id_(invalid_gpio)
             ,events_(false)
+            ,active_low_(false)
         {
             event_cb_ = std::bind( &impl::event_handler, this,
                                     std::placeholders::_1,
@@ -49,9 +51,16 @@ namespace fr { namespace declarative {
                     : gpio_ns::create_output( client->core_client( ), id_ )
                     );
 
+            gpio_ns::info inf = iface_->get_info( );
+
+            if( inf.active_low != active_low_ ) {
+                iface_->set_active_low( active_low_ );
+            }
 
             if( iface_->edge_supported( ) ) {
-                iface_->set_edge( gpio_ns::edge_val2enum( edge_ ) );
+                if( inf.edge != gpio_ns::edge_val2enum( edge_ ) ) {
+                    iface_->set_edge( gpio_ns::edge_val2enum( edge_ ) );
+                }
                 if( events_ ) {
                     register_events( events_ );
                 }
@@ -206,6 +215,21 @@ namespace fr { namespace declarative {
         FR_QML_CALL_EPILOGUE( false )
     }
 
+    bool FrClientGpio::activeLow( ) const
+    {
+        return impl_->active_low_;
+    }
+
+    void FrClientGpio::setActiveLow( bool value )
+    {
+        if( impl_->active_low_ != value ) {
+            impl_->active_low_ = value;
+            FR_QML_CALL_PROLOGUE
+            impl_->iface_->set_active_low( value );
+            emit eventsChanged( value );
+            FR_QML_CALL_EPILOGUE(  )
+        }
+    }
 
     bool FrClientGpio::events( ) const
     {
