@@ -114,7 +114,8 @@ Rectangle {
                 direction: FrClientGpio.Direct_Out
                 edge: FrClientGpio.Edge_Both
                 client: generalClient
-                events: true
+                activeLow: true
+                //events: true
             }
 
             MyButton {

@@ -2,6 +2,8 @@
 #include "fr-component-creator.h"
 #include "fr-client-os.h"
 #include "fr-client-fs.h"
+#include "fr-client-file.h"
+#include "fr-client-gpio.h"
 
 #include <QSharedPointer>
 #include <QQmlEngine>
@@ -42,6 +44,27 @@ namespace fr { namespace declarative {
         FrClientFs *inst = create_component<FrClientFs>( client );
         if( path != "" ) {
             inst->setPath( path );
+        }
+        return inst;
+    }
+
+    QObject *FrComponentCreator::newFile( FrClient *client,
+                                          const QString &path,
+                                          const QString &mode )
+    {
+        FrClientFile *inst = create_component<FrClientFile>( client );
+        if( path != "" ) {
+            inst->setPath( path );
+            inst->setMode( mode );
+        }
+        return inst;
+    }
+
+    QObject *FrComponentCreator::newGPIO( FrClient *client, unsigned index )
+    {
+        FrClientGpio *inst = create_component<FrClientGpio>( client );
+        if( index != 0xFFFFFFFF ) {
+            inst->setIndex( index );
         }
         return inst;
     }

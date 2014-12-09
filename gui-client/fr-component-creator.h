@@ -26,6 +26,11 @@ namespace fr { namespace declarative {
         Q_INVOKABLE QObject *newOs( FrClient *client = nullptr );
         Q_INVOKABLE QObject *newFs( FrClient *client = nullptr,
                                     const QString &path = QString( ));
+        Q_INVOKABLE QObject *newFile( FrClient *client = nullptr,
+                                      const QString &path = QString( ),
+                                      const QString &mode = QString( "rb" ) );
+        Q_INVOKABLE QObject *newGPIO( FrClient *client = nullptr,
+                                      unsigned index = 0xFFFFFFFF );
 
     };
 
