@@ -2,11 +2,11 @@
 #define FRCLIENTOS_H
 
 #include <QObject>
-#include "fr-base-component.h"
+#include "fr-client-component.h"
 
 namespace fr { namespace declarative {
 
-    class FrClientOS: public FrComponent {
+    class FrClientOS: public FrClientComponent {
 
         Q_OBJECT
 

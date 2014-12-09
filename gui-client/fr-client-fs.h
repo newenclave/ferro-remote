@@ -2,7 +2,7 @@
 #define FRFILESYSTEM_H
 
 #include <QObject>
-#include "fr-base-component.h"
+#include "fr-client-component.h"
 
 namespace fr { namespace client {
 
@@ -47,7 +47,7 @@ namespace fr { namespace declarative {
         bool symlink( )   const;
     };
 
-    class FrClientFs: public FrComponent {
+    class FrClientFs: public FrClientComponent {
 
         struct impl;
         impl  *impl_;

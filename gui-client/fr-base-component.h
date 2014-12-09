@@ -4,8 +4,6 @@
 #include <QObject>
 #include <QVariant>
 
-#include "fr-client.h"
-
 namespace fr { namespace declarative {
 
     class FrBaseComponent: public QObject {
@@ -40,43 +38,6 @@ namespace fr { namespace declarative {
 
     signals:
         void failedChanged( bool value ) const;
-    };
-
-    class FrComponent: public FrBaseComponent {
-
-        Q_OBJECT
-        Q_PROPERTY( fr::declarative::FrClient *client
-                    READ client WRITE setClient NOTIFY clientChanged )
-
-
-        struct  impl;
-        impl   *impl_;
-
-        fr::declarative::FrClient *client_;
-
-    private:
-
-        virtual void on_reinit( ) { }
-        virtual void on_ready( bool value ) { Q_UNUSED(value) }
-
-    public:
-
-        explicit FrComponent( QObject *parent = 0 );
-        ~FrComponent( );
-
-        FrClient *client( ) const;
-        void setClient( FrClient *new_value );
-
-    signals:
-
-        void clientChanged( const fr::declarative::FrClient *value ) const;
-
-    public slots:
-
-    private slots:
-
-        void onReady( bool value );
-
     };
 
 }}

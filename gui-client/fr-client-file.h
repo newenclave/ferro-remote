@@ -1,12 +1,12 @@
 #ifndef FRCLIENTFILE_H
 #define FRCLIENTFILE_H
 
-#include "fr-base-component.h"
+#include "fr-client-component.h"
 
 
 namespace fr { namespace declarative {
 
-    class FrClientFile: public FrComponent
+    class FrClientFile: public FrClientComponent
     {
         Q_OBJECT
         Q_PROPERTY( QString path

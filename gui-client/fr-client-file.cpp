@@ -51,12 +51,12 @@ namespace fr { namespace declarative {
 
         void register_events( )
         {
-            if( events_ ) {
-                if( iface_ ) {
+            if( iface_ ) {
+                if( events_ ) {
                     iface_->register_for_events( event_cb_ );
+                } else {
+                    iface_->unregister( );
                 }
-            } else {
-                iface_->unregister( );
             }
         }
 
@@ -69,7 +69,7 @@ namespace fr { namespace declarative {
     };
 
     FrClientFile::FrClientFile(QObject *parent)
-        :FrComponent(parent)
+        :FrClientComponent(parent)
         ,impl_(new impl)
     {
         impl_->parent_ = this;

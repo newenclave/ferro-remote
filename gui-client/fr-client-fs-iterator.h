@@ -3,7 +3,7 @@
 
 #include <QString>
 
-#include "fr-base-component.h"
+#include "fr-client-component.h"
 
 namespace fr { namespace client {
 

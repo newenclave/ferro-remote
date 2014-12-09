@@ -61,7 +61,7 @@ namespace fr { namespace declarative {
     };
 
     FrClientFs::FrClientFs( QObject *parent )
-        :FrComponent(parent)
+        :FrClientComponent(parent)
         ,impl_(new impl)
     {
 

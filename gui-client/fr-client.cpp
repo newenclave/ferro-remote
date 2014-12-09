@@ -71,7 +71,7 @@ namespace fr { namespace declarative {
     };
 
     FrClient::FrClient( QObject *parent )
-        :QObject(parent)
+        :FrBaseComponent(parent)
         ,impl_(new impl)
     {
         impl_->parent_ = this;
@@ -89,15 +89,17 @@ namespace fr { namespace declarative {
     }
 
     void FrClient::connect( const QString &server )
-    { try {
+    {
+        FR_QML_CALL_PROLOGUE0
+        setFailed( false );
         if( impl_->state_ == impl::state_none ) {
             impl_->client_.async_connect( server.toLocal8Bit( ).constData( ),
                    fr::client::core::client_core::async_closure_func( ) );
             impl_->state_ = impl::state_connect;
         }
-    } catch( std::exception & /*ex*/ ) {
-        throw;
-    } }
+
+        FR_QML_CALL_EPILOGUE(  )
+    }
 
     void FrClient::disconnect( )
     {
@@ -107,6 +109,34 @@ namespace fr { namespace declarative {
     client::core::client_core &FrClient::core_client( )
     {
         return impl_->client_;
+    }
+
+    QString FrClient::sessionId( ) const
+    {
+        return QString::fromUtf8( impl_->client_.get_id( ).c_str( ) );
+    }
+
+    void FrClient::setSessionId( const QString &sid )
+    {
+        std::string old( impl_->client_.get_id( ) );
+        std::string n(sid.toUtf8( ).constData( ));
+
+        if( n != old ) {
+            impl_->client_.set_id( n );
+            emit sessionIdChanged( sid );
+        }
+    }
+
+    QString FrClient::sessionKey( ) const
+    {
+        return QString::fromUtf8( impl_->client_.has_key( ) ? "********" : "" );
+    }
+
+    void FrClient::setSessionKey( const QString &sk )
+    {
+        std::string n(sk.toUtf8( ).constData( ));
+        impl_->client_.set_key( n );
+        emit sessionKeyChanged( sk.size( ) == 0 ? "" : "********" );
     }
 
 }}
