@@ -19,13 +19,13 @@ namespace declarative {
         Q_OBJECT
         Q_PROPERTY( bool ready READ ready NOTIFY readyChanged )
 
-//        Q_PROPERTY( QString sessionId
-//                    READ sessionId WRITE setSessionId
-//                    NOTIFY sessionIdChanged )
+        Q_PROPERTY( QString sessionId
+                    READ sessionId WRITE setSessionId
+                    NOTIFY sessionIdChanged )
 
-//        Q_PROPERTY( QString sessionKey
-//                    READ sessionKey WRITE setSessionKey
-//                    NOTIFY sessionKeyChanged )
+        Q_PROPERTY( QString sessionKey
+                    READ sessionKey WRITE setSessionKey
+                    NOTIFY sessionKeyChanged )
 
         struct impl;
         impl  *impl_;
