@@ -1,5 +1,7 @@
 ## Classes
 
+#### Common properties
+
 ```JS
 
 Q_PROPERTY( bool failed READ failed WRITE setFailed NOTIFY failedChanged )
@@ -18,6 +20,13 @@ Q_PROPERTY( QString sessionId READ sessionId WRITE setSessionId NOTIFY sessionId
 Q_PROPERTY( QString sessionKey READ sessionKey WRITE setSessionKey NOTIFY sessionKeyChanged )
 ```
 
+#### signals:
+
+```cpp
+    void connected( );
+    void disconnected( );
+```
+
 #### public slots:
 
 ```cpp
@@ -31,7 +40,4 @@ Q_PROPERTY( QString sessionKey READ sessionKey WRITE setSessionKey NOTIFY sessio
 ### FrClientFile
 ### FrClientGpio
 
-
-
-#### Common properties
 
