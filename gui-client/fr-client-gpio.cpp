@@ -166,7 +166,7 @@ namespace fr { namespace declarative {
             impl_->edge_ = value;
 
             FR_QML_CALL_PROLOGUE
-            if( edgeSupport( ) ) {
+            if( edgeSupported( ) ) {
                 impl_->iface_->set_edge( gpio_ns::edge_val2enum( value ) );
             }
             emit edgeChanged( value );
@@ -213,7 +213,7 @@ namespace fr { namespace declarative {
         FR_QML_CALL_EPILOGUE( )
     }
 
-    bool FrClientGpio::edgeSupport( ) const
+    bool FrClientGpio::edgeSupported( ) const
     {
         FR_QML_CALL_PROLOGUE
 

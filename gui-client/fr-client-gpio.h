@@ -25,7 +25,7 @@ namespace fr { namespace declarative {
         Q_PROPERTY( quint32 value
                     READ value WRITE setValue )
 
-        Q_PROPERTY( bool edgeSupport READ edgeSupport )
+        Q_PROPERTY( bool edgeSupported READ edgeSupported )
 
         Q_PROPERTY( bool activeLow
                     READ activeLow WRITE setActiveLow
@@ -73,6 +73,7 @@ namespace fr { namespace declarative {
         DirectionType direction( ) const;
         void setDirection( DirectionType value ) const;
 
+        bool edgeSupported( ) const;
         EdgeType edge( ) const;
         void setEdge( EdgeType value ) const;
 
@@ -81,8 +82,6 @@ namespace fr { namespace declarative {
 
         quint32 value( ) const;
         void setValue( quint32 value );
-
-        bool edgeSupport( ) const;
 
         bool activeLow( ) const;
         void setActiveLow( bool value );
