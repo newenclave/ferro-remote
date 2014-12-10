@@ -1,6 +1,31 @@
 ## Classes
 
+```JS
+
+Q_PROPERTY( bool failed READ failed WRITE setFailed NOTIFY failedChanged )
+Q_PROPERTY( QString error READ error )
+
+```
+
+
 ### FrClient
+
+#### properties:
+
+```JS
+Q_PROPERTY( bool ready READ ready NOTIFY readyChanged )
+Q_PROPERTY( QString sessionId READ sessionId WRITE setSessionId NOTIFY sessionIdChanged )
+Q_PROPERTY( QString sessionKey READ sessionKey WRITE setSessionKey NOTIFY sessionKeyChanged )
+```
+
+#### public slots:
+
+```cpp
+    void connect( const QString &server ); /// x.x.x.x:xxxx
+    void disconnect( );
+```
+
+
 ### FrClientOS
 ### FrClientFs
 ### FrClientFile
@@ -10,9 +35,3 @@
 
 #### Common properties
 
-```JS
-
-Q_PROPERTY( bool failed READ failed WRITE setFailed NOTIFY failedChanged )
-Q_PROPERTY( QString error READ error )
-
-```
