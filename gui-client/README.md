@@ -34,9 +34,23 @@ Q_PROPERTY( QString sessionKey READ sessionKey WRITE setSessionKey NOTIFY sessio
     void disconnect( );
 ```
 
-
 ### FrClientOS
+
+#### public:
+
+```cpp
+    Q_INVOKABLE int execute( const QString &cmd ) const; // command for system("")
+```
+
 ### FrClientFs
+
+For directory access
+
+#### properties:
+```JS
+    Q_PROPERTY( QString path READ path WRITE setPath NOTIFY pathChanged)
+```
+
 ### FrClientFile
 ### FrClientGpio
 
