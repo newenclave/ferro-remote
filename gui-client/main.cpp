@@ -48,9 +48,9 @@ int main( int argc, char *argv[] )
 
     FrComponentCreator cc;
 
-    qmlRegisterType<FrClient>(   "Fr.Client", 1, 0, "FrClient" );
-    qmlRegisterType<FrClientOS>( "Fr.Client", 1, 0, "FrClientOS" );
-    qmlRegisterType<FrClientFs>( "Fr.Client", 1, 0, "FrClientFs" );
+    qmlRegisterType<FrClient>(   "Fr.Client", 1, 0,   "FrClient"     );
+    qmlRegisterType<FrClientOS>( "Fr.Client", 1, 0,   "FrClientOS"   );
+    qmlRegisterType<FrClientFs>( "Fr.Client", 1, 0,   "FrClientFs"   );
     qmlRegisterType<FrClientFile>( "Fr.Client", 1, 0, "FrClientFile" );
     qmlRegisterType<FrClientGpio>( "Fr.Client", 1, 0, "FrClientGpio" );
 

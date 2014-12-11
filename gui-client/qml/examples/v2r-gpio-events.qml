@@ -111,7 +111,7 @@ Rectangle {
 
             FrClientGpio {
                 id: mainGpio
-                index: 22
+                index: 7
                 direction: FrClientGpio.Direct_Out
                 edge: FrClientGpio.Edge_Both
                 client: generalClient
@@ -119,8 +119,21 @@ Rectangle {
                 events: true
             }
 
-            MyButton {
-                id: gpioBtn
+            Text {
+                id: available
+                text: "Unknown"
+                Connections {
+                    target: generalClient
+                    onReadyChanged: {
+                        if( value ) {
+                            available.text = "GPIO support: "
+                                           + mainGpio.supported( generalClient )
+
+                        } else {
+                            available.text = "Unknown"
+                        }
+                    }
+                }
             }
 
             Rectangle {
@@ -128,13 +141,10 @@ Rectangle {
                 width: 40
                 color: "black"
                 id: gpioColor
-                property int val: 0
                 Connections {
-                    target: gpioBtn
-                    onClicked: {
-                        gpioColor.val = (gpioColor.val + 1) % 2
-                        mainGpio.value = gpioColor.val
-                        gpioColor.color = mainGpio.value ? "red" : "grey"
+                    target: mainGpio
+                    onChangeEvent: {
+                        gpioColor.color = value ? "red" : "grey"
                     }
                 }
             }

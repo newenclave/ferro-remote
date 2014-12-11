@@ -1,5 +1,7 @@
 import QtQuick 2.0
 
+import QtQuick.Controls 1.1
+
 import Fr.Client 1.0
 
 Rectangle {
@@ -20,60 +22,33 @@ Rectangle {
         anchors.left: parent.left
         anchors.right: parent.right
 
-        Rectangle {
-
+        TextField {
             width: 200
             height: 22
-
-            border.color: "black"
-            border.width: 1
-
-            TextInput {
-                anchors.left: parent.left
-                anchors.right: parent.right
-                anchors.verticalCenter: parent.verticalCenter
-                id: address
-                text: "127.0.0.1:12345"
-            }
+            id: address
+            text: "192.168.3.1:12345"
         }
 
-        Rectangle {
+        Button {
 
-            id: connectRect
-
-            height: 22
-            width: 80
-
-            border.color: "black"
-            border.width: 1
-
+            text: qsTr("Connect")
+            id: connectBtn
             property bool connected: false
 
-            Text {
-                id: connectButton
-                anchors.centerIn: parent
-                text: qsTr("Connect")
-            }
-
-            MouseArea {
-                anchors.fill: parent
-                onClicked: {
-                    if( !connectRect.connected ) {
-                        generalClient.connect( address.text )
-                    } else {
-                        generalClient.disconnect( )
-                    }
-                }
+            onClicked: {
+                connected
+                    ? generalClient.disconnect(  )
+                    : generalClient.connect( address.text )
             }
 
             Connections {
                 target: generalClient
                 onReadyChanged: {
-                    connectRect.connected = value
+                    connectBtn.connected = value
                     if( value ) {
-                        connectButton.text = qsTr("Disconnect")
+                        connectBtn.text = qsTr("Disconnect")
                     } else {
-                        connectButton.text = qsTr("Connect")
+                        connectBtn.text = qsTr("Connect")
                     }
                 }
             }

@@ -31,7 +31,7 @@ namespace fr { namespace declarative {
 
     FrClientFsIterator::~FrClientFsIterator( )
     {
-        //std::cout << "Iterator delete!" << std::endl;
+        ///std::cout << "Iterator delete!" << std::endl;
     }
 
     QString FrClientFsIterator::next( )
