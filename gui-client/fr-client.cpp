@@ -12,6 +12,11 @@
 
 namespace fr { namespace declarative {
 
+    void async_connect_handler( const boost::system::error_code & /*err*/ )
+    {
+        ;;;
+    }
+
     struct FrClient::impl {
 
         enum {
@@ -68,6 +73,7 @@ namespace fr { namespace declarative {
             state_ = state_none;
             emit parent_->initError( message );
         }
+
     };
 
     FrClient::FrClient( QObject *parent )
@@ -94,7 +100,7 @@ namespace fr { namespace declarative {
         setFailed( false );
         if( impl_->state_ == impl::state_none ) {
             impl_->client_.async_connect( server.toLocal8Bit( ).constData( ),
-                   fr::client::core::client_core::async_closure_func( ) );
+                                          async_connect_handler );
             impl_->state_ = impl::state_connect;
         }
 
