@@ -9,4 +9,5 @@ namespace fr { namespace declarative {
         :FrClientComponent(parent)
     { }
 
+
 }}
