@@ -6,6 +6,8 @@
 
 #include "fr-client.h"
 
+class QtQuick2ApplicationViewer;
+
 namespace fr { namespace declarative {
 
     class FrComponentCreator : public QObject
@@ -36,7 +38,9 @@ namespace fr { namespace declarative {
                                      unsigned bus = 0 );
 
 
+        void setContextProperty( QtQuick2ApplicationViewer &viewer );
         static void registerFrClasses( );
+
 
     };
 

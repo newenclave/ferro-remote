@@ -9,6 +9,8 @@
 #include "fr-client-gpio.h"
 #include "fr-client-i2c.h"
 
+#include "qtquick2applicationviewer.h"
+
 namespace fr { namespace declarative {
 
     template<typename T>
@@ -74,6 +76,12 @@ namespace fr { namespace declarative {
     {
         FrClientI2c *inst = create_component<FrClientI2c>( client );
         return inst;
+    }
+
+    void FrComponentCreator::setContextProperty( QtQuick2ApplicationViewer &v )
+    {
+        v.rootContext( )
+            ->setContextProperty( "frComponents", QVariant::fromValue( this ) );
     }
 
     void FrComponentCreator::registerFrClasses( )

@@ -43,9 +43,7 @@ int main( int argc, char *argv[] )
     FrComponentCreator cc;
 
     FrComponentCreator::registerFrClasses( );
-
-    viewer.rootContext( )->setContextProperty( "frComponents",
-                                               QVariant::fromValue( &cc ) );
+    cc.setContextProperty( viewer );
 
     viewer.setMainQmlFile( QString(path) );
     viewer.setClearBeforeRendering(false);
