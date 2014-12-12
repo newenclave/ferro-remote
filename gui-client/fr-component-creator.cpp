@@ -1,12 +1,13 @@
+#include <QSharedPointer>
+#include <QQmlEngine>
+#include <QtQml>
 
 #include "fr-component-creator.h"
 #include "fr-client-os.h"
 #include "fr-client-fs.h"
 #include "fr-client-file.h"
 #include "fr-client-gpio.h"
-
-#include <QSharedPointer>
-#include <QQmlEngine>
+#include "fr-client-i2c.h"
 
 namespace fr { namespace declarative {
 
@@ -60,13 +61,29 @@ namespace fr { namespace declarative {
         return inst;
     }
 
-    QObject *FrComponentCreator::newGPIO( FrClient *client, unsigned index )
+    QObject *FrComponentCreator::newGpio( FrClient *client, unsigned index )
     {
         FrClientGpio *inst = create_component<FrClientGpio>( client );
         if( index != 0xFFFFFFFF ) {
             inst->setIndex( index );
         }
         return inst;
+    }
+
+    QObject *FrComponentCreator::newI2c( FrClient *client, unsigned /*bus*/ )
+    {
+        FrClientI2c *inst = create_component<FrClientI2c>( client );
+        return inst;
+    }
+
+    void FrComponentCreator::registerFrClasses( )
+    {
+        qmlRegisterType<FrClient>    ( "Fr.Client", 1, 0, "FrClient"     );
+        qmlRegisterType<FrClientOS>  ( "Fr.Client", 1, 0, "FrClientOS"   );
+        qmlRegisterType<FrClientFs>  ( "Fr.Client", 1, 0, "FrClientFs"   );
+        qmlRegisterType<FrClientFile>( "Fr.Client", 1, 0, "FrClientFile" );
+        qmlRegisterType<FrClientGpio>( "Fr.Client", 1, 0, "FrClientGpio" );
+        qmlRegisterType<FrClientI2c> ( "Fr.Client", 1, 0, "FrClientI2c"  );
     }
 
 }}
