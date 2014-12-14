@@ -49,6 +49,8 @@ Rectangle {
         spacing: 10
         anchors.fill: parent
 
+        FrClientI2c {}
+
         FrClientFs {
             id: dirPath
             path: "/home/failer"
