@@ -9,7 +9,7 @@ namespace fr { namespace declarative {
     {
         Q_OBJECT
 
-//        Q_PROPERTY( quint32 busId
+ //        Q_PROPERTY( quint32 busId
 //                    READ busId WRITE setBusId NOTIFY busIdChanged )
 
         struct  impl;
