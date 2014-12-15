@@ -158,10 +158,11 @@ Rectangle {
                 model: dirModel
                 delegate: dirDelegate
                 anchors.fill: parent
-                anchors.topMargin: 20
-                anchors.bottomMargin: 20
-                anchors.leftMargin: 10
-                anchors.rightMargin: 10
+//                anchors.topMargin: 20
+//                anchors.bottomMargin: 20
+//                anchors.leftMargin: 10
+//                anchors.rightMargin: 10
+                clip: true
 
                 ListModel {
                     id: dirModel
