@@ -53,7 +53,7 @@ Rectangle {
 
         FrClientFs {
             id: dirPath
-            path: "/home/failer"
+            path: "/home/data"
             client: generalClient
         }
 
