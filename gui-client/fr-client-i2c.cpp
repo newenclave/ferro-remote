@@ -137,4 +137,11 @@ namespace fr { namespace declarative {
         return static_cast<quint32>(impl_->function_mask_);
     }
 
+    void FrClientI2c::iocontrol( unsigned code, quint64 data )
+    {
+        FR_QML_CALL_PROLOGUE
+        impl_->iface_->ioctl( code, data );
+        FR_QML_CALL_EPILOGUE( )
+    }
+
 }}

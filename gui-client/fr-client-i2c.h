@@ -81,6 +81,10 @@ namespace fr { namespace declarative {
 
         quint32 functionsSupported( ) const;
 
+    public:
+
+        Q_INVOKABLE void iocontrol( unsigned code, quint64 data );
+
     signals:
 
         void busIdChanged( quint32 value ) const;
