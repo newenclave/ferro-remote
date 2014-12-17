@@ -15,9 +15,17 @@ namespace fr { namespace declarative {
         struct  impl;
         impl   *impl_;
 
+    private:
+
+        void on_reinit( );
+        void on_ready( bool value );
+
+        bool clientFailed( ) const;
+
     public:
 
         explicit FrClientI2c( QObject *parent = nullptr );
+        ~FrClientI2c( );
 
     signals:
 
