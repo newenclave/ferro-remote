@@ -112,8 +112,8 @@ Rectangle {
             FrClientGpio {
                 id: mainGpio
                 index: 22
-                direction: FrClientGpio.Direct_Out
-                edge: FrClientGpio.Edge_Both
+                direction: FrClientGpio.DirectOut
+                edge: FrClientGpio.EdgeBoth
                 client: generalClient
                 activeLow: true
                 events: true

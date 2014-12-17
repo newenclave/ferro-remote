@@ -21,8 +21,8 @@ namespace fr { namespace declarative {
         quint16  slave_addr_;
 
         impl( )
-            :bus_id_(FrClientI2c::Invalid_Bus_Id)
-            ,slave_addr_(FrClientI2c::Invalid_Slave_address)
+            :bus_id_(FrClientI2c::InvalidBusId)
+            ,slave_addr_(FrClientI2c::InvalidSlaveAddress)
         { }
 
         void reinit_iface( FrClient *client )
@@ -31,7 +31,7 @@ namespace fr { namespace declarative {
                 return;
             }
 
-            if( bus_id_ != FrClientI2c::Invalid_Bus_Id ) {
+            if( bus_id_ != FrClientI2c::InvalidBusId ) {
                 iface_.reset( i2c_ns::open( client->core_client( ),
                                             bus_id_, slave_addr_ ) );
             }
@@ -88,7 +88,7 @@ namespace fr { namespace declarative {
     void FrClientI2c::setBusId( quint32 value )
     {
         if( impl_->bus_id_ != value ) {
-            if( value == Invalid_Bus_Id ) {
+            if( value == InvalidBusId ) {
                 impl_->iface_.reset( );
             } else {
                 impl_->bus_id_ = value;

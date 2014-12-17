@@ -30,8 +30,8 @@ namespace fr { namespace declarative {
         FrClientGpio                *parent_;
 
         impl( )
-            :dir_(FrClientGpio::Direct_Out)
-            ,edge_(FrClientGpio::Edge_None)
+            :dir_(FrClientGpio::DirectOut)
+            ,edge_(FrClientGpio::EdgeNone)
             ,id_(invalid_gpio)
             ,events_(false)
             ,active_low_(false)
@@ -44,7 +44,7 @@ namespace fr { namespace declarative {
 
         void reset_iface( FrClient *client )
         {
-            iface_.reset( ( dir_ == FrClientGpio::Direct_In )
+            iface_.reset( ( dir_ == FrClientGpio::DirectIn )
                     ? gpio_ns::create_input( client->core_client( ), id_ )
                     : gpio_ns::create_output( client->core_client( ), id_ )
                     );

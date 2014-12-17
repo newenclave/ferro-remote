@@ -39,16 +39,16 @@ namespace fr { namespace declarative {
     public:
 
         enum DirectionType {
-            Direct_In   = 0
-           ,Direct_Out  = 1
+            DirectIn   = 0
+           ,DirectOut  = 1
         };
         Q_ENUMS( DirectionType )
 
         enum EdgeType {
-             Edge_None     = 0
-            ,Edge_Rising   = 1
-            ,Edge_Falling  = 2
-            ,Edge_Both     = 3
+             EdgeNone     = 0
+            ,EdgeRising   = 1
+            ,EdgeFalling  = 2
+            ,EdgeBoth     = 3
         };
         Q_ENUMS( EdgeType )
 

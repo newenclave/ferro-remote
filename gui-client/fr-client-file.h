@@ -3,7 +3,6 @@
 
 #include "fr-client-component.h"
 
-
 namespace fr { namespace declarative {
 
     class FrClientFile: public FrClientComponent
@@ -42,10 +41,11 @@ namespace fr { namespace declarative {
     public:
 
         enum seek_whence {
-             POS_SEEK_SET = 0
-            ,POS_SEEK_CUR = 1
-            ,POS_SEEK_END = 2
+             SeekSet = 0
+            ,SeekCur = 1
+            ,SeekEnd = 2
         };
+
         Q_ENUMS( seek_whence )
 
         QString path( ) const;
@@ -86,7 +86,7 @@ namespace fr { namespace declarative {
 
         void open( );
         void close( );
-        void seek( quint64 value, seek_whence whence = POS_SEEK_SET ) const;
+        void seek( quint64 value, seek_whence whence = SeekSet ) const;
 
     };
 
