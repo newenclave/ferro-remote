@@ -19,10 +19,12 @@ namespace fr { namespace declarative {
         QSharedPointer<i2c_iface> iface_;
         unsigned bus_id_;
         quint16  slave_addr_;
+        quint64  function_mask_;
 
         impl( )
             :bus_id_(FrClientI2c::InvalidBusId)
             ,slave_addr_(FrClientI2c::InvalidSlaveAddress)
+            ,function_mask_(0)
         { }
 
         void reinit_iface( FrClient *client )
@@ -34,6 +36,11 @@ namespace fr { namespace declarative {
             if( bus_id_ != FrClientI2c::InvalidBusId ) {
                 iface_.reset( i2c_ns::open( client->core_client( ),
                                             bus_id_, slave_addr_ ) );
+                try {
+                    function_mask_ = iface_->function_mask( );
+                } catch( ... ) {
+
+                }
             }
         }
 
@@ -119,9 +126,7 @@ namespace fr { namespace declarative {
 
     quint32 FrClientI2c::functionsSupported( ) const
     {
-        FR_QML_CALL_PROLOGUE
-        return static_cast<quint32>(impl_->iface_->function_mask( ));
-        FR_QML_CALL_EPILOGUE( 0 )
+        return static_cast<quint32>(impl_->function_mask_);
     }
 
 }}
