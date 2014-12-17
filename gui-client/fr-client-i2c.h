@@ -12,6 +12,10 @@ namespace fr { namespace declarative {
         Q_PROPERTY( quint32 busId
                     READ busId WRITE setBusId NOTIFY busIdChanged )
 
+        Q_PROPERTY( quint16 slaveAddress
+                    READ slaveAddress WRITE setSlaveAddress
+                    NOTIFY slaveAddressChanged )
+
         struct  impl;
         impl   *impl_;
 
@@ -30,14 +34,21 @@ namespace fr { namespace declarative {
     public:
 
         enum BusIdInvalidValue { Invalid_Bus_Id = 0xFFFFFFFF };
+        enum SlaveAddrInvalidValue { Invalid_Slave_address = 0xFFFF };
+
         Q_ENUMS( BusIdInvalidValue )
+        Q_ENUMS( SlaveAddrInvalidValue )
 
         quint32 busId( ) const;
         void setBusId( quint32 value );
 
+        quint16 slaveAddress( ) const;
+        void setSlaveAddress( quint16 value );
+
     signals:
 
         void busIdChanged( quint32 value ) const;
+        void slaveAddressChanged( quint16 value ) const;
 
     public slots:
 
