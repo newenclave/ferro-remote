@@ -16,7 +16,8 @@ namespace fr { namespace declarative {
                     READ slaveAddress WRITE setSlaveAddress
                     NOTIFY slaveAddressChanged )
 
-        Q_PROPERTY( quint32 functionsSupported READ functionsSupported )
+        Q_PROPERTY( quint32 functionsSupported
+                    READ functionsSupported NOTIFY functionsSupportedChanged )
 
         struct  impl;
         impl   *impl_;
@@ -84,6 +85,7 @@ namespace fr { namespace declarative {
 
         void busIdChanged( quint32 value ) const;
         void slaveAddressChanged( quint16 value ) const;
+        void functionsSupportedChanged( quint32 value ) const;
 
     public slots:
 
