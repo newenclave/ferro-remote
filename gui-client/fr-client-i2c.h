@@ -57,12 +57,12 @@ namespace fr { namespace declarative {
         };
 
         enum I2CControlCodes {
-             CodeI2CRetries     = 0x0701
-            ,CodeI2CTimeout     = 0x0702
-            ,CodeI2CSlave       = 0x0703
-            ,CodeI2CSlaveForce  = 0x0706
-            ,CodeI2CTenBit      = 0x0704
-            ,CodeI2CPec         = 0x0708
+            CodeI2CRetries     = 0x0701
+           ,CodeI2CTimeout     = 0x0702
+           ,CodeI2CSlave       = 0x0703
+           ,CodeI2CSlaveForce  = 0x0706
+           ,CodeI2CTenBit      = 0x0704
+           ,CodeI2CPec         = 0x0708
         };
 
         Q_ENUMS( BusIdInvalidValue )
