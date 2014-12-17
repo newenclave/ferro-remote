@@ -43,7 +43,7 @@ namespace fr { namespace declarative {
            ,Func10BitAddr            = 0x00000002
            ,FuncProtocolMangling     = 0x00000004 /* I2C_M_IGNORE_NAK etc. */
            ,FuncSmbusPec             = 0x00000008
-           ,FuncNostart              = 0x00000010 /* I2C_M_NOSTART */
+           ,FuncNoStart              = 0x00000010 /* I2C_M_NOSTART */
            ,FuncSmbusBlockProcCall   = 0x00008000 /* SMBus 2.0 */
            ,FuncSmbusQuick           = 0x00010000
            ,FuncSmbusReadByte        = 0x00020000
