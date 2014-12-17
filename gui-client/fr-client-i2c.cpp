@@ -25,7 +25,11 @@ namespace fr { namespace declarative {
 
         void reinit_iface( FrClient *client )
         {
-            if( bus_id_ != i2c_ns::I2C_SLAVE_INVALID_ADDRESS ) {
+            if( !client ) {
+                return;
+            }
+
+            if( bus_id_ != FrClientI2c::Invalid_Bus_Id ) {
                 iface_.reset( i2c_ns::open( client->core_client( ), bus_id_ ) );
             }
         }
@@ -49,8 +53,6 @@ namespace fr { namespace declarative {
             setFailed( false );
             impl_->reinit_iface( client( ) );
             FR_QML_CALL_EPILOGUE( )
-        } else {
-            impl_->iface_.reset( );
         }
     }
 
@@ -61,7 +63,7 @@ namespace fr { namespace declarative {
             impl_->reinit_iface( client( ) );
             FR_QML_CALL_EPILOGUE( )
         } else {
-
+            impl_->iface_.reset( );
         }
     }
 
@@ -73,6 +75,26 @@ namespace fr { namespace declarative {
             return true;
         }
         return false;
+    }
+
+    quint32 FrClientI2c::busId( ) const
+    {
+        return impl_->bus_id_;
+    }
+
+    void FrClientI2c::setBusId( quint32 value )
+    {
+        if( impl_->bus_id_ != value ) {
+            if( value == Invalid_Bus_Id ) {
+                impl_->iface_.reset( );
+            } else {
+                impl_->bus_id_ = value;
+                FR_QML_CALL_PROLOGUE
+                impl_->reinit_iface( client( ) );
+                emit busIdChanged( impl_->bus_id_ );
+                FR_QML_CALL_EPILOGUE( )
+            }
+        }
     }
 
 }}

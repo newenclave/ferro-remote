@@ -9,8 +9,8 @@ namespace fr { namespace declarative {
     {
         Q_OBJECT
 
- //        Q_PROPERTY( quint32 busId
-//                    READ busId WRITE setBusId NOTIFY busIdChanged )
+        Q_PROPERTY( quint32 busId
+                    READ busId WRITE setBusId NOTIFY busIdChanged )
 
         struct  impl;
         impl   *impl_;
@@ -27,7 +27,17 @@ namespace fr { namespace declarative {
         explicit FrClientI2c( QObject *parent = nullptr );
         ~FrClientI2c( );
 
+    public:
+
+        enum BusIdInvalidValue { Invalid_Bus_Id = 0xFFFFFFFF };
+        Q_ENUMS( BusIdInvalidValue )
+
+        quint32 busId( ) const;
+        void setBusId( quint32 value );
+
     signals:
+
+        void busIdChanged( quint32 value ) const;
 
     public slots:
 
