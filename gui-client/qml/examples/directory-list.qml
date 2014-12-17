@@ -4,6 +4,9 @@ import Fr.Client 1.0
 
 import QtQuick.Controls 1.1
 
+import QtMultimedia 5.0
+
+
 Rectangle {
 
     id: mainWindow

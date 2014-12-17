@@ -2,6 +2,7 @@
 #include "application-data.h"
 #include "vtrc-common/vtrc-pool-pair.h"
 
+
 namespace fr { namespace declarative {
 
     namespace vcomm = vtrc::common;
