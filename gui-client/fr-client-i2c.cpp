@@ -63,6 +63,7 @@ namespace fr { namespace declarative {
     {
         if( value ) {
             FR_QML_CALL_PROLOGUE0
+            setFailed( false );
             impl_->reinit_iface( client( ) );
             FR_QML_CALL_EPILOGUE( )
         } else {
@@ -116,5 +117,11 @@ namespace fr { namespace declarative {
         }
     }
 
+    quint32 FrClientI2c::functionsSupported( ) const
+    {
+        FR_QML_CALL_PROLOGUE
+        return static_cast<quint32>(impl_->iface_->function_mask( ));
+        FR_QML_CALL_EPILOGUE( 0 )
+    }
 
 }}

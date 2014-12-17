@@ -16,6 +16,8 @@ namespace fr { namespace declarative {
                     READ slaveAddress WRITE setSlaveAddress
                     NOTIFY slaveAddressChanged )
 
+        Q_PROPERTY( quint32 functionsSupported READ functionsSupported )
+
         struct  impl;
         impl   *impl_;
 
@@ -75,6 +77,8 @@ namespace fr { namespace declarative {
 
         quint16 slaveAddress( ) const;
         void setSlaveAddress( quint16 value );
+
+        quint32 functionsSupported( ) const;
 
     signals:
 
