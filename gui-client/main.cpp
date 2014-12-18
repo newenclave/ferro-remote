@@ -21,7 +21,6 @@ void usage( )
     std::cout << "usage: gui-client /path/to/qml/file.qml" << std::endl;
 }
 
-
 int main( int argc, char *argv[] )
 { try {
 
