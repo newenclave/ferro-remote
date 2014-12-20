@@ -144,4 +144,26 @@ namespace fr { namespace declarative {
         FR_QML_CALL_EPILOGUE( )
     }
 
+    QByteArray FrClientI2c::read( unsigned maximum ) const
+    {
+        FR_QML_CALL_PROLOGUE
+        if( maximum ) {
+            std::vector<char> data( maximum );
+
+            size_t r = impl_->iface_->read( &data[0], maximum );
+
+            return QByteArray( &data[0], r );
+        }
+        FR_QML_CALL_EPILOGUE( QByteArray( ) )
+    }
+
+    unsigned FrClientI2c::write( const QByteArray &data ) const
+    {
+        FR_QML_CALL_PROLOGUE
+        size_t r = impl_->iface_->write( data.constData( ), data.size( ) );
+        return (unsigned)(r);
+        FR_QML_CALL_EPILOGUE( 0 )
+    }
+
+
 }}

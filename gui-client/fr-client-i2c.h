@@ -85,6 +85,9 @@ namespace fr { namespace declarative {
 
         Q_INVOKABLE void iocontrol( unsigned code, quint64 data );
 
+        Q_INVOKABLE QByteArray read( unsigned maximum ) const;
+        Q_INVOKABLE unsigned write( const QByteArray &data ) const;
+
     signals:
 
         void busIdChanged( quint32 value ) const;
