@@ -49,8 +49,6 @@ Rectangle {
         spacing: 10
         anchors.fill: parent
 
-        FrClientI2c {}
-
         FrClientFs {
             id: dirPath
             path: "/home/data"
@@ -67,7 +65,7 @@ Rectangle {
 
             TextField {
                 id: address
-                text: "127.0.0.1:12345"
+                text: "192.168.3.1:12345"
                 width: 200
             }
 
@@ -107,24 +105,27 @@ Rectangle {
                 width: 200
             }
 
+            FrClientI2c {
+                id: i2c
+                busId: 1
+                slaveAddress: 0x4C
+                client: generalClient
+            }
+
             Button {
                 enabled: false
                 id: run
                 text: qsTr("Run")
 
                 onClicked: {
-                    var m = call( )
-                    rfile.open( )
-                    var j = makeListModel( "/dev" )
-                    dirModel.clear( )
-                    dirModel.append( j )
-                    dirView.model = j
-//                    rfile.position = 2
-//                    file.text = rfile.read( 100 ).toString( )
-//                    if( rfile.failed ) {
-//                        status.text = rfile.error
-//                    }
+                    if( i2c.failed ) {
+                        throw i2c.error
+                    }
+                    //i2c.write( [ 0x7, 1 ] )
+                    var data = i2c.read( 7 );
+                    console.log( data )
                 }
+
                 Connections {
                     target: generalClient
                     onReadyChanged: { run.enabled = value }
@@ -162,15 +163,6 @@ Rectangle {
 
         Text {
             id: dataFile
-            Connections {
-                target: rfile
-                onFileEvent: {
-                    if( error == 0 ) {
-                        dataFile.text = data.toString( )
-                    }
-                }
-            }
-
         }
 
         Component {
@@ -188,35 +180,5 @@ Rectangle {
             }
         }
 
-        ListModel { id: dirModel }
-
-        ListView {
-
-            id: dirView
-
-            clip: true
-            height: 200
-            width: 200
-            delegate: nameDelegate
-            model: dirModel
-
-            footer: Rectangle {
-                width: parent.width;
-                height: 30;
-            }
-
-            highlight: Rectangle {
-                width: parent.width
-                color: "lightgray"
-            }
-        }
-
-        FrClientFile {
-            id: rfile
-            client: generalClient
-            events: true
-            device: true
-            path: "/dev/input/mouse1"
-        }
     }
 }

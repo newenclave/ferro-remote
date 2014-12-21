@@ -5,6 +5,7 @@
 #include "client-core/interfaces/II2C.h"
 #include "fr-qml-call-wrappers.h"
 
+
 namespace fr { namespace declarative {
 
     namespace {
@@ -18,7 +19,7 @@ namespace fr { namespace declarative {
 
         QSharedPointer<i2c_iface> iface_;
         unsigned        bus_id_;
-        quint16         slave_addr_;
+        quint32         slave_addr_;
         quint64         function_mask_;
         FrClientI2c    *parent_;
         impl( )
@@ -116,17 +117,17 @@ namespace fr { namespace declarative {
         }
     }
 
-    quint16 FrClientI2c::slaveAddress( ) const
+    quint32 FrClientI2c::slaveAddress( ) const
     {
         return impl_->slave_addr_;
     }
 
-    void FrClientI2c::setSlaveAddress( quint16 value )
+    void FrClientI2c::setSlaveAddress( quint32 value )
     {
         if( value != impl_->slave_addr_ ) {
+            impl_->slave_addr_ = value;
             FR_QML_CALL_PROLOGUE
             impl_->iface_->set_address( value );
-            impl_->slave_addr_ = value;
             emit slaveAddressChanged( impl_->slave_addr_ );
             FR_QML_CALL_EPILOGUE( )
         }
@@ -144,26 +145,40 @@ namespace fr { namespace declarative {
         FR_QML_CALL_EPILOGUE( )
     }
 
-    QByteArray FrClientI2c::read( unsigned maximum ) const
+    FrClientI2c::ArrayType FrClientI2c::read( unsigned maximum ) const
     {
         FR_QML_CALL_PROLOGUE
         if( maximum ) {
-            std::vector<char> data( maximum );
+
+            std::vector<unsigned char> data( maximum );
 
             size_t r = impl_->iface_->read( &data[0], maximum );
 
-            return QByteArray( &data[0], r );
+            ArrayType res;
+            for( size_t i=0; i<r; ++i ) {
+                res.push_back( static_cast<int>(data[i]) );
+            }
+            return res;
         }
-        FR_QML_CALL_EPILOGUE( QByteArray( ) )
+        FR_QML_CALL_EPILOGUE( ArrayType( ) )
     }
 
-    unsigned FrClientI2c::write( const QByteArray &data ) const
+    unsigned FrClientI2c::write( const QList<int> &data ) const
     {
         FR_QML_CALL_PROLOGUE
-        size_t r = impl_->iface_->write( data.constData( ), data.size( ) );
+        if( data.empty( ) ) {
+            return 0;
+        }
+        std::vector<unsigned char> wdata;
+        wdata.reserve( data.size( ) );
+        for( ArrayType::const_iterator b(data.constBegin( )),
+                                       e(data.constEnd( )); b!=e; ++b )
+        {
+            wdata.push_back( static_cast<unsigned char>(*b) );
+        }
+        size_t r = impl_->iface_->write( &wdata[0], wdata.size( ) );
         return (unsigned)(r);
         FR_QML_CALL_EPILOGUE( 0 )
     }
-
 
 }}

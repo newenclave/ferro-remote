@@ -12,7 +12,7 @@ namespace fr { namespace declarative {
         Q_PROPERTY( quint32 busId
                     READ busId WRITE setBusId NOTIFY busIdChanged )
 
-        Q_PROPERTY( quint16 slaveAddress
+        Q_PROPERTY( quint32 slaveAddress
                     READ slaveAddress WRITE setSlaveAddress
                     NOTIFY slaveAddressChanged )
 
@@ -37,7 +37,7 @@ namespace fr { namespace declarative {
     public:
 
         enum BusIdInvalidValue { InvalidBusId = 0xFFFFFFFF };
-        enum SlaveAddrInvalidValue { InvalidSlaveAddress = 0xFFFF };
+        enum SlaveAddrInvalidValue { InvalidSlaveAddress = 0xFFFFFFFF };
         enum I2CFunctionCodes {
             FuncI2C                  = 0x00000001
            ,Func10BitAddr            = 0x00000002
@@ -76,17 +76,19 @@ namespace fr { namespace declarative {
         quint32 busId( ) const;
         void setBusId( quint32 value );
 
-        quint16 slaveAddress( ) const;
-        void setSlaveAddress( quint16 value );
+        quint32 slaveAddress( ) const;
+        void setSlaveAddress( quint32 value );
 
         quint32 functionsSupported( ) const;
 
     public:
 
+        typedef QList<int> ArrayType;
+
         Q_INVOKABLE void iocontrol( unsigned code, quint64 data );
 
-        Q_INVOKABLE QByteArray read( unsigned maximum ) const;
-        Q_INVOKABLE unsigned write( const QByteArray &data ) const;
+        Q_INVOKABLE QList<int> read( unsigned maximum ) const;
+        Q_INVOKABLE unsigned write( const QList<int> &data ) const;
 
     signals:
 
