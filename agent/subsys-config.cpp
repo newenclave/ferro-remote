@@ -12,12 +12,22 @@ namespace fr { namespace agent { namespace subsys {
     }
 
     struct config::impl {
-        application        *app_;
-        po::variables_map   vm_;
+        application                *app_;
+        po::variables_map           vm_;
+        std::vector<std::string>    endpoints_;
+
         impl( application *app, po::variables_map vm )
             :app_(app)
             ,vm_(vm)
         { }
+
+        void init_variables( )
+        {
+            if( vm_.count( "server" ) ) {
+                typedef std::vector<std::string> slist;
+                endpoints_ = vm_["server"].as<slist>( );
+            }
+        }
     };
 
     config::config( application *app, const po::variables_map &vm )
@@ -61,6 +71,11 @@ namespace fr { namespace agent { namespace subsys {
     const po::variables_map &config::variables( ) const
     {
         return impl_->vm_;
+    }
+
+    const std::vector<std::string> &config::endpoints( ) const
+    {
+        return impl_->endpoints_;
     }
 
 }}}

@@ -194,15 +194,13 @@ namespace fr { namespace agent { namespace subsys {
 
     void listeners::start( )
     {
-        const po::variables_map &vars( impl_->config_->variables( ) );
+        typedef std::vector<std::string> slist;
 
-        if( vars.count( "server" ) ) {
-            typedef std::vector<std::string> slist;
-            slist servs(vars["server"].as<slist>( ));
-            std::for_each( servs.begin( ), servs.end( ),
-                           vtrc::bind( &impl::add_listener, impl_,
-                                       vtrc::placeholders::_1 ));
-        }
+        const slist &servs( impl_->config_->endpoints( ) );
+        std::for_each( servs.begin( ), servs.end( ),
+                       vtrc::bind( &impl::add_listener, impl_,
+                                   vtrc::placeholders::_1 ));
+
         impl_->start_all( );
     }
 

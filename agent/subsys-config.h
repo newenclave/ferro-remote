@@ -3,6 +3,8 @@
 
 #include "subsystem-iface.h"
 
+#include <vector>
+
 namespace boost { namespace program_options {
     class variables_map;
 }}
@@ -37,6 +39,9 @@ namespace subsys {
         void stop( )  ;
 
         boost::program_options::variables_map const &variables( ) const;
+
+        const std::vector<std::string> &endpoints( ) const;
+
     };
 
 }}}
