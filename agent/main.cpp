@@ -20,24 +20,7 @@ namespace {
 
     void fill_options( po::options_description &desc )
     {
-        desc.add_options( )
-            ("help,?",   "help message")
-            ("server,s", po::value< std::vector< std::string> >( ),
-                    "endpoint name; <tcp address>:<port> or <file name>")
-
-            ("io-pool-size,i",  po::value<unsigned>( ),
-                    "threads for io operations; default = 1")
-
-            ("rpc-pool-size,r", po::value<unsigned>( ),
-                    "threads for rpc calls; default = 1")
-
-            ("only-pool,o", "use io pool for io operations and rpc calls")
-
-            ("key,k", po::value< std::vector< std::string> >( ),
-                     "format is: key=id:key; "
-                     "key will use for client with this id; "
-                     "or key=key for key for any connections")
-            ;
+        agent::subsys::config::all_options( desc );
     }
 
     po::variables_map create_cmd_params( int argc, const char **argv,

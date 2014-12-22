@@ -244,8 +244,9 @@ int main( int argc, const char **argv )
     }
 
     if( !c_key.empty( ) ) {
+        std::string key_info( c_id + c_key );
         vcommon::hash_iface_uptr s(vcommon::hash::sha2::create256( ));
-        std::string hs(s->get_data_hash( &c_key[0], c_key.size( ) ));
+        std::string hs(s->get_data_hash( &key_info[0], key_info.size( ) ));
         client.set_key( hs );
     }
 

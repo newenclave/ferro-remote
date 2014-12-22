@@ -4,9 +4,11 @@
 #include "subsystem-iface.h"
 
 #include <vector>
+#include <map>
 
 namespace boost { namespace program_options {
     class variables_map;
+    class options_description;
 }}
 
 namespace fr { namespace agent {
@@ -27,6 +29,9 @@ namespace subsys {
 
     public:
 
+        static
+        void all_options( boost::program_options::options_description &desc );
+
         ~config( );
 
         static vtrc::shared_ptr<config> create( application *app,
@@ -41,6 +46,7 @@ namespace subsys {
         boost::program_options::variables_map const &variables( ) const;
 
         const std::vector<std::string> &endpoints( ) const;
+        const std::map<std::string, std::string> &id_keys( ) const;
 
     };
 

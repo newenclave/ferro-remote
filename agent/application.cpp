@@ -118,28 +118,10 @@ namespace fr { namespace agent {
 
         void init_keys( )
         {
-            subsys::config &conf( parent_->subsystem<subsys::config>( ) );
-            if( conf.variables( ).count( "key" ) ) {
-                typedef std::vector<std::string>::const_iterator citr;
-
-                vtrc::unique_ptr<vcomm::hash_iface>
-                                     s2( vcomm::hash::sha2::create256( ) );
-
-                std::vector<std::string> keys =
-                      conf.variables( )["key"].as<std::vector<std::string> >( );
-
-                for( citr b(keys.begin( )), e(keys.end( )); b!=e; ++b ) {
-
-                    std::pair<std::string, std::string> pair = split_key( *b );
-
-                    std::string hash( s2->get_data_hash( pair.second.c_str( ),
-                                                         pair.second.size( )));
-                    if( pair.first.empty( ) ) {
-                        empty_key_ = hash;
-                    } else {
-                        keys_[pair.first] = hash;
-                    }
-                }
+            key_map_type km( parent_->subsystem<subsys::config>( ).id_keys( ) );
+            keys_.insert( km.begin( ), km.end( ) );
+            if( keys_.find( "" ) != keys_.end( ) ) {
+                empty_key_ = keys_[""];
             }
         }
 
