@@ -48,6 +48,8 @@ namespace subsys {
         const std::vector<std::string> &endpoints( ) const;
         const std::map<std::string, std::string> &id_keys( ) const;
 
+        const std::string &script_path( ) const;
+
     };
 
 }}}

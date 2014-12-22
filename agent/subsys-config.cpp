@@ -4,6 +4,9 @@
 #include "boost/program_options.hpp"
 #include "vtrc-common/vtrc-hash-iface.h"
 
+#include "ferro-remote-config.h"
+
+
 namespace fr { namespace agent { namespace subsys {
 
     namespace po = boost::program_options;
@@ -14,6 +17,8 @@ namespace fr { namespace agent { namespace subsys {
         const std::string subsys_name( "config" );
 
         typedef  std::pair<std::string, std::string> string_pair;
+
+        std::string l_script_path;
 
         static
         string_pair split_string( const std::string &key )
@@ -90,7 +95,10 @@ namespace fr { namespace agent { namespace subsys {
                     "threads for rpc calls; default = 1")
 
             ("only-pool,o", "use io pool for io operations and rpc calls")
-
+#if FR_WITH_LUA
+            ("script,S",    po::value<std::string>(&l_script_path),
+                            "lua script for configure server")
+#endif
             ("key,k", po::value< std::vector< std::string> >( ),
                      "format is: key=id:key; "
                      "key will use for client with this id; "
@@ -151,5 +159,9 @@ namespace fr { namespace agent { namespace subsys {
         return impl_->keys_;
     }
 
+    const std::string &config::script_path( ) const
+    {
+        return l_script_path;
+    }
 
 }}}

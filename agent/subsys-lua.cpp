@@ -4,6 +4,11 @@
 
 #if FR_WITH_LUA
 
+#include "agent-lua.h"
+#include "subsys-config.h"
+
+#include "boost/filesystem.hpp"
+
 //#include "vtrc-memory.h"
 
 namespace fr { namespace agent { namespace subsys {
@@ -11,6 +16,9 @@ namespace fr { namespace agent { namespace subsys {
     namespace {
 
         const std::string subsys_name( "lua" );
+
+        namespace frlua = ::fr::lua;
+        namespace fs = boost::filesystem;
 
         application::service_wrapper_sptr create_service(
                                   fr::agent::application * /*app*/,
@@ -27,9 +35,12 @@ namespace fr { namespace agent { namespace subsys {
     struct lua::impl {
 
         application     *app_;
+        config          *config_;
+        frlua::state     state_;
 
         impl( application *app )
             :app_(app)
+            ,config_(nullptr)
         { }
 
         void reg_creator( const std::string &name,
@@ -69,7 +80,18 @@ namespace fr { namespace agent { namespace subsys {
 
     void lua::init( )
     {
+        impl_->config_ = &impl_->app_->subsystem<config>( );
+        const std::string &spath(impl_->config_->script_path( ));
+        try {
+            if( fs::exists(spath) && fs::is_regular_file( spath ) ) {
 
+                impl_->state_.check_call_error(
+                            impl_->state_.load_file( spath.c_str( ) ) );
+            }
+        } catch( const std::exception &ex ) {
+            std::cerr << "[lua] load " << spath << " failed: "
+                      << ex.what( ) << "\n";
+        }
     }
 
     void lua::start( )
