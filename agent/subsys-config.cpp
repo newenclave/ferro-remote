@@ -19,7 +19,9 @@ namespace fr { namespace agent { namespace subsys {
         impl( application *app, po::variables_map vm )
             :app_(app)
             ,vm_(vm)
-        { }
+        {
+            init_variables( );
+        }
 
         void init_variables( )
         {
