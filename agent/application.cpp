@@ -102,20 +102,6 @@ namespace fr { namespace agent {
             }
         }
 
-        static
-        std::pair<std::string, std::string> split_key( const std::string &key )
-        {
-            std::string::size_type pos = key.find( ':' );
-
-            if( pos == std::string::npos ) {
-                return std::make_pair( "", key );
-            }
-
-            return std::make_pair(
-                        std::string( key.begin( ), key.begin( ) + pos ),
-                        std::string( key.begin( ) + pos + 1, key.end( ) ) );
-        }
-
         void init_keys( )
         {
             key_map_type km( parent_->subsystem<subsys::config>( ).id_keys( ) );
@@ -124,7 +110,6 @@ namespace fr { namespace agent {
                 empty_key_ = keys_[""];
             }
         }
-
     };
 
 //////// service wrapper
