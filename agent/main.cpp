@@ -57,6 +57,7 @@ namespace {
         using namespace agent::subsys;
 
         app.add_subsystem<config>( vm );
+        app.add_subsystem<lua>( );
         app.add_subsystem<os>( );
         app.add_subsystem<fs>( );
         app.add_subsystem<gpio>( );
