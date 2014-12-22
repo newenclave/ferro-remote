@@ -8,6 +8,8 @@
 
 #include "subsys-list.hxx"
 
+#include "ferro-remote-config.h"
+
 namespace vserver = vtrc::server;
 namespace vcommon = vtrc::common;
 using namespace fr;
@@ -57,7 +59,9 @@ namespace {
         using namespace agent::subsys;
 
         app.add_subsystem<config>( vm );
+#if FR_WITH_LUA
         app.add_subsystem<lua>( );
+#endif
         app.add_subsystem<os>( );
         app.add_subsystem<fs>( );
         app.add_subsystem<gpio>( );
