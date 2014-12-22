@@ -125,9 +125,7 @@ namespace fr { namespace agent {
     { }
 
     application::service_wrapper_impl::~service_wrapper_impl( )
-    {
-
-    }
+    { }
 
     const
     application::service_wrapper_impl::method_type *
