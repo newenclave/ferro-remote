@@ -13,8 +13,8 @@ namespace fr { namespace agent { namespace subsys {
         const std::string subsys_name( "lua" );
 
         application::service_wrapper_sptr create_service(
-                                      fr::agent::application * /*app*/,
-                                      vtrc::common::connection_iface_wptr cl )
+                                  fr::agent::application * /*app*/,
+                                  vtrc::common::connection_iface_wptr /*cl*/ )
         {
             ///vtrc::shared_ptr<impl_type_here>
             ///        inst(vtrc::make_shared<impl_type_here>( app, cl ));
