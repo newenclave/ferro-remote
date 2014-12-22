@@ -106,8 +106,10 @@ namespace fr { namespace agent {
         {
             key_map_type km( parent_->subsystem<subsys::config>( ).id_keys( ) );
             keys_.insert( km.begin( ), km.end( ) );
-            if( keys_.find( "" ) != keys_.end( ) ) {
-                empty_key_ = keys_[""];
+            key_map_type::const_iterator f(keys_.find( "" ));
+            if( f != keys_.end( ) ) {
+                empty_key_ = f->second;
+                keys_.erase( f );
             }
         }
     };
