@@ -194,7 +194,7 @@ namespace fr { namespace agent { namespace subsys {
 
     void listeners::start( )
     {
-        const po::variables_map &vars(impl_->config_->variables( ));
+        const po::variables_map &vars( impl_->config_->variables( ) );
 
         if( vars.count( "server" ) ) {
             typedef std::vector<std::string> slist;

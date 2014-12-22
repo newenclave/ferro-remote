@@ -2,11 +2,14 @@
 #include "application.h"
 #include "subsys-lua.h"
 
+#if FR_WITH_LUA
+
 //#include "vtrc-memory.h"
 
 namespace fr { namespace agent { namespace subsys {
 
     namespace {
+
         const std::string subsys_name( "lua" );
 
         application::service_wrapper_sptr create_service(
@@ -82,4 +85,4 @@ namespace fr { namespace agent { namespace subsys {
 
 }}}
 
-    
+#endif

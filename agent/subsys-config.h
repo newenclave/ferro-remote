@@ -20,8 +20,8 @@ namespace subsys {
 
     protected:
 
-        config(application *app,
-               const boost::program_options::variables_map &vm);
+        config( application *app,
+                const boost::program_options::variables_map &vm );
 
     public:
 

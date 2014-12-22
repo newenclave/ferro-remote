@@ -1,8 +1,12 @@
 
-#ifndef FR_SUBSYS_lua_H
-#define FR_SUBSYS_lua_H
+#ifndef FR_SUBSYS_LUA_H
+#define FR_SUBSYS_LUA_H
 
 #include "subsystem-iface.h"
+#include "ferro-remote-config.h"
+
+#if FR_WITH_LUA
+
 
 namespace fr { namespace agent {
 
@@ -35,5 +39,5 @@ namespace subsys {
 }}}
 
 #endif
-
+#endif // LUA
     
