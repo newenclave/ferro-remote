@@ -9,15 +9,11 @@
 #include "agent-lua.h"
 #include "subsys-config.h"
 
-#include "boost/filesystem.hpp"
-
 //#include "vtrc-memory.h"
 
 namespace fr { namespace agent { namespace subsys {
 
     namespace {
-
-        const char *endpoints_path = "config.endpoints";
 
         typedef std::map<std::string, std::string>  lua_table_type;
         typedef std::vector<std::string>            lua_list_type;
@@ -25,7 +21,6 @@ namespace fr { namespace agent { namespace subsys {
         const std::string subsys_name( "lua" );
 
         namespace frlua = ::fr::lua;
-        namespace fs = boost::filesystem;
 
         application::service_wrapper_sptr create_service(
                                   fr::agent::application * /*app*/,
@@ -42,12 +37,10 @@ namespace fr { namespace agent { namespace subsys {
     struct lua::impl {
 
         application     *app_;
-        config          *config_;
         frlua::state     state_;
 
         impl( application *app )
             :app_(app)
-            ,config_(nullptr)
         { }
 
         void reg_creator( const std::string &name,
@@ -113,42 +106,24 @@ namespace fr { namespace agent { namespace subsys {
     }
 
     void lua::init( )
-    {
-        impl_->config_ = &impl_->app_->subsystem<config>( );
-    }
+    { }
 
     void lua::start( )
-    {
-        const std::string &spath(impl_->config_->script_path( ));
-        if( spath.empty( ) ) {
-            return;
-        }
-
-        try {
-            if( fs::exists(spath) && fs::is_regular_file( spath ) ) {
-
-                impl_->state_.check_call_error(
-                            impl_->state_.load_file( spath.c_str( ) ) );
-
-                lua_list_type l = impl_->read_list( endpoints_path );
-
-                impl_->config_->set_endpoints( l );
-
-            } else {
-                std::cerr << "[lua] invalid path " << spath
-                          << " for script \n";
-            }
-        } catch( const std::exception &ex ) {
-            std::cerr << "[lua] load " << spath << " failed: "
-                      << ex.what( ) << "\n";
-        }
-    }
+    { }
 
     void lua::stop( )
-    {
+    { }
 
+    void lua::load_file( const std::string &path )
+    {
+        impl_->state_.check_call_error(
+                    impl_->state_.load_file( path.c_str( ) ) );
     }
 
+    lua::lua_string_list_type lua::get_table_list( const std::string &path )
+    {
+        return impl_->read_list( path );
+    }
 
 }}}
 

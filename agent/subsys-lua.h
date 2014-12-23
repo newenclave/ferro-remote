@@ -7,7 +7,6 @@
 
 #if FR_WITH_LUA
 
-
 namespace fr { namespace agent {
 
     class application;
@@ -25,6 +24,9 @@ namespace subsys {
 
     public:
 
+        typedef std::map<std::string, std::string>  lua_table_type;
+        typedef std::vector<std::string>            lua_string_list_type;
+
         ~lua( );
 
         static vtrc::shared_ptr<lua> create( application *app );
@@ -34,6 +36,11 @@ namespace subsys {
         void init( )  ;
         void start( ) ;
         void stop( )  ;
+
+        void load_file( const std::string &path );
+
+        lua_string_list_type get_table_list( const std::string &path );
+
     };
 
 }}}

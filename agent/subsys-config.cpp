@@ -1,11 +1,17 @@
 
 #include "subsys-config.h"
+#include "subsys-lua.h"
+
+#include "application.h"
 
 #include "boost/program_options.hpp"
 #include "vtrc-common/vtrc-hash-iface.h"
 
 #include "ferro-remote-config.h"
 
+#include "boost/filesystem.hpp"
+
+#include <iostream>
 
 namespace fr { namespace agent { namespace subsys {
 
@@ -15,6 +21,10 @@ namespace fr { namespace agent { namespace subsys {
     namespace {
 
         const std::string subsys_name( "config" );
+
+        const char *endpoints_path = "config.endpoints";
+
+        namespace fs = boost::filesystem;
 
         typedef  std::pair<std::string, std::string> string_pair;
 
@@ -37,14 +47,17 @@ namespace fr { namespace agent { namespace subsys {
     }
 
     struct config::impl {
+
         application                        *app_;
         po::variables_map                   vm_;
         std::vector<std::string>            endpoints_;
         std::map<std::string, std::string>  keys_;
+        subsys::lua                        *lua_;
 
         impl( application *app, po::variables_map vm )
             :app_(app)
             ,vm_(vm)
+            ,lua_(NULL)
         {
             init_variables( );
         }
@@ -131,12 +144,37 @@ namespace fr { namespace agent { namespace subsys {
 
     void config::init( )
     {
-
+        impl_->lua_ = &impl_->app_->subsystem<subsys::lua>( );
     }
 
     void config::start( )
     {
 
+#if FR_WITH_LUA
+        const std::string &spath(l_script_path);
+        if( !spath.empty( ) ) {
+            try {
+                if( fs::exists(spath) && fs::is_regular_file( spath ) ) {
+
+                    impl_->lua_->load_file( spath );
+
+                    subsys::lua::lua_string_list_type l =
+                            impl_->lua_->get_table_list( endpoints_path );
+
+                    if( !l.empty( ) ) {
+                        impl_->endpoints_.swap( l );
+                    }
+
+                } else {
+                    std::cerr << "[config] invalid path " << spath
+                              << " for script \n";
+                }
+            } catch( const std::exception &ex ) {
+                std::cerr << "[config] load file " << spath
+                          << " failed: " << ex.what( ) << "\n";
+            }
+        }
+#endif
     }
 
     void config::stop( )
