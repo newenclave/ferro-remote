@@ -88,8 +88,8 @@ namespace fr { namespace agent { namespace subsys {
                 impl_->state_.check_call_error(
                             impl_->state_.load_file( spath.c_str( ) ) );
             } else {
-                std::cerr << "[lua] invalip path " << spath
-                          << " for script \n";
+                std::cerr << "[lua] invalid path " << spath
+                          << " for the script \n";
             }
         } catch( const std::exception &ex ) {
             std::cerr << "[lua] load " << spath << " failed: "
