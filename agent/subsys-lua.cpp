@@ -4,6 +4,8 @@
 
 #if FR_WITH_LUA
 
+#include <iostream>
+
 #include "agent-lua.h"
 #include "subsys-config.h"
 
@@ -81,25 +83,34 @@ namespace fr { namespace agent { namespace subsys {
     void lua::init( )
     {
         impl_->config_ = &impl_->app_->subsystem<config>( );
+    }
+
+    void lua::start( )
+    {
         const std::string &spath(impl_->config_->script_path( ));
         try {
             if( fs::exists(spath) && fs::is_regular_file( spath ) ) {
 
                 impl_->state_.check_call_error(
                             impl_->state_.load_file( spath.c_str( ) ) );
+
+                int level = impl_->state_.get_table( "config.endpoints" );
+                if( level ) {
+
+                    frlua::objects::base_sptr t = impl_->state_.get_table( -1 );
+                    std::cout << t->str( ) << std::endl;
+                    impl_->state_.pop( level );
+                }
+
+
             } else {
-                std::cerr << "[lua] invalip path " << spath
+                std::cerr << "[lua] invalid path " << spath
                           << " for script \n";
             }
         } catch( const std::exception &ex ) {
             std::cerr << "[lua] load " << spath << " failed: "
                       << ex.what( ) << "\n";
         }
-    }
-
-    void lua::start( )
-    {
-
     }
 
     void lua::stop( )
