@@ -4,10 +4,10 @@
 
 #if FR_WITH_LUA
 
+#include <iostream>
+
 #include "agent-lua.h"
 #include "subsys-config.h"
-
-#include "boost/filesystem.hpp"
 
 //#include "vtrc-memory.h"
 
@@ -15,10 +15,12 @@ namespace fr { namespace agent { namespace subsys {
 
     namespace {
 
+        typedef std::map<std::string, std::string>  lua_table_type;
+        typedef std::vector<std::string>            lua_list_type;
+
         const std::string subsys_name( "lua" );
 
         namespace frlua = ::fr::lua;
-        namespace fs = boost::filesystem;
 
         application::service_wrapper_sptr create_service(
                                   fr::agent::application * /*app*/,
@@ -35,12 +37,10 @@ namespace fr { namespace agent { namespace subsys {
     struct lua::impl {
 
         application     *app_;
-        config          *config_;
         frlua::state     state_;
 
         impl( application *app )
             :app_(app)
-            ,config_(nullptr)
         { }
 
         void reg_creator( const std::string &name,
@@ -52,6 +52,33 @@ namespace fr { namespace agent { namespace subsys {
         void unreg_creator( const std::string &name )
         {
             app_->unregister_service_creator( name );
+        }
+
+        bool is_pair( frlua::objects::base const *o ) const
+        {
+            return o->type_id( ) == frlua::objects::base::TYPE_PAIR;
+        }
+
+        bool is_string( frlua::objects::base const *o ) const
+        {
+            return o->type_id( ) == frlua::objects::base::TYPE_STRING;
+        }
+
+        lua_list_type read_list( const std::string &path )
+        {
+            lua_list_type result;
+            int level = state_.get_table( path.c_str( ) );
+            if( level ) {
+                frlua::objects::base_sptr t = state_.get_table( -1 );
+                for( size_t i=0; i<t->count( ); ++i ) {
+                    const frlua::objects::base *next( t->at( i ) );
+                    if( is_pair( next ) && is_string( next->at( 1 ) ) ) {
+                        result.push_back( next->at( 1 )->str( ) );
+                    }
+                }
+                state_.pop( level );
+            }
+            return result;
         }
 
     };
@@ -79,34 +106,24 @@ namespace fr { namespace agent { namespace subsys {
     }
 
     void lua::init( )
-    {
-        impl_->config_ = &impl_->app_->subsystem<config>( );
-        const std::string &spath(impl_->config_->script_path( ));
-        try {
-            if( fs::exists(spath) && fs::is_regular_file( spath ) ) {
-
-                impl_->state_.check_call_error(
-                            impl_->state_.load_file( spath.c_str( ) ) );
-            } else {
-                std::cerr << "[lua] invalid path " << spath
-                          << " for the script \n";
-            }
-        } catch( const std::exception &ex ) {
-            std::cerr << "[lua] load " << spath << " failed: "
-                      << ex.what( ) << "\n";
-        }
-    }
+    { }
 
     void lua::start( )
-    {
-
-    }
+    { }
 
     void lua::stop( )
-    {
+    { }
 
+    void lua::load_file( const std::string &path )
+    {
+        impl_->state_.check_call_error(
+                    impl_->state_.load_file( path.c_str( ) ) );
     }
 
+    lua::lua_string_list_type lua::get_table_list( const std::string &path )
+    {
+        return impl_->read_list( path );
+    }
 
 }}}
 

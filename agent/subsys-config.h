@@ -46,6 +46,7 @@ namespace subsys {
         boost::program_options::variables_map const &variables( ) const;
 
         const std::vector<std::string> &endpoints( ) const;
+        void  set_endpoints( std::vector<std::string> const &ep ) const;
         const std::map<std::string, std::string> &id_keys( ) const;
 
         const std::string &script_path( ) const;
