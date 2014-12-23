@@ -17,6 +17,11 @@ namespace fr { namespace agent { namespace subsys {
 
     namespace {
 
+        const char *endpoints_path = "config.endpoints";
+
+        typedef std::map<std::string, std::string>  lua_table_type;
+        typedef std::vector<std::string>            lua_list_type;
+
         const std::string subsys_name( "lua" );
 
         namespace frlua = ::fr::lua;
@@ -56,6 +61,33 @@ namespace fr { namespace agent { namespace subsys {
             app_->unregister_service_creator( name );
         }
 
+        bool is_pair( frlua::objects::base const *o ) const
+        {
+            return o->type_id( ) == frlua::objects::base::TYPE_PAIR;
+        }
+
+        bool is_string( frlua::objects::base const *o ) const
+        {
+            return o->type_id( ) == frlua::objects::base::TYPE_STRING;
+        }
+
+        lua_list_type read_list( const std::string &path )
+        {
+            lua_list_type result;
+            int level = state_.get_table( path.c_str( ) );
+            if( level ) {
+                frlua::objects::base_sptr t = state_.get_table( -1 );
+                for( size_t i=0; i<t->count( ); ++i ) {
+                    const frlua::objects::base *next( t->at( i ) );
+                    if( is_pair( next ) && is_string( next->at( 1 ) ) ) {
+                        result.push_back( next->at( 1 )->str( ) );
+                    }
+                }
+                state_.pop( level );
+            }
+            return result;
+        }
+
     };
 
 
@@ -88,20 +120,19 @@ namespace fr { namespace agent { namespace subsys {
     void lua::start( )
     {
         const std::string &spath(impl_->config_->script_path( ));
+        if( spath.empty( ) ) {
+            return;
+        }
+
         try {
             if( fs::exists(spath) && fs::is_regular_file( spath ) ) {
 
                 impl_->state_.check_call_error(
                             impl_->state_.load_file( spath.c_str( ) ) );
 
-                int level = impl_->state_.get_table( "config.endpoints" );
-                if( level ) {
+                lua_list_type l = impl_->read_list( endpoints_path );
 
-                    frlua::objects::base_sptr t = impl_->state_.get_table( -1 );
-                    std::cout << t->str( ) << std::endl;
-                    impl_->state_.pop( level );
-                }
-
+                impl_->config_->set_endpoints( l );
 
             } else {
                 std::cerr << "[lua] invalid path " << spath

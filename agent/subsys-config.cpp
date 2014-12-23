@@ -154,6 +154,11 @@ namespace fr { namespace agent { namespace subsys {
         return impl_->endpoints_;
     }
 
+    void  config::set_endpoints( std::vector<std::string> const &ep ) const
+    {
+        impl_->endpoints_.assign( ep.begin( ), ep.end( ) );
+    }
+
     const std::map<std::string, std::string> &config::id_keys( ) const
     {
         return impl_->keys_;
