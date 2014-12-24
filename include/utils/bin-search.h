@@ -6,6 +6,19 @@
 namespace fr { namespace utils {
 
     template <typename IterType, typename ValueType>
+    struct default_iterator_accessor {
+        ValueType &operator ( )( IterType &iter )
+        {
+            return *iter;
+        }
+
+        const ValueType &operator ( )( const IterType &iter )
+        {
+            return *iter;
+        }
+    };
+
+    template <typename IterType, typename ValueType>
     const IterType bin_search( IterType begin, IterType end, ValueType value )
     {
         IterType e(end);
