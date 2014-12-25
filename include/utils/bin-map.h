@@ -299,7 +299,6 @@ namespace fr { namespace utils {
                 delete (*f);
                 data_.erase( f );
             }
-
         }
 
         second_type &operator[ ]( const first_type &key )
