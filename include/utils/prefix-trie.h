@@ -123,7 +123,7 @@ namespace fr { namespace utils {
     template <typename CharType, typename InfoType>
     class prefix_iterator_shifter: public prefix_trie<CharType, InfoType>
     {
-        typedef prefix_trie<CharType, InfoType>                    parent_type;
+        typedef prefix_trie<CharType, InfoType>             parent_type;
         typedef prefix_iterator_shifter<CharType, InfoType> this_type;
 
     public:
