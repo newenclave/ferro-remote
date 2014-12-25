@@ -4,6 +4,8 @@
 #include <map>
 #include <iterator>
 
+#include "bin-map.h"
+
 namespace fr { namespace utils {
 
     template <typename CharType, typename InfoType>
@@ -22,8 +24,11 @@ namespace fr { namespace utils {
         typedef trie &ref_type;
         typedef trie *ptr_type;
 
-        typedef std::map <char_type, ptr_type>  prefix_list;
-        typedef std::pair<char_type, ptr_type>  prefix_pair;
+        typedef trie const &const_ref_type;
+        typedef trie const *const_ptr_type;
+
+        typedef fr::utils::bin_map<char_type, ptr_type>  prefix_list;
+        typedef std::pair<char_type, ptr_type>           prefix_pair;
 
     private:
 
@@ -84,12 +89,12 @@ namespace fr { namespace utils {
             return ( itr == elem_list.end( ) ? ptr_type( ) : itr->second );
         }
 
+    public:
+
         ptr_type equal_element( char_type sym ) const
         {
             return equal_element( element_list( ), sym );
         }
-
-    public:
 
         template <typename IterT>
         void push( IterT begin, const IterT &end,
