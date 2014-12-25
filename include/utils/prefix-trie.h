@@ -157,12 +157,12 @@ namespace fr { namespace utils {
         const value_type &next_info( IterT &b, const IterT &e,
                                      bool greedy ) const
         {
-            parent_type const * next = this;
-            parent_type const * last = this;
-
             if( b == e ) {
                 return info( );
             }
+
+            parent_type const * next = this;
+            parent_type const * last = this;
 
             IterT bb(b);
             std::advance( bb, 1 );
