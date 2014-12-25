@@ -260,6 +260,11 @@ namespace fr { namespace utils {
             insert( o.begin( ), o.end( ) );
         }
 
+        bin_map( const_iterator b, const_iterator e )
+        {
+            insert( b, e );
+        }
+
         bin_map & operator = ( const bin_map &o )
         {
             bin_map tmp(o.begin( ), o.end( ));
