@@ -18,14 +18,15 @@ namespace fr { namespace utils {
         }
     };
 
-    template <typename IterType, typename ValueType>
-    const IterType bin_search( IterType begin, IterType end, ValueType value )
+    template <typename IterType, typename ValueType, typename AccessorT>
+    const IterType bin_search( IterType begin, IterType end,
+                               ValueType value, AccessorT at)
     {
         IterType e(end);
         while( begin != end ) {
             IterType m( begin );
             std::advance( m, (std::distance( begin, end ) >> 1) );
-            const ValueType &val(*m);
+            const ValueType &val(at(m));
             if( val < value ) {
                 begin = m;
                 std::advance( begin, 1 );
@@ -39,12 +40,20 @@ namespace fr { namespace utils {
     }
 
     template <typename IterType, typename ValueType>
-    IterType bin_lower_bound( IterType begin, IterType end, ValueType value )
+    const IterType bin_search( IterType begin, IterType end, ValueType value)
+    {
+        return bin_search( begin, end, value,
+                           default_iterator_accessor<IterType, ValueType>( ));
+    }
+
+    template <typename IterType, typename ValueType, typename AccessorT>
+    IterType bin_lower_bound( IterType begin, IterType end,
+                              ValueType value, AccessorT at )
     {
         while( begin != end ) {
             IterType m( begin );
             std::advance( m, ( std::distance( begin, end ) >> 1 ) );
-            const ValueType &val = *m;
+            const ValueType &val(at(m));
             if( val < value ) {
                 begin = m;
                 std::advance( begin, 1 );
@@ -56,12 +65,20 @@ namespace fr { namespace utils {
     }
 
     template <typename IterType, typename ValueType>
-    IterType bin_upper_bound( IterType begin, IterType end, ValueType value )
+    IterType bin_lower_bound( IterType begin, IterType end, ValueType value)
+    {
+        return bin_lower_bound( begin, end, value,
+                            default_iterator_accessor<IterType, ValueType>( ));
+    }
+
+    template <typename IterType, typename ValueType, typename AccessorT>
+    IterType bin_upper_bound( IterType begin, IterType end,
+                              ValueType value, AccessorT at )
     {
         while( begin != end ) {
             IterType m( begin );
             std::advance( m, ( std::distance( begin, end ) >> 1 ) );
-            const ValueType &val = *m;
+            const ValueType &val(at(m));
             if( value < val  ) {
                 end = m;
             } else  {
@@ -70,6 +87,13 @@ namespace fr { namespace utils {
             }
         }
         return begin;
+    }
+
+    template <typename IterType, typename ValueType>
+    IterType bin_upper_bound( IterType begin, IterType end, ValueType value)
+    {
+        return bin_upper_bound( begin, end, value,
+                            default_iterator_accessor<IterType, ValueType>( ));
     }
 
 }}
