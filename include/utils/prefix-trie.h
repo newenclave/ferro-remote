@@ -1,9 +1,6 @@
 #ifndef FR_PREFIX_TRIE_H
 #define FR_PREFIX_TRIE_H
 
-#include <map>
-#include <iterator>
-
 #include "bin-map.h"
 
 namespace fr { namespace utils {
