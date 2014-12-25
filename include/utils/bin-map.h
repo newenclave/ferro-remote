@@ -59,7 +59,7 @@ namespace fr { namespace utils {
                                                key, key_iterator_access( ) );
         }
 
-        data_const_iterator lower_bound( const first_type &key )
+        data_iterator lower_bound( const first_type &key )
         {
             return fr::utils::bin_lower_bound( data_.begin( ), data_.end( ),
                                                key, key_iterator_access( ) );
