@@ -12,9 +12,9 @@ namespace fr { namespace utils {
 
     public:
 
-        typedef KeyT                               first_type;
-        typedef ValueT                             second_type;
-        typedef std::pair<first_type, second_type> value_type;
+        typedef KeyT                                     first_type;
+        typedef ValueT                                   second_type;
+        typedef std::pair<const first_type, second_type> value_type;
 
     private:
 
