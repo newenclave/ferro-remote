@@ -64,9 +64,9 @@ namespace fr { namespace utils {
 
     public:
 
-        const value_type &info( ) const  { return info_;  }
-        bool      end( )          const  { return end_; }
-        bool      empty( )        const  { return children_.empty( ); }
+        const value_type &info( )  const { return info_;  }
+        bool              end( )   const { return end_; }
+        bool              empty( ) const { return children_.empty( ); }
 
         void swap( prefix_trie<char_type, value_type> &other )
         {
