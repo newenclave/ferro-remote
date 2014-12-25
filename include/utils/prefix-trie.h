@@ -9,7 +9,7 @@ namespace fr { namespace utils {
     class prefix_iterator_shifter;
 
     template <typename CharType, typename InfoType>
-    class trie {
+    class prefix_trie {
 
     //    friend class prefix_iterator_shifter<CharType, InfoType>;
 
@@ -18,11 +18,11 @@ namespace fr { namespace utils {
         typedef CharType char_type;
         typedef InfoType value_type;
 
-        typedef trie &ref_type;
-        typedef trie *ptr_type;
+        typedef prefix_trie &ref_type;
+        typedef prefix_trie *ptr_type;
 
-        typedef trie const &const_ref_type;
-        typedef trie const *const_ptr_type;
+        typedef prefix_trie const &const_ref_type;
+        typedef prefix_trie const *const_ptr_type;
 
         typedef fr::utils::bin_map<char_type, ptr_type>  prefix_list;
         typedef std::pair<char_type, ptr_type>           prefix_pair;
@@ -40,22 +40,22 @@ namespace fr { namespace utils {
             }
         };
 
-        trie( const trie& );
-        trie & operator = ( const trie& );
+        prefix_trie( const prefix_trie& );
+        prefix_trie & operator = ( const prefix_trie& );
 
     public:
 
-        trie( )
+        prefix_trie( )
             :end_(false)
             ,info_(value_type( ))
         { }
 
-        explicit trie( const value_type &inf )
+        explicit prefix_trie( const value_type &inf )
             :end_(false)
             ,info_(inf)
         { }
 
-        virtual ~trie( ) /*throw()*/
+        virtual ~prefix_trie( ) /*throw()*/
         {
             std::for_each( children_.begin( ),
                            children_.end( ),
@@ -68,7 +68,7 @@ namespace fr { namespace utils {
         bool      end( )          const  { return end_; }
         bool      empty( )        const  { return children_.empty( ); }
 
-        void swap( trie<char_type, value_type> &other )
+        void swap( prefix_trie<char_type, value_type> &other )
         {
             children_.swap(   other.children_ );
             std::swap( info_, other.info_ );
@@ -103,7 +103,7 @@ namespace fr { namespace utils {
                 char_type sym = *begin;
                 ptr_type tmp = next->equal_element(sym);
                 if( NULL == tmp ) {
-                    tmp = ptr_type( new trie( ) );
+                    tmp = ptr_type( new prefix_trie( ) );
                     next->children_.insert( std::make_pair( sym, tmp ) );
                 }
                 next = tmp;
@@ -121,9 +121,9 @@ namespace fr { namespace utils {
 
 
     template <typename CharType, typename InfoType>
-    class prefix_iterator_shifter: public trie<CharType, InfoType>
+    class prefix_iterator_shifter: public prefix_trie<CharType, InfoType>
     {
-        typedef trie<CharType, InfoType>                    parent_type;
+        typedef prefix_trie<CharType, InfoType>                    parent_type;
         typedef prefix_iterator_shifter<CharType, InfoType> this_type;
 
     public:
