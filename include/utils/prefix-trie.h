@@ -222,15 +222,14 @@ namespace fr { namespace utils {
                                                  const value_type& inf ) const
         {
             return shift_while_true( b, e, inf,
-                        std::not_equal_to<value_type>( ) );
+                                     std::not_equal_to<value_type>( ) );
         }
 
         template <typename IterT>
         const value_type &shift_while_equal( IterT &b, const IterT &e,
                                              const value_type& inf ) const
         {
-            return shift_while_true( b, e, inf,
-                                     std::equal_to<value_type>( ) );
+            return shift_while_true( b, e, inf, std::equal_to<value_type>( ) );
         }
     };
 
