@@ -97,20 +97,20 @@ namespace fr { namespace utils {
             iter_impl( )
             { }
 
-            const iter_impl& operator = (const iter_impl& other)
+            const iter_impl& operator = ( const iter_impl& other )
             {
                 cont_ = other.cont_;
                 return other;
             }
 
-            iter_impl& operator = (iter_impl& other)
+            iter_impl& operator = ( iter_impl& other )
             {
                 cont_ = other.cont_;
                 return other;
             }
 
             template <typename OtherT>
-            iter_impl& operator = (const iter_impl<OtherT>& other)
+            iter_impl& operator = ( const iter_impl<OtherT>& other )
             {
                 cont_ = other.cont_;
                 return other;
