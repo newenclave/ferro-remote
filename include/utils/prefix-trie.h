@@ -200,9 +200,9 @@ namespace fr { namespace utils {
 
         /// returns next info
         template <typename IterT, typename Func>
-        const value_type &shift_while_true( IterT &b, const IterT &e,
-                                            const value_type& inf,
-                                            Func func ) const
+        const value_type &shift_while( IterT &b, const IterT &e,
+                                       const value_type& inf,
+                                       Func func ) const
         {
             while( b != e ) {
                 IterT bb(b);
@@ -221,15 +221,14 @@ namespace fr { namespace utils {
         const value_type &shift_while_not_equal( IterT &b, const IterT &e,
                                                  const value_type& inf ) const
         {
-            return shift_while_true( b, e, inf,
-                                     std::not_equal_to<value_type>( ) );
+            return shift_while( b, e, inf, std::not_equal_to<value_type>( ) );
         }
 
         template <typename IterT>
         const value_type &shift_while_equal( IterT &b, const IterT &e,
                                              const value_type& inf ) const
         {
-            return shift_while_true( b, e, inf, std::equal_to<value_type>( ) );
+            return shift_while( b, e, inf, std::equal_to<value_type>( ) );
         }
     };
 
