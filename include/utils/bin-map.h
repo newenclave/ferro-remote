@@ -65,12 +65,15 @@ namespace fr { namespace utils {
                                                key, key_iterator_access( ) );
         }
 
-        template <typename ParentIter>
+        template <typename ParentIter, typename VT>
         class iter_impl:
-              public std::iterator<std::random_access_iterator_tag, value_type>
+              public std::iterator<std::random_access_iterator_tag, VT>
         {
             friend class bin_map;
             typedef ParentIter iter;
+
+            typedef VT iter_value_type;
+
             iter cont_;
 
             iter_impl( iter cont )
@@ -89,8 +92,8 @@ namespace fr { namespace utils {
             { }
 
 
-            template <typename OtherType>
-            iter_impl( const iter_impl<OtherType> &other )
+            template <typename OtherType, typename OVT>
+            iter_impl( const iter_impl<OtherType, OVT> &other )
                 :cont_(other.cont_)
             { }
 
@@ -109,8 +112,8 @@ namespace fr { namespace utils {
                 return other;
             }
 
-            template <typename OtherT>
-            iter_impl& operator = ( const iter_impl<OtherT>& other )
+            template <typename OtherT, typename OVT>
+            iter_impl& operator = ( const iter_impl<OtherT, OVT>& other )
             {
                 cont_ = other.cont_;
                 return other;
@@ -218,32 +221,42 @@ namespace fr { namespace utils {
                 return  cont_ != other.cont_;
             }
 
-            value_type& operator[ ] ( size_t n )
+            iter_value_type& operator[ ] ( size_t n )
             {
                 return *(*(cont_ + n));
             }
 
-            value_type& operator[ ] ( ssize_t n )
+            iter_value_type& operator[ ] ( ssize_t n )
             {
                 return *(*(cont_ + n));
             }
 
-            value_type& operator * ( )
+            const iter_value_type& operator[ ] ( size_t n ) const
+            {
+                return *(*(cont_ + n));
+            }
+
+            const iter_value_type& operator[ ] ( ssize_t n ) const
+            {
+                return *(*(cont_ + n));
+            }
+
+            iter_value_type& operator * ( )
             {
                 return *(*(cont_));
             }
 
-            value_type const & operator * ( ) const
+            iter_value_type const & operator * ( ) const
             {
                 return *(*(cont_));
             }
 
-            value_type* operator -> ( )
+            iter_value_type* operator -> ( )
             {
                 return  *(cont_);
             }
 
-            value_type const * operator -> ( ) const
+            iter_value_type const * operator -> ( ) const
             {
                 return  *(cont_);
             }
@@ -252,8 +265,8 @@ namespace fr { namespace utils {
 
     public:
 
-        typedef iter_impl<data_iterator>       iterator;
-        typedef iter_impl<data_const_iterator> const_iterator;
+        typedef iter_impl<data_iterator, value_type>             iterator;
+        typedef iter_impl<data_const_iterator, const value_type> const_iterator;
 
         bin_map( bin_map &o )
         {
