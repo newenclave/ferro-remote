@@ -184,14 +184,14 @@ namespace fr { namespace utils {
         }
 
         template <typename IterT>
-        const value_type &next_info_no_shift(IterT &b, const IterT &e) const
+        const value_type &next_info_no_shift( IterT &b, const IterT &e) const
         {
             return next_info_no_shift(b, e, true);
         }
 
         template <typename IterT>
         const value_type &next_info_no_shift( IterT b, const IterT &e,
-                                             bool greedy ) const
+                                              bool greedy ) const
         {
             return next_info( b, e, greedy );
         }
