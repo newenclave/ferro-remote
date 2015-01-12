@@ -179,9 +179,9 @@ namespace fr {  namespace client { namespace core {
 
     class proto_event_impl: public fr::proto::events {
 
-    public:
-
         callbacks_info_wptr cbi_;
+
+    public:
 
         proto_event_impl( callbacks_info_sptr &cbi )
             :cbi_(cbi)
@@ -304,7 +304,8 @@ namespace fr {  namespace client { namespace core {
         impl_->client_->set_session_key( key );
     }
 
-    void client_core::set_id_key( const std::string &id, const std::string &key )
+    void client_core::set_id_key( const std::string &id,
+                                  const std::string &key )
     {
         impl_->client_->set_session_key( id, key );
     }
