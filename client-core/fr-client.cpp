@@ -166,7 +166,6 @@ namespace fr {  namespace client { namespace core {
                 break;
 
             case CONN_TCP:
-
                 client_->async_connect( ci->server_, ci->port_, func );
                 break;
 
