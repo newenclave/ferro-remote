@@ -104,8 +104,8 @@ namespace fr { namespace agent { namespace subsys {
                 ,event_last_time_(chrono::high_resolution_clock::now( ))
             { }
 
-            ~gpio_impl( ) try
-            {
+            ~gpio_impl( )
+            { try {
                 for( gpio_map::iterator b(gpio_.begin( )), e(gpio_.end( ));
                      b != e; ++b )
                 {
@@ -114,7 +114,7 @@ namespace fr { namespace agent { namespace subsys {
                     }
                 }
 
-            } catch( ... ) { }
+            } catch( ... ) { }}
 
             inline vtrc::uint32_t next_index( )
             {
