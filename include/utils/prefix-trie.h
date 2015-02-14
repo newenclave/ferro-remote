@@ -2,6 +2,7 @@
 #define FR_PREFIX_TRIE_H
 
 #include "bin-map.h"
+#include <algorithm>
 
 namespace fr { namespace utils {
 
