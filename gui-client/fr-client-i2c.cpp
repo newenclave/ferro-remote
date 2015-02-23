@@ -163,7 +163,7 @@ namespace fr { namespace declarative {
         FR_QML_CALL_EPILOGUE( ArrayType( ) )
     }
 
-    unsigned FrClientI2c::write( const QList<int> &data ) const
+    unsigned FrClientI2c::write( const FrClientI2c::ArrayType &data ) const
     {
         FR_QML_CALL_PROLOGUE
         if( data.empty( ) ) {
