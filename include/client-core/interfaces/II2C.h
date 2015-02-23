@@ -101,7 +101,7 @@ namespace interfaces { namespace i2c {
                                        uint16_t value )     const = 0;
         ///         -> I2C_SMBUS_BLOCK_PROC_CALL
         virtual std::string process_call( uint8_t command,
-                                 const std::string &value ) const = 0;
+                                          const std::string &value ) const = 0;
 
     };
 
