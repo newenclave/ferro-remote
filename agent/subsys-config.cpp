@@ -52,12 +52,16 @@ namespace fr { namespace agent { namespace subsys {
         po::variables_map                   vm_;
         std::vector<std::string>            endpoints_;
         std::map<std::string, std::string>  keys_;
+#if FR_WITH_LUA
         subsys::lua                        *lua_;
+#endif
 
         impl( application *app, po::variables_map vm )
             :app_(app)
             ,vm_(vm)
+#if FR_WITH_LUA
             ,lua_(NULL)
+#endif
         {
             init_variables( );
         }
@@ -144,7 +148,9 @@ namespace fr { namespace agent { namespace subsys {
 
     void config::init( )
     {
+#if FR_WITH_LUA
         impl_->lua_ = &impl_->app_->subsystem<subsys::lua>( );
+#endif
     }
 
     void config::start( )
