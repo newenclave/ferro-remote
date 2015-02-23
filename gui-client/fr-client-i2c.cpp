@@ -179,7 +179,7 @@ namespace fr { namespace declarative {
             wdata.push_back( static_cast<unsigned char>(*b) );
         }
         size_t r = impl_->iface_->write( &wdata[0], wdata.size( ) );
-        return (unsigned)(r);
+        return static_cast<unsigned>(r);
         FR_QML_CALL_EPILOGUE( 0 )
     }
 
