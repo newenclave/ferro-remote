@@ -150,9 +150,11 @@ namespace fr { namespace declarative {
         FR_QML_CALL_PROLOGUE
         if( maximum ) {
 
+            maximum = maximum > 1024 ? 1024 : maximum;
+
             std::vector<unsigned char> data( maximum );
 
-            size_t r = impl_->iface_->read( &data[0], maximum );
+            size_t r = impl_->iface_->read( &data[0], data.size( ) );
 
             ArrayType res;
             for( size_t i=0; i<r; ++i ) {

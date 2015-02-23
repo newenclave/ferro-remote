@@ -133,7 +133,7 @@ Rectangle {
                 Connections {
                     target: gpioBtn
                     onClicked: {
-                        var data = mainI2C.read(7)
+                        var data = mainI2C.read(7000)
 
                         console.log( "value: ", data )
                         for (var i=0; i<data.length; i++) {
