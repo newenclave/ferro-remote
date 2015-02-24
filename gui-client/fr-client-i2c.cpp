@@ -231,11 +231,15 @@ namespace fr { namespace declarative {
         template <typename K, typename V>
         std::pair<K, V> make_value_pair( int k, int v )
         {
-            return std::make_pair( static_cast<K>(k),
-                                   static_cast<V>(v) );
+            return std::make_pair( static_cast<K>(k), static_cast<V>(v) );
         }
 
     }
+
+    ///
+    /// writeBytes and writeWords
+    /// qml example: [{k1: v1, k2: v2}, {k3: v3}, {k4: v5, k6: v6, k7: v7} ]
+    ///
 
     void FrClientI2c::writeBytes( const QVariantList &data ) const
     {
