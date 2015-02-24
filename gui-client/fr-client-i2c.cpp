@@ -1,4 +1,5 @@
 #include <QSharedPointer>
+#include <iostream>
 
 #include "fr-client-i2c.h"
 
@@ -183,4 +184,37 @@ namespace fr { namespace declarative {
         FR_QML_CALL_EPILOGUE( 0 )
     }
 
+    QVariantMap FrClientI2c::readBytes( const QList<int> &data ) const
+    {
+
+        FR_QML_CALL_PROLOGUE
+        QVariantMap res;
+        i2c_ns::uint8_vector inp( data.begin( ), data.end( ) );
+        i2c_ns::cmd_uint8_vector values( impl_->iface_->read_bytes( inp ) );
+
+        typedef i2c_ns::cmd_uint8_vector::const_iterator citr;
+
+        for( citr b(values.begin( )), e(values.end( )); b!=e; ++b ) {
+            res.insert( QString::number( b->first ), b->second );
+        }
+        return res;
+        FR_QML_CALL_EPILOGUE( QVariantMap( ) )
+
+    }
+
 }}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

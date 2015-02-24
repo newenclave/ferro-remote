@@ -42,6 +42,7 @@ Rectangle {
                 }
             }
 
+
             MyButton {
 
                 id: connectRect
@@ -122,6 +123,18 @@ Rectangle {
 
             Text {
                 id: i2ctext
+            }
+
+            MyButton {
+                text: "click"
+                onClicked: {
+//                    var d = mainI2C.write_list( [2, 3, "4"] )
+//                    console.log( d[2], d[3], d["4"] )
+                    var t = {7: 0}
+                    var d = [t, t, t];
+                    console.log( d )
+                    var r = mainI2C.write_pairs( d )
+                }
             }
 
             Rectangle {
