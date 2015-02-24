@@ -226,6 +226,17 @@ namespace fr { namespace declarative {
         FR_QML_CALL_EPILOGUE( QVariantMap( ) )
     }
 
+    namespace {
+
+        template <typename K, typename V>
+        std::pair<K, V> make_value_pair( int k, int v )
+        {
+            return std::make_pair( static_cast<K>(k),
+                                   static_cast<V>(v) );
+        }
+
+    }
+
     void FrClientI2c::writeBytes( const QVariantList &data ) const
     {
         typedef QVariantList::const_iterator data_iter;
@@ -240,10 +251,9 @@ namespace fr { namespace declarative {
         for( data_iter b(data.begin( )), e(data.end( )); b!=e; ++b ) {
             QVariantMap vm(b->toMap( ));
             for( mitr b0(vm.begin( )), e0(vm.end( )); b0!=e0; ++b0 ) {
-                values.push_back( std::make_pair(
-                                   static_cast<key_type>(b0.key( ).toInt( )),
-                                   static_cast<value_type>(b0.value( ).toInt( ))
-                                 ));
+                values.push_back( make_value_pair<key_type, value_type>(
+                                                    b0.key( ).toInt( ),
+                                                    b0.value( ).toInt( ) ));
             }
         }
         FR_QML_CALL_PROLOGUE
@@ -266,10 +276,9 @@ namespace fr { namespace declarative {
         for( data_iter b(data.begin( )), e(data.end( )); b!=e; ++b ) {
             QVariantMap vm(b->toMap( ));
             for( mitr b0(vm.begin( )), e0(vm.end( )); b0!=e0; ++b0 ) {
-                values.push_back( std::make_pair(
-                                   static_cast<key_type>(b0.key( ).toInt( )),
-                                   static_cast<value_type>(b0.value( ).toInt( ))
-                                 ));
+                values.push_back( make_value_pair<key_type, value_type>(
+                                                    b0.key( ).toInt( ),
+                                                    b0.value( ).toInt( ) ));
             }
         }
         FR_QML_CALL_PROLOGUE
