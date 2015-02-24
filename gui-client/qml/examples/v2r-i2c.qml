@@ -140,7 +140,7 @@ Rectangle {
                 onClicked: {
                     var enabled = {7: 1}
                     var disabled = {7: 0}
-                    mainI2C.writeBytes( checked ? [enabled] : [disabled] )
+                    mainI2C.writeBytes( checked ? enabled : disabled )
                     checked = !checked
                 }
             }

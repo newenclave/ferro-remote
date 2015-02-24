@@ -265,6 +265,26 @@ namespace fr { namespace declarative {
         FR_QML_CALL_EPILOGUE( )
     }
 
+    void FrClientI2c::writeBytes( const QVariantMap &data ) const
+    {
+        typedef QVariantMap::const_iterator mitr;
+        typedef i2c_ns::cmd_uint8_vector vcont_type;
+
+        typedef vcont_type::value_type::first_type  key_type;
+        typedef vcont_type::value_type::second_type value_type;
+
+        vcont_type values;
+        for( mitr b(data.begin( )), e(data.end( )); b!=e; ++b ) {
+            values.push_back( make_value_pair<key_type, value_type>(
+                                                b.key( ).toInt( ),
+                                                b.value( ).toInt( ) ));
+        }
+        FR_QML_CALL_PROLOGUE
+        impl_->iface_->write_bytes( values );
+        FR_QML_CALL_EPILOGUE( )
+    }
+
+
     /// FIXIT copypaste
     void FrClientI2c::writeWords( const QVariantList &data ) const
     {
@@ -290,6 +310,24 @@ namespace fr { namespace declarative {
         FR_QML_CALL_EPILOGUE( )
     }
 
+    void FrClientI2c::writeWords( const QVariantMap &data ) const
+    {
+        typedef QVariantMap::const_iterator mitr;
+        typedef i2c_ns::cmd_uint16_vector vcont_type;
+
+        typedef vcont_type::value_type::first_type  key_type;
+        typedef vcont_type::value_type::second_type value_type;
+
+        vcont_type values;
+        for( mitr b(data.begin( )), e(data.end( )); b!=e; ++b ) {
+            values.push_back( make_value_pair<key_type, value_type>(
+                                                b.key( ).toInt( ),
+                                                b.value( ).toInt( ) ));
+        }
+        FR_QML_CALL_PROLOGUE
+        impl_->iface_->write_words( values );
+        FR_QML_CALL_EPILOGUE( )
+    }
 
 }}
 
