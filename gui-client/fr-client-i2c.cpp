@@ -186,10 +186,11 @@ namespace fr { namespace declarative {
 
     QVariantMap FrClientI2c::readBytes(const FrClientI2c::ArrayType &data) const
     {
-        FR_QML_CALL_PROLOGUE
 
         typedef i2c_ns::cmd_uint8_vector value_container_type;
         typedef value_container_type::const_iterator citr;
+
+        FR_QML_CALL_PROLOGUE
 
         QVariantMap res;
 
@@ -206,10 +207,11 @@ namespace fr { namespace declarative {
     /// FIXIT copypaste
     QVariantMap FrClientI2c::readWords(const FrClientI2c::ArrayType &data) const
     {
-        FR_QML_CALL_PROLOGUE
 
         typedef i2c_ns::cmd_uint16_vector value_container_type;
         typedef value_container_type::const_iterator citr;
+
+        FR_QML_CALL_PROLOGUE
 
         QVariantMap res;
 
@@ -223,6 +225,58 @@ namespace fr { namespace declarative {
         return res;
         FR_QML_CALL_EPILOGUE( QVariantMap( ) )
     }
+
+    void FrClientI2c::writeBytes( const QVariantList &data ) const
+    {
+        typedef QVariantList::const_iterator data_iter;
+        typedef i2c_ns::cmd_uint8_vector vcont_type;
+
+        typedef vcont_type::value_type::first_type  key_type;
+        typedef vcont_type::value_type::second_type value_type;
+
+        typedef QVariantMap::const_iterator mitr;
+
+        vcont_type values;
+        for( data_iter b(data.begin( )), e(data.end( )); b!=e; ++b ) {
+            QVariantMap vm(b->toMap( ));
+            for( mitr b0(vm.begin( )), e0(vm.end( )); b0!=e0; ++b0 ) {
+                values.push_back( std::make_pair(
+                                   static_cast<key_type>(b0.key( ).toInt( )),
+                                   static_cast<value_type>(b0.value( ).toInt( ))
+                                 ));
+            }
+        }
+        FR_QML_CALL_PROLOGUE
+        impl_->iface_->write_bytes( values );
+        FR_QML_CALL_EPILOGUE( )
+    }
+
+    /// FIXIT copypaste
+    void FrClientI2c::writeWords( const QVariantList &data ) const
+    {
+        typedef QVariantList::const_iterator data_iter;
+        typedef i2c_ns::cmd_uint16_vector vcont_type;
+
+        typedef vcont_type::value_type::first_type  key_type;
+        typedef vcont_type::value_type::second_type value_type;
+
+        typedef QVariantMap::const_iterator mitr;
+
+        vcont_type values;
+        for( data_iter b(data.begin( )), e(data.end( )); b!=e; ++b ) {
+            QVariantMap vm(b->toMap( ));
+            for( mitr b0(vm.begin( )), e0(vm.end( )); b0!=e0; ++b0 ) {
+                values.push_back( std::make_pair(
+                                   static_cast<key_type>(b0.key( ).toInt( )),
+                                   static_cast<value_type>(b0.value( ).toInt( ))
+                                 ));
+            }
+        }
+        FR_QML_CALL_PROLOGUE
+        impl_->iface_->write_words( values );
+        FR_QML_CALL_EPILOGUE( )
+    }
+
 
 }}
 

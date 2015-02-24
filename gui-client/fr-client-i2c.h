@@ -89,8 +89,12 @@ namespace fr { namespace declarative {
 
         Q_INVOKABLE QList<int> read( unsigned maximum ) const;
         Q_INVOKABLE unsigned write( const QList<int> &data ) const;
+
         Q_INVOKABLE QVariantMap readBytes( const QList<int> &data ) const;
         Q_INVOKABLE QVariantMap readWords( const QList<int> &data ) const;
+
+        Q_INVOKABLE void writeBytes( const QVariantList &data ) const;
+        Q_INVOKABLE void writeWords( const QVariantList &data ) const;
 
     signals:
 
