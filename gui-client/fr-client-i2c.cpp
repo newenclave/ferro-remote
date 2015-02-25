@@ -234,6 +234,20 @@ namespace fr { namespace declarative {
             return std::make_pair( static_cast<K>(k), static_cast<V>(v) );
         }
 
+        template <typename Cont>
+        void push_values( Cont &cont, const QVariantMap &from )
+        {
+            typedef typename Cont::value_type::first_type key_type;
+            typedef typename Cont::value_type::second_type value_type;
+            typedef QVariantMap::const_iterator mitr;
+
+            for( mitr b(from.begin( )), e(from.end( )); b!=e; ++b ) {
+                cont.push_back( make_value_pair<key_type, value_type>(
+                                                    b.key( ).toInt( ),
+                                                    b.value( ).toInt( ) ));
+            }
+        }
+
     }
 
     ///
@@ -246,19 +260,9 @@ namespace fr { namespace declarative {
         typedef QVariantList::const_iterator data_iter;
         typedef i2c_ns::cmd_uint8_vector vcont_type;
 
-        typedef vcont_type::value_type::first_type  key_type;
-        typedef vcont_type::value_type::second_type value_type;
-
-        typedef QVariantMap::const_iterator mitr;
-
         vcont_type values;
         for( data_iter b(data.begin( )), e(data.end( )); b!=e; ++b ) {
-            QVariantMap vm(b->toMap( ));
-            for( mitr b0(vm.begin( )), e0(vm.end( )); b0!=e0; ++b0 ) {
-                values.push_back( make_value_pair<key_type, value_type>(
-                                                    b0.key( ).toInt( ),
-                                                    b0.value( ).toInt( ) ));
-            }
+            push_values( values, b->toMap( ) );
         }
         FR_QML_CALL_PROLOGUE
         impl_->iface_->write_bytes( values );
@@ -267,18 +271,11 @@ namespace fr { namespace declarative {
 
     void FrClientI2c::writeBytes( const QVariantMap &data ) const
     {
-        typedef QVariantMap::const_iterator mitr;
         typedef i2c_ns::cmd_uint8_vector vcont_type;
 
-        typedef vcont_type::value_type::first_type  key_type;
-        typedef vcont_type::value_type::second_type value_type;
-
         vcont_type values;
-        for( mitr b(data.begin( )), e(data.end( )); b!=e; ++b ) {
-            values.push_back( make_value_pair<key_type, value_type>(
-                                                b.key( ).toInt( ),
-                                                b.value( ).toInt( ) ));
-        }
+        push_values( values, data );
+
         FR_QML_CALL_PROLOGUE
         impl_->iface_->write_bytes( values );
         FR_QML_CALL_EPILOGUE( )
@@ -291,19 +288,9 @@ namespace fr { namespace declarative {
         typedef QVariantList::const_iterator data_iter;
         typedef i2c_ns::cmd_uint16_vector vcont_type;
 
-        typedef vcont_type::value_type::first_type  key_type;
-        typedef vcont_type::value_type::second_type value_type;
-
-        typedef QVariantMap::const_iterator mitr;
-
         vcont_type values;
         for( data_iter b(data.begin( )), e(data.end( )); b!=e; ++b ) {
-            QVariantMap vm(b->toMap( ));
-            for( mitr b0(vm.begin( )), e0(vm.end( )); b0!=e0; ++b0 ) {
-                values.push_back( make_value_pair<key_type, value_type>(
-                                                    b0.key( ).toInt( ),
-                                                    b0.value( ).toInt( ) ));
-            }
+            push_values( values, b->toMap( ) );
         }
         FR_QML_CALL_PROLOGUE
         impl_->iface_->write_words( values );
@@ -312,18 +299,11 @@ namespace fr { namespace declarative {
 
     void FrClientI2c::writeWords( const QVariantMap &data ) const
     {
-        typedef QVariantMap::const_iterator mitr;
         typedef i2c_ns::cmd_uint16_vector vcont_type;
 
-        typedef vcont_type::value_type::first_type  key_type;
-        typedef vcont_type::value_type::second_type value_type;
-
         vcont_type values;
-        for( mitr b(data.begin( )), e(data.end( )); b!=e; ++b ) {
-            values.push_back( make_value_pair<key_type, value_type>(
-                                                b.key( ).toInt( ),
-                                                b.value( ).toInt( ) ));
-        }
+        push_values( values, data );
+
         FR_QML_CALL_PROLOGUE
         impl_->iface_->write_words( values );
         FR_QML_CALL_EPILOGUE( )
