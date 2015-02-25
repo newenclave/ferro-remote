@@ -14,6 +14,26 @@ namespace fr { namespace declarative {
         namespace i2c_ns = fr::client::interfaces::i2c;
         typedef i2c_ns::iface i2c_iface;
 
+        template <typename K, typename V>
+        std::pair<K, V> make_value_pair( int k, int v )
+        {
+            return std::make_pair( static_cast<K>(k), static_cast<V>(v) );
+        }
+
+        template <typename Cont>
+        void push_values( Cont &cont, const QVariantMap &from )
+        {
+            typedef typename Cont::value_type::first_type key_type;
+            typedef typename Cont::value_type::second_type value_type;
+            typedef QVariantMap::const_iterator mitr;
+
+            for( mitr b(from.begin( )), e(from.end( )); b!=e; ++b ) {
+                cont.push_back( make_value_pair<key_type, value_type>(
+                                                    b.key( ).toInt( ),
+                                                    b.value( ).toInt( ) ));
+            }
+        }
+
     }
 
     struct FrClientI2c::impl {
@@ -224,30 +244,6 @@ namespace fr { namespace declarative {
         }
         return res;
         FR_QML_CALL_EPILOGUE( QVariantMap( ) )
-    }
-
-    namespace {
-
-        template <typename K, typename V>
-        std::pair<K, V> make_value_pair( int k, int v )
-        {
-            return std::make_pair( static_cast<K>(k), static_cast<V>(v) );
-        }
-
-        template <typename Cont>
-        void push_values( Cont &cont, const QVariantMap &from )
-        {
-            typedef typename Cont::value_type::first_type key_type;
-            typedef typename Cont::value_type::second_type value_type;
-            typedef QVariantMap::const_iterator mitr;
-
-            for( mitr b(from.begin( )), e(from.end( )); b!=e; ++b ) {
-                cont.push_back( make_value_pair<key_type, value_type>(
-                                                    b.key( ).toInt( ),
-                                                    b.value( ).toInt( ) ));
-            }
-        }
-
     }
 
     ///
