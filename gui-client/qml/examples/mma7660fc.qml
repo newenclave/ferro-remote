@@ -111,13 +111,11 @@ Rectangle {
 
             Row {
                 Button {
-                    text: ""
+                    text: checked ? "Enabled" : "Disabled"
                     id: readyButton
                     checkable: true
                     checked: false
                     onClicked: {
-                        var texts = ["Enable", "Disable"]
-                        readyButton.text = texts[checked ? 1 : 0]
                         smbus.writeBytes( {0x7: checked ? 1 : 0 } )
                         console.log( smbus.getEnabled( ) )
                     }
