@@ -2,7 +2,6 @@
 #define FRCLIENTCOMPONENT_H
 
 #include "fr-client.h"
-#include "fr-base-component.h"
 
 namespace fr { namespace declarative {
 
