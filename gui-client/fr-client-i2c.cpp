@@ -62,7 +62,7 @@ namespace fr { namespace declarative {
                 quint64 old_mask = function_mask_;
                 try {
                     function_mask_ = iface_->function_mask( );
-                } catch( ... ) {
+                } catch( ... ) { /// don't care for
                     function_mask_ = 0;
                 }
                 if( old_mask != function_mask_ ) {
