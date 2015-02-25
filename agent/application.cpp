@@ -133,11 +133,6 @@ namespace fr { namespace agent {
                     ::get_method( const std::string &name ) const
     {
         const method_type* m = super_type::find_method( name );
-
-//        if( m ) {
-//            std::cout << "Cleint call " << m->full_name( ) << "\n";
-//        }
-
         return m;
     }
 
