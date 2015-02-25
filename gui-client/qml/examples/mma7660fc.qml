@@ -16,7 +16,17 @@ Rectangle {
     FrClientI2c {
         client: generalClient
         id: smbus
+        busId: 1
+        slaveAddress: 0x4c
+
+        function getEnabled( ) {
+            var data = smbus.readBytes([0x7])
+            return data[7]
+        }
+
     }
+
+
 
     Column {
         spacing: 5
@@ -98,14 +108,17 @@ Rectangle {
             width: parent.width
             //color: "green"
             border.color: "white"
+
             Row {
                 Button {
                     text: ""
-                    Connections {
-                        target: generalClient
-                        onChannelReady: {
-
-                        }
+                    id: readyButton
+                    checkable: true
+                    checked: false
+                    onClicked: {
+                        var texts = ["Enable", "disable"]
+                        readyButton.text = texts[smbus.getEnabled( )]
+                        smbus.writeBytes( {0x7: checked ? 1 : 0 } )
                     }
                 }
             }
