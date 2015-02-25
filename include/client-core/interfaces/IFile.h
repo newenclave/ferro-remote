@@ -89,10 +89,12 @@ namespace interfaces { namespace file {
 
     typedef iface* iface_ptr;
 
+    /// fopen
     iface_ptr create( core::client_core &cl,
                       const std::string &path, const std::string &mode,
                       bool as_device );
 
+    /// open
     iface_ptr create( core::client_core &cl,
                       const std::string &path, unsigned flags );
 

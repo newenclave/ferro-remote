@@ -1,133 +1,83 @@
 import QtQuick 2.0
 
+import QtQuick.Controls 1.1
+
 import Fr.Client 1.0
 
 Rectangle {
 
     id: mainWindow
     width: 480
-    height: 140
+    height: 42
 
-    //onWidthChanged: { console.log( width + 'x' + height ) }
+    FrClient {
+        id: generalClient
+    }
 
-    FrClient { id: generalClient }
-
-    Column {
+    Row {
 
         spacing: 10
         anchors.margins: 10
-        anchors.fill: parent
+        anchors.top: parent.top
+        anchors.left: parent.left
+        anchors.right: parent.right
 
-        Row {
+        TextField {
+            width: 200
+            height: 22
+            id: address
+            text: "192.168.3.1:12345"
+        }
 
-            spacing: 10
-            anchors.margins: 10
+        Button {
 
-            Rectangle {
+            text: qsTr("Connect")
+            id: connectBtn
+            property bool connected: false
 
-                width: 200
-                height: 22
-
-                border.color: "black"
-                border.width: 1
-
-                TextInput {
-                    anchors.left: parent.left
-                    anchors.right: parent.right
-                    anchors.verticalCenter: parent.verticalCenter
-                    id: address
-                    anchors.leftMargin: 5
-                    text: "192.168.3.1:12345"
-                    //text: "127.0.0.1:12345"
-                }
+            onClicked: {
+                connected
+                    ? generalClient.disconnect(  )
+                    : generalClient.connect( address.text )
             }
 
-
-            MyButton {
-
-                id: connectRect
-                height: 22
-                width: 80
-                text: "Connect"
-
-                property bool connected: false
-                onClicked: {
-                    if( !connectRect.connected ) {
-                        generalClient.connect( address.text )
+            Connections {
+                target: generalClient
+                onReadyChanged: {
+                    connectBtn.connected = value
+                    if( value ) {
+                        connectBtn.text = qsTr("Disconnect")
                     } else {
-                        generalClient.disconnect( )
+                        connectBtn.text = qsTr("Connect")
                     }
-                }
-                Connections {
-                    target: generalClient
-                    onReadyChanged: {
-                        connectRect.connected = value
-                        if( value ) {
-                            connectRect.text = qsTr("Disconnect")
-                        } else {
-                            connectRect.text = qsTr("Connect")
-                        }
-                    }
-                }
-            }
-
-            Text {
-                id: status
-                text: qsTr("wait")
-                color: "black"
-                Connections {
-                   target: generalClient
-                   onChannelReady: {
-                       status.text = qsTr("ready")
-                       status.color = "green"
-                   }
-                   onConnected: {
-                       status.text = qsTr("connected")
-                       status.color = "yellow"
-                   }
-                   onDisconnected: {
-                       status.text = qsTr("disconnected")
-                       status.color = "black"
-                   }
-                   onInitError: {
-                       status.text = qsTr("init error: ") + message
-                       status.color = "red"
-                   }
                 }
             }
         }
 
-        Rectangle {
-            height: 25
-            width: mainWindow.width - 10
-            Text {
-                id: errorText
-                text: qsTr("")
-                color: "red"
+        Text {
+            id: status
+            text: qsTr("wait")
+            color: "black"
+            Connections {
+               target: generalClient
+               onChannelReady: {
+                   status.text = qsTr("ready")
+                   status.color = "green"
+               }
+               onConnected: {
+                   status.text = qsTr("connected")
+                   status.color = "yellow"
+               }
+               onDisconnected: {
+                   status.text = qsTr("disconnected")
+                   status.color = "black"
+               }
+               onInitError: {
+                   status.text = qsTr("init error: ") + message
+                   status.color = "red"
+               }
             }
         }
 
-        Row {
-            spacing: 10
-
-            FrClientI2c {
-                id: mainI2C
-                client: generalClient
-                busId: 1
-                slaveAddress: 0x4c
-            }
-
-            MyButton {
-                text: checked ? "off":  "on"
-                property bool checked: true
-                onClicked: {
-                    var enabled = {7: 1}
-                    var disabled = {7: 0}
-                    mainI2C.writeBytes( checked ? enabled : disabled )
-                    checked = !checked
-                }
-            }
-
-        } // Row
     }
 }
