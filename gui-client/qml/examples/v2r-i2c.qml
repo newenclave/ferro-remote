@@ -131,20 +131,22 @@ Rectangle {
                     var read_list = [0, 1, 2, 3, 4]
                     var r = mainI2C.readBytes( read_list )
                     console.log( r[0], r[1], r[2], r[3], r[4] )
+
                 }
             }
 
+            function enable( value ) {
+                var data = {7: value ? 1 : 0}
+                mainI2C.writeBytes( [data] )
+            }
             MyButton {
                 text: "Shutdown"
                 property bool checked: true
                 onClicked: {
-                    var enabled = {7: 1}
-                    var disabled = {7: 0}
-                    mainI2C.writeBytes( checked ? enabled : disabled )
+                    parent.enable( checked )
                     checked = !checked
                 }
             }
-
             Rectangle {
                 height: 40
                 width: 40
