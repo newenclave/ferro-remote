@@ -116,8 +116,8 @@ Rectangle {
                     checkable: true
                     checked: false
                     onClicked: {
-                        var texts = ["Enable", "disable"]
-                        readyButton.text = texts[smbus.getEnabled( )]
+                        var texts = ["Enable", "Disable"]
+                        readyButton.text = texts[checked ? 1 : 0]
                         smbus.writeBytes( {0x7: checked ? 1 : 0 } )
                     }
                 }
