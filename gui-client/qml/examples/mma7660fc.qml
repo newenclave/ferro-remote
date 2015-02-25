@@ -120,6 +120,12 @@ Rectangle {
                         readyButton.text = texts[checked ? 1 : 0]
                         smbus.writeBytes( {0x7: checked ? 1 : 0 } )
                     }
+                    Connections {
+                        target: smbus
+                        onFailedChanged: {
+                            console.log( "failed ", value )
+                        }
+                    }
                 }
             }
         }
