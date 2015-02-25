@@ -118,7 +118,7 @@ Rectangle {
             }
 
             MyButton {
-                text: "Shutdown"
+                text: checked ? "off":  "on"
                 property bool checked: true
                 onClicked: {
                     var enabled = {7: 1}
