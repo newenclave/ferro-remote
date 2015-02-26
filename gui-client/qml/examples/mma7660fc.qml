@@ -21,8 +21,7 @@ Rectangle {
 
         function getEnabled( )
         {
-            var data = smbus.readBytes([0x7])
-            return data[7]
+            return smbus.readBytes([7])[7]
         }
 
         function setEnabled( value  )
