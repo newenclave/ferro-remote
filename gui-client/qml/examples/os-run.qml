@@ -19,10 +19,9 @@ Rectangle {
         Rectangle {
             width: mainWindow.width
             height: 64
-
         Row {
 
-            spacing: 10
+            spacing: 5
             anchors.margins: 10
             anchors.top: parent.top
             anchors.left: parent.left
@@ -110,7 +109,7 @@ Rectangle {
                     width: 200
                     height: 22
                     id: command
-                    text: "vim"
+                    text: "echo \"Hello, world!\" && uname -a"
                     enabled: runner.ready
                 }
 
