@@ -101,6 +101,7 @@ namespace fr { namespace declarative {
         if( client( ) && client( )->ready( ) ) {
             FR_QML_CALL_PROLOGUE0
             impl_->reset_iface( client( ) );
+            setReady( true );
             FR_QML_CALL_EPILOGUE( )
         }
     }
@@ -111,6 +112,7 @@ namespace fr { namespace declarative {
         if( value && impl_->id_ != invalid_gpio ) {
             setFailed( false );
             impl_->reset_iface( client( ) );
+            setReady( true );
         } else {
             impl_->iface_.reset( );
         }
