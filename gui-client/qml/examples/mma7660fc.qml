@@ -19,11 +19,16 @@ Rectangle {
         busId: 1
         slaveAddress: 0x4c
 
-        function getEnabled( ) {
+        function getEnabled( )
+        {
             var data = smbus.readBytes([0x7])
             return data[7]
         }
 
+        function setEnabled( value  )
+        {
+            smbus.writeBytes( {7: value ? 1 : 0} )
+        }
     }
 
     Column {
@@ -122,7 +127,7 @@ Rectangle {
                     checked: false
                     enabled: smbus.ready
                     onClicked: {
-                        smbus.writeBytes( {0x7: checked ? 1 : 0 } )
+                        smbus.setEnabled( checked )
                         console.log( smbus.getEnabled( ) )
                     }
                     Connections {
