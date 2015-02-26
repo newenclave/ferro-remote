@@ -8,7 +8,7 @@ Rectangle {
 
     id: mainWindow
     width: 480
-    height: 120
+    height: 800
 
     FrClient {
         id: generalClient
