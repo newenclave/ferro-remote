@@ -124,7 +124,7 @@ Rectangle {
                 property bool pressed: false
                 property string yesCommand: "set gpio " + gpioId + " output 1"
                 property string noCommand: "set gpio " + gpioId + " output 0"
-                enabled: generalClient.ready
+                enabled: v2rFile.ready
                 Connections {
                     target: generalClient
                     onReadyChanged: {

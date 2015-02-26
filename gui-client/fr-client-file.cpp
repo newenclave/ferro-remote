@@ -64,6 +64,7 @@ namespace fr { namespace declarative {
         {
             iface_.reset( fiface::create( cl->core_client( ),
                                           path_, mode_, device_ ) );
+            parent_->setReady( true );
         }
 
     };
