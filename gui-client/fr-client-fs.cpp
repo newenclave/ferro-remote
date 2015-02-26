@@ -79,6 +79,7 @@ namespace fr { namespace declarative {
             impl_->iface_.reset(
                 iface::filesystem::create( client( )->core_client( ),
                                            impl_->currentPath_ ) );
+            setReady( true );
             FR_QML_CALL_PROLOGUE
             impl_->iface_->cd( impl_->currentPath_ );
             FR_QML_CALL_EPILOGUE( )
@@ -102,6 +103,7 @@ namespace fr { namespace declarative {
             impl_->iface_.reset(
                 iface::filesystem::create( client( )->core_client( ),
                                            impl_->currentPath_ ) );
+            setReady( true );
             impl_->iface_->cd( impl_->currentPath_ );
         } else {
             impl_->iface_.reset( );

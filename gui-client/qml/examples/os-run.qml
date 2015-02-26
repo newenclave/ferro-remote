@@ -96,6 +96,7 @@ Rectangle {
             FrClientOS {
                 id: runner
                 client: generalClient
+                //path: "/home"
             }
 
             Row {
