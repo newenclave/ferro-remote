@@ -28,10 +28,11 @@ Rectangle {
             anchors.right: parent.right
 
             TextField {
-                width: 200
                 height: 22
                 id: address
                 text: "127.0.0.1:12345"
+                width: 300
+
                 //text: "192.168.3.1:12345"
             }
 
@@ -106,7 +107,7 @@ Rectangle {
                 anchors.right: parent.right
 
                 TextField {
-                    width: 200
+                    width: 300
                     height: 22
                     id: command
                     text: "echo \"Hello, world!\" && uname -a"
