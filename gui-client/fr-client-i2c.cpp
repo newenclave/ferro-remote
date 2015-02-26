@@ -79,6 +79,7 @@ namespace fr { namespace declarative {
                     emit parent_->functionsSupportedChanged(
                                   static_cast<quint32>(function_mask_) );
                 }
+                parent_->setReady( true );
             }
         }
 

@@ -26,8 +26,6 @@ Rectangle {
 
     }
 
-
-
     Column {
         spacing: 5
         anchors.margins: 5
@@ -121,8 +119,8 @@ Rectangle {
                     }
                     Connections {
                         target: smbus
-                        onFailedChanged: {
-                            console.log( "failed ", value )
+                        onReadyChanged: {
+                            console.log( smbus.getEnabled( ) )
                         }
                     }
                 }

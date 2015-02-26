@@ -129,12 +129,7 @@ Rectangle {
                 width: 80
 
                 text: qsTr("Refresh")
-
-                enabled: false
-                Connections {
-                    target: generalClient
-                    onReadyChanged: dirRefresh.enabled = value
-                }
+                enabled: dirInst.ready
             }
         }
 
@@ -156,7 +151,6 @@ Rectangle {
             border.width: 1
 
             ListView {
-
                 id: dirView
                 model: dirModel
                 delegate: dirDelegate
