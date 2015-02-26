@@ -113,6 +113,7 @@ Rectangle {
                     id: readyButton
                     checkable: true
                     checked: false
+                    enabled: smbus.ready
                     onClicked: {
                         smbus.writeBytes( {0x7: checked ? 1 : 0 } )
                         console.log( smbus.getEnabled( ) )
@@ -120,7 +121,7 @@ Rectangle {
                     Connections {
                         target: smbus
                         onReadyChanged: {
-                            console.log( smbus.getEnabled( ) )
+                            readyButton.checked = smbus.getEnabled( )
                         }
                     }
                 }
