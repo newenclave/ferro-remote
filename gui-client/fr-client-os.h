@@ -33,7 +33,7 @@ namespace fr { namespace declarative {
     public slots:
 
     private slots:
-        void ready(  );
+        void onReady(  );
     };
 
 }}

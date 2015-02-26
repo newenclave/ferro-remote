@@ -37,7 +37,7 @@ namespace fr { namespace declarative {
         FrClient *cl = client( );
         if( cl ) {
             QObject::connect( cl, SIGNAL( channelReady( ) ),
-                              this, SLOT( ready( ) ) );
+                              this, SLOT( onReady( ) ) );
 
             if( cl->ready( ) ) {
                 impl_->os_iface_.reset(
@@ -66,7 +66,7 @@ namespace fr { namespace declarative {
         FR_QML_CALL_EPILOGUE( -1 )
     }
 
-    void FrClientOS::ready(  )
+    void FrClientOS::onReady(  )
     {
         impl_->os_iface_.reset(
                     ifaces::os::create( client( )->core_client( ) ) );
