@@ -5,6 +5,7 @@ namespace fr { namespace declarative {
 
     FrBaseComponent::FrBaseComponent( QObject *parent )
         :QObject(parent)
+        ,ready_(false)
         ,failed_(false)
     { }
 
@@ -34,6 +35,19 @@ namespace fr { namespace declarative {
     void FrBaseComponent::setError( const QString &value ) const
     {
         error_ = value;
+    }
+
+    void FrBaseComponent::setReady( bool value ) const
+    {
+        if( value != ready_ ) {
+            ready_ = value;
+            emit readyChanged( ready_ );
+        }
+    }
+
+    bool FrBaseComponent::ready( ) const
+    {
+        return ready_;
     }
 
 }}

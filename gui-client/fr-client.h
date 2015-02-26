@@ -17,7 +17,6 @@ namespace declarative {
     class FrClient: public FrBaseComponent {
 
         Q_OBJECT
-        Q_PROPERTY( bool ready READ ready NOTIFY readyChanged )
 
         Q_PROPERTY( QString sessionId
                     READ sessionId WRITE setSessionId
@@ -37,8 +36,6 @@ namespace declarative {
 
     public:
 
-        bool ready( ) const;
-
         client::core::client_core &core_client( );
 
         QString sessionId( ) const;
@@ -54,7 +51,6 @@ namespace declarative {
         void disconnected( );
         void channelReady( );
         void initError( const QString &message );
-        void readyChanged( bool value );
 
         void sessionIdChanged( QString sid ) const;
         void sessionKeyChanged( QString key ) const;

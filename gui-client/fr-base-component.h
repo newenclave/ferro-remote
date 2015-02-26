@@ -14,9 +14,12 @@ namespace fr { namespace declarative {
                     READ failed WRITE setFailed NOTIFY failedChanged )
 
         Q_PROPERTY( QString error READ error )
+        Q_PROPERTY( bool ready READ ready NOTIFY readyChanged )
 
+        mutable bool    ready_;
         mutable bool    failed_;
         mutable QString error_;
+
 
     public:
 
@@ -29,8 +32,11 @@ namespace fr { namespace declarative {
 
         virtual bool clientFailed( ) const { return false; }
 
+        void setReady( bool value ) const;
+
     public:
 
+        bool ready( ) const;
         QString error( ) const;
 
         bool failed( ) const;
@@ -38,6 +44,7 @@ namespace fr { namespace declarative {
 
     signals:
         void failedChanged( bool value ) const;
+        void readyChanged( bool value ) const;
     };
 
 }}

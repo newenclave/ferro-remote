@@ -57,20 +57,21 @@ namespace fr { namespace declarative {
         void on_disconnect( )
         {
             state_ = state_none;
+            parent_->setReady( false );
             emit parent_->disconnected( );
-            emit parent_->readyChanged( false );
         }
 
         void on_ready( )
         {
             state_ = state_ready;
             emit parent_->channelReady( );
-            emit parent_->readyChanged( true );
+            parent_->setReady( true );
         }
 
         void on_initerror( const char *message  )
         {
             state_ = state_none;
+            parent_->setReady( false );
             emit parent_->initError( message );
         }
 
@@ -87,11 +88,6 @@ namespace fr { namespace declarative {
     FrClient::~FrClient( )
     {
         delete impl_;
-    }
-
-    bool FrClient::ready( ) const
-    {
-        return impl_->state_ == impl::state_ready;
     }
 
     void FrClient::connect( const QString &server )
