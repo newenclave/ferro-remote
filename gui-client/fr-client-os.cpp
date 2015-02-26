@@ -42,6 +42,7 @@ namespace fr { namespace declarative {
             if( cl->ready( ) ) {
                 impl_->os_iface_.reset(
                             ifaces::os::create( cl->core_client( ) ) );
+                setReady( true );
             }
         }
     }
@@ -70,6 +71,7 @@ namespace fr { namespace declarative {
     {
         impl_->os_iface_.reset(
                     ifaces::os::create( client( )->core_client( ) ) );
+        setReady( true );
     }
 
 }}

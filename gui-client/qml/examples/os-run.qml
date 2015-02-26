@@ -8,7 +8,7 @@ Rectangle {
 
     id: mainWindow
     width: 480
-    height: 42
+    height: 120
 
     FrClient {
         id: generalClient
@@ -16,11 +16,9 @@ Rectangle {
 
     Column {
 
-        anchors.fill: mainWindow
-
         Rectangle {
             width: mainWindow.width
-            anchors.fill: parent
+            height: 64
 
         Row {
 
@@ -34,7 +32,8 @@ Rectangle {
                 width: 200
                 height: 22
                 id: address
-                text: "192.168.3.1:12345"
+                text: "127.0.0.1:12345"
+                //text: "192.168.3.1:12345"
             }
 
             Button {
@@ -90,15 +89,41 @@ Rectangle {
         } // Rectangle
 
         Rectangle {
-            width: mainWindow.width
-            anchors.fill: parent
 
-        TextField {
-            width: 200
-            height: 22
-            id: comand
-            text: "vim"
-        }
+            width: mainWindow.width
+            height: 64
+
+            FrClientOS {
+                id: runner
+                client: generalClient
+            }
+
+            Row {
+
+                spacing: 10
+                anchors.margins: 10
+                anchors.top: parent.top
+                anchors.left: parent.left
+                anchors.right: parent.right
+
+                TextField {
+                    width: 200
+                    height: 22
+                    id: command
+                    text: "vim"
+                    enabled: runner.ready
+                }
+
+                Button {
+                    text: "Run"
+                    enabled: runner.ready
+                    onClicked: {
+                        console.log( "Sending command: ", command.text,
+                                     " to the server."  )
+                        runner.execute( command.text )
+                    }
+                }
+            }
         }
 
     } // COLUMN

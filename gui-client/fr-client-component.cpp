@@ -30,6 +30,8 @@ namespace fr { namespace declarative {
     {
         if( new_value != client_ ) {
 
+            setReady( false );
+
             if( client_ ) {
                 QObject::disconnect( client_, SIGNAL(readyChanged(bool)),
                                      this,    SLOT(onReady(bool)) );
@@ -48,6 +50,9 @@ namespace fr { namespace declarative {
 
     void FrClientComponent::onReady( bool value )
     {
+        if( !value ) {
+            setReady( false );
+        }
         on_ready( value );
     }
 
