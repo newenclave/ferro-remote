@@ -34,6 +34,16 @@ namespace fr { namespace declarative {
             }
         }
 
+        template <typename Cont>
+        void push_values( Cont &cont, const QVariantList &from )
+        {
+            typedef QVariantList::const_iterator mitr;
+
+            for( mitr b(from.begin( )), e(from.end( )); b!=e; ++b ) {
+                push_values( cont, b->toMap( ) );
+            }
+        }
+
     }
 
     struct FrClientI2c::impl {
@@ -253,13 +263,11 @@ namespace fr { namespace declarative {
 
     void FrClientI2c::writeBytes( const QVariantList &data ) const
     {
-        typedef QVariantList::const_iterator data_iter;
         typedef i2c_ns::cmd_uint8_vector vcont_type;
 
         vcont_type values;
-        for( data_iter b(data.begin( )), e(data.end( )); b!=e; ++b ) {
-            push_values( values, b->toMap( ) );
-        }
+        push_values( values, data );
+
         FR_QML_CALL_PROLOGUE
         impl_->iface_->write_bytes( values );
         FR_QML_CALL_EPILOGUE( )
@@ -281,13 +289,11 @@ namespace fr { namespace declarative {
     /// FIXIT copypaste
     void FrClientI2c::writeWords( const QVariantList &data ) const
     {
-        typedef QVariantList::const_iterator data_iter;
         typedef i2c_ns::cmd_uint16_vector vcont_type;
 
         vcont_type values;
-        for( data_iter b(data.begin( )), e(data.end( )); b!=e; ++b ) {
-            push_values( values, b->toMap( ) );
-        }
+        push_values( values, data );
+
         FR_QML_CALL_PROLOGUE
         impl_->iface_->write_words( values );
         FR_QML_CALL_EPILOGUE( )
