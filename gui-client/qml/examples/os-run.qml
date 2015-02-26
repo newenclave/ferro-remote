@@ -15,7 +15,7 @@ Rectangle {
     }
 
     Column {
-
+        width: mainWindow.width
         Rectangle {
             width: mainWindow.width
             height: 64
@@ -99,7 +99,7 @@ Rectangle {
 
             Row {
 
-                spacing: 10
+                spacing: 5
                 anchors.margins: 10
                 anchors.top: parent.top
                 anchors.left: parent.left
@@ -117,8 +117,8 @@ Rectangle {
                     text: "Run"
                     enabled: runner.ready
                     onClicked: {
-                        console.log( "Sending command: ", command.text,
-                                     " to the server."  )
+                        console.log( "Sending command: \"" + command.text +
+                                     "\" to the server."  )
                         runner.execute( command.text )
                     }
                 }
