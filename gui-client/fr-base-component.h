@@ -20,7 +20,6 @@ namespace fr { namespace declarative {
         mutable bool    failed_;
         mutable QString error_;
 
-
     public:
 
         explicit FrBaseComponent( QObject *parent = 0 );
