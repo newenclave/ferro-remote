@@ -108,6 +108,13 @@ Rectangle {
             border.color: "white"
 
             Row {
+
+                spacing: 5
+                anchors.margins: 10
+                anchors.top: parent.top
+                anchors.left: parent.left
+                anchors.right: parent.right
+
                 Button {
                     text: checked ? "Enabled" : "Disabled"
                     id: readyButton
