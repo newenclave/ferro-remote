@@ -8,7 +8,7 @@ Rectangle {
 
     id: mainWindow
     width: 480
-    height: 200
+    height: 600
 
     FrClient {
         id: generalClient
@@ -126,7 +126,6 @@ Rectangle {
                 }
             }
         }
-
     } // COLUMN
 
 }
