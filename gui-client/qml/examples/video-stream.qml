@@ -130,7 +130,7 @@ Rectangle {
         }
 
         Rectangle {
-            width: mainWindow.width
+            width: 600
             height: 200
             Video {
                 anchors.fill: parent
