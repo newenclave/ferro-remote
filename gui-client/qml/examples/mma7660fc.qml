@@ -8,7 +8,7 @@ Rectangle {
 
     id: mainWindow
     width: 480
-    height: 120
+    height: 200
 
     FrClient {
         id: generalClient
@@ -132,11 +132,50 @@ Rectangle {
                     Connections {
                         target: smbus
                         onReadyChanged: {
-                            readyButton.checked = smbus.getEnabled( )
+                            if(value) {
+                                readyButton.checked = smbus.getEnabled( )
+                            }
                         }
                     }
                 }
             }
+        }
+
+        Timer {
+            interval: 50
+            running: smbus.ready
+            repeat: true
+            onTriggered: {
+                var datas = smbus.readBytes( [0, 1, 2] )
+                                           // X  Y  Z
+                var xm = datas[0]
+                var ym = datas[1]
+                var zm = datas[2]
+
+                var X = datas[0] & 31
+                var Y = datas[1] & 31
+                var Z = datas[2] & 31
+
+                axisX.value = X
+                axisY.value = Y
+                axisZ.value = Z
+            }
+        }
+
+        ProgressBar {
+            id: axisX
+            value: 0
+            maximumValue: 31
+        }
+        ProgressBar {
+            id: axisY
+            value: 0
+            maximumValue: 31
+        }
+        ProgressBar {
+            id: axisZ
+            value: 0
+            maximumValue: 31
         }
     }
 }
