@@ -50,6 +50,7 @@ namespace {
         app.add_subsystem<gpio>( );
         app.add_subsystem<i2c>( );
         app.add_subsystem<reactor>( );
+        app.add_subsystem<multicast>( );
 
         app.add_subsystem<listeners>( );
 

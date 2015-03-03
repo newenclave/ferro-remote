@@ -7,3 +7,4 @@
 #include "subsys-gpio.h"
 #include "subsys-i2c.h"
 #include "subsys-lua.h"
+#include "subsys-multicast.h"
