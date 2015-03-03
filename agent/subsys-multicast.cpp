@@ -1,6 +1,7 @@
 
 #include "application.h"
 #include "subsys-multicast.h"
+#include "subsys-config.h"
 
 //#include "vtrc-memory.h"
 
@@ -24,10 +25,17 @@ namespace fr { namespace agent { namespace subsys {
     struct multicast::impl {
 
         application     *app_;
+        subsys::config  *config_;
 
         impl( application *app )
             :app_(app)
+            ,config_(NULL)
         { }
+
+        void init( )
+        {
+            config_ = &app_->subsystem<config>( );
+        }
 
         void reg_creator( const std::string &name,
                           application::service_getter_type func )
@@ -66,7 +74,7 @@ namespace fr { namespace agent { namespace subsys {
 
     void multicast::init( )
     {
-
+        impl_->init( );
     }
 
     void multicast::start( )
