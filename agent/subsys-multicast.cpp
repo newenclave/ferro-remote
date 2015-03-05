@@ -1,4 +1,3 @@
-
 #include "application.h"
 #include "subsys-multicast.h"
 #include "subsys-config.h"
