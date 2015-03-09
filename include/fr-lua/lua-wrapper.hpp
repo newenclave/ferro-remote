@@ -587,7 +587,8 @@ namespace lua {
         lua_State *create_thread( const char *path )
         {
             lua_State *res = lua_newthread( vm_ ); // push new value 'state'
-            set_value( path );                     // copy here
+            int index = get_top( );                // table index in parameters
+            set_value( path, index );              // copy here
             pop( 1 );                              // pop state from stack
             return res;
 #if 0
