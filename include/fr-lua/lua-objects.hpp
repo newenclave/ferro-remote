@@ -658,7 +658,6 @@ namespace lua { namespace objects {
         int ref_;
         int type_;
 
-
     public:
 
         static int create_ref( lua_State *state, int index )
