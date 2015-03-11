@@ -658,9 +658,10 @@ namespace lua { namespace objects {
         int ref_;
         int type_;
 
+
     public:
 
-        int create_ref( lua_State *state, int index )
+        static int create_ref( lua_State *state, int index )
         {
             lua_pushvalue( state, index );
             int ref = luaL_ref( state, LUA_REGISTRYINDEX );
