@@ -400,6 +400,8 @@ namespace lua { namespace objects {
 
     };
 
+    typedef std::shared_ptr<string> string_sptr;
+
     class pair: public base {
 
         std::pair<base_sptr, base_sptr> pair_;
