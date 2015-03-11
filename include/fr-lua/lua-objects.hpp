@@ -78,7 +78,7 @@ namespace lua { namespace objects {
 #if LUA_VERSION_NUM >=503
             ,TYPE_UINTEGER      = TYPE_LOCAL_INDEX + 3
 #endif
-            ,TYPE_REFERENCE     = 0x80000000
+            ,TYPE_REFERENCE     = 0x08000000
         };
 
         virtual ~base( ) { }
