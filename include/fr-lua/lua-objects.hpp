@@ -7,6 +7,8 @@
 #include <string>
 
 extern "C" {
+#include "lualib.h"
+#include "lauxlib.h"
 #include "lua.h"
 }
 
@@ -683,6 +685,39 @@ namespace lua { namespace objects {
         }
     };
 
+    class function: public base {
+
+        lua_CFunction func_;
+
+    public:
+
+        function( lua_CFunction func )
+            :func_(func)
+        { }
+
+        virtual int type_id( ) const
+        {
+            return base::TYPE_FUNCTION;
+        }
+
+        virtual base *clone( ) const
+        {
+            return new function( func_ );
+        }
+
+        void push( lua_State *L ) const
+        {
+            lua_pushcfunction( L, func_ );
+        }
+
+        std::string str( ) const
+        {
+            std::ostringstream oss;
+            oss << "function@" << std::hex << func_;
+            return oss.str( );
+        }
+    };
+
     class thread: public base {
 
         lua_State *p_;
@@ -772,9 +807,9 @@ namespace lua { namespace objects {
         return new number( value );
     }
 
-    inline reference * new_function( lua_State *L, int id )
+    inline function * new_function( lua_CFunction func )
     {
-        return new reference( L, id );
+        return new function( func );
     }
 
     inline reference * new_reference( lua_State *L, int id )
