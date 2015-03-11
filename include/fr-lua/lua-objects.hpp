@@ -20,6 +20,45 @@ namespace lua { namespace objects {
 
     struct base {
 
+        static const char *type2string( unsigned value )
+        {
+            switch( value ) {
+            case TYPE_NONE:
+                return "none";
+            case TYPE_NIL:
+                return "nil";
+            case TYPE_BOOL:
+                return "bool";
+            case TYPE_LUSERDATA:
+                return "lightuserdata";
+            case TYPE_NUMBER:
+                return "number";
+            case TYPE_STRING:
+                return "string";
+            case TYPE_TABLE:
+                return "table";
+            case TYPE_FUNCTION:
+                return "function";
+            case TYPE_USERDATA:
+                return "userdata";
+            case TYPE_THREAD:
+                return "thread";
+            case TYPE_LOCAL_INDEX:
+                return "localindex";
+            case TYPE_PAIR:
+                return "pair";
+            case TYPE_INTEGER:
+                return "integer";
+#if LUA_VERSION_NUM >=503
+            case TYPE_UINTEGER:
+                return "uinteger";
+#endif
+            case TYPE_REFERENCE:
+                return "reference";
+            }
+            return "unknown";
+        }
+
         enum {
              TYPE_NONE          = LUA_TNONE
             ,TYPE_NIL           = LUA_TNIL
@@ -35,8 +74,9 @@ namespace lua { namespace objects {
             ,TYPE_PAIR          = TYPE_LOCAL_INDEX + 1
             ,TYPE_INTEGER       = TYPE_LOCAL_INDEX + 2
 #if LUA_VERSION_NUM >=503
-            ,TYPE_UINTEGER      = TYPE_LOCAL_INDEX + 2
+            ,TYPE_UINTEGER      = TYPE_LOCAL_INDEX + 3
 #endif
+            ,TYPE_REFERENCE     = 0x80000000
         };
 
         virtual ~base( ) { }
@@ -584,35 +624,61 @@ namespace lua { namespace objects {
 
     typedef std::shared_ptr<table> table_sptr;
 
-    class function: public base {
+    class reference: public base {
 
-        lua_CFunction func_;
+        lua_State *state_;
+        int ref_;
+        int type_;
 
     public:
 
-        function( lua_CFunction func )
-            :func_(func)
+        int create_ref( lua_State *state, int index )
+        {
+            lua_pushvalue( state, index );
+            int ref = luaL_ref( state, LUA_REGISTRYINDEX );
+
+            return ref;
+        }
+
+        reference( lua_State *state, int index )
+            :state_(state)
+            ,ref_(create_ref( state, index ))
+            ,type_(lua_type( state, index ) | base::TYPE_REFERENCE)
         { }
+
+        reference( lua_State *state, int /*index*/, int ref )
+            :state_(state)
+            ,ref_(ref)
+        { }
+
+        ~reference( )
+        {
+            luaL_unref( state_, LUA_REGISTRYINDEX, ref_ );
+        }
 
         virtual int type_id( ) const
         {
-            return base::TYPE_FUNCTION;
+            return type_;
         }
 
         virtual base *clone( ) const
         {
-            return new function( func_ );
+            push( state_ );
+            int new_ref = luaL_ref( state_, LUA_REGISTRYINDEX );
+            return new reference( state_, 0, new_ref );
         }
 
         void push( lua_State *L ) const
         {
-            lua_pushcfunction( L, func_ );
+            lua_rawgeti(L, LUA_REGISTRYINDEX, ref_);
         }
 
         std::string str( ) const
         {
             std::ostringstream oss;
-            oss << "function@" << func_;
+            oss << "ref[" << base::type2string( type_ & ~base::TYPE_REFERENCE )
+                << "]@"
+                << std::hex << state_ << ":" << ref_;
             return oss.str( );
         }
     };
@@ -706,9 +772,14 @@ namespace lua { namespace objects {
         return new number( value );
     }
 
-    inline function * new_function( lua_CFunction func ) 
+    inline reference * new_function( lua_State *L, int id )
     {
-        return new function( func );
+        return new reference( L, id );
+    }
+
+    inline reference * new_reference( lua_State *L, int id )
+    {
+        return new reference( L, id );
     }
 
     inline light_userdata * new_light_userdata( void *data )
