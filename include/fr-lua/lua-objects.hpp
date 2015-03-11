@@ -565,6 +565,30 @@ namespace lua { namespace objects {
             return this;
         }
 
+        table * add( const char *fld, base *v )
+        {
+            add( new string(fld), base_sptr(v) );
+            return this;
+        }
+
+        table * add( const std::string fld, base *v )
+        {
+            add( new string(fld), base_sptr(v) );
+            return this;
+        }
+
+        table * add( const char *fld, base_sptr v )
+        {
+            add( new string(fld), v );
+            return this;
+        }
+
+        table * add( const std::string fld,  base_sptr v )
+        {
+            add( new string(fld), v );
+            return this;
+        }
+
         base *clone( ) const
         {
             return new table( *this );
