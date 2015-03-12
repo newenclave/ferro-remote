@@ -99,7 +99,7 @@ namespace lua { namespace types {
             case LUA_TNUMBER:
                 return !!lua_tointeger( L, idx );
             case LUA_TBOOLEAN:
-                return lua_toboolean( L, idx );
+                return !!lua_toboolean( L, idx );
             case LUA_TNIL:
                 return false;
             case LUA_TLIGHTUSERDATA:
