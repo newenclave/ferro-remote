@@ -504,6 +504,11 @@ namespace lua {
             return T( );
         }
 
+        objects::base_sptr get_ref( int idx = -1) const
+        {
+            return std::make_shared<objects::reference>( vm_, idx );
+        }
+
         bool exists( const char *path )
         {
             const char *pl = path_leaf( path );
