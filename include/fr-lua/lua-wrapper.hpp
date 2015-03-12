@@ -297,7 +297,7 @@ namespace lua {
             switch( t ) {
             case LUA_TBOOLEAN:
                 return base_sptr(
-                    new objects::boolean( lua_toboolean( vm_, idx ) ));
+                    new objects::boolean( !!lua_toboolean( vm_, idx ) ));
             case LUA_TLIGHTUSERDATA:
                 return base_sptr(
                     new objects::light_userdata( lua_touserdata( vm_, idx ) ));
