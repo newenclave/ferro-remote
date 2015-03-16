@@ -609,7 +609,7 @@ namespace lua { namespace objects {
         {
             typedef pair_vector::const_iterator citr;
             lua_newtable( L );
-            size_t len = 1;
+            size_t len = index_;
             for( citr b(list_.begin( )), e(list_.end( )); b!=e; ++b, ++len ) {
                 size_t n((*b)->nil_size( ));
                 switch (n) {
