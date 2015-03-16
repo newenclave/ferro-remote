@@ -489,14 +489,17 @@ namespace lua { namespace objects {
 
         typedef std::vector<pair_sptr> pair_vector;
         pair_vector list_;
+        size_t      index_;
 
     public:
 
         table( const table &o )
             :list_(o.list_)
+            ,index_(o.index_)
         { }
 
         table( )
+            :index_(1)
         { }
 
         int type_id( ) const
@@ -532,7 +535,12 @@ namespace lua { namespace objects {
 
         table * add( const base_sptr &k, const base_sptr &v )
         {
-            push_back( pair_sptr(new pair( k, v ) ) );
+            if( k ) {
+                push_back( pair_sptr(new pair( k, v ) ) );
+            } else {
+                std::shared_ptr<base> next_index(new integer( index_++ ));
+                push_back( pair_sptr(new pair( next_index, v ) ) );
+            }
             return this;
         }
 
@@ -556,8 +564,9 @@ namespace lua { namespace objects {
 
         table * add( base_sptr v )
         {
-            static std::shared_ptr<base> const_nil( new nil );
-            push_back( pair_sptr( new pair( const_nil, v ) ) );
+            //static std::shared_ptr<base> const_nil( new nil );
+            std::shared_ptr<base> next_index(new integer( index_++ ));
+            push_back( pair_sptr( new pair( next_index, v ) ) );
             return this;
         }
 
