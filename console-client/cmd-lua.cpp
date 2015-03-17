@@ -355,29 +355,29 @@ namespace fr { namespace cc { namespace cmd {
                     custom_main = true;
                 }
 
-                std::shared_ptr<lua_state> lv = cd.state_;
+                std::shared_ptr<lua_state> ls = cd.state_;
 
                 if( vm.count( "exec" ) ) {
 
                     vtrc::common::thread_pool eventor(0);
                     cd.event_thread_ = &eventor;
 
-                    int res = 0;
+                    //int res = 0;
 
                     std::string script( vm["exec"].as<std::string>( ) );
 
-                    lv->check_call_error( lv->load_file(script.c_str( ) ) );
+                    ls->check_call_error( ls->load_file(script.c_str( ) ) );
 
                     lo::base_sptr par = create_params( vm );
 
-                    if( lv->exists( main_function.c_str( ) ) ) {
-                        int res = lv->exec_function( main_function.c_str( ),
+                    if( ls->exists( main_function.c_str( ) ) ) {
+                        int res = ls->exec_function( main_function.c_str( ),
                                                      *par );
-                        lv->check_call_error( res );
+                        ls->check_call_error( res );
                     } else if( custom_main ) {
                         std::cout << "Function '" << main_function << "'"
                                   << " was not found in the script.\n";
-                        res = 1;
+                        //res = 1;
                     }
 //                    if( 0 == res ) {
 //                        eventor.attach( );
