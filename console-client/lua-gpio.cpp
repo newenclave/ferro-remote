@@ -102,42 +102,35 @@ namespace fr { namespace lua {
                     t->add( ADD_GPIO_VALUE( EDGE_FALLING ) );
                     t->add( ADD_GPIO_VALUE( EDGE_BOTH ) );
 
-                    t->add( new_string( "export" ),
-                            new_function( &lcall_gpio_export ) );
-                    t->add( new_string( "info" ),
-                            new_function( &lcall_gpio_info ) );
+                    t->add( "export",   new_function( &lcall_gpio_export ) );
+                    t->add( "info",     new_function( &lcall_gpio_info ) );
 
-                    t->add( new_string( "value" ),
-                            new_function( &lcall_gpio_value ) );
-                    t->add( new_string( "set_value" ),
-                            new_function( &lcall_gpio_set_value ) );
-                    t->add( new_string( "make_pulse" ),
+                    t->add( "value",    new_function( &lcall_gpio_value ) );
+                    t->add( "set_value",new_function( &lcall_gpio_set_value ) );
+
+                    t->add( "make_pulse",
                             new_function( &lcall_gpio_make_pulse ) );
 
-                    t->add( new_string( "edge_supported" ),
+                    t->add( "edge_supported",
                             new_function( &lcall_gpio_test_edge ) );
-                    t->add( new_string( "edge" ),
-                            new_function( &lcall_gpio_edge ) );
-                    t->add( new_string( "set_edge" ),
-                            new_function( &lcall_gpio_set_edge ) );
 
-                    t->add( new_string( "direction" ),
-                            new_function( &lcall_gpio_dir ) );
-                    t->add( new_string( "set_direction" ),
+                    t->add( "edge", new_function( &lcall_gpio_edge ) );
+                    t->add( "set_edge", new_function( &lcall_gpio_set_edge ) );
+
+                    t->add( "direction", new_function( &lcall_gpio_dir ) );
+                    t->add( "set_direction",
                             new_function( &lcall_gpio_set_dir ) );
 
-                    t->add( new_string( "unexport" ),
-                            new_function( &lcall_gpio_unexport ) );
-                    t->add( new_string( "close" ),
-                            new_function( &lcall_gpio_close ) );
+                    t->add( "unexport", new_function( &lcall_gpio_unexport ) );
+                    t->add( "close", new_function( &lcall_gpio_close ) );
 
-                    t->add( new_string( "register_for_change" ),
+                    t->add( "register_for_change",
                             new_function( &lcall_gpio_reg_for_change ) );
 
-                    t->add( new_string( "register_for_change_int" ),
+                    t->add( "register_for_change_int",
                             new_function( &lcall_gpio_reg_for_change2 ) );
 
-                    t->add( new_string( "unregister" ),
+                    t->add( "unregister",
                             new_function( &lcall_gpio_unreg ) );
                 }
 
@@ -178,7 +171,6 @@ namespace fr { namespace lua {
             if( n > 1 && ( ls.get_type( 2 ) == LUA_TNUMBER ) ) {
                 direct = ls.get<unsigned>( 2 );
             }
-            ls.pop( n );
             iface_sptr new_dev;
             if( direct == interfaces::gpio::DIRECT_IN ) {
                 new_dev.reset(interfaces::gpio::create_input( i->cc_, gid ));
@@ -206,7 +198,6 @@ namespace fr { namespace lua {
             lua::state ls( L );
             //data * i   = get_iface( L );
             iface_sptr dev = get_gpio_dev( L );
-            ls.clean_stack( );
             interfaces::gpio::info inf( dev->get_info( ) );
 
             objects::table_sptr t(objects::new_table( ));
@@ -227,7 +218,6 @@ namespace fr { namespace lua {
             lua::state ls( L );
             //data * i   = get_iface( L );
             iface_sptr dev = get_gpio_dev( L );
-            ls.clean_stack( );
             if( dev.get( ) ) {
                 dev->unexport_device( );
             }
@@ -243,7 +233,6 @@ namespace fr { namespace lua {
             if( r > 1 ) {
                 val = ls.get<unsigned>( 2 );
             }
-            ls.clean_stack( );
             dev->set_value( val );
             return 0;
         }
@@ -252,7 +241,6 @@ namespace fr { namespace lua {
         {
             lua::state ls( L );
             iface_sptr dev = get_gpio_dev( L );
-            ls.clean_stack( );
             ls.push( dev->value( ) );
             return 1;
         }
@@ -274,7 +262,6 @@ namespace fr { namespace lua {
             if( n > 3 ) {
                 sv = ls.get<unsigned>( 4 );
             }
-            ls.clean_stack(  );
 
             dev->make_pulse( len, sv, rv );
 
@@ -285,7 +272,6 @@ namespace fr { namespace lua {
         {
             lua::state ls( L );
             iface_sptr dev = get_gpio_dev( L, 1 );
-            ls.clean_stack( );
             ls.push<bool>( dev->edge_supported( ) );
             return 1;
         }
@@ -299,7 +285,6 @@ namespace fr { namespace lua {
             if( r > 1 ) {
                 val = ls.get<unsigned>( 2 );
             }
-            ls.clean_stack( );
             dev->set_edge( interfaces::gpio::edge_val2enum( val ) );
             return 0;
         }
@@ -308,7 +293,6 @@ namespace fr { namespace lua {
         {
             lua::state ls( L );
             iface_sptr dev = get_gpio_dev( L );
-            ls.clean_stack( );
             ls.push<unsigned>( dev->edge( ) );
             return 1;
         }
@@ -322,7 +306,6 @@ namespace fr { namespace lua {
             if( r > 1 ) {
                 val = ls.get<unsigned>( 2 );
             }
-            ls.clean_stack( );
             dev->set_direction( interfaces::gpio::direction_val2enum( val ) );
             return 0;
         }
@@ -331,7 +314,6 @@ namespace fr { namespace lua {
         {
             lua::state ls( L );
             iface_sptr dev = get_gpio_dev( L );
-            ls.clean_stack( );
             ls.push<unsigned>( dev->direction( ) );
             return 1;
         }
@@ -341,7 +323,6 @@ namespace fr { namespace lua {
             lua::state ls( L );
             data * i   = get_iface( L );
             void * dev = ls.get<void *>(  );
-            ls.clean_stack( );
             do {
                 std::lock_guard<std::mutex> lck( i->devices_lock_ );
                 i->devices_.erase( dev );
@@ -414,11 +395,9 @@ namespace fr { namespace lua {
             if( n > 2 ) {
                 params.reserve( n - 2 );
                 for( int i=3; i<=n; ++i ) {
-                    params.push_back( ls.get_object( i ) );
+                    params.push_back( ls.get_ref( i ) );
                 }
             }
-
-            ls.pop( n );
 
             std::string tmp_path(create_ref_table_path( dev.get( ) ));
 
@@ -461,11 +440,9 @@ namespace fr { namespace lua {
             if( n > 2 ) {
                 params.reserve( n - 2 );
                 for( int i=3; i<=n; ++i ) {
-                    params.push_back( ls.get_object( i ) );
+                    params.push_back( ls.get_ref( i ) );
                 }
             }
-
-            ls.pop( n );
 
             std::string tmp_path(create_ref_table_path( dev.get( ) ));
 
