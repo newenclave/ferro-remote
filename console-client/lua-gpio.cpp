@@ -140,7 +140,6 @@ namespace fr { namespace lua {
 
         };
 
-        /// doesn't pop stack!!!
         iface_sptr get_gpio_dev( lua_State *L, int id = 1 )
         {
             lua::state ls(L);
