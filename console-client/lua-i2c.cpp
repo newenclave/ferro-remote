@@ -72,7 +72,7 @@ namespace fr { namespace lua {
                 t->add( new_string( names::inst_field ),
                         new_light_userdata( this ));
 
-                t->add( new_string( "bus_available" ),
+                t->add( "bus_available",
                         new_function( &lcall_i2c_bus_avail ) );
 
                 t->add( new_string( "functions" ),
