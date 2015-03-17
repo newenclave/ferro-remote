@@ -167,6 +167,10 @@ configure_file ("${PROJECT_SOURCE_DIR}/gui-client/ferro-remote.pri.in"
 
 add_subdirectory( console-client )
 
+if(LUA_FOUND)
+    add_subdirectory( lua-client )
+endif(LUA_FOUND)
+
 if( NOT WIN32 )
     add_subdirectory( agent )
 endif( )
