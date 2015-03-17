@@ -177,7 +177,7 @@ namespace fr { namespace cc { namespace cmd {
             lua::state ls( L );
             lua::core_data *cd = lua::get_core( L );
             std::string server = ls.get<std::string>( );
-            ls.clean_stack( );
+
             bool success = true;
 
             try {
@@ -359,6 +359,11 @@ namespace fr { namespace cc { namespace cmd {
 
                 if( vm.count( "exec" ) ) {
 
+                    vtrc::common::thread_pool eventor(0);
+                    cd.event_thread_ = &eventor;
+
+                    int res = 0;
+
                     std::string script( vm["exec"].as<std::string>( ) );
 
                     lv->check_call_error( lv->load_file(script.c_str( ) ) );
@@ -372,7 +377,11 @@ namespace fr { namespace cc { namespace cmd {
                     } else if( custom_main ) {
                         std::cout << "Function '" << main_function << "'"
                                   << " was not found in the script.\n";
+                        res = 1;
                     }
+//                    if( 0 == res ) {
+//                        eventor.attach( );
+//                    }
                 }
                 //cl.disconnect( );
             }

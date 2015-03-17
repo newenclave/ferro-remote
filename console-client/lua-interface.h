@@ -16,6 +16,10 @@ namespace fr { namespace client { namespace core {
     class client_core;
 }}}
 
+namespace vtrc { namespace common {
+    class thread_pool;
+}}
+
 namespace fr { namespace lua {
 
     namespace names {
@@ -74,9 +78,11 @@ namespace fr { namespace lua {
 
         typedef std::map<std::string, data_sptr> table_map;
 
-        client::core::client_core  *core_;
-        table_map                   tables_;
-        std::shared_ptr<lua::state> state_;
+        client::core::client_core   *core_;
+        table_map                    tables_;
+        std::shared_ptr<lua::state>  state_;
+        vtrc::common::thread_pool   *event_thread_;
+
     };
 
 
