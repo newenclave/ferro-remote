@@ -72,40 +72,26 @@ namespace fr { namespace lua {
                 t->add( new_string( names::inst_field ),
                         new_light_userdata( this ));
 
-                t->add( "bus_available",
-                        new_function( &lcall_i2c_bus_avail ) );
+                t->add( "bus_available", new_function( &lcall_i2c_bus_avail ) );
 
-                t->add( new_string( "functions" ),
-                        new_function( &lcall_i2c_functions ) );
+                t->add( "functions", new_function( &lcall_i2c_functions ) );
 
-                t->add( new_string( "open" ),
-                        new_function( &lcall_i2c_bus_open ) );
-                t->add( new_string( "close" ),
-                        new_function( &lcall_i2c_bus_close ) );
-                t->add( new_string( "set_address" ),
-                        new_function( &lcall_i2c_set_addr ) );
+                t->add( "open", new_function( &lcall_i2c_bus_open ) );
+                t->add( "close", new_function( &lcall_i2c_bus_close ) );
+                t->add( "set_address", new_function( &lcall_i2c_set_addr ) );
 
-                t->add( new_string( "read" ),
-                        new_function( &lcall_i2c_read ) );
-                t->add( new_string( "write" ),
-                        new_function( &lcall_i2c_write ) );
-                t->add( new_string( "ioctl" ),
-                        new_function( &lcall_i2c_ioctl ) );
+                t->add( "read", new_function( &lcall_i2c_read ) );
+                t->add( "write", new_function( &lcall_i2c_write ) );
+                t->add( "ioctl", new_function( &lcall_i2c_ioctl ) );
 
-                t->add( new_string( "read_byte" ),
-                        new_function( &lcall_i2c_read_byte ) );
-                t->add( new_string( "write_byte" ),
-                        new_function( &lcall_i2c_write_byte ) );
+                t->add( "read_byte", new_function( &lcall_i2c_read_byte ) );
+                t->add( "write_byte", new_function( &lcall_i2c_write_byte ) );
 
-                t->add( new_string( "read_word" ),
-                        new_function( &lcall_i2c_read_word ) );
-                t->add( new_string( "write_word" ),
-                        new_function( &lcall_i2c_write_word ) );
+                t->add( "read_word", new_function( &lcall_i2c_read_word ) );
+                t->add( "write_word", new_function( &lcall_i2c_write_word ) );
 
-                t->add( new_string( "read_block" ),
-                        new_function( &lcall_i2c_read_block ) );
-                t->add( new_string( "write_block" ),
-                        new_function( &lcall_i2c_write_block ) );
+                t->add( "read_block", new_function( &lcall_i2c_read_block ) );
+                t->add( "write_block", new_function( &lcall_i2c_write_block ) );
 
                 return t;
             }
