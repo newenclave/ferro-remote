@@ -9,6 +9,9 @@
 
 #include "boost/program_options.hpp"
 
+#include "general-info.h"
+#include "modules/mlist.hpp"
+
 namespace vcomm     = vtrc::common;
 namespace vclient   = vtrc::client;
 
@@ -44,12 +47,12 @@ namespace {
 }
 
 int main( int argc, const char *argv[] )
-{
+{ try {
     po::options_description description("Allowed common options");
 
     fill_common_options( description );
 
-    vcomm::pool_pair pp( 1, 1 );
+    vcomm::pool_pair    pp( 1, 1 );
 
     po::variables_map vm;
 
@@ -70,5 +73,26 @@ int main( int argc, const char *argv[] )
 
     lua::state general_state;
 
+    do {
+        vcomm::thread_pool et( 0 );
+        lua::client::general_info ci;
+
+        ci.main_ = general_state.get_state( );
+        ci.eventor_ = std::make_shared<lua::event_caller>(
+                                        ci.main_,
+                                        std::ref(et.get_io_service( ) ) );
+
+        ci.modules_ = lua::client::m::create_all( ci );
+        et.attach( );
+
+        return ci.exit_code_;
+
+    } while(0);
+
     return 0;
-}
+
+} catch( const std::exception &ex ) {
+    std::cerr << "General error: " << ex.what( ) << "\n";
+    return 3;
+}}
+
