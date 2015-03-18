@@ -6,12 +6,10 @@ struct lua_State;
 #include "event-caller.h"
 #include "modules/iface.h"
 
+#include "boost/program_options/variables_map.hpp"
+
 namespace vtrc { namespace client {
     class vtrc_client;
-}}
-
-namespace boost { namespace program_options {
-    class variables_map;
 }}
 
 namespace fr { namespace lua { namespace client {
