@@ -77,7 +77,7 @@ int main( int argc, const char *argv[] )
         vcomm::thread_pool et( 0 );
         lua::client::general_info ci;
 
-        ci.main_ = general_state.get_state( );
+        ci.main_    = general_state.get_state( );
         ci.eventor_ = std::make_shared<lua::event_caller>(
                                         ci.main_,
                                         std::ref(et.get_io_service( ) ) );
