@@ -61,7 +61,7 @@ int main( int argc, const char *argv[] )
         po::parsed_options parsed (
             po::command_line_parser( argc, argv )
                 .options(desc)
-                .allow_unregistered( )
+                //.allow_unregistered( )
                 .run( ));
         po::store(parsed, vm);
     } catch ( const std::exception &ex ) {
@@ -74,6 +74,7 @@ int main( int argc, const char *argv[] )
     lua::state general_state;
 
     do {
+
         vcomm::thread_pool et( 0 );
         lua::client::general_info ci;
 
@@ -82,7 +83,15 @@ int main( int argc, const char *argv[] )
                                         ci.main_,
                                         std::ref(et.get_io_service( ) ) );
 
+        ci.client_core_ = vclient::vtrc_client::create( pp );
+        ci.cmd_opts_.swap( vm );
+
         ci.modules_ = lua::client::m::create_all( ci );
+
+        for( auto &m: ci.modules_ ) {
+            m->init( );
+        }
+
         et.attach( );
 
         return ci.exit_code_;
