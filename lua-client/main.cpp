@@ -12,6 +12,9 @@
 #include "general-info.h"
 #include "modules/mlist.hpp"
 
+#include "utils.h"
+#include "lua-names.h"
+
 namespace vcomm     = vtrc::common;
 namespace vclient   = vtrc::client;
 
@@ -61,7 +64,6 @@ int main( int argc, const char *argv[] )
         po::parsed_options parsed (
             po::command_line_parser( argc, argv )
                 .options(desc)
-                //.allow_unregistered( )
                 .run( ));
         po::store(parsed, vm);
     } catch ( const std::exception &ex ) {
@@ -88,9 +90,11 @@ int main( int argc, const char *argv[] )
 
         ci.modules_ = lua::client::m::create_all( ci );
 
-        for( auto &m: ci.modules_ ) {
-            m->init( );
-        }
+        general_state.set( FR_CLIENT_GEN_INFO_PATH, &ci );
+
+//        for( auto &m: ci.modules_ ) {
+//            m->init( );
+//        }
 
         et.attach( );
 

@@ -17,12 +17,6 @@ namespace fr { namespace lua {
 
     public:
 
-        enum call_type {
-             CALL_DEFAULT       = 0x0
-            ,CALL_LAST_RESULT   = 0x1
-            ,CALL_WAIT_RESULTS  = CALL_LAST_RESULT << 1
-        };
-
         event_caller( lua_State *L, boost::asio::io_service &ios );
         ~event_caller( );
 
@@ -51,7 +45,7 @@ namespace fr { namespace lua {
     };
 
     typedef std::shared_ptr<event_caller> event_caller_sptr;
-    typedef std::weak_ptr<event_caller>   event_caller_wptr;
+    typedef   std::weak_ptr<event_caller> event_caller_wptr;
 
 }}
 
