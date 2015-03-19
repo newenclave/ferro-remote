@@ -33,6 +33,16 @@ namespace fr { namespace lua {
                           lua::objects::base_sptr fst_param,
                           const std::vector<lua::objects::base_sptr> &params );
 
+        std::weak_ptr<event_caller> weak_from_this( )
+        {
+            return std::weak_ptr<event_caller>(shared_from_this( ));
+        }
+
+        std::weak_ptr<event_caller const> weak_from_this( ) const
+        {
+            return std::weak_ptr<event_caller const>(shared_from_this( ));
+        }
+
         size_t next_index( );
 
         lua_State *state( );
@@ -41,6 +51,8 @@ namespace fr { namespace lua {
     };
 
     typedef std::shared_ptr<event_caller> event_caller_sptr;
+    typedef std::weak_ptr<event_caller>   event_caller_wptr;
+
 }}
 
 #endif // EVENTCALLER_H

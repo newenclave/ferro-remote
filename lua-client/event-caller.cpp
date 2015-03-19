@@ -25,7 +25,7 @@ namespace fr { namespace lua {
     { }
 
     event_caller::~event_caller( )
-    {  }
+    { }
 
     lua_State * event_caller::state( )
     {
@@ -83,8 +83,7 @@ namespace fr { namespace lua {
         allp->push_back( fst_param );
         allp->insert( allp->end( ), params.begin( ), params.end( ));
         impl_->dispatcher_.post( std::bind( push_call_impl,
-                            std::weak_ptr<event_caller>(shared_from_this( )),
-                            call, allp ) );
+                                 weak_from_this( ), call, allp ) );
         return 0;
     }
 
@@ -92,9 +91,8 @@ namespace fr { namespace lua {
                                     const param_vector &params )
     {
         impl_->dispatcher_.post( std::bind( push_call_impl,
-                            std::weak_ptr<event_caller>(shared_from_this( )),
-                            call,
-                            std::make_shared<param_vector>(params) ) );
+                                 weak_from_this( ), call,
+                                 std::make_shared<param_vector>(params) ) );
         return 0;
     }
 
