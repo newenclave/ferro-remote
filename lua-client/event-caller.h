@@ -38,9 +38,9 @@ namespace fr { namespace lua {
             return std::weak_ptr<event_caller>(shared_from_this( ));
         }
 
-        std::weak_ptr<event_caller const> weak_from_this( ) const
+        std::weak_ptr<const event_caller> weak_from_this( ) const
         {
-            return std::weak_ptr<event_caller const>(shared_from_this( ));
+            return std::weak_ptr<const event_caller>(shared_from_this( ));
         }
 
         size_t next_index( );
