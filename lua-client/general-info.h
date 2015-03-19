@@ -12,18 +12,23 @@ namespace vtrc { namespace client {
     class vtrc_client;
 }}
 
+namespace fr { namespace lua {
+    class event_container;
+}}
+
 namespace fr { namespace lua { namespace client {
 
     struct general_info {
 
-        lua_State                   *main_;
+        lua_State                                  *main_;
 
-        fr::lua::event_caller_sptr   eventor_;
-        int                          exit_code_;
-        m::modules_list              modules_;
+        fr::lua::event_caller_sptr                  eventor_;
+        std::shared_ptr<lua::event_container>       general_events_;
+        int                                         exit_code_;
+        m::modules_list                             modules_;
 
-        std::shared_ptr<vtrc::client::vtrc_client> client_core_;
-        boost::program_options::variables_map      cmd_opts_;
+        std::shared_ptr<vtrc::client::vtrc_client>  client_core_;
+        boost::program_options::variables_map       cmd_opts_;
 
         general_info( )
             :exit_code_(0)

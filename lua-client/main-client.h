@@ -1,9 +1,16 @@
 #ifndef FR_LUA_MAINCLIENT_H
 #define FR_LUA_MAINCLIENT_H
 
+struct lua_State;
+
 namespace fr { namespace lua { namespace client {
 
+    struct general_info;
 
+    general_info *get_gen_info( lua_State *L );
+
+    int lua_call_connect( lua_State *L );
+    int lua_call_disconnect( lua_State *L );
 
 }}}
 
