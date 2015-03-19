@@ -4,6 +4,7 @@
 #include "general-info.h"
 
 #include "fr-lua.h"
+#include "fr-client.h"
 
 namespace fr { namespace lua { namespace client {
 
@@ -27,6 +28,15 @@ namespace fr { namespace lua { namespace client {
         {
             // std::cout << "init error '" << message << "'\n";
         }
+
+    }
+
+    void make_connect( general_info *info,
+                       const std::string &server,
+                       const std::string &id,
+                       const std::string &key )
+    {
+        info->
     }
 
     general_info *get_gen_info( lua_State *L )

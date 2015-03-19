@@ -35,6 +35,8 @@ namespace {
             ("help,h",   "help message")
 
             ("script,e", po::value<std::string>( ), "path to script" )
+            ( "main,m",  po::value<std::string>( ),
+                         "main function; default = 'main'" )
 
             ("server,s", po::value<std::string>( ),
                     "endpoint name; <tcp address>:<port> or <file name>")
@@ -85,7 +87,7 @@ int main( int argc, const char *argv[] )
                                         ci.main_,
                                         std::ref(et.get_io_service( ) ) );
 
-        ci.client_core_ = vclient::vtrc_client::create( pp );
+        //ci.client_core_
         ci.cmd_opts_.swap( vm );
 
         ci.modules_ = lua::client::m::create_all( ci );
