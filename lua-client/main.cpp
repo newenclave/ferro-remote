@@ -154,7 +154,7 @@ int main( int argc, const char *argv[] )
         //ci.client_core_
         ci.cmd_opts_.swap( vm );
 
-        ci.modules_ = lua::client::m::create_all( ci );
+        ci.modules_ = lua::m::create_all( ci );
 
         ls.set( FR_CLIENT_GEN_INFO_PATH, &ci );
 

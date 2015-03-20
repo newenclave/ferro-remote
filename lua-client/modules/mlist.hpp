@@ -9,7 +9,7 @@ namespace fr { namespace lua { namespace client {
     struct general_info;
 }}}
 
-namespace fr { namespace lua { namespace client { namespace m {
+namespace fr { namespace lua { namespace m {
 
     static inline
     modules_list create_all( client::general_info &info )
@@ -19,6 +19,6 @@ namespace fr { namespace lua { namespace client { namespace m {
         return res;
     }
 
-}}}}
+}}}
 
 #endif // FR_CLIENT_MLIST_HPP

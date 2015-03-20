@@ -11,7 +11,11 @@ namespace fr { namespace lua { namespace objects {
     class   table;
 }}}
 
-namespace fr { namespace lua { namespace client { namespace m {
+namespace fr { namespace lua { namespace client {
+    struct general_info;
+}}}
+
+namespace fr { namespace lua { namespace m {
 
     struct iface {
 
@@ -22,12 +26,13 @@ namespace fr { namespace lua { namespace client { namespace m {
 
         virtual const std::string &name( ) const = 0;
         virtual std::shared_ptr<objects::table> table( ) const = 0;
+        virtual bool client_required( ) const { return true; }
     };
 
     typedef std::shared_ptr<iface> iface_sptr;
 
     typedef std::vector<iface_sptr> modules_list;
 
-}}}}
+}}}
 
 #endif // FR_LUA_MODULE_IFACE_H
