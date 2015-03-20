@@ -189,11 +189,12 @@ namespace fr { namespace lua { namespace client {
         objects::table_sptr fr_table(std::make_shared<objects::table>( ));
 
         fr_table->add( "exit", new_function( &lcall_exit ) );
+        objects::table_sptr ct(new_table( ));
 
         if( !connect ) {
-            objects::table_sptr ct(new_table( ));
+
             disconnect_table( info, *ct );
-            fr_table->add( "client", ct );
+
         } else {
             std::string server;
             std::string id;
@@ -209,13 +210,10 @@ namespace fr { namespace lua { namespace client {
                 key = info->cmd_opts_["key"].as<std::string>( );
             }
             make_connect( info, server, id, key, false );
-
-            fr_table->add( "client",     new_table( )
-                    ->add( "disconnect", new_function( &lua_call_disconnect ) )
-                    ->add( "events",     new_function( &lcall_events ))
-                    ->add( "subscribe",  new_function( &lcall_subscribe ) )
-                    );
+            disconnect_table( info, *ct );
         }
+
+        fr_table->add( "client", ct );
 
         ls.set_object( FR_CLIENT_LUA_MAIN_TABLE, fr_table.get( ) );
 
