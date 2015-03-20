@@ -91,6 +91,15 @@ namespace fr { namespace lua { namespace client {
         return 0;
     }
 
+    int lua_call_init( lua_State *L )
+    {
+        lua::state ls(L);
+        objects::table client_table;
+
+        //ls.set_object( FR_LUA_ );
+        return 0;
+    }
+
     struct main_client::impl {
         general_info &info_;
         impl( general_info &info )

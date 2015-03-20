@@ -14,12 +14,14 @@ namespace fr { namespace lua { namespace objects {
 namespace fr { namespace lua { namespace client { namespace m {
 
     struct iface {
+
         virtual ~iface( ) { }
 
         virtual void init( )    = 0;
         virtual void deinit( )  = 0;
 
         virtual const std::string &name( ) const = 0;
+        virtual std::shared_ptr<objects::table> table( ) const = 0;
     };
 
     typedef std::shared_ptr<iface> iface_sptr;
