@@ -24,23 +24,29 @@ namespace fr { namespace lua { namespace client {
 
         void on_disconnect( general_info *info )
         {
+            FR_LUA_EVENT_PROLOGUE( "on_disconnect", *info->general_events_ );
+            FR_LUA_EVENT_EPILOGUE;
             // std::cout << "disconnect...\n";
         }
 
         void on_ready( general_info *info )
         {
-            // std::cout << "ready...\n";
+            std::cout << "ready...\n";
         }
 
         void on_init_error( const char *message, general_info *info )
         {
+            FR_LUA_EVENT_PROLOGUE( "on_init_error", *info->general_events_ );
+
+            result->add( "message", new_string( message ) );
+
+            FR_LUA_EVENT_EPILOGUE;
             // std::cout << "init error '" << message << "'\n";
         }
 
         std::vector<std::string> events_async( )
         {
             std::vector<std::string> res;
-
             res.push_back( "on_connect" );
             res.push_back( "on_disconnect" );
             res.push_back( "on_init_error" );
@@ -51,6 +57,7 @@ namespace fr { namespace lua { namespace client {
         std::vector<std::string> events( )
         {
             std::vector<std::string> res;
+            res.push_back( "on_connect" );
             res.push_back( "on_disconnect" );
             res.push_back( "on_init_error" );
             res.push_back( "on_ready" );
@@ -63,8 +70,17 @@ namespace fr { namespace lua { namespace client {
             return g->general_events_->push_state( L );
         }
 
+        int lcall_exit( lua_State *L )
+        {
+            general_info *g = get_gen_info( L );
+            g->tp_->stop( );
+            return 0;
+        }
+
         int lcall_subscribe( lua_State *L )
         {
+            general_info *g = get_gen_info( L );
+            g->general_events_->subscribe( L );
             return 0;
         }
 
@@ -80,23 +96,28 @@ namespace fr { namespace lua { namespace client {
             return 0;
         }
 
+        objects::table_sptr common_table( general_info   *info,
+                                          objects::table &main )
+        {
+            objects::table_sptr res(std::make_shared<objects::table>( ));
+            main.add( "events",  new_function( &lcall_events ))
+               ->add( "subscribe", new_function( &lcall_subscribe ) );
+            return res;
+        }
+
         objects::table_sptr connect_table( general_info   *info,
                                            objects::table &main )
         {
-            objects::table_sptr res(std::make_shared<objects::table>( ));
-
+            objects::table_sptr res(common_table(info, main));
+            main.add( "disconnect", new_function( &lua_call_disconnect ) );
             return res;
         }
 
         objects::table_sptr disconnect_table( general_info   *info,
                                               objects::table &main )
         {
-            objects::table_sptr res(std::make_shared<objects::table>( ));
-
-            main.add( "connect", new_function( &lua_call_connect ) )
-               ->add( "events",  new_function( &lcall_events ))
-               ->add( "subscribe", new_function( &lcall_subscribe ) );
-
+            objects::table_sptr res(common_table(info, main));
+            main.add( "connect", new_function( &lua_call_connect ) );
             return res;
         }
 
@@ -166,6 +187,8 @@ namespace fr { namespace lua { namespace client {
     {
         lua::state ls(info->main_);
         objects::table_sptr fr_table(std::make_shared<objects::table>( ));
+
+        fr_table->add( "exit", new_function( &lcall_exit ) );
 
         if( !connect ) {
             objects::table_sptr ct(new_table( ));

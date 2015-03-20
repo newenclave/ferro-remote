@@ -6,6 +6,16 @@
 
 #include "fr-lua.h"
 
+#define FR_LUA_EVENT_PROLOGUE( name, container )                        \
+            static const std::string event_name( name );                \
+            lua::event_container &event_container(container);           \
+            if( event_container.exists_and_set( event_name ) ) {        \
+                objects::table_sptr result(objects::new_table( ))
+
+#define FR_LUA_EVENT_EPILOGUE                                           \
+                event_container.call( event_name, result );             \
+            }
+
 namespace fr { namespace lua {
 
     namespace client {

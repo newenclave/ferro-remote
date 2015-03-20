@@ -146,6 +146,7 @@ int main( int argc, const char *argv[] )
 
         ci.main_    = ls.get_state( );
         ci.pp_      = &pp;
+        ci.tp_      = &et;
         ci.eventor_ = std::make_shared<lua::event_caller>(
                                         ci.main_,
                                         std::ref(et.get_io_service( ) ) );
