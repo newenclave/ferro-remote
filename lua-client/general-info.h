@@ -8,16 +8,10 @@ struct lua_State;
 
 #include "boost/program_options/variables_map.hpp"
 
-namespace vtrc { namespace client {
-    class vtrc_client;
-}}
-
 namespace vtrc { namespace common {
     class pool_pair;
     class thread_pool;
 }}
-
-
 
 namespace fr { namespace lua {
     class event_container;
@@ -40,10 +34,12 @@ namespace fr { namespace lua { namespace client {
         m::modules_list                                 modules_;
 
         std::shared_ptr<fr::client::core::client_core>  client_core_;
+        bool                                            connected_;
         boost::program_options::variables_map           cmd_opts_;
 
         general_info( )
             :exit_code_(0)
+            ,connected_(false)
         { }
     };
 

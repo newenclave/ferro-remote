@@ -19,6 +19,8 @@ namespace fr { namespace lua { namespace client {
 
         void on_connect( general_info *info )
         {
+            FR_LUA_EVENT_PROLOGUE( "on_connect", *info->general_events_ );
+            FR_LUA_EVENT_EPILOGUE;
             // std::cout << "connect...";
         }
 
@@ -31,15 +33,16 @@ namespace fr { namespace lua { namespace client {
 
         void on_ready( general_info *info )
         {
-            std::cout << "ready...\n";
+            info->connected_ = true;
+            FR_LUA_EVENT_PROLOGUE( "on_ready", *info->general_events_ );
+            FR_LUA_EVENT_EPILOGUE;
+            //std::cout << "ready...\n";
         }
 
         void on_init_error( const char *message, general_info *info )
         {
             FR_LUA_EVENT_PROLOGUE( "on_init_error", *info->general_events_ );
-
             result->add( "message", new_string( message ) );
-
             FR_LUA_EVENT_EPILOGUE;
             // std::cout << "init error '" << message << "'\n";
         }
@@ -210,7 +213,8 @@ namespace fr { namespace lua { namespace client {
                 key = info->cmd_opts_["key"].as<std::string>( );
             }
             make_connect( info, server, id, key, false );
-            disconnect_table( info, *ct );
+            info->connected_ = true;
+            connect_table( info, *ct );
         }
 
         fr_table->add( "client", ct );
