@@ -14,9 +14,13 @@
 
 #include "utils.h"
 #include "lua-names.h"
+#include "main-client.h"
+
+#include "boost/filesystem.hpp"
 
 namespace vcomm     = vtrc::common;
 namespace vclient   = vtrc::client;
+namespace fs        = boost::filesystem;
 
 namespace po = boost::program_options;
 using namespace fr;
@@ -27,6 +31,8 @@ namespace {
     {
         std::cout << description << "\n";
     }
+
+    typedef std::vector<std::string> string_list;
 
     void fill_common_options( po::options_description &desc )
     {
@@ -46,8 +52,45 @@ namespace {
 
             ("key", po::value<std::string>( ),
                     "set client KEY for the remote agent")
+
+            ("param,p",  po::value<string_list>( ),
+                    "parameters for script; -p\"name=value\"")
             ;
     }
+
+    typedef std::pair<std::string, std::string> string_pair;
+
+    string_pair split_string( std::string const &str, char delim = '=' )
+    {
+        size_t pos = str.find( delim );
+        if( pos == std::string::npos ) {
+            return std::make_pair( str, std::string( ) );
+        } else {
+            return std::make_pair(
+                        std::string( str.begin( ), str.begin( ) + pos ),
+                        std::string( str.begin( ) + pos + 1, str.end( ) ) );
+        }
+    }
+
+    lua::objects::table_sptr create_params( po::variables_map const &vm )
+    {
+        lua::objects::table_sptr t(lua::objects::new_table( ));
+        if( vm.count( "param" ) ) {
+            string_list par = vm["param"].as<string_list>( );
+            for( auto &p: par ) {
+                string_pair sp = split_string( p );
+                if( sp.second.empty( ) ) {
+                    t->add( lua::objects::new_string( sp.first ) );
+                } else {
+                    t->add( lua::objects::new_string( sp.first ),
+                            lua::objects::new_string( sp.second ) );
+                }
+            }
+        }
+
+        return t;
+    }
+
 
 }
 
@@ -60,6 +103,7 @@ int main( int argc, const char *argv[] )
     vcomm::pool_pair pp( 1, 1 );
 
     po::variables_map vm;
+    int res = 0;
 
     try {
         po::options_description desc = description;
@@ -75,14 +119,32 @@ int main( int argc, const char *argv[] )
         return 1;
     }
 
-    lua::state general_state;
+    if( !vm.count( "script" ) ) {
+        std::cerr << "script name isn't' specified.\n";
+        show_help( description );
+        return 2;
+    }
+
+    lua::state ls;
+
+    std::string script_path( vm["script"].as<std::string>( ) );
+
+    fs::path sp( script_path );
+    ls.set( FR_CLIENT_WD_PATH, sp.parent_path( ).string( ));
+
+    bool custom_main = !!vm.count( "main" );
+    std::string main_name( custom_main
+                        ?  vm["main"].as<std::string>( )
+                        :  std::string( "main" ) );
+
+    lua::objects::base_sptr par = create_params( vm );
 
     do {
 
         vcomm::thread_pool et( 0 );
         lua::client::general_info ci;
 
-        ci.main_    = general_state.get_state( );
+        ci.main_    = ls.get_state( );
         ci.pp_      = &pp;
         ci.eventor_ = std::make_shared<lua::event_caller>(
                                         ci.main_,
@@ -93,7 +155,20 @@ int main( int argc, const char *argv[] )
 
         ci.modules_ = lua::client::m::create_all( ci );
 
-        general_state.set( FR_CLIENT_GEN_INFO_PATH, &ci );
+        ls.set( FR_CLIENT_GEN_INFO_PATH, &ci );
+
+        lua::client::global_init( &ci, ci.cmd_opts_.count( "server" ) > 0 );
+
+        ls.check_call_error( ls.load_file( script_path.c_str( ) ) );
+
+        if( ls.exists( main_name.c_str( ) ) ) {
+            int res = ls.exec_function( main_name.c_str( ), *par );
+            ls.check_call_error( res );
+        } else if( custom_main ) {
+            std::cout << "Function '" << main_name << "'"
+                      << " was not found in the script.\n";
+            res = 4;
+        }
 
 //        for( auto &m: ci.modules_ ) {
 //            m->init( );
@@ -105,7 +180,7 @@ int main( int argc, const char *argv[] )
 
     } while(0);
 
-    return 0;
+    return res;
 
 } catch( const std::exception &ex ) {
     std::cerr << "General error: " << ex.what( ) << "\n";
