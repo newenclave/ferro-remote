@@ -16,14 +16,14 @@ namespace fr { namespace lua { namespace client {
 
     int global_init(general_info *info, bool connect);
 
-    class main_client {
+//    class main_client {
 
-        struct impl;
-        std::unique_ptr<impl> impl_;
+//        struct impl;
+//        std::unique_ptr<impl> impl_;
 
-    public:
-        main_client( general_info &info );
-    };
+//    public:
+//        main_client( general_info &info );
+//    };
 
 }}}
 

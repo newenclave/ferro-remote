@@ -225,15 +225,15 @@ namespace fr { namespace lua { namespace client {
         return 0;
     }
 
-    struct main_client::impl {
-        general_info &info_;
-        impl( general_info &info )
-            :info_(info)
-        { }
-    };
+//    struct main_client::impl {
+//        general_info &info_;
+//        impl( general_info &info )
+//            :info_(info)
+//        { }
+//    };
 
-    main_client::main_client( general_info &info )
-        :impl_(new impl(info))
-    { }
+//    main_client::main_client( general_info &info )
+//        :impl_(new impl(info))
+//    { }
 
 }}}
