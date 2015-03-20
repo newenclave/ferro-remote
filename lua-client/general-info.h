@@ -12,6 +12,12 @@ namespace vtrc { namespace client {
     class vtrc_client;
 }}
 
+namespace vtrc { namespace common {
+    class pool_pair;
+}}
+
+
+
 namespace fr { namespace lua {
     class event_container;
 }}
@@ -25,7 +31,7 @@ namespace fr { namespace lua { namespace client {
     struct general_info {
 
         lua_State                                      *main_;
-
+        vtrc::common::pool_pair                        *pp_;
         fr::lua::event_caller_sptr                      eventor_;
         std::shared_ptr<lua::event_container>           general_events_;
         int                                             exit_code_;

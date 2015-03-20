@@ -57,7 +57,7 @@ int main( int argc, const char *argv[] )
 
     fill_common_options( description );
 
-    vcomm::pool_pair    pp( 1, 1 );
+    vcomm::pool_pair pp( 1, 1 );
 
     po::variables_map vm;
 
@@ -83,6 +83,7 @@ int main( int argc, const char *argv[] )
         lua::client::general_info ci;
 
         ci.main_    = general_state.get_state( );
+        ci.pp_      = &pp;
         ci.eventor_ = std::make_shared<lua::event_caller>(
                                         ci.main_,
                                         std::ref(et.get_io_service( ) ) );
