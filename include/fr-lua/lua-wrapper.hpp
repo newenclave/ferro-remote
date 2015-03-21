@@ -89,7 +89,6 @@ namespace lua {
         void openlibs( )
         {
             luaL_openlibs( vm_ );
-            //openlib( LUA_BITLIBNAME );
         }
 
         int openlib( const char *libname )
@@ -107,7 +106,6 @@ namespace lua {
                 ,{ LUA_DBLIBNAME,   &luaopen_debug,   1 }
                 ,{ LUA_LOADLIBNAME, &luaopen_package, 1 }
                 ,{ LUA_UTF8LIBNAME, &luaopen_utf8,    1 }
-                //,{ LUA_BITLIBNAME,  &luaopen_bit32,   1 }
                 ,{ "base",          &luaopen_base,    0 }
             };
 
