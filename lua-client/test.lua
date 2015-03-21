@@ -1,5 +1,6 @@
 ---
 
+
 events = fr.client.event_queue
 
 function test( param )

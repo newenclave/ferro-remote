@@ -154,6 +154,7 @@ int main( int argc, const char *argv[] )
 
         ci.modules_ = lua::m::create_all( ci );
 
+        ls.openlibs( );
         ls.set( FR_CLIENT_GEN_INFO_PATH, &ci );
 
         lua::client::events_init( &ci );
