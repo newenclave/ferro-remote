@@ -27,23 +27,20 @@ namespace fr { namespace lua { namespace client {
 
         void on_connect( general_info *info )
         {
-            std::cout << "connect...";
             FR_LUA_EVENT_PROLOGUE( "on_connect", *info->general_events_ );
             FR_LUA_EVENT_EPILOGUE;
         }
 
         void on_disconnect( general_info *info )
         {
+            info->connected_ = false;
+            global_init( info, false );
             FR_LUA_EVENT_PROLOGUE( "on_disconnect", *info->general_events_ );
             FR_LUA_EVENT_EPILOGUE;
-            std::cout << "disconnect...\n";
-            global_init( info, false );
         }
 
         void on_ready( general_info *info )
         {
-            std::cout << "ready...\n";
-
             info->connected_ = true;
             global_init( info, false );
 
@@ -56,18 +53,7 @@ namespace fr { namespace lua { namespace client {
             FR_LUA_EVENT_PROLOGUE( "on_init_error", *info->general_events_ );
             result->add( "message", new_string( message ) );
             FR_LUA_EVENT_EPILOGUE;
-            // std::cout << "init error '" << message << "'\n";
         }
-
-//        std::vector<std::string> events_async( )
-//        {
-//            std::vector<std::string> res;
-//            res.push_back( "on_connect" );
-//            res.push_back( "on_disconnect" );
-//            res.push_back( "on_init_error" );
-//            res.push_back( "on_ready" );
-//            return res;
-//        }
 
         std::vector<std::string> events( )
         {
