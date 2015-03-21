@@ -1,10 +1,10 @@
 ---
 
-fr.print( frhide )
+events = fr.client.event_queue
 
 function test( param )
 		fr.print( param )
-		fr.client.disconnect( ) 
+		events.timer.post( fr.client.disconnect, 5000 )
 end
 
 function main( argv )
