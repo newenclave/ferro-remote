@@ -1,5 +1,6 @@
 #include "iface.h"
 #include "../fr-lua.h"
+#include "../lua-names.h"
 
 #include "../general-info.h"
 
@@ -9,7 +10,17 @@ namespace {
 
     using namespace objects;
 
-    const std::string module_name("event_queue");
+    const std::string     module_name("event_queue");
+    const char *id_path = FR_CLIENT_LUA_HIDE_TABLE ".event_queue.__i";
+
+    struct module;
+
+    module *get_module( lua_State *L )
+    {
+        lua::state ls(L);
+        void *ptr = ls.get<void *>( id_path );
+        return static_cast<module *>(ptr);
+    }
 
     struct module: public iface {
 
@@ -21,7 +32,8 @@ namespace {
 
         void init( )
         {
-
+            lua::state ls( info_.main_ );
+            ls.set( id_path, this );
         }
 
         void deinit( )
@@ -45,7 +57,6 @@ namespace {
         {
             return false;
         }
-
     };
 
 }
