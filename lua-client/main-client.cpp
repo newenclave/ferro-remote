@@ -74,7 +74,12 @@ namespace fr { namespace lua { namespace client {
         int lcall_exit( lua_State *L )
         {
             general_info *g = get_gen_info( L );
-            g->tp_->stop( );
+            if( g->eventor_->get_enable( ) ) {
+                lua::state ls(L);
+                g->exit_code_ = ls.get_opt<int>( 1 );
+                g->tp_->stop( );
+                g->eventor_->set_enable( false );
+            }
             return 0;
         }
 

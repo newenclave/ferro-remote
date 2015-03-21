@@ -11,11 +11,13 @@ namespace fr { namespace lua {
         lua_State                       *state_;
         boost::asio::io_service::strand  dispatcher_;
         std::atomic<size_t>              index_;
+        bool                             enabled_;
 
         impl(lua_State *L, boost::asio::io_service &ios)
             :state_(L)
             ,dispatcher_(ios)
             ,index_(100)
+            ,enabled_(true)
         { }
 
     };
@@ -74,10 +76,23 @@ namespace fr { namespace lua {
         return impl_->index_++;
     }
 
+    void event_caller::set_enable( bool value )
+    {
+        impl_->enabled_ = value;
+    }
+
+    bool event_caller::get_enable( ) const
+    {
+        return impl_->enabled_;
+    }
+
     size_t event_caller::push_call( lua::objects::base_sptr call,
                                     lua::objects::base_sptr fst_param,
                                     const param_vector &params )
     {
+        if( !impl_->enabled_ ) {
+            return 0;
+        }
         std::shared_ptr<param_vector> allp(std::make_shared<param_vector>( ));
 
         allp->push_back( fst_param );
@@ -90,6 +105,9 @@ namespace fr { namespace lua {
     size_t event_caller::push_call( lua::objects::base_sptr call,
                                     const param_vector &params )
     {
+        if( !impl_->enabled_ ) {
+            return 0;
+        }
         impl_->dispatcher_.post( std::bind( push_call_impl,
                                  weak_from_this( ), call,
                                  std::make_shared<param_vector>(params) ) );

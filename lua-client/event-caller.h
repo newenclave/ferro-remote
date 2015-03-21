@@ -39,6 +39,9 @@ namespace fr { namespace lua {
 
         size_t next_index( );
 
+        void set_enable( bool value );
+        bool get_enable( ) const;
+
         lua_State *state( );
         const lua_State *state( ) const;
 
