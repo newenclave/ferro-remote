@@ -155,6 +155,7 @@ namespace {
 
         int n = ls.get_top( );
 
+        unsigned sec    = 0;
         unsigned milli  = 0;
         unsigned micro  = 0;
 
@@ -176,16 +177,19 @@ namespace {
                     if( is_number( f ) && is_number( s ) ) {
                         switch( static_cast<unsigned>(f->num( )) ) {
                         case 1:
-                            milli = static_cast<unsigned>(s->num( ));
+                            sec   = static_cast<unsigned>(s->num( ));
                             break;
                         case 2:
+                            milli = static_cast<unsigned>(s->num( ));
+                            break;
+                        case 3:
                             micro = static_cast<unsigned>(s->num( ));
                             break;
                         }
                     }
                 }
             } else if( is_number( tobj.get( ) ) ) {
-                milli = static_cast<unsigned>(tobj->num( ));
+                sec = static_cast<unsigned>(tobj->num( ));
             }
         }
 
@@ -197,6 +201,7 @@ namespace {
             }
         }
 
+        typedef vcomm::timer::seconds      seconds;
         typedef vcomm::timer::milliseconds millisec;
         typedef vcomm::timer::microseconds microsec;
 
@@ -208,7 +213,8 @@ namespace {
                                           id,
                                           call, params,
                                           m->info_.eventor_->weak_from_this( )),
-                                   millisec(milli) + microsec(micro));
+                              seconds(sec) + millisec(milli) + microsec(micro));
+
             ls.push( utils::to_handle(id) );
             return 1;
         }

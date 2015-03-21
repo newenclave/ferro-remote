@@ -4,7 +4,7 @@ events = fr.client.event_queue
 
 function test( param )
 		fr.print( param )
-		events.timer.post( fr.client.disconnect, 5000 )
+		events.timer.post( fr.client.disconnect, 3 )
 end
 
 function main( argv )
