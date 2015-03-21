@@ -17,6 +17,10 @@ namespace fr { namespace lua { namespace client {
 
         using namespace objects;
 
+
+        objects::table_sptr common_table( general_info   *info,
+                                          objects::table &main );
+
         void on_connect( general_info *info )
         {
             FR_LUA_EVENT_PROLOGUE( "on_connect", *info->general_events_ );
@@ -35,6 +39,9 @@ namespace fr { namespace lua { namespace client {
         {
             info->connected_ = true;
             FR_LUA_EVENT_PROLOGUE( "on_ready", *info->general_events_ );
+
+            //objects::table_sptr fr_table( new_table( ) );
+
             FR_LUA_EVENT_EPILOGUE;
             //std::cout << "ready...\n";
         }
