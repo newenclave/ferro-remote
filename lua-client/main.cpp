@@ -158,6 +158,7 @@ int main( int argc, const char *argv[] )
 
         ls.set( FR_CLIENT_GEN_INFO_PATH, &ci );
 
+        lua::client::events_init( &ci );
         lua::client::global_init( &ci, ci.cmd_opts_.count( "server" ) > 0 );
 
         ls.check_call_error( ls.load_file( script_path.c_str( ) ) );

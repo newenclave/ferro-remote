@@ -181,15 +181,15 @@ namespace fr { namespace lua { namespace client {
                                     on_init_error, _1, info ) );
 
         info->client_core_.swap( ccl );
-        if( async ) {
-            info->general_events_.reset(
-                           new lua::event_container( *info, events_async( ) ) );
-            info->client_core_->async_connect( server, [ ]( ... ){ } );
-        } else {
-            info->general_events_.reset(
-                           new lua::event_container( *info, events( ) ) );
-            info->client_core_->connect( server );
-        }
+//        if( async ) {
+//            info->general_events_.reset(
+//                           new lua::event_container( *info, events_async( ) ) );
+//            info->client_core_->async_connect( server, [ ]( ... ){ } );
+//        } else {
+//            info->general_events_.reset(
+//                           new lua::event_container( *info, events( ) ) );
+//            info->client_core_->connect( server );
+//        }
 
     }
 
@@ -251,6 +251,13 @@ namespace fr { namespace lua { namespace client {
                        new_function( &lcall_global_print ) );
 
         return 0;
+    }
+
+    int events_init( general_info *info )
+    {
+        info->general_events_.reset(
+                    new lua::event_container( *info, events( ) ) );
+        info->client_core_->connect( server );
     }
 
 //    struct main_client::impl {
