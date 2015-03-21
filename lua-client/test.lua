@@ -1,5 +1,6 @@
 ---
 
+fr.print( "Utf8 functions: ", bit32, "\n" )
 
 events = fr.client.event_queue
 
