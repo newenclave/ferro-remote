@@ -1,5 +1,11 @@
 ---
 
+fr.print( frhide )
+
+function test( param )
+		fr.print( param ) 
+end
+
 function main( argv )
 	fr.client.subscribe( "on_disconnect", 
 												function( data ) 
@@ -9,6 +15,7 @@ function main( argv )
   fr.client.subscribe( "on_ready", 
 												function( data ) 
 														fr.print ( "ready!\n" ) 
+														fr.client.event_queue.post( test, "Hello, world!\n" )
 												end )	
   fr.client.subscribe( "on_init_error", 
 												function( data ) 

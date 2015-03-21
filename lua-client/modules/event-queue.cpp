@@ -3,6 +3,7 @@
 #include "../lua-names.h"
 
 #include "../general-info.h"
+#include "../utils.h"
 
 namespace fr { namespace lua { namespace m { namespace event_queue {
 
@@ -21,6 +22,8 @@ namespace {
         void *ptr = ls.get<void *>( id_path );
         return static_cast<module *>(ptr);
     }
+
+    int lcall_post( lua_State *L );
 
     struct module: public iface {
 
@@ -49,7 +52,7 @@ namespace {
         std::shared_ptr<objects::table> table( ) const
         {
             objects::table_sptr res(std::make_shared<objects::table>( ));
-
+            res->add( "post", new_function( &lcall_post ) );
             return res;
         }
 
@@ -58,6 +61,27 @@ namespace {
             return false;
         }
     };
+
+    int lcall_post( lua_State *L )
+    {
+        module *m = get_module( L );
+        lua::state ls(L);
+
+        int n = ls.get_top( );
+
+        base_sptr call(new_reference( L, 1 ));
+
+        std::vector<objects::base_sptr> params;
+
+        if( n > 1 ) {
+            params.reserve( n - 1 );
+            for( int i=2; i<=n; ++i ) {
+                params.push_back( base_sptr( new_reference( L, i ) ) );
+            }
+        }
+        m->info_.eventor_->push_call( call, params );
+        return 0;
+    }
 
 }
 
