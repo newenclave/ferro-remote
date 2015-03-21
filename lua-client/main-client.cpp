@@ -140,7 +140,7 @@ namespace fr { namespace lua { namespace client {
             return res;
         }
 
-    }
+    } // namespace
 
     void make_connect( general_info *info,
                        const std::string &server,
