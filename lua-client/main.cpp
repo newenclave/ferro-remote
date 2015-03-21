@@ -87,11 +87,8 @@ namespace {
                 }
             }
         }
-
         return t;
     }
-
-
 }
 
 int main( int argc, const char *argv[] )
@@ -162,6 +159,10 @@ int main( int argc, const char *argv[] )
         lua::client::events_init( &ci );
         lua::client::global_init( &ci, ci.cmd_opts_.count( "server" ) > 0 );
 
+        for( auto &m: ci.modules_ ) {
+            m->init( );
+        }
+
         ls.check_call_error( ls.load_file( script_path.c_str( ) ) );
 
         if( ls.exists( main_name.c_str( ) ) ) {
@@ -173,11 +174,11 @@ int main( int argc, const char *argv[] )
             res = 4;
         }
 
-//        for( auto &m: ci.modules_ ) {
-//            m->init( );
-//        }
-
         et.attach( );
+
+        for( auto &m: ci.modules_ ) {
+            m->deinit( );
+        }
 
         res = ci.exit_code_;
 

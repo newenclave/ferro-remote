@@ -3,13 +3,15 @@
 fr.print( frhide )
 
 function test( param )
-		fr.print( param ) 
+		fr.print( param )
+		fr.client.disconnect( ) 
 end
 
 function main( argv )
 	fr.client.subscribe( "on_disconnect", 
 												function( data ) 
 														fr.print ( "disconnected\n" ) 
+														fr.print( "\n=============\n", fr, "\n===========\n" )
 														fr.exit( )
 												end )	
   fr.client.subscribe( "on_ready", 

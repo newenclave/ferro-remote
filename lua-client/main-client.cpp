@@ -120,9 +120,6 @@ namespace fr { namespace lua { namespace client {
 
             if( info->connected_ ) {
                 for( auto &m: info->modules_ ) {
-                    if( m->connection_required( ) ) {
-                        m->init( );
-                    }
                     main.add( m->name( ), m->table( ) );
                 }
             } else {
@@ -222,6 +219,8 @@ namespace fr { namespace lua { namespace client {
 
     int lua_call_disconnect( lua_State *L )
     {
+        general_info *info = get_gen_info( L );
+        info->client_core_->disconnect( );
         return 0;
     }
 
