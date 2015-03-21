@@ -7,6 +7,8 @@
 #include "fr-client.h"
 #include "event-container.h"
 
+#include "vtrc-common/vtrc-hash-iface.h"
+
 #include "boost/system/error_code.hpp"
 
 #include "modules/iface.h"
@@ -18,7 +20,7 @@ namespace fr { namespace lua { namespace client {
     namespace {
 
         using namespace objects;
-
+        namespace vcomm = vtrc::common;
 
         objects::table_sptr common_table( general_info   *info,
                                           objects::table &main );
@@ -32,10 +34,10 @@ namespace fr { namespace lua { namespace client {
 
         void on_disconnect( general_info *info )
         {
-            std::cout << "disconnect...\n";
-            global_init( info, false );
             FR_LUA_EVENT_PROLOGUE( "on_disconnect", *info->general_events_ );
             FR_LUA_EVENT_EPILOGUE;
+            std::cout << "disconnect...\n";
+            global_init( info, false );
         }
 
         void on_ready( general_info *info )
@@ -57,15 +59,15 @@ namespace fr { namespace lua { namespace client {
             // std::cout << "init error '" << message << "'\n";
         }
 
-        std::vector<std::string> events_async( )
-        {
-            std::vector<std::string> res;
-            res.push_back( "on_connect" );
-            res.push_back( "on_disconnect" );
-            res.push_back( "on_init_error" );
-            res.push_back( "on_ready" );
-            return res;
-        }
+//        std::vector<std::string> events_async( )
+//        {
+//            std::vector<std::string> res;
+//            res.push_back( "on_connect" );
+//            res.push_back( "on_disconnect" );
+//            res.push_back( "on_init_error" );
+//            res.push_back( "on_ready" );
+//            return res;
+//        }
 
         std::vector<std::string> events( )
         {
@@ -181,15 +183,11 @@ namespace fr { namespace lua { namespace client {
                                     on_init_error, _1, info ) );
 
         info->client_core_.swap( ccl );
-//        if( async ) {
-//            info->general_events_.reset(
-//                           new lua::event_container( *info, events_async( ) ) );
-//            info->client_core_->async_connect( server, [ ]( ... ){ } );
-//        } else {
-//            info->general_events_.reset(
-//                           new lua::event_container( *info, events( ) ) );
-//            info->client_core_->connect( server );
-//        }
+        if( async ) {
+            info->client_core_->async_connect( server, [ ]( ... ){ } );
+        } else {
+            info->client_core_->connect( server );
+        }
 
     }
 
@@ -202,7 +200,22 @@ namespace fr { namespace lua { namespace client {
 
     int lua_call_connect( lua_State *L )
     {
-        //general_info *g = get_gen_info( L );
+        general_info *info = get_gen_info( L );
+
+        lua::state ls(L);
+
+        std::string server( ls.get_opt<std::string>( 1 ) );
+        std::string id    ( ls.get_opt<std::string>( 2 ) );
+        std::string key   ( ls.get_opt<std::string>( 3 ) );
+
+        if( ls.get_top( ) > 2 && !key.empty( ) ) {
+            std::string key_info( id + key );
+            vcomm::hash_iface_uptr s(vcomm::hash::sha2::create256( ));
+            std::string hs(s->get_data_hash( &key_info[0], key_info.size( ) ));
+            key.assign( hs );
+        }
+
+        make_connect( info, server, id, key, true );
 
         return 0;
     }
@@ -246,9 +259,11 @@ namespace fr { namespace lua { namespace client {
         }
 
         fr_table->add( "client", ct );
+        fr_table->add( "print", new_function( &lcall_global_print ) );
+
+        std::string test(fr_table->str( ));
+
         ls.set_object( FR_CLIENT_LUA_MAIN_TABLE, fr_table.get( ) );
-        ls.set_object( FR_CLIENT_LUA_MAIN_TABLE ".print",
-                       new_function( &lcall_global_print ) );
 
         return 0;
     }
@@ -257,18 +272,7 @@ namespace fr { namespace lua { namespace client {
     {
         info->general_events_.reset(
                     new lua::event_container( *info, events( ) ) );
-        info->client_core_->connect( server );
+        return 0;
     }
-
-//    struct main_client::impl {
-//        general_info &info_;
-//        impl( general_info &info )
-//            :info_(info)
-//        { }
-//    };
-
-//    main_client::main_client( general_info &info )
-//        :impl_(new impl(info))
-//    { }
 
 }}}

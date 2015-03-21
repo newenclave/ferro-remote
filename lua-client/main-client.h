@@ -17,15 +17,6 @@ namespace fr { namespace lua { namespace client {
     int global_init( general_info *info, bool connect );
     int events_init( general_info *info );
 
-//    class main_client {
-
-//        struct impl;
-//        std::unique_ptr<impl> impl_;
-
-//    public:
-//        main_client( general_info &info );
-//    };
-
 }}}
 
 #endif // MAINCLIENT_H

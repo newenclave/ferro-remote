@@ -139,10 +139,11 @@ int main( int argc, const char *argv[] )
 
     lua::objects::base_sptr par = create_params( vm );
 
+    lua::client::general_info ci;
+
     do {
 
         vcomm::thread_pool et( 0 );
-        lua::client::general_info ci;
 
         ci.main_    = ls.get_state( );
         ci.pp_      = &pp;
@@ -178,9 +179,12 @@ int main( int argc, const char *argv[] )
 
         et.attach( );
 
-        return ci.exit_code_;
+        res = ci.exit_code_;
 
     } while(0);
+
+    pp.stop_all( );
+    pp.join_all( );
 
     return res;
 

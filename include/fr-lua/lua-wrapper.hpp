@@ -252,6 +252,16 @@ namespace lua {
         }
 
         template<typename T>
+        T get_opt( int id = -1, const T& def = T( ) )
+        {
+            typedef types::id_traits<T> traits;
+            if( id > get_top( ) || !traits::check( vm_, id ) ) {
+                return def;
+            }
+            return traits::get( vm_, id );
+        }
+
+        template<typename T>
         T get_field( const char *key, int id = -1 )
         {
             T p = T( );
