@@ -139,7 +139,6 @@ namespace {
         return 0;
     }
 
-
     inline bool is_number( const objects::base *o )
     {
         return o->type_id( ) == objects::base::TYPE_NUMBER
