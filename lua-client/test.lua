@@ -5,6 +5,11 @@ events = fr.client.event_queue
 function test( param )
 	fr.print( param )
 	events.timer.post( fr.client.disconnect, {[2] = 1000} )
+  call_os( )
+end
+
+function call_os(  )
+	fr.client.os.system( "gedit&" )
 end
 		
 function main( argv )
@@ -26,7 +31,7 @@ function main( argv )
 	                     		fr.exit( )
 	                     end )	
 
-	fr.print( fr, "\n" )	
+	fr.print( fr.client.os, "\n" )	
 	fr.print( fr.client.events( ), "\n" )	
 	fr.client.connect( "127.0.0.1:12345")	
 end

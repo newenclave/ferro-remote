@@ -11,6 +11,7 @@ namespace fr { namespace lua { namespace client {
 
 namespace fr { namespace lua { namespace m {
 
+    namespace os          { iface_sptr create( client::general_info &info ); }
     namespace event_queue { iface_sptr create( client::general_info &info ); }
 
     static inline
@@ -18,6 +19,7 @@ namespace fr { namespace lua { namespace m {
     {
         modules_list res;
 
+        res.push_back( os::create( info ) );
         res.push_back( event_queue::create( info ) );
 
         return res;

@@ -23,6 +23,7 @@ namespace fr { namespace lua { namespace m {
 
         virtual void init( )    = 0;
         virtual void deinit( )  = 0;
+        virtual void reinit( ) {   }
 
         virtual const std::string &name( ) const = 0;
         virtual std::shared_ptr<objects::table> table( ) const = 0;

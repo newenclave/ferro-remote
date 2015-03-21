@@ -159,7 +159,7 @@ namespace fr { namespace lua { namespace client {
         }
 
         ccl->on_connect_connect( client_core::on_connect_slot_type(
-                                    on_connect, info ) );
+                                 on_connect, info ) );
 
         ccl->on_disconnect_connect( client_core::on_disconnect_slot_type(
                                     on_disconnect, info ) );
@@ -252,9 +252,13 @@ namespace fr { namespace lua { namespace client {
         fr_table->add( "client", ct );
         fr_table->add( "print", new_function( &lcall_global_print ) );
 
-        std::string test(fr_table->str( ));
-
         ls.set_object( FR_CLIENT_LUA_MAIN_TABLE, fr_table.get( ) );
+
+        if( info->connected_ ) {
+            for( auto &m: info->modules_ ) {
+                m->reinit( );
+            }
+        }
 
         return 0;
     }
