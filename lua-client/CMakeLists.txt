@@ -1,5 +1,12 @@
 
-aux_source_directory(. src_dir)
+list( APPEND src_dirs
+        .
+        ./modules
+    )
+
+foreach( dir ${src_dirs} )
+    aux_source_directory( ${dir} src_dir )
+endforeach(dir)
 
 set( exe_name lua_client )
 

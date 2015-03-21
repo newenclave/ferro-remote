@@ -9,6 +9,8 @@
 
 #include "boost/system/error_code.hpp"
 
+#include "modules/iface.h"
+
 #include <functional>
 
 namespace fr { namespace lua { namespace client {
@@ -23,27 +25,28 @@ namespace fr { namespace lua { namespace client {
 
         void on_connect( general_info *info )
         {
+            std::cout << "connect...";
             FR_LUA_EVENT_PROLOGUE( "on_connect", *info->general_events_ );
             FR_LUA_EVENT_EPILOGUE;
-            // std::cout << "connect...";
         }
 
         void on_disconnect( general_info *info )
         {
+            std::cout << "disconnect...\n";
+            global_init( info, false );
             FR_LUA_EVENT_PROLOGUE( "on_disconnect", *info->general_events_ );
             FR_LUA_EVENT_EPILOGUE;
-            // std::cout << "disconnect...\n";
         }
 
         void on_ready( general_info *info )
         {
+            std::cout << "ready...\n";
+
             info->connected_ = true;
+            global_init( info, false );
+
             FR_LUA_EVENT_PROLOGUE( "on_ready", *info->general_events_ );
-
-            //objects::table_sptr fr_table( new_table( ) );
-
             FR_LUA_EVENT_EPILOGUE;
-            //std::cout << "ready...\n";
         }
 
         void on_init_error( const char *message, general_info *info )
@@ -112,6 +115,22 @@ namespace fr { namespace lua { namespace client {
             objects::table_sptr res(std::make_shared<objects::table>( ));
             main.add( "events",  new_function( &lcall_events ))
                ->add( "subscribe", new_function( &lcall_subscribe ) );
+
+            if( info->connected_ ) {
+                for( auto &m: info->modules_ ) {
+                    if( m->connection_required( ) ) {
+                        m->init( );
+                    }
+                    main.add( m->name( ), m->table( ) );
+                }
+            } else {
+                for( auto &m: info->modules_ ) {
+                    if( !m->connection_required( ) ) {
+                        main.add( m->name( ), m->table( ) );
+                    }
+                }
+            }
+
             return res;
         }
 
@@ -201,11 +220,8 @@ namespace fr { namespace lua { namespace client {
         fr_table->add( "exit", new_function( &lcall_exit ) );
         objects::table_sptr ct(new_table( ));
 
-        if( !connect ) {
+        if( connect ) {
 
-            disconnect_table( info, *ct );
-
-        } else {
             std::string server;
             std::string id;
             std::string key;
@@ -221,13 +237,16 @@ namespace fr { namespace lua { namespace client {
             }
             make_connect( info, server, id, key, false );
             info->connected_ = true;
+        }
+
+        if( !info->connected_ ) {
+            disconnect_table( info, *ct );
+        } else {
             connect_table( info, *ct );
         }
 
         fr_table->add( "client", ct );
-
         ls.set_object( FR_CLIENT_LUA_MAIN_TABLE, fr_table.get( ) );
-
         ls.set_object( FR_CLIENT_LUA_MAIN_TABLE ".print",
                        new_function( &lcall_global_print ) );
 

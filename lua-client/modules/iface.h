@@ -26,7 +26,7 @@ namespace fr { namespace lua { namespace m {
 
         virtual const std::string &name( ) const = 0;
         virtual std::shared_ptr<objects::table> table( ) const = 0;
-        virtual bool client_required( ) const { return true; }
+        virtual bool connection_required( ) const { return true; }
     };
 
     typedef std::shared_ptr<iface> iface_sptr;
