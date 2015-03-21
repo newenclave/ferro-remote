@@ -172,7 +172,8 @@ namespace fr { namespace lua { namespace client {
 
         info->client_core_.swap( ccl );
         if( async ) {
-            info->client_core_->async_connect( server, [ ]( ... ){ } );
+            const fr::client::core::client_core::async_closure_func async_cb;
+            info->client_core_->async_connect( server, async_cb );
         } else {
             info->client_core_->connect( server );
         }
