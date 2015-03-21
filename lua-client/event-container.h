@@ -52,7 +52,7 @@ namespace fr { namespace lua {
         bool exists( const std::string &name ) const;
         bool exists_and_set( const std::string &name ) const;
 
-        /// Subscribe to the events from dwservice
+        /// Subscribe to the events
         ///  lua stack must contain correct information for registration
         /// Here is:
         ///     1       = event name: string; from the scripts
