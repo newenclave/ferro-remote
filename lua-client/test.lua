@@ -33,7 +33,6 @@ function main( argv )
 	                     		fr.exit( )
 	                     end )	
 
-	fr.print( fr.client.os, "\n" )	
 	fr.print( fr.client.events( ), "\n" )	
 	fr.client.connect( "127.0.0.1:12345")	
 end
