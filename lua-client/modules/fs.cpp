@@ -26,6 +26,9 @@ namespace {
 
     int lcall_pwd( lua_State *L );
     int lcall_cd( lua_State *L );
+    int lcall_exists( lua_State *L );
+    int lcall_info( lua_State *L );
+    int lcall_stat( lua_State *L );
 
     struct module: public iface {
 
@@ -61,8 +64,11 @@ namespace {
         {
             objects::table_sptr res(std::make_shared<objects::table>( ));
 
-            res->add( "pwd", new_function( &lcall_pwd ) );
-            res->add( "cd",  new_function( &lcall_cd ) );
+            res->add( "pwd",        new_function( &lcall_pwd ) );
+            res->add( "cd",         new_function( &lcall_cd ) );
+            res->add( "exists",     new_function( &lcall_exists ) );
+            res->add( "info",       new_function( &lcall_info ) );
+            res->add( "stat",       new_function( &lcall_stat ) );
 
             return res;
         }
@@ -90,11 +96,93 @@ namespace {
         try {
             m->iface_->cd( path );
         } catch( const std::exception &ex ) {
-            ls.push( );
             ls.push( ex.what( ) );
+            return 1;
         }
         return 0;
     }
+
+    int lcall_exists( lua_State *L )
+    {
+        module *m = get_module( L );
+        lua::state ls(L);
+        std::string path( ls.get_opt<std::string>( 1 ) );
+        try {
+            ls.push( m->iface_->exists( path ) );
+        } catch( const std::exception &ex ) {
+            ls.push( );
+            ls.push( ex.what( ) );
+            return 2;
+        }
+        return 1;
+    }
+
+#define ADD_TABLE_STAT_FIELD( sd, name ) \
+    #name, objects::new_integer( sd.name )
+
+    int lcall_info( lua_State *L )
+    {
+        module *m = get_module( L );
+        lua::state ls(L);
+        std::string path( ls.get_opt<std::string>( 1 ) );
+        try {
+
+            fsiface::info_data sd;
+            m->iface_->info( path, sd );
+
+            table_sptr t(new_table( ));
+            t->add( ADD_TABLE_STAT_FIELD( sd, is_exist      ) );
+            t->add( ADD_TABLE_STAT_FIELD( sd, is_directory  ) );
+            t->add( ADD_TABLE_STAT_FIELD( sd, is_empty      ) );
+            t->add( ADD_TABLE_STAT_FIELD( sd, is_regular    ) );
+            t->add( ADD_TABLE_STAT_FIELD( sd, is_symlink    ) );
+
+            t->push( L );
+
+        } catch( const std::exception &ex ) {
+            ls.push( );
+            ls.push( ex.what( ) );
+            return 2;
+        }
+        return 1;
+
+    }
+
+    int lcall_stat( lua_State *L )
+    {
+        module *m = get_module( L );
+        lua::state ls(L);
+        std::string path( ls.get_opt<std::string>( 1 ) );
+        try {
+            fsiface::stat_data sd;
+            m->iface_->stat( path, sd );
+
+            table_sptr t(new_table( ));
+            t->add( ADD_TABLE_STAT_FIELD( sd, dev     ) );
+            t->add( ADD_TABLE_STAT_FIELD( sd, ino     ) );
+            t->add( ADD_TABLE_STAT_FIELD( sd, mode    ) );
+            t->add( ADD_TABLE_STAT_FIELD( sd, nlink   ) );
+            t->add( ADD_TABLE_STAT_FIELD( sd, uid     ) );
+            t->add( ADD_TABLE_STAT_FIELD( sd, gid     ) );
+            t->add( ADD_TABLE_STAT_FIELD( sd, rdev    ) );
+            t->add( ADD_TABLE_STAT_FIELD( sd, size    ) );
+            t->add( ADD_TABLE_STAT_FIELD( sd, blksize ) );
+            t->add( ADD_TABLE_STAT_FIELD( sd, blocks  ) );
+            t->add( ADD_TABLE_STAT_FIELD( sd, atime   ) );
+            t->add( ADD_TABLE_STAT_FIELD( sd, mtime   ) );
+            t->add( ADD_TABLE_STAT_FIELD( sd, ctime   ) );
+
+            t->push( L );
+
+        } catch( const std::exception &ex ) {
+            ls.push( );
+            ls.push( ex.what( ) );
+            return 2;
+        }
+        return 1;
+    }
+
+#undef ADD_TABLE_STAT_FIELD
 
 }
 

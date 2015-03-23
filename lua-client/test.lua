@@ -9,7 +9,6 @@ function test( param )
 end
 
 function call_os(  )
-	fr.client.os.system( "gedit&" )
 end
 		
 function main( argv )
@@ -25,7 +24,7 @@ function main( argv )
 	                     	  fr.print ( "ready!\n" ) 
 	                        fr.print( fr, "\n" )	
 	                        fr.client.fs.cd( "/home/data" )		
-	                        fr.print(fr.client.fs.pwd( ), "\n")	
+	                        fr.print(fr.client.fs.info( ), "\n")	
 	                     	  events.post( test, "Hello, world!\n" )
 	                     end )	
 	fr.client.subscribe( "on_init_error", 
