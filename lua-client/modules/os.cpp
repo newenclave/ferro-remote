@@ -74,8 +74,14 @@ namespace {
         module *m = get_module( L );
         std::string command( ls.get_opt<std::string>(1) );
         if( !command.empty( ) ) {
-            ls.push( m->iface_->execute( command ) );
-            return 1;
+            try {
+                ls.push( m->iface_->execute( command ) );
+                return 1;
+            } catch( const std::exception &ex ) {
+                ls.push( );
+                ls.push( ex.what( ) );
+                return 2;
+            }
         }
         return 0;
     }

@@ -14,6 +14,7 @@
 #include "modules/iface.h"
 
 #include <functional>
+#include "boost/asio.hpp"
 
 namespace fr { namespace lua { namespace client {
 
@@ -158,17 +159,23 @@ namespace fr { namespace lua { namespace client {
             ccl->set_key( key );
         }
 
-        ccl->on_connect_connect( client_core::on_connect_slot_type(
-                                 on_connect, info ) );
+        boost::asio::io_service &ios( info->tp_->get_io_service( ) );
 
-        ccl->on_disconnect_connect( client_core::on_disconnect_slot_type(
-                                    on_disconnect, info ) );
+        ccl->on_connect_connect( ios.wrap(
+                                        client_core::on_connect_slot_type(
+                                        on_connect, info ) ) );
 
-        ccl->on_ready_connect( client_core::on_ready_slot_type(
-                               on_ready, info ) );
+        ccl->on_disconnect_connect( ios.wrap(
+                                        client_core::on_disconnect_slot_type(
+                                        on_disconnect, info ) ) );
 
-        ccl->on_init_error_connect( client_core::on_init_error_slot_type(
-                                    on_init_error, _1, info ) );
+        ccl->on_ready_connect( ios.wrap(
+                                        client_core::on_ready_slot_type(
+                                        on_ready, info ) ) );
+
+        ccl->on_init_error_connect( ios.wrap(
+                                        client_core::on_init_error_slot_type(
+                                        on_init_error, _1, info ) ) );
 
         info->client_core_.swap( ccl );
         if( async ) {

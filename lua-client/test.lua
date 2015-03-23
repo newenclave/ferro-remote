@@ -1,7 +1,5 @@
 ---
 
-fr.print( "Utf8 functions: ", utf8, "\n" )
-
 events = fr.client.event_queue
 
 function test( param )
@@ -24,8 +22,11 @@ function main( argv )
 	                     end )	
 	fr.client.subscribe( "on_ready", 
 	                     function( data ) 
-	                     		fr.print ( "ready!\n" ) 
-	                     		events.post( test, "Hello, world!\n" )
+	                     	  fr.print ( "ready!\n" ) 
+	                        fr.print( fr, "\n" )	
+	                        fr.client.fs.cd( "/home/data" )		
+	                        fr.print(fr.client.fs.pwd( ), "\n")	
+	                     	  events.post( test, "Hello, world!\n" )
 	                     end )	
 	fr.client.subscribe( "on_init_error", 
 	                     function( data ) 

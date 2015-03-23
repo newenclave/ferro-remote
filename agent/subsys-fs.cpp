@@ -167,12 +167,10 @@ namespace fr { namespace agent { namespace subsys {
 
                 vtrc::uint32_t hdl;
                 bfs::path p(path_from_request( request, hdl ));
-
                 {
                     vtrc::unique_shared_lock l( path_lock_ );
                     path_.insert( std::make_pair( hdl, p ) );
                 }
-
                 response->mutable_hdl( )->set_value( hdl );
                 response->set_path( p.string( ) );
 

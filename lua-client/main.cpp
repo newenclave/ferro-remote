@@ -97,7 +97,7 @@ int main( int argc, const char *argv[] )
 
     fill_common_options( description );
 
-    vcomm::pool_pair pp( 1, 1 );
+    vcomm::pool_pair pp( 2, 2 );
 
     po::variables_map vm;
     int res = 0;
