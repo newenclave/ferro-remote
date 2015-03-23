@@ -15,9 +15,9 @@ namespace {
     using namespace objects;
     namespace vcomm = vtrc::common;
 
-    typedef vtrc::common::delayed_call              delayed_calls;
-    typedef std::shared_ptr<delayed_calls>          delayed_calls_sptr;
-    typedef std::map<size_t, delayed_calls_sptr>    timers_map;
+    typedef vtrc::common::delayed_call             delayed_call;
+    typedef std::shared_ptr<delayed_call>          delayed_call_sptr;
+    typedef std::map<size_t, delayed_call_sptr>    timers_map;
 
     const std::string     module_name("event_queue");
     const char *id_path = FR_CLIENT_LUA_HIDE_TABLE ".event_queue.__i";
@@ -78,10 +78,10 @@ namespace {
             return false;
         }
 
-        delayed_calls_sptr add_timer( size_t id )
+        delayed_call_sptr add_timer( size_t id )
         {
-            delayed_calls_sptr res(
-                std::make_shared<delayed_calls>(
+            delayed_call_sptr res(
+                std::make_shared<delayed_call>(
                         std::ref( info_.pp_->get_io_service( ) ) ) );
             timers_[id] = res;
             return res;
@@ -210,8 +210,7 @@ namespace {
             auto t    = m->add_timer( id );
             t->call_from_now( std::bind( &module::timer_handler, m,
                                           std::placeholders::_1,
-                                          id,
-                                          call, params,
+                                          id, call, params,
                                           m->info_.eventor_->weak_from_this( )),
                               seconds(sec) + millisec(milli) + microsec(micro));
 
