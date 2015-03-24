@@ -29,6 +29,7 @@ namespace {
     int lcall_exists( lua_State *L );
     int lcall_mkdir( lua_State *L );
     int lcall_del( lua_State *L );
+    int lcall_rename( lua_State *L );
 
     int lcall_info( lua_State *L );
     int lcall_stat( lua_State *L );
@@ -72,6 +73,7 @@ namespace {
             res->add( "exists",     new_function( &lcall_exists ) );
             res->add( "mkdir",      new_function( &lcall_mkdir ) );
             res->add( "del",        new_function( &lcall_del ) );
+            res->add( "rename",     new_function( &lcall_rename ) );
             res->add( "info",       new_function( &lcall_info ) );
             res->add( "stat",       new_function( &lcall_stat ) );
 
@@ -149,6 +151,22 @@ namespace {
         }
         return 0;
     }
+
+    int lcall_rename( lua_State *L )
+    {
+        module *m = get_module( L );
+        lua::state ls(L);
+        std::string from( ls.get_opt<std::string>( 1 ) );
+        std::string to( ls.get_opt<std::string>( 2 ) );
+        try {
+            m->iface_->rename( from, to );
+        } catch( const std::exception &ex ) {
+            ls.push( ex.what( ) );
+            return 1;
+        }
+        return 0;
+    }
+
 
 
 #define ADD_TABLE_STAT_FIELD( sd, name ) \
