@@ -88,11 +88,30 @@ namespace {
             return (f != iterators_.end( )) ? f->second : empty;
         }
 
+        utils::handle new_fs_iter( const std::string &path )
+        {
+            size_t nh = next_handle( );
+            iterator_sptr ni( iface_->begin_iterate( path ) );
+            iterators_[nh] = ni;
+            return utils::to_handle( nh );
+        }
+
         file_sptr get_file_iter( size_t id )
         {
             static const file_sptr empty;
             auto f(files_.find( id ));
             return (f != files_.end( )) ? f->second : empty;
+        }
+
+        utils::handle new_file_iter( const std::string &path,
+                                     const std::string &mode,
+                                     bool device = false )
+        {
+            size_t nh = next_handle( );
+            file_sptr nf(fiface::create( *info_.client_core_,
+                                         path, mode, device ) );
+            files_[nh] = nf;
+            return utils::to_handle( nh );
         }
 
         void reinit( )
@@ -145,20 +164,27 @@ namespace {
         return 1;
     }
 
+#define LUA_CALL_TRUE_FALSE_PROLOGUE        \
+    module *m = get_module( L );            \
+    lua::state ls(L);                       \
+    try {
+
+#define LUA_CALL_TRUE_FALSE_EPILOGUE        \
+        ls.push( true );                    \
+    } catch( const std::exception &ex ) {   \
+        ls.push( false );                   \
+        ls.push( ex.what( ) );              \
+        return 2;                           \
+    }                                       \
+    return 1
+
+
     int lcall_cd( lua_State *L )
     {
-        module *m = get_module( L );
-        lua::state ls(L);
-        std::string path( ls.get_opt<std::string>( 1 ) );
-        try {
+        LUA_CALL_TRUE_FALSE_PROLOGUE
+            std::string path( ls.get_opt<std::string>( 1 ) );
             m->iface_->cd( path );
-            ls.push( true );
-        } catch( const std::exception &ex ) {
-            ls.push( false );
-            ls.push( ex.what( ) );
-            return 2;
-        }
-        return 1;
+        LUA_CALL_TRUE_FALSE_EPILOGUE;
     }
 
     int lcall_exists( lua_State *L )
@@ -178,51 +204,27 @@ namespace {
 
     int lcall_mkdir( lua_State *L )
     {
-        module *m = get_module( L );
-        lua::state ls(L);
-        std::string path( ls.get_opt<std::string>( 1 ) );
-        try {
+        LUA_CALL_TRUE_FALSE_PROLOGUE
+            std::string path( ls.get_opt<std::string>( 1 ) );
             m->iface_->mkdir( path );
-            ls.push( true );
-        } catch( const std::exception &ex ) {
-            ls.push( false );
-            ls.push( ex.what( ) );
-            return 2;
-        }
-        return 1;
+        LUA_CALL_TRUE_FALSE_EPILOGUE;
     }
 
     int lcall_del( lua_State *L )
     {
-        module *m = get_module( L );
-        lua::state ls(L);
-        std::string path( ls.get_opt<std::string>( 1 ) );
-        try {
+        LUA_CALL_TRUE_FALSE_PROLOGUE
+            std::string path( ls.get_opt<std::string>( 1 ) );
             m->iface_->del( path );
-            ls.push( true );
-        } catch( const std::exception &ex ) {
-            ls.push( false );
-            ls.push( ex.what( ) );
-            return 2;
-        }
-        return 1;
+        LUA_CALL_TRUE_FALSE_EPILOGUE;
     }
 
     int lcall_rename( lua_State *L )
     {
-        module *m = get_module( L );
-        lua::state ls(L);
-        std::string from( ls.get_opt<std::string>( 1 ) );
-        std::string to( ls.get_opt<std::string>( 2 ) );
-        try {
+        LUA_CALL_TRUE_FALSE_PROLOGUE
+            std::string from( ls.get_opt<std::string>( 1 ) );
+            std::string to( ls.get_opt<std::string>( 2 ) );
             m->iface_->rename( from, to );
-            ls.push( true );
-        } catch( const std::exception &ex ) {
-            ls.push( false );
-            ls.push( ex.what( ) );
-            return 2;
-        }
-        return 1;
+        LUA_CALL_TRUE_FALSE_EPILOGUE;
     }
 
 
@@ -344,6 +346,11 @@ namespace {
         m->close( id );
         ls.push( true );
         return 1;
+    }
+
+    int lcall_fs_iter_begin ( lua_State *L )
+    {
+
     }
 
 }
