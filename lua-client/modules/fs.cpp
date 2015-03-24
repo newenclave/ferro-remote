@@ -159,9 +159,49 @@ namespace {
             return res;
         }
 
+
+
         objects::table_sptr file_table( ) const
         {
             objects::table_sptr res(std::make_shared<objects::table>( ));
+            objects::table_sptr f(std::make_shared<objects::table>( ));
+            objects::table_sptr m(std::make_shared<objects::table>( ));
+
+#define ADD_FILE_TABLE_FLAG( f ) \
+    objects::new_string( #f ), objects::new_integer( fiface::flags::f )
+
+#define ADD_FILE_TABLE_MODE( m ) \
+    objects::new_string( #m ), objects::new_integer( fiface::mode::m )
+
+                f->add( ADD_FILE_TABLE_FLAG( RDONLY ) );
+                f->add( ADD_FILE_TABLE_FLAG( WRONLY ) );
+                f->add( ADD_FILE_TABLE_FLAG( RDWR ) );
+                f->add( ADD_FILE_TABLE_FLAG( CREAT ) );
+                f->add( ADD_FILE_TABLE_FLAG( EXCL ) );
+                f->add( ADD_FILE_TABLE_FLAG( APPEND ) );
+                f->add( ADD_FILE_TABLE_FLAG( NONBLOCK ) );
+                f->add( ADD_FILE_TABLE_FLAG( ASYNC ) );
+                f->add( ADD_FILE_TABLE_FLAG( SYNC ) );
+                f->add( ADD_FILE_TABLE_FLAG( TRUNC ) );
+
+                m->add( ADD_FILE_TABLE_MODE( IRWXU ) );
+                m->add( ADD_FILE_TABLE_MODE( IRUSR ) );
+                m->add( ADD_FILE_TABLE_MODE( IWUSR ) );
+                m->add( ADD_FILE_TABLE_MODE( IXUSR ) );
+                m->add( ADD_FILE_TABLE_MODE( IRWXG ) );
+                m->add( ADD_FILE_TABLE_MODE( IRGRP ) );
+                m->add( ADD_FILE_TABLE_MODE( IWGRP ) );
+                m->add( ADD_FILE_TABLE_MODE( IXGRP ) );
+                m->add( ADD_FILE_TABLE_MODE( IRWXO ) );
+                m->add( ADD_FILE_TABLE_MODE( IROTH ) );
+                m->add( ADD_FILE_TABLE_MODE( IWOTH ) );
+                m->add( ADD_FILE_TABLE_MODE( IXOTH ) );
+
+#undef ADD_FILE_TABLE_MODE
+#undef ADD_FILE_TABLE_FLAG
+
+            res->add( "flag", f );
+            res->add( "mode", m );
 
             return res;
         }

@@ -9,6 +9,7 @@ function test( param )
 end
 
 function call_os(  )
+		fr.print("\n\nfile: ", fr.client.fs.file, "\n\n==========\n\n")
 end
 		
 function main( argv )
