@@ -27,6 +27,9 @@ namespace {
     int lcall_pwd( lua_State *L );
     int lcall_cd( lua_State *L );
     int lcall_exists( lua_State *L );
+    int lcall_mkdir( lua_State *L );
+    int lcall_del( lua_State *L );
+
     int lcall_info( lua_State *L );
     int lcall_stat( lua_State *L );
 
@@ -67,6 +70,8 @@ namespace {
             res->add( "pwd",        new_function( &lcall_pwd ) );
             res->add( "cd",         new_function( &lcall_cd ) );
             res->add( "exists",     new_function( &lcall_exists ) );
+            res->add( "mkdir",      new_function( &lcall_mkdir ) );
+            res->add( "del",        new_function( &lcall_del ) );
             res->add( "info",       new_function( &lcall_info ) );
             res->add( "stat",       new_function( &lcall_stat ) );
 
@@ -116,6 +121,35 @@ namespace {
         }
         return 1;
     }
+
+    int lcall_mkdir( lua_State *L )
+    {
+        module *m = get_module( L );
+        lua::state ls(L);
+        std::string path( ls.get_opt<std::string>( 1 ) );
+        try {
+            m->iface_->mkdir( path );
+        } catch( const std::exception &ex ) {
+            ls.push( ex.what( ) );
+            return 1;
+        }
+        return 0;
+    }
+
+    int lcall_del( lua_State *L )
+    {
+        module *m = get_module( L );
+        lua::state ls(L);
+        std::string path( ls.get_opt<std::string>( 1 ) );
+        try {
+            m->iface_->del( path );
+        } catch( const std::exception &ex ) {
+            ls.push( ex.what( ) );
+            return 1;
+        }
+        return 0;
+    }
+
 
 #define ADD_TABLE_STAT_FIELD( sd, name ) \
     #name, objects::new_integer( sd.name )
