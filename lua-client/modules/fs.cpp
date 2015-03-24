@@ -44,6 +44,14 @@ namespace {
     int lcall_info  ( lua_State *L );
     int lcall_stat  ( lua_State *L );
 
+    int lcall_close  ( lua_State *L );
+
+    int lcall_fs_iter_begin ( lua_State *L );
+    int lcall_fs_iter_next  ( lua_State *L );
+    int lcall_fs_iter_get   ( lua_State *L );
+    int lcall_fs_iter_clone ( lua_State *L );
+    int lcall_fs_iter_end   ( lua_State *L );
+
     struct module: public iface {
 
         client::general_info                &info_;
@@ -60,6 +68,31 @@ namespace {
         {
             lua::state ls( info_.main_ );
             ls.set( id_path, this );
+        }
+
+        size_t next_handle(  )
+        {
+            return info_.eventor_->next_index( );
+        }
+
+        void close( size_t id )
+        {
+            files_.erase( id );
+            iterators_.erase( id );
+        }
+
+        iterator_sptr get_fs_iter( size_t id )
+        {
+            static const iterator_sptr empty;
+            auto f(iterators_.find( id ));
+            return (f != iterators_.end( )) ? f->second : empty;
+        }
+
+        file_sptr get_file_iter( size_t id )
+        {
+            static const file_sptr empty;
+            auto f(files_.find( id ));
+            return (f != files_.end( )) ? f->second : empty;
         }
 
         void reinit( )
@@ -89,6 +122,7 @@ namespace {
             res->add( "rename",     new_function( &lcall_rename ) );
             res->add( "info",       new_function( &lcall_info ) );
             res->add( "stat",       new_function( &lcall_stat ) );
+            res->add( "close",      new_function( &lcall_close ) );
 
             res->add( "read",       new_function( &lcall_read ) );
             res->add( "write",      new_function( &lcall_write ) );
@@ -301,6 +335,16 @@ namespace {
     }
 
 #undef ADD_TABLE_STAT_FIELD
+
+    int lcall_close( lua_State *L )
+    {
+        module *m = get_module( L );
+        lua::state ls(L);
+        size_t id( utils::from_handle<size_t>(ls.get_opt<void *>( 1 )) );
+        m->close( id );
+        ls.push( true );
+        return 1;
+    }
 
 }
 
