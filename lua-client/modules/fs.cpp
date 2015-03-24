@@ -129,6 +129,15 @@ namespace {
             return module_name;
         }
 
+        objects::table_sptr iter_table( ) const
+        {
+            objects::table_sptr res(std::make_shared<objects::table>( ));
+            res->add( "begin",      new_function( &lcall_fs_iter_begin ) );
+//            res->add( "end",        new_function( &lcall_fs_iter_begin ) );
+//            res->add( "nas_next",   new_function( &lcall_fs_iter_begin ) );
+            return res;
+        }
+
         std::shared_ptr<objects::table> table( ) const
         {
             objects::table_sptr res(std::make_shared<objects::table>( ));
@@ -145,6 +154,8 @@ namespace {
 
             res->add( "read",       new_function( &lcall_read ) );
             res->add( "write",      new_function( &lcall_write ) );
+
+            res->add( "iterator",   iter_table( ) );
 
             return res;
         }
@@ -350,7 +361,21 @@ namespace {
 
     int lcall_fs_iter_begin ( lua_State *L )
     {
+        module *m = get_module( L );
+        lua::state ls(L);
 
+        try {
+            std::string path;
+            if( ls.get_top( ) && ls.get_type( 1 ) == base::TYPE_STRING ) {
+                path = ls.get<std::string>( 1 );
+            }
+            ls.push( m->new_fs_iter( path ) );
+        } catch ( const std::exception &ex ) {
+            ls.push(  );
+            ls.push( ex.what( ) );
+            return 2;
+        }
+        return 1;
     }
 
 }
