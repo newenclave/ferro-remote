@@ -31,6 +31,9 @@ namespace {
     int lcall_del( lua_State *L );
     int lcall_rename( lua_State *L );
 
+    int lcall_read( lua_State *L );
+    int lcall_write( lua_State *L );
+
     int lcall_info( lua_State *L );
     int lcall_stat( lua_State *L );
 
@@ -76,6 +79,9 @@ namespace {
             res->add( "rename",     new_function( &lcall_rename ) );
             res->add( "info",       new_function( &lcall_info ) );
             res->add( "stat",       new_function( &lcall_stat ) );
+
+            res->add( "read",       new_function( &lcall_read ) );
+            res->add( "write",      new_function( &lcall_write ) );
 
             return res;
         }
@@ -168,6 +174,48 @@ namespace {
     }
 
 
+    int lcall_read( lua_State *L )
+    {
+        module *m = get_module( L );
+        lua::state ls(L);
+
+        std::string from( ls.get_opt<std::string>( 1 ) );
+        unsigned    max(  ls.get_opt<unsigned>( 2, 44000 ) );
+
+        if( max > 44000 ) {
+            max = 44000;
+        }
+        try {
+            std::vector<char> data( max + 1 );
+            size_t res = m->iface_->read_file( from, &data[0], max );
+            ls.push( &data[0], res );
+        } catch( const std::exception &ex ) {
+            ls.push(  );
+            ls.push( ex.what( ) );
+            return 2;
+        }
+        return 1;
+    }
+
+    int lcall_write( lua_State *L )
+    {
+        module *m = get_module( L );
+        lua::state ls(L);
+
+        std::string from( ls.get_opt<std::string>( 1 ) );
+        std::string data( ls.get_opt<std::string>( 2 ) );
+
+        try {
+            size_t res = m->iface_->write_file( from,
+                                                data.c_str( ), data.size( ) );
+            ls.push( res );
+        } catch( const std::exception &ex ) {
+            ls.push(  );
+            ls.push( ex.what( ) );
+            return 2;
+        }
+        return 1;
+    }
 
 #define ADD_TABLE_STAT_FIELD( sd, name ) \
     #name, objects::new_integer( sd.name )
