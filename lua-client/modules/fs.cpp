@@ -24,18 +24,18 @@ namespace {
         return static_cast<module *>(ptr);
     }
 
-    int lcall_pwd( lua_State *L );
-    int lcall_cd( lua_State *L );
+    int lcall_pwd   ( lua_State *L );
+    int lcall_cd    ( lua_State *L );
     int lcall_exists( lua_State *L );
-    int lcall_mkdir( lua_State *L );
-    int lcall_del( lua_State *L );
+    int lcall_mkdir ( lua_State *L );
+    int lcall_del   ( lua_State *L );
     int lcall_rename( lua_State *L );
 
-    int lcall_read( lua_State *L );
-    int lcall_write( lua_State *L );
+    int lcall_read  ( lua_State *L );
+    int lcall_write ( lua_State *L );
 
-    int lcall_info( lua_State *L );
-    int lcall_stat( lua_State *L );
+    int lcall_info  ( lua_State *L );
+    int lcall_stat  ( lua_State *L );
 
     struct module: public iface {
 
@@ -108,11 +108,13 @@ namespace {
         std::string path( ls.get_opt<std::string>( 1 ) );
         try {
             m->iface_->cd( path );
+            ls.push( true );
         } catch( const std::exception &ex ) {
+            ls.push( false );
             ls.push( ex.what( ) );
-            return 1;
+            return 2;
         }
-        return 0;
+        return 1;
     }
 
     int lcall_exists( lua_State *L )
@@ -137,11 +139,13 @@ namespace {
         std::string path( ls.get_opt<std::string>( 1 ) );
         try {
             m->iface_->mkdir( path );
+            ls.push( true );
         } catch( const std::exception &ex ) {
+            ls.push( false );
             ls.push( ex.what( ) );
-            return 1;
+            return 2;
         }
-        return 0;
+        return 1;
     }
 
     int lcall_del( lua_State *L )
@@ -151,11 +155,13 @@ namespace {
         std::string path( ls.get_opt<std::string>( 1 ) );
         try {
             m->iface_->del( path );
+            ls.push( true );
         } catch( const std::exception &ex ) {
+            ls.push( false );
             ls.push( ex.what( ) );
-            return 1;
+            return 2;
         }
-        return 0;
+        return 1;
     }
 
     int lcall_rename( lua_State *L )
@@ -166,11 +172,13 @@ namespace {
         std::string to( ls.get_opt<std::string>( 2 ) );
         try {
             m->iface_->rename( from, to );
+            ls.push( true );
         } catch( const std::exception &ex ) {
+            ls.push( false );
             ls.push( ex.what( ) );
-            return 1;
+            return 2;
         }
-        return 0;
+        return 1;
     }
 
 

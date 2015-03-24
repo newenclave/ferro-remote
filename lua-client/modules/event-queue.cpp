@@ -136,7 +136,8 @@ namespace {
             }
         }
         m->info_.eventor_->push_call( call, params );
-        return 0;
+        ls.push( true );
+        return 1;
     }
 
     inline bool is_number( const objects::base *o )
@@ -213,12 +214,12 @@ namespace {
                                           id, call, params,
                                           m->info_.eventor_->weak_from_this( )),
                               seconds(sec) + millisec(milli) + microsec(micro));
-
             ls.push( utils::to_handle(id) );
             return 1;
         }
 
-        return 0;
+        ls.push( utils::to_handle(0) );
+        return 1;
     }
 
     int lcall_timer_cancel( lua_State *L )
@@ -229,7 +230,8 @@ namespace {
         if( id ) {
             m->del_timer( id );
         }
-        return 0;
+        ls.push( true );
+        return 1;
     }
 
 }

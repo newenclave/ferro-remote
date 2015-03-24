@@ -73,17 +73,14 @@ namespace {
         lua::state ls( L );
         module *m = get_module( L );
         std::string command( ls.get_opt<std::string>(1) );
-        if( !command.empty( ) ) {
-            try {
-                ls.push( m->iface_->execute( command ) );
-                return 1;
-            } catch( const std::exception &ex ) {
-                ls.push( );
-                ls.push( ex.what( ) );
-                return 2;
-            }
+        try {
+            ls.push( m->iface_->execute( command ) );
+        } catch( const std::exception &ex ) {
+            ls.push( );
+            ls.push( ex.what( ) );
+            return 2;
         }
-        return 0;
+        return 1;
     }
 
 }
