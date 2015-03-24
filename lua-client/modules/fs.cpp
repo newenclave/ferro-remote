@@ -550,6 +550,8 @@ namespace {
     {
         module *m = get_module( L );
         lua::state ls( L );
+        //m->iface_->
+        return 0;
     }
 
 }
