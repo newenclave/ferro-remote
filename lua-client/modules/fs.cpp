@@ -44,7 +44,7 @@ namespace {
     int lcall_info  ( lua_State *L );
     int lcall_stat  ( lua_State *L );
 
-    int lcall_close  ( lua_State *L );
+    int lcall_close ( lua_State *L );
 
     int lcall_fs_iter_begin     ( lua_State *L );
     int lcall_fs_iter_next      ( lua_State *L );
@@ -159,6 +159,13 @@ namespace {
             return res;
         }
 
+        objects::table_sptr file_table( ) const
+        {
+            objects::table_sptr res(std::make_shared<objects::table>( ));
+
+            return res;
+        }
+
         std::shared_ptr<objects::table> table( ) const
         {
             objects::table_sptr res(std::make_shared<objects::table>( ));
@@ -177,6 +184,7 @@ namespace {
             res->add( "write",      new_function( &lcall_write ) );
 
             res->add( "iterator",   iter_table( ) );
+            res->add( "file",       file_table( ) );
 
             return res;
         }

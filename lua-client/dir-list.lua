@@ -8,7 +8,7 @@ function main( argv )
 		end
 		local path = argv[1]
 		if not path then 
-				fr.print( "Path not specified. Use -p parameter for setup path\n" )
+				fr.print( "Path is not specified. Use -p parameter for setup path\n" )
 		end
 		client.fs.cd( path )
 		fr.print( "Cd: ", path, "\n" )  
