@@ -4,6 +4,9 @@
 
 #include "../general-info.h"
 #include "interfaces/IFilesystem.h"
+#include "interfaces/IFile.h"
+
+#include "../utils.h"
 
 namespace fr { namespace lua { namespace m { namespace fs {
 
@@ -11,6 +14,10 @@ namespace {
 
     using namespace objects;
     namespace fsiface = fr::client::interfaces::filesystem;
+    namespace fiface  = fr::client::interfaces::file;
+
+    typedef std::shared_ptr<fsiface::directory_iterator_impl> iterator_sptr;
+    typedef std::shared_ptr<fiface::iface>                    file_sptr;
 
     const std::string     module_name("fs");
     const char *id_path = FR_CLIENT_LUA_HIDE_TABLE ".fs.__i";
@@ -39,8 +46,11 @@ namespace {
 
     struct module: public iface {
 
-        client::general_info            &info_;
-        std::unique_ptr<fsiface::iface>  iface_;
+        client::general_info                &info_;
+        std::unique_ptr<fsiface::iface>      iface_;
+
+        std::map<size_t, iterator_sptr>      iterators_;
+        std::map<size_t, file_sptr>          files_;
 
         module( client::general_info &info )
             :info_(info)
