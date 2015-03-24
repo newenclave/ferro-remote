@@ -148,7 +148,9 @@ namespace {
             objects::table_sptr res(std::make_shared<objects::table>( ));
             res->add( "begin",      new_function( &lcall_fs_iter_begin ) );
             res->add( "end",        new_function( &lcall_fs_iter_end ) );
-            res->add( "nas_next",   new_function( &lcall_fs_iter_has_next ) );
+            res->add( "has_next",   new_function( &lcall_fs_iter_has_next ) );
+
+            res->add( "next",       new_function( &lcall_fs_iter_next ) );
             return res;
         }
 
@@ -436,6 +438,20 @@ namespace {
             return 2;
         }
         return 1;
+    }
+
+    int lcall_fs_iter_next( lua_State *L )
+    {
+        LUA_CALL_TRUE_FALSE_PROLOGUE
+            utils::handle hdl(ls.get_opt<utils::handle>( 1 ));
+            auto hi( m->get_fs_iter( hdl ) );
+            if( !hi ) {
+                ls.push(  );
+                ls.push( "Bad handle." );
+                return 2;
+            }
+            hi->next( );
+        LUA_CALL_TRUE_FALSE_EPILOGUE;
     }
 
 }
