@@ -20,11 +20,11 @@ namespace fr { namespace client { namespace interfaces {
 
         typedef fproto::instance::Stub          stub_type;
         typedef vcomm::stub_wrapper<stub_type>  client_type;
+        const unsigned nw_flag = vcomm::rpc_channel::DISABLE_WAIT;
 
         void handle_close_impl( core::client_core &core, vtrc::uint32_t hdl )
         {
-            client_type dnwc
-                    ( core.create_channel( vcomm::rpc_channel::DISABLE_WAIT ) );
+            client_type dnwc ( core.create_channel( nw_flag ) );
 
             fproto::handle req;
             req.set_value( hdl );
@@ -45,6 +45,7 @@ namespace fr { namespace client { namespace interfaces {
 
             core::client_core &core_;
             vtrc::shared_ptr<vcomm::rpc_channel> channel_;
+            vtrc::shared_ptr<vcomm::rpc_channel> channel_nw_;
 
             mutable client_type         client_;
             vtrc::uint32_t              hdl_;
@@ -57,6 +58,7 @@ namespace fr { namespace client { namespace interfaces {
                            const fproto::iterator_info &info )
                 :core_(cl)
                 ,channel_(c)
+                ,channel_nw_(cl.create_channel(nw_flag))
                 ,client_(channel_)
                 ,hdl_(info.hdl( ).value( ))
             {
@@ -66,10 +68,11 @@ namespace fr { namespace client { namespace interfaces {
             ~dir_iter_impl( )
             {
                 try {
+                    client_type c(channel_nw_);
                     //handle_close_impl( core_, hdl_ );
                     fproto::handle req;
                     req.set_value( hdl_ );
-                    client_.call_request( &stub_type::close, &req );
+                    c.call_request( &stub_type::close, &req );
                 } catch( ... ) { }
             }
 

@@ -129,7 +129,10 @@ namespace fr { namespace lua { namespace client {
                                            objects::table &main )
         {
             objects::table_sptr res(common_table(info, main));
+            main.add( "connect",    new_function( &lua_call_connect ) );
             main.add( "disconnect", new_function( &lua_call_disconnect ) );
+            main.add( "connected",  new_boolean( true ) );
+
             return res;
         }
 
@@ -137,7 +140,8 @@ namespace fr { namespace lua { namespace client {
                                               objects::table &main )
         {
             objects::table_sptr res(common_table(info, main));
-            main.add( "connect", new_function( &lua_call_connect ) );
+            main.add( "connect",    new_function( &lua_call_connect ) );
+            main.add( "connected",  new_boolean( false ) );
             return res;
         }
 

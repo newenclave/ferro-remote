@@ -175,7 +175,9 @@ int main( int argc, const char *argv[] )
             res = 4;
         }
 
-        et.attach( );
+        if( ci.eventor_->get_enable( ) ) {
+            et.attach( );
+        }
 
         for( auto &m: ci.modules_ ) {
             m->deinit( );
