@@ -20,6 +20,5 @@ function main( argv )
 				fr.print(iterators.get( i ), "\n")
 		end
 		fr.exit(0)
-		fr.print( "Exit\n" )
 end
 

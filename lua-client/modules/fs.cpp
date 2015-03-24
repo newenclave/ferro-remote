@@ -135,6 +135,8 @@ namespace {
 
         void deinit( )
         {
+            iterators_.clear( );
+            files_.clear( );
             iface_.reset( );
         }
 
