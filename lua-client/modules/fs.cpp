@@ -53,6 +53,8 @@ namespace {
     int lcall_fs_iter_end       ( lua_State *L );
     int lcall_fs_iter_has_next  ( lua_State *L );
 
+    int lcall_fs_iter_open  ( lua_State *L );
+
     struct module: public iface {
 
         client::general_info                &info_;
@@ -543,6 +545,13 @@ namespace {
         }
         return 1;
     }
+
+    int lcall_fs_iter_open( lua_State *L )
+    {
+        module *m = get_module( L );
+        lua::state ls( L );
+    }
+
 }
 
     iface_sptr create( client::general_info &info )
