@@ -151,6 +151,9 @@ namespace {
             res->add( "has_next",   new_function( &lcall_fs_iter_has_next ) );
 
             res->add( "next",       new_function( &lcall_fs_iter_next ) );
+            res->add( "get",        new_function( &lcall_fs_iter_get ) );
+            res->add( "clone",      new_function( &lcall_fs_iter_clone ) );
+
             return res;
         }
 
@@ -454,6 +457,42 @@ namespace {
         LUA_CALL_TRUE_FALSE_EPILOGUE;
     }
 
+    int lcall_fs_iter_get( lua_State *L )
+    {
+        module *m = get_module( L );
+        lua::state ls(L);
+        utils::handle h = ls.get_opt<utils::handle>( 1 );
+        auto hi( m->get_fs_iter( h ) );
+        if( hi ) {
+            ls.push( hi->get( ).path ); // 'get' does never throw
+        } else {
+            ls.push(  );
+            ls.push( "Bad handle." );
+            return 2;
+        }
+        return 1;
+    }
+
+    int lcall_fs_iter_clone( lua_State *L )
+    {
+        module *m = get_module( L );
+        lua::state ls(L);
+        try {
+            utils::handle h = ls.get_opt<utils::handle>( 1 );
+            if( h ) {
+                ls.push( m->clone_fs_iter( h ) );
+            } else {
+                ls.push(  );
+                ls.push( "Bad handle." );
+                return 2;
+            }
+        } catch ( const std::exception &ex ) {
+            ls.push(  );
+            ls.push( ex.what( ) );
+            return 2;
+        }
+        return 1;
+    }
 }
 
     iface_sptr create( client::general_info &info )
