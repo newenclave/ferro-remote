@@ -46,11 +46,12 @@ namespace {
 
     int lcall_close  ( lua_State *L );
 
-    int lcall_fs_iter_begin ( lua_State *L );
-    int lcall_fs_iter_next  ( lua_State *L );
-    int lcall_fs_iter_get   ( lua_State *L );
-    int lcall_fs_iter_clone ( lua_State *L );
-    int lcall_fs_iter_end   ( lua_State *L );
+    int lcall_fs_iter_begin     ( lua_State *L );
+    int lcall_fs_iter_next      ( lua_State *L );
+    int lcall_fs_iter_get       ( lua_State *L );
+    int lcall_fs_iter_clone     ( lua_State *L );
+    int lcall_fs_iter_end       ( lua_State *L );
+    int lcall_fs_iter_has_next  ( lua_State *L );
 
     struct module: public iface {
 
@@ -81,10 +82,10 @@ namespace {
             iterators_.erase( id );
         }
 
-        iterator_sptr get_fs_iter( size_t id )
+        iterator_sptr get_fs_iter( utils::handle id )
         {
             static const iterator_sptr empty;
-            auto f(iterators_.find( id ));
+            auto f(iterators_.find( utils::from_handle<size_t>(id) ));
             return (f != iterators_.end( )) ? f->second : empty;
         }
 
@@ -96,16 +97,29 @@ namespace {
             return utils::to_handle( nh );
         }
 
-        file_sptr get_file_iter( size_t id )
+        utils::handle clone_fs_iter( utils::handle hdl )
+        {
+            auto f(iterators_.find( utils::from_handle<size_t>( hdl ) ));
+            if( f != iterators_.end( ) ) {
+                size_t ni = next_handle( );
+                iterator_sptr nh(f->second->clone( ));
+                iterators_[ni] = nh;
+                return utils::to_handle( ni );
+            } else {
+                return nullptr;
+            }
+        }
+
+        file_sptr get_file_iter( utils::handle id )
         {
             static const file_sptr empty;
-            auto f(files_.find( id ));
+            auto f(files_.find( utils::from_handle<size_t>(id) ));
             return (f != files_.end( )) ? f->second : empty;
         }
 
-        utils::handle new_file_iter( const std::string &path,
-                                     const std::string &mode,
-                                     bool device = false )
+        utils::handle new_file( const std::string &path,
+                                const std::string &mode,
+                                bool device = false )
         {
             size_t nh = next_handle( );
             file_sptr nf(fiface::create( *info_.client_core_,
@@ -133,8 +147,8 @@ namespace {
         {
             objects::table_sptr res(std::make_shared<objects::table>( ));
             res->add( "begin",      new_function( &lcall_fs_iter_begin ) );
-//            res->add( "end",        new_function( &lcall_fs_iter_begin ) );
-//            res->add( "nas_next",   new_function( &lcall_fs_iter_begin ) );
+            res->add( "end",        new_function( &lcall_fs_iter_end ) );
+            res->add( "nas_next",   new_function( &lcall_fs_iter_has_next ) );
             return res;
         }
 
@@ -370,6 +384,52 @@ namespace {
                 path = ls.get<std::string>( 1 );
             }
             ls.push( m->new_fs_iter( path ) );
+        } catch ( const std::exception &ex ) {
+            ls.push(  );
+            ls.push( ex.what( ) );
+            return 2;
+        }
+        return 1;
+    }
+
+    int lcall_fs_iter_end( lua_State *L )
+    {
+        module *m = get_module( L );
+        lua::state ls(L);
+
+        try {
+            utils::handle h = ls.get_opt<utils::handle>( 1 );
+            auto hi( m->get_fs_iter( h ) );
+            if( hi ) {
+                ls.push( hi->end( ) );
+            } else {
+                ls.push(  );
+                ls.push( "Bad handle." );
+                return 2;
+            }
+        } catch ( const std::exception &ex ) {
+            ls.push(  );
+            ls.push( ex.what( ) );
+            return 2;
+        }
+        return 1;
+    }
+
+    int lcall_fs_iter_has_next( lua_State *L )
+    {
+        module *m = get_module( L );
+        lua::state ls(L);
+
+        try {
+            utils::handle h = ls.get_opt<utils::handle>( 1 );
+            auto hi( m->get_fs_iter( h ) );
+            if( hi ) {
+                ls.push( !hi->end( ) );
+            } else {
+                ls.push(  );
+                ls.push( "Bad handle." );
+                return 2;
+            }
         } catch ( const std::exception &ex ) {
             ls.push(  );
             ls.push( ex.what( ) );
