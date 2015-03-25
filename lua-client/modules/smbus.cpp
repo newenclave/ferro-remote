@@ -4,11 +4,19 @@
 
 #include "../general-info.h"
 
+#include "interfaces/II2C.h"
+
+#include <map>
+
 namespace fr { namespace lua { namespace m { namespace smbus {
 
 namespace {
 
     using namespace objects;
+    namespace iiface = fr::client::interfaces::i2c;
+
+    typedef std::shared_ptr<iiface::iface> smbus_sptr;
+    typedef std::map<size_t, smbus_sptr>   dev_map;
 
     const std::string     module_name("smbus");
     const char *id_path = FR_CLIENT_LUA_HIDE_TABLE ".smbus.__i";
@@ -24,7 +32,8 @@ namespace {
 
     struct module: public iface {
 
-        client::general_info &info_;
+        client::general_info  &info_;
+        dev_map                buses_;
 
         module( client::general_info &info )
             :info_(info)
@@ -45,6 +54,11 @@ namespace {
         {
 
         }
+
+//        iface_sptr new_bus( )
+//        {
+
+//        }
 
         const std::string &name( ) const
         {
