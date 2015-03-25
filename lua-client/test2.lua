@@ -23,7 +23,7 @@ function get_file( path, portion )
 	    return
 	end 
 	if string.len(d) ~= 0  then
-	    fr.print( "got data: ", info["path"], "; '", d, "'\n" )
+	    --fr.print( "got data: ", info["path"], "; '", d, "'\n" )
 	    info.total = info.total + string.len(d)
 	    eq.post( impl, info )
 	else 
@@ -46,9 +46,9 @@ function get_file( path, portion )
 end
 
 function main ( argv ) 
-    get_file( "/home/data/tst.txt", 1 )
-    get_file( "/home/data/tst2.txt", 1 )
-    get_file( "/home/data/music/Kristian Meurman - Lapin kesä (Live!)-8R_hJtOCzAw.mp4", 10000 )
+    for i, v in pairs( argv ) do 
+        get_file( v, 10000 )
+    end
     local f = file.open( "/dev/random" )
     if f ~= nil then
 	starttask( )

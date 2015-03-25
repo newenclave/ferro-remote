@@ -709,8 +709,8 @@ namespace {
         lua::state ls( L );
 
         utils::handle h = ls.get_opt<utils::handle>( 1 );
-        unsigned    c = ls.get_opt<unsigned>( 2 );
-        lua_Integer p = ls.get_opt<lua_Integer>( 3 );
+        unsigned      c = ls.get_opt<unsigned>( 2 );
+        lua_Integer   p = ls.get_opt<lua_Integer>( 3 );
 
         auto f = m->get_file_hdl(h);
         if( !f ) {
