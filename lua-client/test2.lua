@@ -48,7 +48,7 @@ end
 function main ( argv ) 
     get_file( "/home/data/tst.txt", 1 )
     get_file( "/home/data/tst2.txt", 1 )
-    get_file( "/home/data/music/Kristian Meurman - Lapin kesä (Live!)-8R_hJtOCzAw.mp4", 100 )
+    get_file( "/home/data/music/Kristian Meurman - Lapin kesä (Live!)-8R_hJtOCzAw.mp4", 10000 )
     local f = file.open( "/dev/random" )
     if f ~= nil then
 	starttask( )
