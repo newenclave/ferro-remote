@@ -18,6 +18,7 @@ namespace {
 
     typedef std::shared_ptr<fsiface::directory_iterator_impl> iterator_sptr;
     typedef std::shared_ptr<fiface::iface>                    file_sptr;
+    typedef std::shared_ptr<lua::event_container>             eventor_sptr;
 
     const std::string     module_name("fs");
     const char *id_path = FR_CLIENT_LUA_HIDE_TABLE ".fs.__i";
@@ -58,6 +59,9 @@ namespace {
     int lcall_file_seek  ( lua_State *L );
     int lcall_file_tell  ( lua_State *L );
     int lcall_file_flush ( lua_State *L );
+
+    int lcall_file_read  ( lua_State *L );
+    int lcall_file_write ( lua_State *L );
 
     struct module: public iface {
 
@@ -754,6 +758,44 @@ namespace {
             return 2;
         }
         return 1;
+    }
+
+    int lcall_file_read ( lua_State *L )
+    {
+        module *m = get_module( L );
+        lua::state ls( L );
+
+        utils::handle h = ls.get_opt<utils::handle>( 1 );
+        unsigned max = ls.get_opt<unsigned>( 2 );
+
+        if( max > 44000 ) { // fkn mgk!
+            max = 44000;
+        }
+
+        auto f = m->get_file_hdl(h);
+        if( !f ) {
+            ls.push( );
+            ls.push( "Bad handle." );
+            return 2;
+        }
+
+        try {
+            std::vector<char> data( max + 1 );
+            size_t res = f->read( &data[0], max );
+            ls.push( &data[0], res );
+        } catch( const std::exception &ex ) {
+            ls.push( );
+            ls.push( ex.what( ) );
+            return 2;
+        }
+        return 1;
+
+    }
+
+    int lcall_file_write ( lua_State *L )
+    {
+
+
     }
 
 
