@@ -230,6 +230,8 @@ namespace {
             res->add( "open",   new_function( &lcall_file_open ) );
             res->add( "ioctl",  new_function( &lcall_file_ioctl ) );
             res->add( "flush",  new_function( &lcall_file_flush ) );
+            res->add( "tell",   new_function( &lcall_file_tell ) );
+            res->add( "seek",   new_function( &lcall_file_seek ) );
 
             return res;
         }
@@ -658,9 +660,52 @@ namespace {
         return 1;
     }
 
+    fiface::seek_whence position_from( lua::state &ls, int pos )
+    {
+        if( ls.get_type( pos ) == base::TYPE_NUMBER )  {
+
+            return fiface::whence_value2enum( ls.get_opt<unsigned>( pos ) );
+
+        } else if( ls.get_type( pos ) == base::TYPE_STRING ) {
+
+            std::string name = ls.get_opt<std::string>( pos );
+
+            if( !name.compare( "set" ) ) {
+                return fiface::POS_SEEK_SET;
+            } else if( !name.compare( "cur" ) ) {
+                return fiface::POS_SEEK_CUR;
+            } else if( !name.compare( "end" ) ) {
+                return fiface::POS_SEEK_END;
+            }
+        }
+        return fiface::POS_SEEK_SET;
+    }
+
     int lcall_file_seek ( lua_State *L )
     {
-        return 0;
+        module *m = get_module( L );
+        lua::state ls( L );
+
+        utils::handle h = ls.get_opt<utils::handle>( 1 );
+        lua_Integer pos = ls.get_opt<lua_Integer>( 2 );
+        fiface::seek_whence whence = position_from( ls, 3 );
+
+        auto f = m->get_file_hdl(h);
+        if( !f ) {
+            ls.push( );
+            ls.push( "Bad handle." );
+            return 2;
+        }
+
+        try {
+            ls.push( f->seek( pos, whence ) );
+        } catch( const std::exception &ex ) {
+            ls.push(  );
+            ls.push( ex.what( ) );
+            return 2;
+        }
+        return 1;
+
     }
 
     int lcall_file_tell ( lua_State *L )
