@@ -60,7 +60,7 @@ namespace fr { namespace lua {
         ///     2       = event handler: function
         ///     3, ...  = additional params will be pass to the event handler
         ///               with their references
-        int subscribe( lua_State *L );
+        int subscribe( lua_State *L, int shift = 0 );
         void call( const std::string &name, objects::base_sptr param );
 
         int push_state( lua_State *L ) const;

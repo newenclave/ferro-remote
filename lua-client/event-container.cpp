@@ -17,35 +17,32 @@ namespace fr { namespace lua {
         return (f != event_map_.end( )) && (f->second);
     }
 
-    int event_container::subscribe( lua_State *L )
+    int event_container::subscribe(lua_State *L , int shift )
     {
         lua::state ls(L);
         int n = ls.get_top( );
 
-        std::string name;
+        std::string name( ls.get_opt<std::string>( 1 + shift ) );
+
         base_sptr   call;
-
-        if( n > 0 ) {
-            name = ls.get<std::string>(1);
-        }
-
-        if( n > 1 ) {
-            call = ls.get_ref( 2 );
+        if( n > (1 + shift) ) {
+            call = ls.get_ref( 2 + shift );
         }
 
         auto finfo( event_map_.find( name ) );
 
         if( finfo == event_map_.end( ) ) {
+            ls.push( false );
             ls.push( std::string("Invalid event name '")
                    + name
                    + std::string("'."));
-            return 1;
+            return 2;
         }
 
         std::vector<base_sptr> params;
 
-        if( n > 2 )  {
-            for( int i=3; i <= n; i++ ) {
+        if( n > (2 + shift) )  {
+            for( int i=(3 + shift); i <= n; i++ ) {
                 params.push_back( base_sptr( new_reference( L, i ) ) );
             }
         }
@@ -59,7 +56,8 @@ namespace fr { namespace lua {
             finfo->second = event_info_sptr( );
         }
 
-        return 0;
+        ls.push( true );
+        return 1;
     }
 
     int event_container::push_state( lua_State *L ) const

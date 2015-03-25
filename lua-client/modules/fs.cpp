@@ -3,6 +3,8 @@
 #include "../lua-names.h"
 
 #include "../general-info.h"
+#include "../event-container.h"
+
 #include "interfaces/IFilesystem.h"
 #include "interfaces/IFile.h"
 
@@ -19,6 +21,7 @@ namespace {
     typedef std::shared_ptr<fsiface::directory_iterator_impl> iterator_sptr;
     typedef std::shared_ptr<fiface::iface>                    file_sptr;
     typedef std::shared_ptr<lua::event_container>             eventor_sptr;
+    typedef std::weak_ptr<lua::event_container>               eventor_wptr;
 
     const std::string     module_name("fs");
     const char *id_path = FR_CLIENT_LUA_HIDE_TABLE ".fs.__i";
@@ -63,6 +66,18 @@ namespace {
     int lcall_file_read  ( lua_State *L );
     int lcall_file_write ( lua_State *L );
 
+    int lcall_file_events   ( lua_State *L );
+    int lcall_file_subscribe( lua_State *L );
+
+    std::vector<std::string> file_events( )
+    {
+        std::vector<std::string> res;
+
+        res.push_back( "on_pollin" );
+
+        return res;
+    }
+
     struct module: public iface {
 
         client::general_info                &info_;
@@ -70,9 +85,12 @@ namespace {
 
         std::map<size_t, iterator_sptr>      iterators_;
         std::map<size_t, file_sptr>          files_;
+        std::map<size_t, eventor_sptr>       file_events_;
+        std::vector<std::string>             events_name_;
 
         module( client::general_info &info )
             :info_(info)
+            ,events_name_(file_events( ))
         { }
 
         void init( )
@@ -92,6 +110,34 @@ namespace {
             iterators_.erase( id );
         }
 
+        void file_event( unsigned err, const std::string &data,
+                         eventor_wptr evtr )
+        {
+            eventor_sptr le(evtr.lock( ));
+            if( le ) {
+                FR_LUA_EVENT_PROLOGUE( "on_pollin", *le );
+                if( err ) {
+                    result->add( "error", new_integer( err ) );
+                } else {
+                    result->add( "data", new_string( data ) );
+                }
+                FR_LUA_EVENT_EPILOGUE;
+            }
+        }
+
+        void register_file( file_sptr f, eventor_sptr e )
+        {
+            f->register_for_events( std::bind( &module::file_event, this,
+                                    std::placeholders::_1,
+                                    std::placeholders::_2,
+                                    eventor_wptr(e) ) );
+        }
+
+        void unregister_file( file_sptr f )
+        {
+            f->unregister( );
+        }
+
         iterator_sptr get_fs_iter( utils::handle id )
         {
             static const iterator_sptr empty;
@@ -103,8 +149,23 @@ namespace {
         {
             size_t nh = next_handle( );
             iterator_sptr ni( iface_->begin_iterate( path ) );
-            iterators_[nh] = ni;
+            iterators_[nh]   = ni;
             return utils::to_handle( nh );
+        }
+
+        eventor_sptr new_eventor( )
+        {
+            eventor_sptr res = std::make_shared<
+                                    lua::event_container
+                               >( info_, events_name_ );
+            return res;
+        }
+
+        eventor_sptr get_eventor( utils::handle id )
+        {
+            static const eventor_sptr empty;
+            auto f(file_events_.find( utils::from_handle<size_t>(id) ));
+            return (f != file_events_.end( )) ? f->second : empty;
         }
 
         utils::handle clone_fs_iter( utils::handle hdl )
@@ -135,6 +196,7 @@ namespace {
             file_sptr nf(fiface::create( *info_.client_core_,
                                          path, mode, device ) );
             files_[nh] = nf;
+            file_events_[nh] = new_eventor( );
             return utils::to_handle( nh );
         }
 
@@ -149,6 +211,7 @@ namespace {
                         : fiface::create( *info_.client_core_,
                                            path, flags, mode ) );
             files_[nh] = nf;
+            file_events_[nh] = new_eventor( );
             return utils::to_handle( nh );
         }
 
@@ -237,6 +300,9 @@ namespace {
             res->add( "seek",   new_function( &lcall_file_seek ) );
             res->add( "read",   new_function( &lcall_file_read ) );
             res->add( "write",  new_function( &lcall_file_write ) );
+
+            res->add( "events",    new_function( &lcall_file_events ) );
+            res->add( "subscribe", new_function( &lcall_file_subscribe ) );
 
             return res;
         }
@@ -820,6 +886,45 @@ namespace {
         return 1;
     }
 
+    int lcall_file_events ( lua_State *L )
+    {
+        module *m = get_module( L );
+        lua::state ls( L );
+        utils::handle h = ls.get_opt<utils::handle>( 1 );
+        auto f = m->get_eventor( h );
+        if( !f ) {
+            ls.push( );
+            ls.push( "Bad handle." );
+            return 2;
+        }
+        return f->push_state( L );
+    }
+
+    int lcall_file_subscribe( lua_State *L )
+    {
+        module *m = get_module( L );
+        lua::state ls( L );
+        utils::handle h = ls.get_opt<utils::handle>( 1 );
+
+        auto e = m->get_eventor( h );
+        auto f = m->get_file_hdl( h );
+
+        if( !f || !e ) {
+            ls.push( );
+            ls.push( "Bad handle." );
+            return 2;
+        }
+
+        int n = ls.get_top( );
+
+        if( n > 2 ) {
+            m->register_file( f, e );
+        } else {
+            m->unregister_file( f );
+        }
+
+        return e->subscribe( L, 1 );
+    }
 
 }
 

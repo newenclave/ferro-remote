@@ -45,4 +45,12 @@ end
 function main ( argv ) 
 		get_file( "/home/data/tst.txt" )
 		get_file( "/home/data/tst2.txt" )
+		local f = file.open( "/dev/random" )
+		if f ~= nil then
+				starttask( )
+				local res, err = file.subscribe( f, "on_pollin", function( data ) fr.print( data, "\n" ) end )
+				eq.timer.post( stoptask, 5 )
+				fr.print( "subscribed: ", res, ": ", err, "\n" )
+		end
 end
+
