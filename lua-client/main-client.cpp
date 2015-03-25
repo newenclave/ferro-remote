@@ -1,3 +1,4 @@
+#include <iostream>
 
 #include "main-client.h"
 #include "lua-names.h"
