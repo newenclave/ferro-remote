@@ -53,7 +53,7 @@ namespace {
     int lcall_fs_iter_end       ( lua_State *L );
     int lcall_fs_iter_has_next  ( lua_State *L );
 
-    int lcall_fs_iter_open  ( lua_State *L );
+    int lcall_file_open  ( lua_State *L );
 
     struct module: public iface {
 
@@ -126,6 +126,20 @@ namespace {
             size_t nh = next_handle( );
             file_sptr nf(fiface::create( *info_.client_core_,
                                          path, mode, device ) );
+            files_[nh] = nf;
+            return utils::to_handle( nh );
+        }
+
+        utils::handle new_file( const std::string &path,
+                                unsigned flags, unsigned mode,
+                                bool device = false )
+        {
+            size_t nh = next_handle( );
+            file_sptr nf( device
+                        ? fiface::create_simple_device( *info_.client_core_,
+                                                        path, flags, mode )
+                        : fiface::create( *info_.client_core_,
+                                           path, flags, mode ) );
             files_[nh] = nf;
             return utils::to_handle( nh );
         }
@@ -546,12 +560,62 @@ namespace {
         return 1;
     }
 
-    int lcall_fs_iter_open( lua_State *L )
+
+    utils::handle file_from_string_mode( module *m,
+                                         lua::state &ls,
+                                         const std::string &path )
+    {
+        std::string mode( ls.get_opt<std::string>(2) );
+        return m->new_file( path, mode, false );
+    }
+
+    utils::handle file_from_num_mode( module *m, lua::state &ls,
+                                      const std::string &path )
+    {
+        utils::handle res = nullptr;
+        unsigned flags( ls.get_opt<unsigned>(2) );
+        unsigned mode ( ls.get_opt<unsigned>(3) );
+        return m->new_file( path, flags, mode, false );
+
+        return res;
+    }
+
+    int lcall_file_open( lua_State *L )
     {
         module *m = get_module( L );
         lua::state ls( L );
-        //m->iface_->
-        return 0;
+
+        int n = ls.get_top( );
+        std::string path(ls.get_opt<std::string>( 1 ));
+        if( path.empty( ) ) {
+            ls.push(  );
+            ls.push( "Bad path." );
+            return 2;
+        }
+
+        utils::handle res = nullptr;
+
+        try {
+            if( n > 2 ) {
+                switch( ls.get_type( 1 ) ) {
+                case base::TYPE_STRING:
+                    res = file_from_string_mode( m, ls, path );
+                    break;
+                case base::TYPE_INTEGER:
+                case base::TYPE_NUMBER:
+                    res = file_from_num_mode( m, ls, path );
+                    break;
+                }
+            } else {
+                res = m->new_file( path, "rb", false );
+            }
+            ls.push( res );
+        } catch( const std::exception &ex ) {
+            ls.push( );
+            ls.push( ex.what( ) );
+            return 2;
+        }
+        return 1;
     }
 
 }
