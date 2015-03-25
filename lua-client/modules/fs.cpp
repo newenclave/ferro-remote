@@ -168,6 +168,7 @@ namespace {
         objects::table_sptr iter_table( ) const
         {
             objects::table_sptr res(std::make_shared<objects::table>( ));
+
             res->add( "begin",      new_function( &lcall_fs_iter_begin ) );
             res->add( "end",        new_function( &lcall_fs_iter_end ) );
             res->add( "has_next",   new_function( &lcall_fs_iter_has_next ) );
@@ -178,8 +179,6 @@ namespace {
 
             return res;
         }
-
-
 
         objects::table_sptr file_table( ) const
         {
