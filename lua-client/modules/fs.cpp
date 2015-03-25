@@ -54,6 +54,10 @@ namespace {
     int lcall_fs_iter_has_next  ( lua_State *L );
 
     int lcall_file_open  ( lua_State *L );
+    int lcall_file_ioctl ( lua_State *L );
+    int lcall_file_seek  ( lua_State *L );
+    int lcall_file_tell  ( lua_State *L );
+    int lcall_file_flush ( lua_State *L );
 
     struct module: public iface {
 
@@ -112,7 +116,7 @@ namespace {
             }
         }
 
-        file_sptr get_file_iter( utils::handle id )
+        file_sptr get_file_hdl( utils::handle id )
         {
             static const file_sptr empty;
             auto f(files_.find( utils::from_handle<size_t>(id) ));
@@ -218,6 +222,13 @@ namespace {
 
             res->add( "flag", f );
             res->add( "mode", m );
+            res->add( "seek_pos", new_table( )
+                      ->add( "set", new_integer( fiface::POS_SEEK_SET ) )
+                      ->add( "cur", new_integer( fiface::POS_SEEK_CUR ) )
+                      ->add( "end", new_integer( fiface::POS_SEEK_END ) ) );
+
+            res->add( "open",   new_function( &lcall_file_open ) );
+            res->add( "ioctl",  new_function( &lcall_file_ioctl ) );
 
             return res;
         }
@@ -596,8 +607,8 @@ namespace {
         utils::handle res = nullptr;
 
         try {
-            if( n > 2 ) {
-                switch( ls.get_type( 1 ) ) {
+            if( n > 1 ) {
+                switch( ls.get_type( 2 ) ) {
                 case base::TYPE_STRING:
                     res = file_from_string_mode( m, ls, path );
                     break;
@@ -617,6 +628,50 @@ namespace {
         }
         return 1;
     }
+
+    int lcall_file_ioctl ( lua_State *L )
+    {
+        module *m = get_module( L );
+        lua::state ls( L );
+
+        utils::handle h = ls.get_opt<utils::handle>( 1 );
+        unsigned    c = ls.get_opt<unsigned>( 2 );
+        lua_Integer p = ls.get_opt<lua_Integer>( 3 );
+
+        auto f = m->get_file_hdl(h);
+        if( !f ) {
+            ls.push( false );
+            ls.push( "Bad handle." );
+            return 2;
+        }
+
+        try {
+            f->ioctl( c, p );
+            ls.push( true );
+        } catch( const std::exception &ex ) {
+            ls.push( false );
+            ls.push( ex.what( ) );
+            return 2;
+        }
+
+        return 1;
+    }
+
+    int lcall_file_seek ( lua_State *L )
+    {
+        return 0;
+    }
+
+    int lcall_file_tell ( lua_State *L )
+    {
+        return 0;
+    }
+
+    int lcall_file_flush ( lua_State *L )
+    {
+        return 0;
+    }
+
 
 }
 
