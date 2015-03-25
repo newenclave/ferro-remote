@@ -229,6 +229,7 @@ namespace {
 
             res->add( "open",   new_function( &lcall_file_open ) );
             res->add( "ioctl",  new_function( &lcall_file_ioctl ) );
+            res->add( "flush",  new_function( &lcall_file_flush ) );
 
             return res;
         }
@@ -664,12 +665,51 @@ namespace {
 
     int lcall_file_tell ( lua_State *L )
     {
-        return 0;
+        module *m = get_module( L );
+        lua::state ls( L );
+
+        utils::handle h = ls.get_opt<utils::handle>( 1 );
+
+        auto f = m->get_file_hdl(h);
+        if( !f ) {
+            ls.push( );
+            ls.push( "Bad handle." );
+            return 2;
+        }
+
+        try {
+            ls.push( f->tell( ) );
+        } catch( const std::exception &ex ) {
+            ls.push( );
+            ls.push( ex.what( ) );
+            return 2;
+        }
+        return 1;
     }
 
     int lcall_file_flush ( lua_State *L )
     {
-        return 0;
+        module *m = get_module( L );
+        lua::state ls( L );
+
+        utils::handle h = ls.get_opt<utils::handle>( 1 );
+
+        auto f = m->get_file_hdl(h);
+        if( !f ) {
+            ls.push( false );
+            ls.push( "Bad handle." );
+            return 2;
+        }
+
+        try {
+            f->flush( );
+            ls.push( true );
+        } catch( const std::exception &ex ) {
+            ls.push( false );
+            ls.push( ex.what( ) );
+            return 2;
+        }
+        return 1;
     }
 
 
