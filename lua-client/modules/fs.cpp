@@ -235,6 +235,8 @@ namespace {
             res->add( "flush",  new_function( &lcall_file_flush ) );
             res->add( "tell",   new_function( &lcall_file_tell ) );
             res->add( "seek",   new_function( &lcall_file_seek ) );
+            res->add( "read",   new_function( &lcall_file_read ) );
+            res->add( "write",  new_function( &lcall_file_write ) );
 
             return res;
         }
@@ -766,7 +768,7 @@ namespace {
         lua::state ls( L );
 
         utils::handle h = ls.get_opt<utils::handle>( 1 );
-        unsigned max = ls.get_opt<unsigned>( 2 );
+        unsigned max = ls.get_opt<unsigned>( 2, 44000 );
 
         if( max > 44000 ) { // fkn mgk!
             max = 44000;
@@ -794,8 +796,28 @@ namespace {
 
     int lcall_file_write ( lua_State *L )
     {
+        module *m = get_module( L );
+        lua::state ls( L );
 
+        utils::handle h = ls.get_opt<utils::handle>( 1 );
+        std::string   d = ls.get_opt<std::string>( 2 );
 
+        auto f = m->get_file_hdl(h);
+        if( !f ) {
+            ls.push( );
+            ls.push( "Bad handle." );
+            return 2;
+        }
+
+        try {
+            size_t res = f->write( d.empty( ) ? "" : &d[0], d.size( ) );
+            ls.push( res );
+        } catch( const std::exception &ex ) {
+            ls.push( );
+            ls.push( ex.what( ) );
+            return 2;
+        }
+        return 1;
     }
 
 
