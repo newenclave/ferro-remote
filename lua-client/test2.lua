@@ -14,9 +14,9 @@ function stoptask( )
     end
 end
 
-function get_file( path )
+function get_file( path, portion )
     local function impl( info )
-	local d, err = file.read( info.id, 1 )
+	local d, err = file.read( info.id, info.read )
 	if err then
 	    fr.print( "read error: ", err, "\n" )
 	    stoptask( )
@@ -31,7 +31,10 @@ function get_file( path )
 	    fr.print( "get file "..info["path"].." complete. total bytes: ", info.total, "\n" )
 	end
     end
-    local info = { id = nil, ["path"] = path, total = 0 }
+    local info = { id = nil, 
+		   ["path"] = path, 
+		   read = portion,
+		   total = 0 }
     info.id, err = file.open( path )
     if err then 
         fr.print( "open error: ", path, "; ", err, "\n" )
@@ -43,8 +46,9 @@ function get_file( path )
 end
 
 function main ( argv ) 
-    get_file( "/home/data/tst.txt" )
-    get_file( "/home/data/tst2.txt" )
+    get_file( "/home/data/tst.txt", 1 )
+    get_file( "/home/data/tst2.txt", 1 )
+    get_file( "/home/data/music/Kristian Meurman - Lapin kesä (Live!)-8R_hJtOCzAw.mp4", 100 )
     local f = file.open( "/dev/random" )
     if f ~= nil then
 	starttask( )
