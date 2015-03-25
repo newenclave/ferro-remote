@@ -240,21 +240,21 @@ namespace {
         {
             objects::table_sptr res(std::make_shared<objects::table>( ));
 
-            res->add( "pwd",        new_function( &lcall_pwd ) );
-            res->add( "cd",         new_function( &lcall_cd ) );
-            res->add( "exists",     new_function( &lcall_exists ) );
-            res->add( "mkdir",      new_function( &lcall_mkdir ) );
-            res->add( "del",        new_function( &lcall_del ) );
-            res->add( "rename",     new_function( &lcall_rename ) );
-            res->add( "info",       new_function( &lcall_info ) );
-            res->add( "stat",       new_function( &lcall_stat ) );
-            res->add( "close",      new_function( &lcall_close ) );
+            res->add( "pwd",      new_function( &lcall_pwd ) );
+            res->add( "cd",       new_function( &lcall_cd ) );
+            res->add( "exists",   new_function( &lcall_exists ) );
+            res->add( "mkdir",    new_function( &lcall_mkdir ) );
+            res->add( "del",      new_function( &lcall_del ) );
+            res->add( "rename",   new_function( &lcall_rename ) );
+            res->add( "info",     new_function( &lcall_info ) );
+            res->add( "stat",     new_function( &lcall_stat ) );
+            res->add( "close",    new_function( &lcall_close ) );
 
-            res->add( "read",       new_function( &lcall_read ) );
-            res->add( "write",      new_function( &lcall_write ) );
+            res->add( "read",     new_function( &lcall_read ) );
+            res->add( "write",    new_function( &lcall_write ) );
 
-            res->add( "iterator",   iter_table( ) );
-            res->add( "file",       file_table( ) );
+            res->add( "iterator", iter_table( ) );
+            res->add( "file",     file_table( ) );
 
             return res;
         }
