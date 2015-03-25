@@ -35,6 +35,8 @@ namespace {
     }
 
     int lcall_bus_avail( lua_State *L );
+    int lcall_bus_open ( lua_State *L );
+    int lcall_bus_close( lua_State *L );
 
     struct module: public iface {
 
@@ -112,6 +114,16 @@ namespace {
             return 2;
         }
         return 1;
+    }
+
+    int lcall_bus_open ( lua_State *L )
+    {
+        return 0;
+    }
+
+    int lcall_bus_close( lua_State *L )
+    {
+        return 0;
     }
 
 }
