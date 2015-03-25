@@ -16,6 +16,7 @@ namespace fr { namespace client { namespace interfaces { namespace i2c {
 
     typedef i2cproto::instance::Stub        stub_type;
     typedef vcomm::stub_wrapper<stub_type>  client_type;
+    const unsigned nw_flag = vcomm::rpc_channel::DISABLE_WAIT;
 
     namespace {
 
@@ -37,12 +38,14 @@ namespace fr { namespace client { namespace interfaces { namespace i2c {
 
         struct i2s_impl: public iface {
 
-            mutable client_type client_;
-            unsigned            hdl_;
+            mutable client_type                  client_;
+            vtrc::shared_ptr<vcomm::rpc_channel> channel_nw_;
+            unsigned                             hdl_;
 
             i2s_impl( core::client_core &cc,
                       unsigned bid, unsigned sa, bool sf )
                 :client_(cc.create_channel( ), true)
+                ,channel_nw_(cc.create_channel(nw_flag))
                 ,hdl_(open_device( client_, bid, sa, sf ))
             { }
 
@@ -54,9 +57,10 @@ namespace fr { namespace client { namespace interfaces { namespace i2c {
             void close_impl( )
             {
                 try {
+                    client_type c(channel_nw_);
                     i2cproto::handle req;
                     req.set_value( hdl_ );
-                    client_.call_request( &stub_type::close, &req );
+                    c.call_request( &stub_type::close, &req );
                 } catch( ... ) { ;;; }
             }
 

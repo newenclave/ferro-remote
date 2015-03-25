@@ -222,6 +222,7 @@ namespace {
 
         void deinit( )
         {
+            file_events_.clear( );
             iterators_.clear( );
             files_.clear( );
             iface_.reset( );
