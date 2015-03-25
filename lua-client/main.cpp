@@ -17,6 +17,7 @@
 #include "main-client.h"
 
 #include "boost/filesystem.hpp"
+#include "boost/asio/io_service.hpp"
 
 namespace vcomm     = vtrc::common;
 namespace vclient   = vtrc::client;
