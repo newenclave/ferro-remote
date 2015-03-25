@@ -37,6 +37,7 @@ if( VTRC_CXX11_ENABLED )
 
     find_package( Boost 1.50 COMPONENTS
                     system
+                    date_time
                     thread
                     program_options
                     filesystem
@@ -48,6 +49,7 @@ if( VTRC_CXX11_ENABLED )
 else( )
     find_package( Boost 1.53 COMPONENTS
                     system
+                    date_time
                     chrono
                     thread
                     atomic
