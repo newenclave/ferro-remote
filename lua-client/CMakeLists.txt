@@ -39,17 +39,6 @@ include_directories( ${LUA_INCLUDE_DIR} )
 target_link_libraries( ${exe_name} ${LUA_LIBRARIES} )
 add_dependencies( ${exe_name} lua_lib )
 
-find_package( Boost 1.50 COMPONENTS
-                system
-                date_time
-                regex
-                chrono
-                thread
-                program_options
-                filesystem
-              REQUIRED)
-
-
 list(APPEND dependencies
     Boost
     PROTOBUF
