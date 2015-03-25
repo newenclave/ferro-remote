@@ -24,7 +24,7 @@ namespace fr { namespace lua {
 
         std::string name( ls.get_opt<std::string>( 1 + shift ) );
 
-        base_sptr   call;
+        base_sptr call;
         if( n > (1 + shift) ) {
             call = ls.get_ref( 2 + shift );
         }
