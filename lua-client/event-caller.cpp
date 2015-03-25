@@ -3,6 +3,7 @@
 #include "event-caller.h"
 
 #include <atomic>
+#include <iostream>
 
 namespace fr { namespace lua {
 
