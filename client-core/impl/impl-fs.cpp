@@ -24,15 +24,6 @@ namespace fr { namespace client { namespace interfaces {
 
         const unsigned nw_flag = vcomm::rpc_channel::DISABLE_WAIT;
 
-//        void handle_close_impl( core::client_core &core, vtrc::uint32_t hdl )
-//        {
-//            client_type dnwc ( core.create_channel( nw_flag ) );
-
-//            fproto::handle req;
-//            req.set_value( hdl );
-//            dnwc.call_request( &stub_type::close, &req );
-//        }
-
         void proto2info( fproto::element_info const &data,
                          filesystem::info_data      &info )
         {
