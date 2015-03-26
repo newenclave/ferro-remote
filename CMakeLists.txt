@@ -40,6 +40,9 @@ if(MSVC)
         find_package( Boost 1.50 COMPONENTS
                         system
                         thread
+                        date_time
+                        chrono
+                        regex
                         program_options
                         filesystem
                       REQUIRED)
@@ -50,6 +53,8 @@ if(MSVC)
     else( )
         find_package( Boost 1.53 COMPONENTS
                         system
+                        date_time
+                        regex
                         chrono
                         thread
                         atomic
@@ -60,15 +65,11 @@ if(MSVC)
     endif( )
 
 else( MSVC )
-
     if( VTRC_CXX11_ENABLED )
 
         find_package( Boost 1.50 COMPONENTS
                         system
                         thread
-                        date_time
-                        chrono
-                        regex
                         program_options
                         filesystem
                       REQUIRED)
@@ -79,8 +80,6 @@ else( MSVC )
     else( )
         find_package( Boost 1.53 COMPONENTS
                         system
-                        date_time
-                        regex
                         chrono
                         thread
                         atomic
