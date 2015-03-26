@@ -16,22 +16,22 @@ end
 
 function get_file( path, portion )
     local function impl( info )
-    local d, err = file.read( info.id, info.read )
-    if err then
-        fr.print( "read error: ", err, "\n" )
-        stoptask( )
-        return
-    end 
-    local l = string.len(d)
-    if l ~= 0  then
-        --fr.print( "got data: ", info["path"], "; '", d, "'\n" )
-        info.total = info.total + l
-        counter.total = counter.total + l
-        eq.post( impl, info )
-    else 
-        stoptask( )
-        fr.print( "get file "..info["path"].." complete. total bytes: ", info.total, "\n" )
-    end
+        local d, err = file.read( info.id, info.read )
+        if err then
+            fr.print( "read error: ", err, "\n" )
+            stoptask( )
+            return
+        end 
+        local l = string.len(d)
+        if l ~= 0  then
+            --fr.print( "got data: ", info["path"], "; '", d, "'\n" )
+            info.total = info.total + l
+            counter.total = counter.total + l
+            eq.post( impl, info )
+        else 
+            stoptask( )
+            fr.print( "get file "..info["path"].." complete. total bytes: ", info.total, "\n" )
+        end
     end
     local info = { id = nil, 
 		   ["path"] = path, 
