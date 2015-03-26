@@ -24,7 +24,6 @@ namespace fr { namespace client { namespace interfaces {
         typedef vcomm::stub_wrapper<stub_type, channel_type>  client_type;
 
         const unsigned nw_flag  = vcomm::rpc_channel::DISABLE_WAIT;
-        const unsigned def_flag = vcomm::rpc_channel::DEFAULT;
 
         fproto::handle open_file( client_type &cl, const std::string &path,
                                   unsigned flags, unsigned mode,
@@ -53,7 +52,6 @@ namespace fr { namespace client { namespace interfaces {
 
             return res;
         }
-
 
         struct file_impl: public file::iface {
 
