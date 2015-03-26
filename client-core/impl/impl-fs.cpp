@@ -18,8 +18,10 @@ namespace fr { namespace client { namespace interfaces {
         namespace vcomm  = vtrc::common;
         namespace fproto = proto::fs;
 
-        typedef fproto::instance::Stub          stub_type;
-        typedef vcomm::stub_wrapper<stub_type>  client_type;
+        typedef vcomm::rpc_channel                            channel_type;
+        typedef fproto::instance::Stub                        stub_type;
+        typedef vcomm::stub_wrapper<stub_type, channel_type>  client_type;
+
         const unsigned nw_flag = vcomm::rpc_channel::DISABLE_WAIT;
 
 //        void handle_close_impl( core::client_core &core, vtrc::uint32_t hdl )
@@ -31,8 +33,8 @@ namespace fr { namespace client { namespace interfaces {
 //            dnwc.call_request( &stub_type::close, &req );
 //        }
 
-        void proto2info(fproto::element_info const &data,
-                        filesystem::info_data      &info)
+        void proto2info( fproto::element_info const &data,
+                         filesystem::info_data      &info )
         {
             info.is_directory = data.is_directory( );
             info.is_empty     = data.is_empty( );
@@ -45,7 +47,6 @@ namespace fr { namespace client { namespace interfaces {
 
             core::client_core &core_;
             vtrc::shared_ptr<vcomm::rpc_channel> channel_;
-            vtrc::shared_ptr<vcomm::rpc_channel> channel_nw_;
 
             mutable client_type         client_;
             vtrc::uint32_t              hdl_;
@@ -58,7 +59,6 @@ namespace fr { namespace client { namespace interfaces {
                            const fproto::iterator_info &info )
                 :core_(cl)
                 ,channel_(c)
-                ,channel_nw_(cl.create_channel(nw_flag))
                 ,client_(channel_)
                 ,hdl_(info.hdl( ).value( ))
             {
@@ -68,11 +68,10 @@ namespace fr { namespace client { namespace interfaces {
             ~dir_iter_impl( )
             {
                 try {
-                    client_type c(channel_nw_);
-                    //handle_close_impl( core_, hdl_ );
                     fproto::handle req;
                     req.set_value( hdl_ );
-                    c.call_request( &stub_type::close, &req );
+                    client_.channel( )->set_flags( nw_flag );
+                    client_.call_request( &stub_type::close, &req );
                 } catch( ... ) { }
             }
 

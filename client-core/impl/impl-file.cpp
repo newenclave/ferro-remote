@@ -19,9 +19,12 @@ namespace fr { namespace client { namespace interfaces {
         namespace vcomm  = vtrc::common;
         typedef vcomm::rpc_channel* channel_ptr;
 
-        typedef fproto::file::Stub              stub_type;
-        typedef vcomm::stub_wrapper<stub_type>  client_type;
-        const unsigned nw_flag = vcomm::rpc_channel::DISABLE_WAIT;
+        typedef vcomm::rpc_channel                            channel_type;
+        typedef fproto::file::Stub                            stub_type;
+        typedef vcomm::stub_wrapper<stub_type, channel_type>  client_type;
+
+        const unsigned nw_flag  = vcomm::rpc_channel::DISABLE_WAIT;
+        const unsigned def_flag = vcomm::rpc_channel::DEFAULT;
 
         fproto::handle open_file( client_type &cl, const std::string &path,
                                   unsigned flags, unsigned mode,
@@ -56,7 +59,6 @@ namespace fr { namespace client { namespace interfaces {
 
             core::client_core     &core_;
             mutable client_type    client_;
-            vtrc::shared_ptr<vcomm::rpc_channel> channel_nw_;
             fproto::handle         hdl_;
 
             file_impl( core::client_core &ccore,
@@ -64,7 +66,6 @@ namespace fr { namespace client { namespace interfaces {
                        unsigned flags, unsigned mode, bool as_device )
                 :core_(ccore)
                 ,client_(core_.create_channel( ), true)
-                ,channel_nw_(core_.create_channel( nw_flag ))
                 ,hdl_(open_file(client_, path, flags, mode, as_device))
             { }
 
@@ -73,24 +74,20 @@ namespace fr { namespace client { namespace interfaces {
                        bool as_device )
                 :core_(ccore)
                 ,client_(core_.create_channel( ), true)
-                ,channel_nw_(core_.create_channel( nw_flag ))
                 ,hdl_(open_file(client_, path, mode, as_device ))
             { }
 
-            ~file_impl( )  {
+            ~file_impl( )
+            {
                 try {
-                    close_impl( true );
+                    client_.channel( )->set_flags( nw_flag );
+                    close_impl( );
                 } catch( ... ) {  }
             }
 
-            void close_impl( bool wait = true )
+            void close_impl( )
             {
-                if( wait ) {
-                    client_.call_request( &stub_type::close, &hdl_ );
-                } else {
-                    client_type dnwc(channel_nw_);
-                    dnwc.call_request( &stub_type::close, &hdl_ );
-                }
+                client_.call_request( &stub_type::close, &hdl_ );
             }
 
             int64_t seek( int64_t pos, file::seek_whence whence ) const override

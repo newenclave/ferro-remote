@@ -25,7 +25,7 @@ function get_file( path, portion )
     local l = string.len(d)
     if l ~= 0  then
         --fr.print( "got data: ", info["path"], "; '", d, "'\n" )
-        info.total = info.total + string.len(d)
+        info.total = info.total + l
         counter.total = counter.total + l
         eq.post( impl, info )
     else 

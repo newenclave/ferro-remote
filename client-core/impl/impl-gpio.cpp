@@ -21,8 +21,10 @@ namespace fr { namespace client { namespace interfaces {
         namespace vcomm = vtrc::common;
         namespace gproto = proto::gpio;
 
-        typedef gproto::instance::Stub stub_type;
-        typedef vcomm::stub_wrapper<stub_type> client_type;
+        typedef vcomm::rpc_channel                           channel_type;
+        typedef gproto::instance::Stub                       stub_type;
+        typedef vcomm::stub_wrapper<stub_type, channel_type> client_type;
+        static const unsigned nw_flag = vcomm::rpc_channel::DISABLE_WAIT;
 
         struct instance_info {
             vtrc::uint32_t hdl_;
@@ -102,6 +104,7 @@ namespace fr { namespace client { namespace interfaces {
 
             ~gpio_impl( ) {
                 if( ii_.hdl_ != 0 ) try {
+                    client_.channel( )->set_flags( nw_flag );
                     close_impl( );
                 } catch( ... ) {  }
             }
