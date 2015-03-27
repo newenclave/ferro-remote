@@ -338,7 +338,7 @@ namespace {
         try {
             if( t == base::TYPE_NUMBER ) {
                 unsigned data = ls.get_opt<unsigned>( 3 );
-                uint16_t res = m->get_bus( h )->process_call( code,
+                uint16_t res  = m->get_bus( h )->process_call( code,
                                                static_cast<uint16_t>(data) );
                 ls.push( res );
             } else if( t == base::TYPE_STRING ) {
