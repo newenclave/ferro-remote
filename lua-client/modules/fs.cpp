@@ -524,8 +524,11 @@ namespace {
     {
         module *m = get_module( L );
         lua::state ls(L);
-        size_t id( utils::from_handle<size_t>(ls.get_opt<void *>( 1 )) );
-        m->close( id );
+        int n = ls.get_top( );
+        for( int i=1; i<=n; i++ ) {
+            const utils::handle hdl = ls.get_opt<utils::handle>( i );
+            m->close( utils::from_handle<size_t>( hdl ) );
+        }
         ls.push( true );
         return 1;
     }
