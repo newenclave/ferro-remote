@@ -53,13 +53,9 @@ end
 
 function main ( argv ) 
     for i, v in pairs( argv ) do 
+        fr.print( "Add file: ", v, "\n" ) 
         get_file( v, 40000 )
     end
-    local f = file.open( "/dev/random" )
     hb_timer( ) 
-    if f ~= nil then
-	local res, err = file.subscribe( f, "on_pollin", function( data ) fr.print( data, "\n" ) end )
-	fr.print( "subscribed: ", res, ": ", err, "\n" )
-    end
 end
 

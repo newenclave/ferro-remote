@@ -149,10 +149,10 @@ namespace {
     }
 
 
-    void connect_success( boost::system::error_code const &err )
-    {
-        std::cout << err.message( ) << "\n";
-    }
+//    void connect_success( boost::system::error_code const &err )
+//    {
+//        std::cout << err.message( ) << "\n";
+//    }
 }
 
 namespace {

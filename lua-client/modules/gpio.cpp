@@ -36,6 +36,7 @@ namespace {
 
         client::general_info &info_;
         bool                  available_;
+        dev_map               devs_;
 
         module( client::general_info &info )
             :info_(info)
@@ -54,7 +55,7 @@ namespace {
 
         void deinit( )
         {
-
+            devs_.clear( );
         }
 
         const std::string &name( ) const

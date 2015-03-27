@@ -22,16 +22,6 @@ namespace fr { namespace agent { namespace subsys {
 
         namespace frlua = ::fr::lua;
 
-        application::service_wrapper_sptr create_service(
-                                  fr::agent::application * /*app*/,
-                                  vtrc::common::connection_iface_wptr /*cl*/ )
-        {
-            ///vtrc::shared_ptr<impl_type_here>
-            ///        inst(vtrc::make_shared<impl_type_here>( app, cl ));
-            ///return app->wrap_service( cl, inst );
-
-            return application::service_wrapper_sptr( );
-        }
     }
 
     struct lua::impl {

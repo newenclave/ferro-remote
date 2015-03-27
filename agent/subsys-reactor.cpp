@@ -18,13 +18,6 @@ namespace fr { namespace agent { namespace subsys {
     namespace {
         const std::string subsys_name( "reactor" );
 
-        application::service_wrapper_sptr create_service(
-                                          fr::agent::application *,
-                                          vtrc::common::connection_iface_wptr)
-        {
-            return application::service_wrapper_sptr( );
-        }
-
         typedef vtrc::shared_ptr<poll_reactor> poll_reactor_sptr;
         typedef vtrc::shared_ptr<vtrc::thread> thread_sptr;
     }
