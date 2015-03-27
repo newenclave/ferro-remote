@@ -16,6 +16,7 @@ namespace {
 
     using namespace objects;
     namespace siface = fr::client::interfaces::i2c;
+    typedef siface::iface siface_type;
 
     typedef std::shared_ptr<siface::iface> smbus_sptr;
     typedef std::map<size_t, smbus_sptr>   dev_map;
@@ -42,15 +43,27 @@ namespace {
 
     int lcall_bus_read  ( lua_State *L );
     int lcall_bus_write ( lua_State *L );
+    int lcall_bus_ioctl ( lua_State *L );
+
+    int lcall_bus_read_byte( lua_State *L );
+    int lcall_bus_read_word( lua_State *L );
+
+    int lcall_bus_write_byte( lua_State *L );
+    int lcall_bus_write_word( lua_State *L );
+
+    int lcall_bus_read_block ( lua_State *L );
+    int lcall_bus_write_block( lua_State *L );
 
     int lcall_bus_proc_call( lua_State *L );
 
-#define CODE_NAME_VALUE( name ) { #name, siface::FUNC_##name }
-
-    struct funcs_names_codes_type {
+    struct names_codes_type {
         const char * name_;
         uint64_t     code_;
-    } const funcs_names_codes[ ] = {
+    };
+
+#define CODE_NAME_VALUE( name ) { #name, siface::FUNC_##name }
+
+    const names_codes_type funcs_names_codes[ ] = {
          CODE_NAME_VALUE( I2C                    )
         ,CODE_NAME_VALUE( 10BIT_ADDR             )
         ,CODE_NAME_VALUE( PROTOCOL_MANGLING      )
@@ -73,6 +86,20 @@ namespace {
     };
 
 #undef CODE_NAME_VALUE
+
+#define CTLCODE_NAME_VALUE( name ) { #name, siface::CODE_##name }
+
+    const names_codes_type ioctl_names_codes[ ] = {
+         CTLCODE_NAME_VALUE( I2C_RETRIES     )
+        ,CTLCODE_NAME_VALUE( I2C_TIMEOUT     )
+        ,CTLCODE_NAME_VALUE( I2C_SLAVE       )
+        ,CTLCODE_NAME_VALUE( I2C_SLAVE_FORCE )
+        ,CTLCODE_NAME_VALUE( I2C_TENBIT      )
+        ,CTLCODE_NAME_VALUE( I2C_PEC         )
+        ,{ nullptr, 0 }
+    };
+
+#undef CTLCODE_NAME_VALUE
 
     struct module: public iface {
 
@@ -130,11 +157,11 @@ namespace {
         }
 
         static
-        objects::table_sptr functions_table( )
+        objects::table_sptr codes_table( const names_codes_type *codes )
         {
             objects::table_sptr t(std::make_shared<objects::table>( ));
 
-            const funcs_names_codes_type *p = funcs_names_codes;
+            const names_codes_type *p = codes;
 
             do {
                 t->add( p->name_, new_integer( p->code_ ) );
@@ -154,12 +181,23 @@ namespace {
             res->add( "functions",    new_function( &lcall_bus_functions ) );
             res->add( "close",        new_function( &lcall_bus_close ) );
 
-            res->add( "read",   new_function( &lcall_bus_read ) );
-            res->add( "write",  new_function( &lcall_bus_write ) );
+            res->add( "read",         new_function( &lcall_bus_read ) );
+            res->add( "write",        new_function( &lcall_bus_write ) );
+            res->add( "ioctl",        new_function( &lcall_bus_ioctl ) );
+
+
+            res->add( "read_bytes",   new_function( &lcall_bus_read_byte ) );
+            res->add( "read_words",   new_function( &lcall_bus_read_word ) );
+            res->add( "read_block",   new_function( &lcall_bus_read_block ) );
+
+            res->add( "write_bytes",  new_function( &lcall_bus_write_byte ) );
+            res->add( "write_words",  new_function( &lcall_bus_write_word ) );
+            res->add( "write_block",  new_function( &lcall_bus_write_block ) );
 
             res->add( "process_call", new_function( &lcall_bus_proc_call ) );
 
-            res->add( "fcodes", functions_table( ) );
+            res->add( "fcodes",   codes_table( funcs_names_codes ) );
+            res->add( "ctlcodes", codes_table( ioctl_names_codes ) );
 
             return res;
         }
@@ -175,9 +213,10 @@ namespace {
         module *m = get_module( L );
         lua::state ls(L);
         try {
-            ls.push( siface::bus_available(
-                         *m->info_.client_core_,
-                         ls.get_opt<unsigned>( 1, 0xFFFFFFFF )) );
+
+            unsigned busid = ls.get_opt<unsigned>( 1, 0xFFFFFFFF );
+            ls.push( siface::bus_available( *m->info_.client_core_, busid ) );
+
         } catch( const std::exception &ex ) {
             ls.push( );
             ls.push( ex.what( ) );
@@ -256,7 +295,7 @@ namespace {
             objects::table res;
             res.add( "value", new_integer( val ) );
 
-            const funcs_names_codes_type *p = funcs_names_codes;
+            const names_codes_type *p = funcs_names_codes;
 
             do {
                 if( val & p->code_ ) {
@@ -319,6 +358,26 @@ namespace {
         return 1;
     }
 
+    int lcall_bus_ioctl ( lua_State *L )
+    {
+        module *m = get_module( L );
+        lua::state ls( L );
+
+        utils::handle h = ls.get_opt<utils::handle>( 1 );
+        unsigned   code = ls.get_opt<unsigned>( 2 );
+        uint64_t   data = ls.get_opt<uint64_t>( 3 );
+
+        try {
+            m->get_bus( h )->ioctl( code, data );
+            ls.push( true );
+        } catch( const std::exception &ex ) {
+            ls.push( false );
+            ls.push( ex.what( ) );
+            return 2;
+        }
+        return 1;
+    }
+
     int lcall_bus_proc_call( lua_State *L )
     {
         module *m = get_module( L );
@@ -354,6 +413,193 @@ namespace {
             ls.push( 0 );
         } catch( const std::exception &ex ) {
             ls.push( );
+            ls.push( ex.what( ) );
+            return 2;
+        }
+        return 1;
+    }
+
+//////////////////// READ WRITE
+///
+
+    template <typename T>
+    std::vector <
+        std::pair<uint8_t, T>
+    > create_cmd_params( lua_State *L, int id )
+    {
+        lua::state ls( L );
+        typedef std::vector< std::pair<uint8_t, T> > pair_vector;
+
+        pair_vector res;
+
+        objects::base_sptr o = ls.get_object( id );
+
+        for( size_t i=0; i<o->count( ); ++i ) {
+            const objects::base * next = o->at( i );
+            if( next->count( ) >= 2 ) {
+                const objects::base * id  = next->at( 0 );
+                const objects::base * val = next->at( 1 );
+                res.push_back(
+                    std::make_pair(
+                        static_cast<uint8_t>( id->num( ) ),
+                        static_cast<T>( val->num( ) ) ) );
+            }
+        }
+        return res;
+    }
+
+    template <typename T>
+    std::vector<T> create_cmd_from_table( lua_State *L, int id )
+    {
+        lua::state ls( L );
+
+        std::vector<T> res;
+        objects::base_sptr o = ls.get_object( id );
+
+        for( size_t i=0; i<o->count( ); ++i ) {
+            res.push_back( static_cast<T>( o->at( i )->at( 1 )->num( ) ) );
+        }
+
+        return res;
+    }
+
+    template <typename T, typename CallType, typename CallListType>
+    int lcall_read_impl( CallType call, CallListType calllist, lua_State *L )
+    {
+        typedef std::vector< std::pair<uint8_t, T> > pair_vector;
+        typedef std::vector<uint8_t>                 data_vector;
+
+        lua::state ls( L );
+        module * m = get_module( L );
+        utils::handle h = ls.get_opt<utils::handle>( 1 );
+
+        int t = ls.get_type( 2 );
+
+        try {
+            if( t == base::TYPE_NUMBER ) {
+
+                unsigned cmd = ls.get_opt<unsigned>( 2 );
+                ls.push( (m->get_bus( h ).get( )->*call)( cmd ) );
+
+            } else if( t == LUA_TTABLE ) {
+
+                data_vector tab = create_cmd_from_table<uint8_t>( L, 2 );
+
+                pair_vector res = (m->get_bus( h ).get( )->*calllist)( tab );
+                objects::table nt;
+
+                for( auto &v: res ) {
+                    nt.add( new_integer( v.first ), new_integer( v.second ) );
+                }
+
+                nt.push( L );
+            } else {
+                ls.push( );
+                ls.push( "Bad command type. Need 'number' or 'table'." );
+                return 2;
+            }
+        } catch( const std::exception &ex ) {
+            ls.push( );
+            ls.push( ex.what( ) );
+            return 2;
+        }
+
+        return 1;
+    }
+
+    template <typename T, typename CallType, typename CallListType>
+    int lcall_write_impl( CallType call, CallListType calllist, lua_State *L )
+    {
+        typedef std::vector< std::pair<uint8_t, T> > pair_vector;
+
+        lua::state ls( L );
+        module * m = get_module( L );
+        utils::handle h = ls.get_opt<utils::handle>( 1 );
+
+        int t = ls.get_type( 2 );
+
+        try {
+            if( LUA_TNUMBER == t ) {
+                unsigned cmd  = ls.get_opt<unsigned>( 2 );
+                unsigned data = ls.get_opt<unsigned>( 3 );
+                (m->get_bus( h ).get( )->*call)( static_cast<uint8_t>( cmd ),
+                                               static_cast<T>( data ) );
+                ls.push( true );
+            } else if( LUA_TTABLE == t ) {
+                pair_vector tab = create_cmd_params<T>( L, 2 );
+                (m->get_bus( h ).get( )->*calllist)( tab );
+                ls.push( true );
+            } else {
+                ls.push( );
+                ls.push( "Bad command type. Need 'number' or 'table'." );
+                return 2;
+            }
+        } catch( const std::exception &ex ) {
+            ls.push( );
+            ls.push( ex.what( ) );
+            return 2;
+        }
+        return 1;
+    }
+
+
+    int lcall_bus_read_byte( lua_State *L )
+    {
+        return lcall_read_impl<uint8_t>( &siface_type::read_byte,
+                                         &siface_type::read_bytes, L );
+    }
+
+    int lcall_bus_read_word( lua_State *L )
+    {
+        return lcall_read_impl<uint16_t>( &siface_type::read_word,
+                                          &siface_type::read_words, L );
+    }
+
+    int lcall_bus_write_byte( lua_State *L )
+    {
+        return lcall_write_impl<uint8_t>( &siface_type::write_byte,
+                                          &siface_type::write_bytes, L );
+    }
+
+    int lcall_bus_write_word( lua_State *L )
+    {
+        return lcall_write_impl<uint16_t>( &siface_type::write_word,
+                                           &siface_type::write_words, L );
+    }
+
+
+    int lcall_bus_read_block( lua_State *L )
+    {
+        lua::state ls( L );
+        module * m = get_module( L );
+        utils::handle h = ls.get_opt<utils::handle>( 1 );
+
+        try {
+            unsigned cmd = ls.get_opt<unsigned>( 2 );
+            ls.push( m->get_bus( h )->read_block( cmd ) );
+        } catch( const std::exception &ex ) {
+            ls.push(  );
+            ls.push( ex.what( ) );
+            return 2;
+        }
+        return 1;
+    }
+
+    int lcall_bus_write_block( lua_State *L )
+    {
+        lua::state ls( L );
+        module * m = get_module( L );
+        utils::handle h = ls.get_opt<utils::handle>( 1 );
+
+        try {
+            unsigned cmd     = ls.get_opt<unsigned>( 2 );
+            std::string data = ls.get_opt<std::string>( 3 );
+
+            m->get_bus( h )->write_block( cmd, data );
+            ls.push( true );
+
+        } catch( const std::exception &ex ) {
+            ls.push( false );
             ls.push( ex.what( ) );
             return 2;
         }

@@ -303,9 +303,8 @@ namespace fr { namespace lua {
                     const objects::base * id  = next->at( 0 );
                     const objects::base * val = next->at( 1 );
                     res.push_back(
-                        std::make_pair(
-                            static_cast<uint8_t>( id->num( ) ),
-                            static_cast<T>( val->num( ) ) ) );
+                        std::make_pair( static_cast<uint8_t>( id->num( ) ),
+                                        static_cast<T>( val->num( ) ) ) );
                 }
             }
             return res;
@@ -368,33 +367,6 @@ namespace fr { namespace lua {
             return lcall_i2c_read_impl<uint8_t>( &iface::read_byte,
                                                  &iface::read_bytes,
                                                  L );
-//            iface_sptr dev( get_device( L, 1 ) );
-
-//             lua::state ls( L );
-//            int t = ls.get_type( 2 );
-
-//            if( t == LUA_TNUMBER ) {
-//                unsigned cmd = ls.get<unsigned>( 2 );
-//                ls.clean_stack( );
-//                ls.push( dev->read_byte( cmd ) );
-//                return 1;
-//            } else if( t == LUA_TTABLE ) {
-//                ii2c::uint8_vector tab = create_from_table<uint8_t>( L, 2 );
-//                ls.clean_stack( );
-//                ii2c::cmd_uint8_vector res = dev->read_bytes( tab );
-//                objects::table_sptr nt( objects::new_table( ) );
-
-//                typedef ii2c::cmd_uint8_vector::const_iterator citr;
-//                for( citr b(res.begin( )), e(res.end( )); b!=e; ++b ) {
-//                    nt->add( objects::new_table( )
-//                             ->add( objects::new_integer( b->first ) )
-//                             ->add( objects::new_integer( b->second ) ) );
-//                }
-//                nt->push( L );
-//                return 1;
-//            }
-
-//            return 0;
         }
 
         template <typename T, typename CallType, typename CallListType>
@@ -424,13 +396,7 @@ namespace fr { namespace lua {
             return lcall_i2c_write_impl<uint8_t>( &iface::write_byte,
                                                   &iface::write_bytes,
                                                   L );
-//            iface_sptr dev( get_device( L, 1 ) );
-//            lua::state ls( L );
-//            unsigned cmd  = ls.get<unsigned>( 2 );
-//            unsigned data = ls.get<unsigned>( 3 );
-//            ls.clean_stack( );
-//            dev->write_byte( cmd, data );
-//            return 0;
+
         }
 
         int lcall_i2c_read_word( lua_State *L )
@@ -438,34 +404,6 @@ namespace fr { namespace lua {
             return lcall_i2c_read_impl<uint16_t>( &iface::read_word,
                                                   &iface::read_words,
                                                   L );
-//            iface_sptr dev( get_device( L, 1 ) );
-
-//            lua::state ls( L );
-//            int t = ls.get_type( 2 );
-
-//            if( t == LUA_TNUMBER ) {
-//                unsigned cmd = ls.get<unsigned>( 2 );
-//                ls.clean_stack( );
-//                ls.push( dev->read_word( cmd ) );
-//                return 1;
-//            } else if( t == LUA_TTABLE ) {
-//                ii2c::uint16_vector tab = create_from_table<uint16_t>( L, 2 );
-//                ls.clean_stack( );
-
-//                ii2c::cmd_uint16_vector res = dev->read_words( tab );
-//                objects::table_sptr nt( objects::new_table( ) );
-
-//                typedef ii2c::cmd_uint16_vector::const_iterator citr;
-//                for( citr b(res.begin( )), e(res.end( )); b!=e; ++b ) {
-//                    nt->add( objects::new_table( )
-//                             ->add( objects::new_integer( b->first ) )
-//                             ->add( objects::new_integer( b->second ) ) );
-//                }
-//                nt->push( L );
-//                return 1;
-//            }
-
-//            return 0;
         }
 
         int lcall_i2c_write_word( lua_State *L )
@@ -473,13 +411,7 @@ namespace fr { namespace lua {
             return lcall_i2c_write_impl<uint16_t>( &iface::write_word,
                                                    &iface::write_words,
                                                    L );
-//            iface_sptr dev( get_device( L, 1 ) );
-//            lua::state ls( L );
-//            unsigned cmd  = ls.get<unsigned>( 2 );
-//            unsigned data = ls.get<unsigned>( 3 );
-//            ls.clean_stack( );
-//            dev->write_word( cmd, data );
-//            return 0;
+
         }
 
         int lcall_i2c_read_block(  lua_State *L )
