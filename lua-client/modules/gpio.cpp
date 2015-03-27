@@ -32,6 +32,10 @@ namespace {
         return static_cast<module *>(ptr);
     }
 
+    int lcall_export   ( lua_State *L );
+    int lcall_info     ( lua_State *L );
+    int lcall_unexport ( lua_State *L );
+
     struct module: public iface {
 
         client::general_info &info_;
@@ -85,6 +89,55 @@ namespace {
         ls.push( giface::available( *m->info_.client_core_ ) );
         return 1;
     }
+
+    int lcall_export( lua_State *L )
+    {
+        module *m = get_module( L );
+        lua::state ls(L);
+
+        try {
+
+        } catch( const std::exception &ex ) {
+            ls.push(  );
+            ls.push( ex.what( ) );
+            return 2;
+        }
+
+        return 0;
+    }
+
+    int lcall_info( lua_State *L )
+    {
+        module *m = get_module( L );
+        lua::state ls(L);
+
+        try {
+
+        } catch( const std::exception &ex ) {
+            ls.push(  );
+            ls.push( ex.what( ) );
+            return 2;
+        }
+
+        return 0;
+
+    }
+
+    int lcall_unexpor( lua_State *L )
+    {
+        module *m = get_module( L );
+        lua::state ls(L);
+
+        try {
+
+        } catch( const std::exception &ex ) {
+            ls.push(  );
+            ls.push( ex.what( ) );
+            return 2;
+        }
+        return 0;
+    }
+
 
 }
 

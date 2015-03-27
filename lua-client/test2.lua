@@ -54,7 +54,7 @@ end
 function main ( argv ) 
     for i, v in pairs( argv ) do 
         fr.print( "Add file: ", v, "\n" ) 
-        get_file( v, 40000 )
+        get_file( v, 41227 )
     end
     hb_timer( ) 
 end
