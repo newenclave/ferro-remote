@@ -43,8 +43,7 @@ namespace {
     int lcall_bus_read  ( lua_State *L );
     int lcall_bus_write ( lua_State *L );
 
-#define CODE_NAME_VALUE( name )         \
-    { #name, siface::FUNC_##name }
+#define CODE_NAME_VALUE( name ) { #name, siface::FUNC_##name }
 
     struct funcs_names_codes_type {
         const char * name_;
