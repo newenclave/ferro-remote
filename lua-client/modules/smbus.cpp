@@ -43,6 +43,8 @@ namespace {
     int lcall_bus_read  ( lua_State *L );
     int lcall_bus_write ( lua_State *L );
 
+    int lcall_bus_proc_call( lua_State *L );
+
 #define CODE_NAME_VALUE( name ) { #name, siface::FUNC_##name }
 
     struct funcs_names_codes_type {
@@ -154,6 +156,8 @@ namespace {
 
             res->add( "read",   new_function( &lcall_bus_read ) );
             res->add( "write",  new_function( &lcall_bus_write ) );
+
+            res->add( "process_call", new_function( &lcall_bus_proc_call ) );
 
             res->add( "fcodes", functions_table( ) );
 
@@ -307,6 +311,47 @@ namespace {
             size_t res = m->get_bus( h )
                           ->write( d.empty( ) ? "" : &d[0], d.size( ) );
             ls.push( res );
+        } catch( const std::exception &ex ) {
+            ls.push( );
+            ls.push( ex.what( ) );
+            return 2;
+        }
+        return 1;
+    }
+
+    int lcall_bus_proc_call( lua_State *L )
+    {
+        module *m = get_module( L );
+        lua::state ls( L );
+
+        utils::handle h = ls.get_opt<utils::handle>( 1 );
+        uint8_t    code = ls.get_opt<uint8_t>( 2 );
+
+        if( ls.get_top( ) <= 2 ) {
+            ls.push(  );
+            ls.push( "Bad parameters." );
+            return 2;
+        }
+
+        int t = ls.get_type( 3 );
+
+        try {
+            if( t == base::TYPE_NUMBER ) {
+                unsigned data = ls.get_opt<unsigned>( 3 );
+                uint16_t res = m->get_bus( h )->process_call( code,
+                                               static_cast<uint16_t>(data) );
+                ls.push( res );
+            } else if( t == base::TYPE_STRING ) {
+                std::string data = ls.get_opt<std::string>( 3 );
+                std::string res = m->get_bus( h )->process_call( code, data );
+                ls.push( res );
+            } else {
+                ls.push(  );
+                ls.push( "Bad parameter type." );
+                return 2;
+            }
+            //size_t res = m->get_bus( h );
+            ls.push( 0 );
         } catch( const std::exception &ex ) {
             ls.push( );
             ls.push( ex.what( ) );
