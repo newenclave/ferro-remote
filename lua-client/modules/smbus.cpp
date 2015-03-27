@@ -18,8 +18,8 @@ namespace {
     namespace siface = fr::client::interfaces::i2c;
     typedef siface::iface siface_type;
 
-    typedef std::shared_ptr<siface::iface> smbus_sptr;
-    typedef std::map<size_t, smbus_sptr>   dev_map;
+    typedef std::shared_ptr<siface::iface> dev_sptr;
+    typedef std::map<size_t, dev_sptr>     dev_map;
 
     static const unsigned slave_invalid = siface::I2C_SLAVE_INVALID_ADDRESS;
 
@@ -136,13 +136,13 @@ namespace {
                                bool slave_force = false)
         {
             size_t nh = next_handle( );
-            smbus_sptr r(siface::open( *info_.client_core_,
-                                       bus_id, slave, slave_force ));
+            dev_sptr r(siface::open( *info_.client_core_,
+                                      bus_id, slave, slave_force ));
             buses_[nh] = r;
             return utils::to_handle( nh );
         }
 
-        smbus_sptr get_bus( utils::handle hdl )
+        dev_sptr get_bus( utils::handle hdl )
         {
             auto f(buses_.find( utils::from_handle<size_t>(hdl) ));
             if( f == buses_.end( ) ) {
