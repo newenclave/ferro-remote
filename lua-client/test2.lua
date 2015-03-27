@@ -58,7 +58,6 @@ function main ( argv )
     local f = file.open( "/dev/random" )
     hb_timer( ) 
     if f ~= nil then
-	starttask( )
 	local res, err = file.subscribe( f, "on_pollin", function( data ) fr.print( data, "\n" ) end )
 	fr.print( "subscribed: ", res, ": ", err, "\n" )
     end
