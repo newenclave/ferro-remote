@@ -46,15 +46,20 @@ function get_file( path, portion )
     eq.post( impl, info )
 end
 
+function hb_timer( )
+    fr.print( counter,  "\n" ) 
+    eq.timer.post( hb_timer, 1 )
+end
+
 function main ( argv ) 
     for i, v in pairs( argv ) do 
         get_file( v, 40000 )
     end
     local f = file.open( "/dev/random" )
+    hb_timer( ) 
     if f ~= nil then
 	starttask( )
-	local res, err = file.subscribe( f, "on_pollin", function( data ) fr.print( data, ": ", counter.total,  "\n" ) end )
-	eq.timer.post( stoptask, 5 )
+	local res, err = file.subscribe( f, "on_pollin", function( data ) fr.print( data, "\n" ) end )
 	fr.print( "subscribed: ", res, ": ", err, "\n" )
     end
 end
