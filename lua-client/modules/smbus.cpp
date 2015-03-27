@@ -276,10 +276,10 @@ namespace {
         lua::state ls( L );
 
         utils::handle h = ls.get_opt<utils::handle>( 1 );
-        unsigned max = ls.get_opt<unsigned>( 2, 44000 );
+        unsigned max = ls.get_opt<unsigned>( 2, 1025 );
 
-        if( max > 44000 ) { // fkn mgk!
-            max = 44000;
+        if( max > 1025 ) { // fkn mgk!
+            max = 1025;
         }
 
         try {
