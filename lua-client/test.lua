@@ -13,6 +13,7 @@ function call_os(  )
 end
 		
 function main( argv )
+				fr.print( fr.client.smbus )
 	fr.print( "Main function; argv = ", argv, "\n" )	
 	fr.client.subscribe( "on_disconnect", 
 	                     function( data ) 

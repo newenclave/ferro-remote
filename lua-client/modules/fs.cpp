@@ -861,7 +861,6 @@ namespace {
             return 2;
         }
         return 1;
-
     }
 
     int lcall_file_write ( lua_State *L )

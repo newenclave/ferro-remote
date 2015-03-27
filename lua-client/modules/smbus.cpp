@@ -34,9 +34,44 @@ namespace {
         return static_cast<module *>(ptr);
     }
 
-    int lcall_bus_avail( lua_State *L );
-    int lcall_bus_open ( lua_State *L );
-    int lcall_bus_close( lua_State *L );
+    int lcall_bus_avail     ( lua_State *L );
+    int lcall_bus_open      ( lua_State *L );
+    int lcall_bus_set_addr  ( lua_State *L );
+    int lcall_bus_close     ( lua_State *L );
+    int lcall_bus_functions ( lua_State *L );
+
+    int lcall_bus_read  ( lua_State *L );
+    int lcall_bus_write ( lua_State *L );
+
+#define CODE_NAME_VALUE( name )         \
+    { #name, siface::FUNC_##name }
+
+    struct funcs_names_codes_type {
+        const char * name_;
+        uint64_t     code_;
+    } const funcs_names_codes[ ] = {
+         CODE_NAME_VALUE( I2C                    )
+        ,CODE_NAME_VALUE( 10BIT_ADDR             )
+        ,CODE_NAME_VALUE( PROTOCOL_MANGLING      )
+        ,CODE_NAME_VALUE( SMBUS_PEC              )
+        ,CODE_NAME_VALUE( NOSTART                )
+        ,CODE_NAME_VALUE( SMBUS_BLOCK_PROC_CALL  )
+        ,CODE_NAME_VALUE( SMBUS_QUICK            )
+        ,CODE_NAME_VALUE( SMBUS_READ_BYTE        )
+        ,CODE_NAME_VALUE( SMBUS_WRITE_BYTE       )
+        ,CODE_NAME_VALUE( SMBUS_READ_BYTE_DATA   )
+        ,CODE_NAME_VALUE( SMBUS_WRITE_BYTE_DATA  )
+        ,CODE_NAME_VALUE( SMBUS_READ_WORD_DATA   )
+        ,CODE_NAME_VALUE( SMBUS_WRITE_WORD_DATA  )
+        ,CODE_NAME_VALUE( SMBUS_PROC_CALL        )
+        ,CODE_NAME_VALUE( SMBUS_READ_BLOCK_DATA  )
+        ,CODE_NAME_VALUE( SMBUS_WRITE_BLOCK_DATA )
+        ,CODE_NAME_VALUE( SMBUS_READ_I2C_BLOCK   )
+        ,CODE_NAME_VALUE( SMBUS_WRITE_I2C_BLOCK  )
+        ,{ nullptr, 0 }
+    };
+
+#undef CODE_NAME_VALUE
 
     struct module: public iface {
 
@@ -79,18 +114,49 @@ namespace {
             return utils::to_handle( nh );
         }
 
+        smbus_sptr get_bus( utils::handle hdl )
+        {
+            auto f(buses_.find( utils::from_handle<size_t>(hdl) ));
+            if( f == buses_.end( ) ) {
+                throw std::runtime_error( "Bad handle value." );
+            }
+            return f->second;
+        }
+
         const std::string &name( ) const
         {
             return module_name;
         }
 
-        std::shared_ptr<objects::table> table( ) const
+        static
+        objects::table_sptr functions_table( )
+        {
+            objects::table_sptr t(std::make_shared<objects::table>( ));
+
+            const funcs_names_codes_type *p = funcs_names_codes;
+
+            do {
+                t->add( p->name_, new_integer( p->code_ ) );
+                t->add( new_integer( p->code_ ), new_string( p->name_ ) );
+            } while( (++p)->name_ );
+
+            return t;
+        }
+
+        objects::table_sptr table( ) const
         {
             objects::table_sptr res(std::make_shared<objects::table>( ));
 
-            res->add( "available", new_function( &lcall_bus_avail ) );
-            res->add( "open",      new_function( &lcall_bus_open ) );
-            res->add( "close",     new_function( &lcall_bus_close ) );
+            res->add( "available",    new_function( &lcall_bus_avail ) );
+            res->add( "open",         new_function( &lcall_bus_open ) );
+            res->add( "set_address",  new_function( &lcall_bus_set_addr ) );
+            res->add( "functions",    new_function( &lcall_bus_functions ) );
+            res->add( "close",        new_function( &lcall_bus_close ) );
+
+            res->add( "read",   new_function( &lcall_bus_read ) );
+            res->add( "write",  new_function( &lcall_bus_write ) );
+
+            res->add( "fcodes", functions_table( ) );
 
             return res;
         }
@@ -140,6 +206,27 @@ namespace {
         return 1;
     }
 
+    int lcall_bus_set_addr( lua_State *L )
+    {
+        module *m = get_module( L );
+        lua::state ls(L);
+
+        try {
+
+            utils::handle hdl = ls.get_opt<utils::handle>( 1 );
+            unsigned slave = ls.get_opt<unsigned>( 2, slave_invalid );
+
+            m->get_bus ( hdl )->set_address( slave );
+            ls.push( true );
+
+        } catch( const std::exception &ex ) {
+            ls.push( );
+            ls.push( ex.what( ) );
+            return 2;
+        }
+        return 1;
+    }
+
     int lcall_bus_close( lua_State *L )
     {
         module *m = get_module( L );
@@ -149,7 +236,84 @@ namespace {
             utils::handle hdl = ls.get_opt<utils::handle>( i );
             m->buses_.erase( utils::from_handle<size_t>( hdl ) );
         }
-        return 0;
+        ls.push( true );
+        return 1;
+    }
+
+    int lcall_bus_functions ( lua_State *L )
+    {
+        module *m = get_module( L );
+        lua::state ls(L);
+
+        try {
+
+            utils::handle hdl = ls.get_opt<utils::handle>( 1 );
+
+            uint64_t val = m->get_bus( hdl )->function_mask( );
+            objects::table res;
+            res.add( "value", new_integer( val ) );
+
+            const funcs_names_codes_type *p = funcs_names_codes;
+
+            do {
+                if( val & p->code_ ) {
+                    res.add( new_string( p->name_ ) );
+                }
+            } while ( (++p)->name_ );
+
+            res.push( L );
+
+        } catch( const std::exception &ex ) {
+            ls.push( );
+            ls.push( ex.what( ) );
+            return 2;
+        }
+        return 1;
+    }
+
+    int lcall_bus_read ( lua_State *L )
+    {
+        module *m = get_module( L );
+        lua::state ls( L );
+
+        utils::handle h = ls.get_opt<utils::handle>( 1 );
+        unsigned max = ls.get_opt<unsigned>( 2, 44000 );
+
+        if( max > 44000 ) { // fkn mgk!
+            max = 44000;
+        }
+
+        try {
+            std::vector<char> data( max + 1 );
+            size_t res = m->get_bus( h )->read( &data[0], max );
+            ls.push( &data[0], res );
+        } catch( const std::exception &ex ) {
+            ls.push( );
+            ls.push( ex.what( ) );
+            return 2;
+        }
+        return 1;
+
+    }
+
+    int lcall_bus_write ( lua_State *L )
+    {
+        module *m = get_module( L );
+        lua::state ls( L );
+
+        utils::handle h = ls.get_opt<utils::handle>( 1 );
+        std::string   d = ls.get_opt<std::string>( 2 );
+
+        try {
+            size_t res = m->get_bus( h )
+                          ->write( d.empty( ) ? "" : &d[0], d.size( ) );
+            ls.push( res );
+        } catch( const std::exception &ex ) {
+            ls.push( );
+            ls.push( ex.what( ) );
+            return 2;
+        }
+        return 1;
     }
 
 }
