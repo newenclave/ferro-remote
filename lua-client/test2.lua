@@ -10,7 +10,7 @@ end
 function stoptask( )
     counter.tasks = counter.tasks - 1 
     if counter.tasks == 0 then 
-    fr.exit( 0 )
+	fr.exit( 0 )
     end
 end
 
