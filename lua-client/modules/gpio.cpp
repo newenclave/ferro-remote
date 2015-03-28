@@ -385,7 +385,8 @@ namespace {
         utils::handle h = ls.get_opt<utils::handle>( 1 );
 
         try {
-            giface::info i = m->get_dev( h )->get_info( );
+            auto dev = m->get_dev_info( h );
+            giface::info i = dev.dev_->get_info( );
 
             objects::table res;
             res.add( "id",          new_integer( i.id ) );
@@ -394,8 +395,10 @@ namespace {
 
             res.add( "direction", new_string(
                                     val2str( dirs, i.direction, "unknown" ) ) );
-            res.add( "edge", new_string(
+            if( dev.edge_support_ ) {
+                res.add( "edge", new_string(
                                     val2str( edges, i.edge, "unknown" ) ) );
+            }
             res.push( L );
         } catch( const std::exception &ex ) {
             ls.push(  );

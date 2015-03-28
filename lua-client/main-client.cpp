@@ -67,6 +67,7 @@ namespace fr { namespace lua { namespace client {
             return res;
         }
 
+
         int lcall_events( lua_State *L )
         {
             general_info *g = get_gen_info( L );
@@ -90,6 +91,14 @@ namespace fr { namespace lua { namespace client {
             general_info *g = get_gen_info( L );
             g->general_events_->subscribe( L );
             return 0;
+        }
+
+        int lcall_start_events( lua_State *L )
+        {
+            general_info *g = get_gen_info( L );
+            g->eventor_->set_enable( true );
+            lua_pushboolean( L, true );
+            return 1;
         }
 
         int lcall_global_print( lua_State *L )
@@ -241,6 +250,8 @@ namespace fr { namespace lua { namespace client {
         objects::table_sptr fr_table(std::make_shared<objects::table>( ));
 
         fr_table->add( "exit", new_function( &lcall_exit ) );
+        fr_table->add( "run",  new_function( &lcall_start_events ) );
+
         objects::table_sptr ct(new_table( ));
 
         if( connect ) {

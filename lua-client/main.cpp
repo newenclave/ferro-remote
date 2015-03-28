@@ -150,6 +150,7 @@ int main( int argc, const char *argv[] )
                                         ci.main_,
                                         std::ref(et.get_io_service( ) ) );
 
+        ci.eventor_->set_enable( false );
         //ci.client_core_
         ci.cmd_opts_.swap( vm );
 
