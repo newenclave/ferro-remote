@@ -113,6 +113,7 @@ namespace fr { namespace lua { namespace client {
 
             if( info->connected_ ) {
                 for( auto &m: info->modules_ ) {
+                    m->reinit( );
                     main.add( m->name( ), m->table( ) );
                 }
             } else {

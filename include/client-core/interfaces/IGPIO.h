@@ -15,6 +15,7 @@ namespace interfaces { namespace gpio {
     enum direction_type {
          DIRECT_IN   = 0
         ,DIRECT_OUT  = 1
+        ,DIRECT_NONE = 0xFF
     };
 
     static
