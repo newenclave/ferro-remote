@@ -1,3 +1,4 @@
+#include <iostream>
 
 #include "iface.h"
 #include "../fr-lua.h"
@@ -65,13 +66,13 @@ namespace {
         return def;
     }
 
-    giface::direction_type string2dir( const std::string &val )
+    giface::direction_type str2dir( const std::string &val )
     {
         return giface::direction_val2enum(
                     str2val( dirs, val, giface::DIRECT_NONE ) );
     }
 
-    giface::edge_type string2edge( const std::string &val )
+    giface::edge_type str2edge( const std::string &val )
     {
         return giface::edge_val2enum(
                     str2val( edges, val, giface::EDGE_NONE ) );
@@ -86,6 +87,7 @@ namespace {
 
     int lcall_export   ( lua_State *L );
     int lcall_info     ( lua_State *L );
+    int lcall_set      ( lua_State *L );
     int lcall_unexport ( lua_State *L );
 
 
@@ -130,6 +132,7 @@ namespace {
                 res->add( "export",     new_function( &lcall_export ) );
                 res->add( "unexport",   new_function( &lcall_unexport ) );
                 res->add( "info",       new_function( &lcall_info ) );
+                res->add( "set",        new_function( &lcall_set ) );
             }
 
             return res;
@@ -188,8 +191,8 @@ namespace {
             if( n > 1 ) {
                 if( t == base::TYPE_NUMBER ) {
                     dir = ls.get_opt<unsigned>( 2 );
-                } else if( t == base::TYPE_NUMBER ) {
-                    dir = string2dir(ls.get_opt<std::string>(2));
+                } else if( t == base::TYPE_STRING ) {
+                    dir = str2dir(ls.get_opt<std::string>(2));
                 }
             }
 
@@ -203,13 +206,100 @@ namespace {
         return 1;
     }
 
-//    struct info {
-//        unsigned        id;
-//        unsigned        value;
-//        unsigned        active_low;
-//        direction_type  direction;
-//        edge_type       edge;
-//    };
+    void set_value( dev_sptr &dev, lua::state &ls, int id )
+    {
+        unsigned val = ls.get_opt<unsigned>( id, 0 );
+        dev->set_value( val );
+    }
+
+    void set_al( dev_sptr &dev, lua::state &ls, int id )
+    {
+        bool val = ls.get_opt<bool>( id, false );
+        dev->set_active_low( val );
+    }
+
+    void set_edge( dev_sptr &dev, lua::state &ls, int id )
+    {
+        switch( ls.get_type( id ) ) {
+        case base::TYPE_STRING:
+            dev->set_edge( str2edge( ls.get_opt<std::string>( id ) ) );
+        case base::TYPE_NUMBER:
+        case base::TYPE_NONE:
+            dev->set_edge( giface::edge_val2enum(
+                             ls.get_opt<unsigned>( id, giface::EDGE_NONE ) ) );
+        default:
+            throw std::runtime_error( "Bad value for 'edge'." );
+        }
+    }
+
+    void set_dir( dev_sptr &dev, lua::state &ls, int id )
+    {
+        switch( ls.get_type( id ) ) {
+        case base::TYPE_STRING:
+            dev->set_direction( str2dir( ls.get_opt<std::string>( id ) ) );
+        case base::TYPE_NUMBER:
+        case base::TYPE_NONE:
+            dev->set_direction( giface::direction_val2enum(
+                             ls.get_opt<unsigned>( id, giface::DIRECT_IN ) ) );
+        default:
+            throw std::runtime_error( "Bad value for 'direction'." );
+        }
+    }
+
+    void set_from_string( dev_sptr &dev, lua::state &ls, int id )
+    {
+        std::string name = ls.get_opt<std::string>( 1 );
+        if( !name.compare( "edge" ) ) {
+            set_edge( dev, ls, id );
+        } else if( !name.compare( "direction" ) ) {
+            set_dir( dev, ls, id );
+        } else if( !name.compare( "active_low" ) ) {
+            set_al( dev, ls, id );
+        } else if( !name.compare( "value" ) ) {
+            set_value( dev, ls, id );
+        } else {
+            throw std::runtime_error( std::string( "Bad param name " ) + name );
+        }
+    }
+
+    int lcall_set( lua_State *L )
+    {
+        module *m = get_module( L );
+        lua::state ls(L);
+        utils::handle h = ls.get_opt<utils::handle>( 1 );
+
+        int n = ls.get_top( );
+
+        if( n < 2 ) {
+            ls.push( false );
+            return 1;
+        }
+
+        try {
+            int ft = ls.get_type( 2 );
+            auto dev = m->get_dev( h );
+            switch( ft ) {
+            case base::TYPE_STRING:
+                set_from_string( dev, ls, 2 );
+                ls.push( true );
+                break;
+            case base::TYPE_NUMBER:
+                dev->set_value( ls.get_opt<unsigned>( 2 ) );
+                ls.push( true );
+                break;
+            case base::TYPE_TABLE:
+            default:
+                ls.push( false );
+                ;;;
+            }
+        } catch( const std::exception &ex ) {
+            ls.push( false );
+            ls.push( ex.what( ) );
+            return 2;
+        }
+
+        return 1;
+    }
 
     int lcall_info( lua_State *L )
     {

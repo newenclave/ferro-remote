@@ -75,6 +75,7 @@ namespace interfaces { namespace gpio {
         virtual ~iface( ) { }
 
         virtual info get_info( ) const = 0;
+        virtual void set_info( const info &inf ) const = 0;
 
         virtual unsigned id( ) const = 0;
 

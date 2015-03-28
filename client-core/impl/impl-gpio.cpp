@@ -265,14 +265,6 @@ namespace fr { namespace client { namespace interfaces {
                 vcd.ParseFromString( data );
                 cb( err, vcd.new_value( ), vcd.interval( ) );
             }
-//            void event_handler0( unsigned err,
-//                                 const std::string &data,
-//                                 gpio::value_change_callback0 &cb ) const
-//            {
-//                gproto::value_change_data vcd;
-//                vcd.ParseFromString( data );
-//                cb( vcd.new_value( ) );
-//            }
 
             void register_for_change( gpio
                                    ::value_change_callback cb ) const override
@@ -312,11 +304,6 @@ namespace fr { namespace client { namespace interfaces {
                 core_.register_async_op( res.async_op_id( ), acb );
             }
 
-//            void register_for_change( value_change_callback0 cb ) const
-//            {
-
-//            }
-
             void unregister_impl( ) const
             {
                 gproto::register_req req;
@@ -329,7 +316,18 @@ namespace fr { namespace client { namespace interfaces {
                 unregister_impl( );
             }
 
-            gpio::info get_info( ) const
+            void set_info( const gpio::info &inf ) const override
+            {
+                gproto::setup_req req;
+                req.mutable_hdl( )->set_value( ii_.hdl_ );
+                req.mutable_setup( )->set_direction( inf.direction );
+                req.mutable_setup( )->set_value( inf.value );
+                req.mutable_setup( )->set_active_low( inf.active_low );
+                req.mutable_setup( )->set_edge( inf.edge );
+                client_.call_request( &stub_type::setup, &req );
+            }
+
+            gpio::info get_info( ) const override
             {
                 gpio::info result;
                 gproto::info_req    req;
