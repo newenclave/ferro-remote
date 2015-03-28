@@ -334,6 +334,7 @@ namespace {
                 break;
             case base::TYPE_NONE:
                 ls.push( dev->value( ) );
+                break;
             default:
                 ls.push( );
                 ls.push( "Nothing to do." );
@@ -364,7 +365,7 @@ namespace {
 
             res.add( "direction", new_string(
                                     val2str( dirs, i.direction, "unknown" ) ) );
-            res.add( "edge",      new_string(
+            res.add( "edge", new_string(
                                     val2str( edges, i.edge, "unknown" ) ) );
             res.push( L );
         } catch( const std::exception &ex ) {
