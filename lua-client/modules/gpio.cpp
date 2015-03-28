@@ -88,6 +88,7 @@ namespace {
     int lcall_export   ( lua_State *L );
     int lcall_info     ( lua_State *L );
     int lcall_set      ( lua_State *L );
+    int lcall_get      ( lua_State *L );
     int lcall_unexport ( lua_State *L );
 
 
@@ -133,6 +134,7 @@ namespace {
                 res->add( "unexport",   new_function( &lcall_unexport ) );
                 res->add( "info",       new_function( &lcall_info ) );
                 res->add( "set",        new_function( &lcall_set ) );
+                res->add( "get",        new_function( &lcall_get ) );
             }
 
             return res;
@@ -248,7 +250,7 @@ namespace {
 
     void set_from_string( dev_sptr &dev, lua::state &ls, int id )
     {
-        std::string name = ls.get_opt<std::string>( 1 );
+        std::string name = ls.get_opt<std::string>( id );
         if( !name.compare( "edge" ) ) {
             set_edge( dev, ls, id );
         } else if( !name.compare( "direction" ) ) {
@@ -298,6 +300,50 @@ namespace {
             return 2;
         }
 
+        return 1;
+    }
+
+    void get_push_from_string( dev_sptr &dev, lua::state &ls, int id )
+    {
+        std::string name = ls.get_opt<std::string>( id );
+        if( !name.compare( "edge" ) ) {
+            ls.push( val2str( edges, dev->edge( ), "none" ) );
+        } else if( !name.compare( "direction" ) ) {
+            ls.push( val2str( dirs, dev->direction( ), "unknown" ) );
+        } else if( !name.compare( "active_low" ) ) {
+            ls.push( !!dev->active_low( ) );
+        } else if( !name.compare( "value" ) ) {
+            ls.push( dev->value( ) );
+        } else {
+            throw std::runtime_error( std::string( "Bad param name " ) + name );
+        }
+    }
+
+    int lcall_get( lua_State *L )
+    {
+        module *m = get_module( L );
+        lua::state ls(L);
+        utils::handle h = ls.get_opt<utils::handle>( 1 );
+
+        try {
+            int ft = ls.get_type( 2 );
+            auto dev = m->get_dev( h );
+            switch( ft ) {
+            case base::TYPE_STRING:
+                get_push_from_string( dev, ls, 2 );
+                break;
+            case base::TYPE_NONE:
+                ls.push( dev->value( ) );
+            default:
+                ls.push( );
+                ls.push( "Nothing to do." );
+                return 2;
+            }
+        } catch( const std::exception &ex ) {
+            ls.push( false );
+            ls.push( ex.what( ) );
+            return 2;
+        }
         return 1;
     }
 
