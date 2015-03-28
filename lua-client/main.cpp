@@ -98,8 +98,6 @@ int main( int argc, const char *argv[] )
 
     fill_common_options( description );
 
-    vcomm::pool_pair pp( 2, 2 );
-
     po::variables_map vm;
     int res = 0;
 
@@ -141,6 +139,7 @@ int main( int argc, const char *argv[] )
 
     do {
 
+        vcomm::pool_pair pp( 1, 1 );
         vcomm::thread_pool et( 0 );
 
         ci.main_    = ls.get_state( );
@@ -187,10 +186,11 @@ int main( int argc, const char *argv[] )
 
         res = ci.exit_code_;
 
+        pp.stop_all( );
+        pp.join_all( );
+
     } while(0);
 
-    pp.stop_all( );
-    pp.join_all( );
 
     return res;
 
