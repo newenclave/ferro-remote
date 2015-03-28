@@ -46,16 +46,15 @@ function get_file( path, portion )
     eq.post( impl, info )
 end
 
-function hb_timer( )
-    fr.print( counter,  "\n" ) 
-    eq.timer.post( hb_timer, 1 )
-end
-
 function main ( argv ) 
     for i, v in pairs( argv ) do 
         fr.print( "Add file: ", v, "\n" ) 
         get_file( v, 41227 )
     end
-    hb_timer( ) 
+    local function hb_timer( )
+	fr.print( counter,  "\n" ) 
+	eq.timer.post( hb_timer, 1 )
+    end
+    hb_timer( )
 end
 
