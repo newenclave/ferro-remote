@@ -89,6 +89,7 @@ namespace {
     int lcall_info     ( lua_State *L );
     int lcall_set      ( lua_State *L );
     int lcall_get      ( lua_State *L );
+    int lcall_close    ( lua_State *L );
     int lcall_unexport ( lua_State *L );
 
 
@@ -135,6 +136,7 @@ namespace {
                 res->add( "info",       new_function( &lcall_info ) );
                 res->add( "set",        new_function( &lcall_set ) );
                 res->add( "get",        new_function( &lcall_get ) );
+                res->add( "close",      new_function( &lcall_close ) );
             }
 
             return res;
@@ -355,7 +357,6 @@ namespace {
         utils::handle h = ls.get_opt<utils::handle>( 1 );
 
         try {
-
             giface::info i = m->get_dev( h )->get_info( );
 
             objects::table res;
@@ -373,6 +374,16 @@ namespace {
             ls.push( ex.what( ) );
             return 2;
         }
+        return 1;
+    }
+
+    int lcall_close( lua_State *L )
+    {
+        module *m = get_module( L );
+        lua::state ls(L);
+        utils::handle h = ls.get_opt<utils::handle>( 1 );
+        m->devs_.erase( utils::from_handle<size_t>( h ) );
+        ls.push( true );
         return 1;
     }
 
