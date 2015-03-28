@@ -181,7 +181,7 @@ namespace {
 
         try {
 
-            unsigned id = ls.get_opt<unsigned>( 1 );
+            unsigned id  = ls.get_opt<unsigned>( 1 );
             unsigned dir = giface::DIRECT_IN; // 2
             unsigned val = ls.get_opt<unsigned>( 3 );;
 
