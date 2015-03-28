@@ -191,6 +191,10 @@ namespace fr { namespace lua { namespace client {
             info->client_core_->connect( server );
         }
 
+        if( ccl ) {
+            ccl->disconnect( );
+        }
+
     }
 
     general_info *get_gen_info( lua_State *L )
