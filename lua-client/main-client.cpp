@@ -156,6 +156,7 @@ namespace fr { namespace lua { namespace client {
                        bool async )
     {
         typedef fr::client::core::client_core client_core;
+
         auto ccl = std::make_shared<client_core>(*info->pp_);
 
         if( !id.empty( ) ) {
@@ -184,15 +185,16 @@ namespace fr { namespace lua { namespace client {
                                         on_init_error, _1, info ) ) );
 
         info->client_core_.swap( ccl );
+
+        if( ccl ) {
+            ccl->disconnect( );
+        }
+
         if( async ) {
             const fr::client::core::client_core::async_closure_func async_cb;
             info->client_core_->async_connect( server, async_cb );
         } else {
             info->client_core_->connect( server );
-        }
-
-        if( ccl ) {
-            ccl->disconnect( );
         }
 
     }
