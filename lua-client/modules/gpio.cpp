@@ -18,7 +18,17 @@ namespace {
     typedef   giface::iface siface_type;
 
     typedef std::shared_ptr<giface::iface> dev_sptr;
-    typedef std::map<size_t, dev_sptr>     dev_map;
+
+    struct dev_info {
+        dev_sptr dev_;
+        bool edge_support_;
+        dev_info( )
+            :edge_support_(false)
+        { }
+    };
+
+    typedef std::shared_ptr<dev_info>  dev_info_sptr;
+    typedef std::map<size_t, dev_info> dev_map;
 
     const std::string     module_name("gpio");
     const char *id_path = FR_CLIENT_LUA_HIDE_TABLE ".gpio.__i";
@@ -146,24 +156,35 @@ namespace {
         {
             size_t nh = info_.eventor_->next_index( );
 
-            dev_sptr nd;
+            dev_info nd;
             switch (dir) {
             case giface::DIRECT_IN:
-                nd.reset( giface::create_input( *info_.client_core_, id ) );
+                nd.dev_.reset( giface::create_input( *info_.client_core_,
+                                                      id ) );
                 break;
             case giface::DIRECT_OUT:
-                nd.reset( giface::create_output( *info_.client_core_,
-                                                 id, val ) );
+                nd.dev_.reset( giface::create_output( *info_.client_core_,
+                                                       id, val ) );
                 break;
             default:
-                nd.reset( giface::create( *info_.client_core_, id ) );
+                nd.dev_.reset( giface::create( *info_.client_core_, id ) );
                 break;
             }
+            nd.edge_support_ = nd.dev_->edge_supported( );
             devs_[nh] = nd;
             return utils::to_handle(nh);
         }
 
         dev_sptr get_dev( utils::handle hdl )
+        {
+            auto f( devs_.find( utils::from_handle<size_t>(hdl) ) );
+            if( f == devs_.end( ) ) {
+                throw std::runtime_error( "Bad handle value." );
+            }
+            return f->second.dev_;
+        }
+
+        dev_info get_dev_info( utils::handle hdl )
         {
             auto f( devs_.find( utils::from_handle<size_t>(hdl) ) );
             if( f == devs_.end( ) ) {
@@ -210,47 +231,50 @@ namespace {
         return 1;
     }
 
-    void set_value( dev_sptr &dev, lua::state &ls, int id )
+    void set_value( dev_info &dev, lua::state &ls, int id )
     {
         unsigned val = ls.get_opt<unsigned>( id, 0 );
-        dev->set_value( val );
+        dev.dev_->set_value( val );
     }
 
-    void set_al( dev_sptr &dev, lua::state &ls, int id )
+    void set_al( dev_info &dev, lua::state &ls, int id )
     {
         bool val = ls.get_opt<bool>( id, false );
-        dev->set_active_low( val );
+        dev.dev_->set_active_low( val );
     }
 
-    void set_edge( dev_sptr &dev, lua::state &ls, int id )
+    void set_edge( dev_info &dev, lua::state &ls, int id )
     {
+        if( !dev.edge_support_ ) {
+            return;
+        }
         switch( ls.get_type( id ) ) {
         case base::TYPE_STRING:
-            dev->set_edge( str2edge( ls.get_opt<std::string>( id ) ) );
+            dev.dev_->set_edge( str2edge( ls.get_opt<std::string>( id ) ) );
         case base::TYPE_NUMBER:
         case base::TYPE_NONE:
-            dev->set_edge( giface::edge_val2enum(
+            dev.dev_->set_edge( giface::edge_val2enum(
                              ls.get_opt<unsigned>( id, giface::EDGE_NONE ) ) );
         default:
             throw std::runtime_error( "Bad value for 'edge'." );
         }
     }
 
-    void set_dir( dev_sptr &dev, lua::state &ls, int id )
+    void set_dir( dev_info &dev, lua::state &ls, int id )
     {
         switch( ls.get_type( id ) ) {
         case base::TYPE_STRING:
-            dev->set_direction( str2dir( ls.get_opt<std::string>( id ) ) );
+            dev.dev_->set_direction( str2dir( ls.get_opt<std::string>( id ) ) );
         case base::TYPE_NUMBER:
         case base::TYPE_NONE:
-            dev->set_direction( giface::direction_val2enum(
+            dev.dev_->set_direction( giface::direction_val2enum(
                              ls.get_opt<unsigned>( id, giface::DIRECT_IN ) ) );
         default:
             throw std::runtime_error( "Bad value for 'direction'." );
         }
     }
 
-    void set_from_string( dev_sptr &dev, lua::state &ls, int id )
+    void set_from_string( dev_info &dev, lua::state &ls, int id )
     {
         std::string name = ls.get_opt<std::string>( id );
         if( !name.compare( "edge" ) ) {
@@ -281,14 +305,14 @@ namespace {
 
         try {
             int ft = ls.get_type( 2 );
-            auto dev = m->get_dev( h );
+            auto dev = m->get_dev_info( h );
             switch( ft ) {
             case base::TYPE_STRING:
                 set_from_string( dev, ls, 2 );
                 ls.push( true );
                 break;
             case base::TYPE_NUMBER:
-                dev->set_value( ls.get_opt<unsigned>( 2 ) );
+                dev.dev_->set_value( ls.get_opt<unsigned>( 2 ) );
                 ls.push( true );
                 break;
             case base::TYPE_TABLE:
@@ -305,17 +329,21 @@ namespace {
         return 1;
     }
 
-    void get_push_from_string( dev_sptr &dev, lua::state &ls, int id )
+    void get_push_from_string( dev_info &dev, lua::state &ls, int id )
     {
         std::string name = ls.get_opt<std::string>( id );
         if( !name.compare( "edge" ) ) {
-            ls.push( val2str( edges, dev->edge( ), "none" ) );
+            if( dev.edge_support_ ) {
+                ls.push( val2str( edges, dev.dev_->edge( ), "none" ) );
+            } else {
+                ls.push( "not supported" );
+            }
         } else if( !name.compare( "direction" ) ) {
-            ls.push( val2str( dirs, dev->direction( ), "unknown" ) );
+            ls.push( val2str( dirs, dev.dev_->direction( ), "unknown" ) );
         } else if( !name.compare( "active_low" ) ) {
-            ls.push( !!dev->active_low( ) );
+            ls.push( !!dev.dev_->active_low( ) );
         } else if( !name.compare( "value" ) ) {
-            ls.push( dev->value( ) );
+            ls.push( dev.dev_->value( ) );
         } else {
             throw std::runtime_error( std::string( "Bad param name " ) + name );
         }
@@ -329,13 +357,13 @@ namespace {
 
         try {
             int ft = ls.get_type( 2 );
-            auto dev = m->get_dev( h );
+            auto dev = m->get_dev_info( h );
             switch( ft ) {
             case base::TYPE_STRING:
                 get_push_from_string( dev, ls, 2 );
                 break;
             case base::TYPE_NONE:
-                ls.push( dev->value( ) );
+                ls.push( dev.dev_->value( ) );
                 break;
             default:
                 ls.push( );
