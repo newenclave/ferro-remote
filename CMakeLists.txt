@@ -34,36 +34,32 @@ endif( )
 set(Boost_USE_MULTITHREADED   ON)
 
 if( NOT VTRC_CXX11_ENABLED )
-    error( "VTRC has been built without C++11 support" )
+    message( FATAL_ERROR "VTRC has been built without C++11 support" )
 endif( )
 
-
 if(MSVC)
-        find_package( Boost 1.50 COMPONENTS
-                        system
-                        thread
-                        program_options
-                        filesystem
-                        date_time
-                        chrono
-                        regex
-                      REQUIRED)
 
-        get_cmd_cxx11( VTRC_CXX_CMD )
-        set( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${VTRC_CXX_CMD}")
-
+    find_package( Boost 1.50 COMPONENTS
+                    system
+                    thread
+                    program_options
+                    filesystem
+                    date_time
+                    chrono
+                    regex
+                  REQUIRED)
 else( MSVC )
 
-        find_package( Boost 1.50 COMPONENTS
-                        system
-                        thread
-                        program_options
-                        filesystem
-                      REQUIRED)
-
-        get_cmd_cxx11( VTRC_CXX_CMD )
-        set( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${VTRC_CXX_CMD}")
+    find_package( Boost 1.50 COMPONENTS
+                    system
+                    thread
+                    program_options
+                    filesystem
+                  REQUIRED)
 endif( MSVC )
+
+get_cmd_cxx11( VTRC_CXX_CMD )
+set( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${VTRC_CXX_CMD}")
 
 find_package( Protobuf REQUIRED)
 
