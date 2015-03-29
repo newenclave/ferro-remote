@@ -373,7 +373,8 @@ namespace {
 
         if( n < 2 ) {
             ls.push( false );
-            return 1;
+            ls.push( "Not enough actual parameters." );
+            return 2;
         }
 
         try {
