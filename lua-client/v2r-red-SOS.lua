@@ -4,15 +4,16 @@ file = fs.file
 
 v2r_device = "/dev/v2r_gpio"
 
-function on_off( device, on )
-    local values = { [true] = "1", [false] = "0" }
-    file.write( device, "set gpio 74 output "..values[on] )
-end
-
 function next_call( err, info )
-    local vals = { 200, 200, 200, 600, 600, 600, 200, 200, 200 }
+
+				local function on_off( device, on )
+								local values = { [true] = "1", [false] = "0" }
+								file.write( device, "set gpio 74 output "..values[on] )
+				end
+
+    local vals = { 20, 20, 20, 60, 60, 60, 20, 20, 20 }
 	   -- local symbol = { [0] = "S", [1] = "O", [2] = "S", [3] = "\n" } 
-				local tout = { [true] = 200, [false] = 500 }
+				local tout = { [true] = 20, [false] = 100 }
 				local to   = tout[info.index < #vals]
 
 				info.index = info.index % #vals
