@@ -252,11 +252,10 @@ namespace {
 
         void register_event( dev_sptr f, eventor_sptr e )
         {
+            namespace ph = std::placeholders;
             f->register_for_change_int(
                         std::bind( &module::gpio_event, this,
-                                        std::placeholders::_1,
-                                        std::placeholders::_2,
-                                        std::placeholders::_3,
+                                        ph::_1, ph::_2, ph::_3,
                                         eventor_wptr(e) ) );
         }
 
