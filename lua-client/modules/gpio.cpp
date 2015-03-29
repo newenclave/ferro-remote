@@ -9,6 +9,8 @@
 #include "interfaces/IGPIO.h"
 #include "../utils.h"
 
+#include "../event-container.h"
+
 namespace fr { namespace lua { namespace m { namespace gpio {
 
 namespace {
@@ -29,6 +31,10 @@ namespace {
 
     typedef std::shared_ptr<dev_info>  dev_info_sptr;
     typedef std::map<size_t, dev_info> dev_map;
+
+    typedef std::shared_ptr<lua::event_container>  eventor_sptr;
+    typedef std::weak_ptr<lua::event_container>    eventor_wptr;
+
 
     const std::string     module_name("gpio");
     const char *id_path = FR_CLIENT_LUA_HIDE_TABLE ".gpio.__i";
@@ -102,15 +108,30 @@ namespace {
     int lcall_close    ( lua_State *L );
     int lcall_unexport ( lua_State *L );
 
+    int lcall_file_events   ( lua_State *L );
+    int lcall_file_subscribe( lua_State *L );
+
+    std::vector<std::string> events_names( )
+    {
+        std::vector<std::string> res;
+
+        res.push_back( "on_changed" );
+
+        return res;
+    }
+
 
     struct module: public iface {
 
-        client::general_info &info_;
-        bool                  available_;
-        dev_map               devs_;
+        client::general_info           &info_;
+        bool                            available_;
+        dev_map                         devs_;
+        std::map<size_t, eventor_sptr>  events_;
+        std::vector<std::string>        events_name_;
 
         module( client::general_info &info )
             :info_(info)
+            ,events_name_(events_names( ))
         { }
 
         void init( )
@@ -147,9 +168,28 @@ namespace {
                 res->add( "set",        new_function( &lcall_set ) );
                 res->add( "get",        new_function( &lcall_get ) );
                 res->add( "close",      new_function( &lcall_close ) );
+
+                res->add( "events",    new_function( &lcall_file_events ) );
+                res->add( "subscribe", new_function( &lcall_file_subscribe ) );
             }
 
             return res;
+        }
+
+        void gpio_event( unsigned err, unsigned val, uint64_t interval,
+                         eventor_wptr evtr )
+        {
+            eventor_sptr le(evtr.lock( ));
+            if( le ) {
+                FR_LUA_EVENT_PROLOGUE( "on_changed", *le );
+                result->add( "interval",  new_integer( interval ) );
+                if( err ) {
+                    result->add( "error", new_integer( err ) );
+                } else {
+                    result->add( "value", new_integer( val ) );
+                }
+                FR_LUA_EVENT_EPILOGUE;
+            }
         }
 
         utils::handle new_dev( unsigned id, unsigned dir, unsigned val )
@@ -172,6 +212,7 @@ namespace {
             }
             nd.edge_support_ = nd.dev_->edge_supported( );
             devs_[nh] = nd;
+            events_[nh] = new_eventor( );
             return utils::to_handle(nh);
         }
 
@@ -184,6 +225,21 @@ namespace {
             return f->second.dev_;
         }
 
+        eventor_sptr new_eventor( )
+        {
+            eventor_sptr res = std::make_shared<
+                                    lua::event_container
+                               >( info_, events_name_ );
+            return res;
+        }
+
+        eventor_sptr get_eventor( utils::handle hdl )
+        {
+            static const eventor_sptr empty;
+            auto f(events_.find( utils::from_handle<size_t>(hdl) ));
+            return (f != events_.end( )) ? f->second : empty;
+        }
+
         dev_info get_dev_info( utils::handle hdl )
         {
             auto f( devs_.find( utils::from_handle<size_t>(hdl) ) );
@@ -191,6 +247,21 @@ namespace {
                 throw std::runtime_error( "Bad handle value." );
             }
             return f->second;
+        }
+
+        void register_event( dev_sptr f, eventor_sptr e )
+        {
+            f->register_for_change_int(
+                        std::bind( &module::gpio_event, this,
+                                        std::placeholders::_1,
+                                        std::placeholders::_2,
+                                        std::placeholders::_3,
+                                        eventor_wptr(e) ) );
+        }
+
+        void unregister_event( dev_sptr f )
+        {
+            f->unregister( );
         }
 
         bool connection_required( ) const
@@ -433,6 +504,50 @@ namespace {
             return 2;
         }
         return 1;
+    }
+
+    int lcall_file_events ( lua_State *L )
+    {
+        module *m = get_module( L );
+        lua::state ls( L );
+        utils::handle h = ls.get_opt<utils::handle>( 1 );
+
+        auto f  = m->get_eventor( h );
+
+        if( !f ) {
+            ls.push( );
+            ls.push( "Bad handle." );
+            return 2;
+        }
+
+        return f->push_state( L );
+    }
+
+    int lcall_file_subscribe( lua_State *L )
+    {
+        module *m = get_module( L );
+        lua::state ls( L );
+        utils::handle h = ls.get_opt<utils::handle>( 1 );
+
+        auto e = m->get_eventor( h );
+
+        if( !e ) {
+            ls.push( );
+            ls.push( "Bad handle." );
+            return 2;
+        }
+
+        auto di = m->get_dev_info( h );
+
+        int n = ls.get_top( );
+
+        if( n > 2 ) {
+            m->register_event( di.dev_, e );
+        } else {
+            m->unregister_event( di.dev_ );
+        }
+
+        return e->subscribe( L, 1 );
     }
 
 
