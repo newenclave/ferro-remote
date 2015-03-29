@@ -33,9 +33,9 @@ endif( )
 
 set(Boost_USE_MULTITHREADED   ON)
 
-if( NOT VTRC_CXX11_ENABLED )
-    message( FATAL_ERROR "VTRC has been built without C++11 support" )
-endif( )
+#if( NOT VTRC_CXX11_ENABLED )
+#    message( FATAL_ERROR "VTRC has been built without C++11 support" )
+#endif( )
 
 if(MSVC)
 
