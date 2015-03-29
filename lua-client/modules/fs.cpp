@@ -127,10 +127,9 @@ namespace {
 
         void register_file( file_sptr f, eventor_sptr e )
         {
+            namespace ph = std::placeholders;
             f->register_for_events( std::bind( &module::file_event, this,
-                                    std::placeholders::_1,
-                                    std::placeholders::_2,
-                                    eventor_wptr(e) ) );
+                                    ph::_1, ph::_2, eventor_wptr(e) ) );
         }
 
         void unregister_file( file_sptr f )
