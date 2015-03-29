@@ -176,21 +176,6 @@ namespace {
             return res;
         }
 
-        void gpio_event( unsigned err, unsigned val, uint64_t interval,
-                         eventor_wptr evtr )
-        {
-            eventor_sptr le(evtr.lock( ));
-            if( le ) {
-                FR_LUA_EVENT_PROLOGUE( "on_changed", *le );
-                result->add( "interval",  new_integer( interval ) );
-                if( err ) {
-                    result->add( "error", new_integer( err ) );
-                } else {
-                    result->add( "value", new_integer( val ) );
-                }
-                FR_LUA_EVENT_EPILOGUE;
-            }
-        }
 
         utils::handle new_dev( unsigned id, unsigned dir, unsigned val )
         {
@@ -247,6 +232,22 @@ namespace {
                 throw std::runtime_error( "Bad handle value." );
             }
             return f->second;
+        }
+
+        void gpio_event( unsigned err, unsigned val, uint64_t interval,
+                         eventor_wptr evtr )
+        {
+            eventor_sptr le(evtr.lock( ));
+            if( le ) {
+                FR_LUA_EVENT_PROLOGUE( "on_changed", *le );
+                result->add( "interval",  new_integer( interval ) );
+                if( err ) {
+                    result->add( "error", new_integer( err ) );
+                } else {
+                    result->add( "value", new_integer( val ) );
+                }
+                FR_LUA_EVENT_EPILOGUE;
+            }
         }
 
         void register_event( dev_sptr f, eventor_sptr e )
@@ -322,10 +323,12 @@ namespace {
         switch( ls.get_type( id ) ) {
         case base::TYPE_STRING:
             dev.dev_->set_edge( str2edge( ls.get_opt<std::string>( id ) ) );
+            break;
         case base::TYPE_NUMBER:
         case base::TYPE_NONE:
             dev.dev_->set_edge( giface::edge_val2enum(
                              ls.get_opt<unsigned>( id, giface::EDGE_NONE ) ) );
+            break;
         default:
             throw std::runtime_error( "Bad value for 'edge'." );
         }
@@ -349,13 +352,13 @@ namespace {
     {
         std::string name = ls.get_opt<std::string>( id );
         if( !name.compare( "edge" ) ) {
-            set_edge( dev, ls, id );
+            set_edge( dev, ls, id + 1 );
         } else if( !name.compare( "direction" ) ) {
-            set_dir( dev, ls, id );
+            set_dir( dev, ls, id + 1 );
         } else if( !name.compare( "active_low" ) ) {
-            set_al( dev, ls, id );
+            set_al( dev, ls, id + 1 );
         } else if( !name.compare( "value" ) ) {
-            set_value( dev, ls, id );
+            set_value( dev, ls, id + 1 );
         } else {
             throw std::runtime_error( std::string( "Bad param name " ) + name );
         }
