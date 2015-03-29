@@ -22,6 +22,11 @@ message( "VTRC import file path: " ${VTRC_IMPORT_CMAKE} )
 include( ${VTRC_IMPORT_CMAKE} )
 include( cxx11_check.cmake )
 
+check_cxx11( FR_CXX11_ENABLED )
+if( NOT FR_CXX11_ENABLED )
+    message( FATAL_ERROR "Compiler has no C++11 support" )
+endif( )
+
 message( "static link: " ${VTRC_LINK_TYPE_STATIC} )
 
 project( ${INTERNAL_PROJECT_NAME} )
@@ -32,10 +37,6 @@ if( ${VTRC_LINK_TYPE} MATCHES ${VTRC_LINK_TYPE_STATIC} )
 endif( )
 
 set(Boost_USE_MULTITHREADED   ON)
-
-#if( NOT VTRC_CXX11_ENABLED )
-#    message( FATAL_ERROR "VTRC has been built without C++11 support" )
-#endif( )
 
 if(MSVC)
 
