@@ -171,7 +171,7 @@ int main( int argc, const char *argv[] )
             int res = ls.exec_function( main_name.c_str( ), *par );
             ls.check_call_error( res );
         } else if( custom_main ) {
-            std::cout << "Function '" << main_name << "'"
+            std::cerr << "Function '" << main_name << "'"
                       << " was not found in the script.\n";
             res = 4;
         }
