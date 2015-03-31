@@ -18,6 +18,7 @@ function con_handler( data )
 				else 
 								fr.print( string.len(data.data), "\n" )
 								if data.data == "edit\n" then
+												fr.client.console.set_color( "yellow" )
 												fr.client.os.system( "gedit" )
 								end
 				end
