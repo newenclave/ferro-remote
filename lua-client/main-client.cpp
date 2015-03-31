@@ -86,6 +86,13 @@ namespace fr { namespace lua { namespace client {
             return 0;
         }
 
+        int lcall_eval( lua_State *L )
+        {
+            lua::state ls( L );
+            std::string buf(ls.get_opt<std::string>( 1 ));
+            return ls.load_buffer( buf.c_str( ), buf.size( ) );
+        }
+
         int lcall_subscribe( lua_State *L )
         {
             general_info *g = get_gen_info( L );
@@ -250,6 +257,7 @@ namespace fr { namespace lua { namespace client {
         lua::state ls(info->main_);
         objects::table_sptr fr_table(std::make_shared<objects::table>( ));
 
+        fr_table->add( "eval", new_function( &lcall_eval ) );
         fr_table->add( "exit", new_function( &lcall_exit ) );
         fr_table->add( "run",  new_function( &lcall_start_events ) );
 
