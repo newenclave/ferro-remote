@@ -67,7 +67,6 @@ namespace fr { namespace lua { namespace client {
             return res;
         }
 
-
         int lcall_events( lua_State *L )
         {
             general_info *g = get_gen_info( L );
