@@ -540,17 +540,22 @@ namespace {
             return 2;
         }
 
-        auto di = m->get_dev_info( h );
+        event_container::subscribe_info si;
 
-        int n = ls.get_top( );
+        e->subscribe( L, 1, &si );
 
-        if( n > 2 ) {
-            m->register_event( di.dev_, e );
-        } else {
-            m->unregister_event( di.dev_ );
+        if( !si.name_.compare( "on_changed" ) ) {
+
+            auto di = m->get_dev_info( h );
+
+            if( si.call_ )  {
+                m->register_event( di.dev_, e );
+            } else {
+                m->unregister_event( di.dev_ );
+            }
         }
 
-        return e->subscribe( L, 1 );
+        return si.result_;
     }
 
 

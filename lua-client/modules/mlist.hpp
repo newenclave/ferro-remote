@@ -15,6 +15,7 @@ namespace fr { namespace lua { namespace m {
     namespace os          { iface_sptr create( client::general_info &info ); }
     namespace gpio        { iface_sptr create( client::general_info &info ); }
     namespace smbus       { iface_sptr create( client::general_info &info ); }
+    namespace console     { iface_sptr create( client::general_info &info ); }
     namespace event_queue { iface_sptr create( client::general_info &info ); }
 
     static inline
@@ -26,6 +27,7 @@ namespace fr { namespace lua { namespace m {
         res.push_back( os::create( info ) );
         res.push_back( gpio::create( info ) );
         res.push_back( smbus::create( info ) );
+        res.push_back( console::create( info ) );
         res.push_back( event_queue::create( info ) );
 
         return res;

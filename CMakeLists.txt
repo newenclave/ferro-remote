@@ -56,6 +56,7 @@ else( MSVC )
                     thread
                     program_options
                     filesystem
+                    regex
                   REQUIRED)
 endif( MSVC )
 

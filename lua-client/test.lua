@@ -11,9 +11,18 @@ end
 function call_os(  )
 		fr.print("\n\nfile: ", fr.client.fs.file, "\n\n==========\n\n")
 end
+
+function con_handler( data )
+				if data.error then 
+								fr.print( "Error ", data.error )
+				else 
+								fr.print( string.len(data.data), "\n" )
+				end
+end
 		
 function main( argv )
-				fr.print( fr.client.gpio, "\n\n" )
+
+		fr.print( fr.client.gpio, "\n\n" )
 	fr.print( "Main function; argv = ", argv, "\n" )	
 	fr.client.subscribe( "on_disconnect", 
 	                     function( data ) 
@@ -37,5 +46,7 @@ function main( argv )
 
 	fr.print( fr.client.events( ), "\n" )	
 	fr.client.connect( "127.0.0.1:12345")	
+ fr.client.console.subscribe( "on_read", con_handler )
+ fr.run( )
 end
 

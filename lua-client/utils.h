@@ -40,7 +40,7 @@ namespace fr { namespace lua { namespace utils {
         void assign_handle( )
         {
 #ifdef _WIN32
-            HANDLE hdl = CreateFile( T("CONIN$"),
+            HANDLE hdl = CreateFile( _T("CONIN$"),
                             GENERIC_READ | GENERIC_WRITE,
                             FILE_SHARE_READ | FILE_SHARE_WRITE,
                             NULL,
@@ -72,7 +72,6 @@ namespace fr { namespace lua { namespace utils {
             return hdl_;
         }
 #else
-
         const boost::asio::posix::stream_descriptor &hdl( ) const
         {
             return hdl_;
@@ -86,6 +85,15 @@ namespace fr { namespace lua { namespace utils {
 
     };
 
+    namespace ccout {
+        std::ostream &light ( std::ostream &s );
+        std::ostream &red   ( std::ostream &s );
+        std::ostream &green ( std::ostream &s );
+        std::ostream &blue  ( std::ostream &s );
+        std::ostream &cyan  ( std::ostream &s );
+        std::ostream &yellow( std::ostream &s );
+        std::ostream &none  ( std::ostream &s );
+    }
 
 }}}
 

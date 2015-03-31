@@ -17,7 +17,8 @@ namespace fr { namespace lua {
         return (f != event_map_.end( )) && (f->second);
     }
 
-    int event_container::subscribe(lua_State *L , int shift )
+    int event_container::subscribe( lua_State *L , int shift ,
+                                    subscribe_info *res )
     {
         lua::state ls(L);
         int n = ls.get_top( );
@@ -54,6 +55,12 @@ namespace fr { namespace lua {
             finfo->second = par;
         } else {
             finfo->second = event_info_sptr( );
+        }
+
+        if( res ) {
+            res->call_      = call;
+            res->name_      = name;
+            res->result_    = 1;
         }
 
         ls.push( true );

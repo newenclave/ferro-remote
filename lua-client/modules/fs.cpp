@@ -917,15 +917,17 @@ namespace {
             return 2;
         }
 
-        int n = ls.get_top( );
+        event_container::subscribe_info si;
+        e->subscribe( L, 1, &si );
 
-        if( n > 2 ) {
-            m->register_file( f, e );
-        } else {
-            m->unregister_file( f );
+        if( !si.name_.compare( "on_pollin" ) ) {
+            if( si.call_ )  {
+                m->register_file( f, e );
+            } else {
+                m->unregister_file( f );
+            }
         }
-
-        return e->subscribe( L, 1 );
+        return si.result_;
     }
 
 }
