@@ -3,6 +3,17 @@
 
 #include <stdlib.h>
 
+#ifdef _WIN32
+#include "boost/asio/windows/stream_handle.hpp"
+#include <tchar.h>
+#else
+#include "boost/asio/posix/stream_descriptor.hpp"
+#endif
+
+namespace boost { namespace asio {
+    class io_service;
+}}
+
 namespace fr { namespace lua { namespace utils {
 
     typedef void * handle;
@@ -18,6 +29,63 @@ namespace fr { namespace lua { namespace utils {
     {
         return reinterpret_cast<T>(value);
     }
+
+    class console_handle {
+#ifdef _WIN32
+        boost::asio::windows::stream_handle hdl_;
+#else
+        boost::asio::posix::stream_descriptor hdl_;
+#endif
+
+        void assign_handle( )
+        {
+#ifdef _WIN32
+            HANDLE hdl = CreateFile( T("CONIN$"),
+                            GENERIC_READ | GENERIC_WRITE,
+                            FILE_SHARE_READ | FILE_SHARE_WRITE,
+                            NULL,
+                            OPEN_EXISTING,
+                            FILE_FLAG_OVERLAPPED,
+                            NULL );
+            hdl_.assign( hdl );
+#else
+            hdl_.assign( STDIN_FILENO );
+#endif
+        }
+
+    public:
+
+        console_handle( boost::asio::io_service &ios )
+            :hdl_(ios)
+        {
+            assign_handle( );
+        }
+
+#ifdef _WIN32
+        const boost::asio::windows::stream_handle &hdl( ) const
+        {
+            return hdl_;
+        }
+
+        boost::asio::windows::stream_handle &hdl( )
+        {
+            return hdl_;
+        }
+#else
+
+        const boost::asio::posix::stream_descriptor &hdl( ) const
+        {
+            return hdl_;
+        }
+
+        boost::asio::posix::stream_descriptor &hdl( )
+        {
+            return hdl_;
+        }
+#endif
+
+    };
+
 
 }}}
 
