@@ -1,3 +1,5 @@
+#Depricated. See lua-client instead
+
 ## Global calls
 
 ```lua
