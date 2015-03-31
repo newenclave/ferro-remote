@@ -10,11 +10,7 @@ function handler( data )
 				local s = trim( data.data )
 				if s ~= "" then 
 								local f, e = fr.eval( "" .. s  .. " "  )
-								if f then 
-												print("-> ", f( ))
-								else 
-												print( "-> ", e )
-								end
+								print( "-> ", f, e )
 				end 
 				fr.print( "\n$ " )
 end
