@@ -713,9 +713,13 @@ namespace lua {
         {
             int res = luaL_loadbuffer ( vm_, buf, length, name ? name : "" );
             if( LUA_OK == res ) {
-                res = lua_pcall( vm_, 0, LUA_MULTRET, 0);
+                return lua_pcall( vm_, 0, LUA_MULTRET, 0);
+            } else {
+                std::string err = pop_error( );
+                push( );
+                push( err );
+                return 2;
             }
-            return res;
         }
     };
     typedef std::shared_ptr<state> state_sptr;

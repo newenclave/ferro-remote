@@ -18,5 +18,6 @@ end
 function main( )
 				con.subscribe( "on_read", handler )
 				fr.print( "$ " )
+				fr.eval( "f" )
 				fr.run( )
 end
