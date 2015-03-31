@@ -49,7 +49,7 @@ namespace fr { namespace lua { namespace utils {
                             NULL );
             hdl_.assign( hdl );
 #else
-            hdl_.assign( STDIN_FILENO );
+            hdl_.assign( STDOUT_FILENO );
 #endif
         }
 

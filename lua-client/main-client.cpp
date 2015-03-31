@@ -110,6 +110,7 @@ namespace fr { namespace lua { namespace client {
                 objects::base_sptr o(ls.get_object( i, 1 ));
                 std::cout << o->str( );
             }
+            std::cout.flush( );
             return 0;
         }
 
