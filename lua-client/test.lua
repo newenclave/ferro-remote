@@ -4,7 +4,7 @@ events = fr.client.event_queue
 
 function test( param )
 	fr.print( param )
-	events.timer.post( fr.client.disconnect, {[2] = 1000} )
+	--events.timer.post( fr.client.disconnect, {[2] = 1000} )
   call_os( )
 end
 
@@ -17,6 +17,9 @@ function con_handler( data )
 								fr.print( "Error ", data.error )
 				else 
 								fr.print( string.len(data.data), "\n" )
+								if data.data == "edit\n" then
+												fr.client.os.system( "gedit" )
+								end
 				end
 end
 		
