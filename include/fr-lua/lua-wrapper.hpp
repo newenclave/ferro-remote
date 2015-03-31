@@ -712,7 +712,7 @@ namespace lua {
                          const char *name = NULL )
         {
             int res = luaL_loadbuffer ( vm_, buf, length, name ? name : "" );
-            if( 0 == res ) {
+            if( LUA_OK == res ) {
                 res = lua_pcall( vm_, 0, LUA_MULTRET, 0);
             }
             return res;
