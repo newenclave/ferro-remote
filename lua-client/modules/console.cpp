@@ -1,3 +1,5 @@
+#include <iostream>
+
 #include "iface.h"
 #include "../fr-lua.h"
 #include "../lua-names.h"

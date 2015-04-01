@@ -135,10 +135,10 @@ int main( int argc, const char *argv[] )
 
     lua::objects::base_sptr par = create_params( vm );
 
-    lua::client::general_info ci;
 
     do {
 
+        lua::client::general_info ci;
         vcomm::pool_pair pp( 1, 1 );
         vcomm::thread_pool et( 0 );
 
@@ -186,8 +186,12 @@ int main( int argc, const char *argv[] )
 
         res = ci.exit_code_;
 
+        ci.client_core_.reset( );
+
         pp.stop_all( );
         pp.join_all( );
+
+        ci.modules_.clear( );
 
     } while(0);
 
