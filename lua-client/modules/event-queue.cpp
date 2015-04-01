@@ -55,6 +55,7 @@ namespace {
         void deinit( )
         {
             working_ = false;
+            timers_.clear( );
         }
 
         const std::string &name( ) const
