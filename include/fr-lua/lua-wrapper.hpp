@@ -225,13 +225,13 @@ namespace lua {
         template<typename T>
         void push( T value )
         {
-            lua_pushnumber( vm_, static_cast<T>( value ) );
+            lua_pushinteger( vm_, static_cast<T>( value ) );
         }
 
         template<typename T>
-        void push_int( T value )
+        void push_num( T value )
         {
-            lua_pushinteger( vm_, static_cast<T>( value ) );
+            lua_pushnumber( vm_, static_cast<T>( value ) );
         }
 
         int get_type( int id = -1 )
