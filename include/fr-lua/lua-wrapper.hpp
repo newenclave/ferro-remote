@@ -11,8 +11,8 @@ extern "C" {
 #include "lua.h"
 }
 
-#if( LUA_VERSION_NUM < 501 )
-#error "Lua version is too old; Use 5.1 or higher"
+#if( LUA_VERSION_NUM < 503 )
+#error "Lua version is too old; Use 5.3 or higher"
 #endif
 
 #include "lua-type-wrapper.hpp"
@@ -226,6 +226,12 @@ namespace lua {
         void push( T value )
         {
             lua_pushnumber( vm_, static_cast<T>( value ) );
+        }
+
+        template<typename T>
+        void push_int( T value )
+        {
+            lua_pushinteger( vm_, static_cast<T>( value ) );
         }
 
         int get_type( int id = -1 )
