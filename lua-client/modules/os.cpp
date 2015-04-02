@@ -74,7 +74,7 @@ namespace {
         module *m = get_module( L );
         std::string command( ls.get_opt<std::string>(1) );
         try {
-            lua_pushinteger( L, m->iface_->execute( command ) );
+            ls.push_int( m->iface_->execute( command ) );
         } catch( const std::exception &ex ) {
             ls.push( );
             ls.push( ex.what( ) );
