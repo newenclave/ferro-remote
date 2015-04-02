@@ -1,4 +1,5 @@
 #include <iostream>
+#include <functional>
 
 #include "main-client.h"
 #include "lua-names.h"
@@ -7,14 +8,11 @@
 #include "fr-lua.h"
 #include "fr-client.h"
 #include "event-container.h"
+#include "modules/iface.h"
 
 #include "vtrc-common/vtrc-hash-iface.h"
 
 #include "boost/system/error_code.hpp"
-
-#include "modules/iface.h"
-
-#include <functional>
 #include "boost/asio.hpp"
 
 namespace fr { namespace lua { namespace client {

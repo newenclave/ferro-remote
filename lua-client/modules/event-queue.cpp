@@ -144,8 +144,8 @@ namespace {
     inline bool is_number( const objects::base *o )
     {
         return o->type_id( ) == objects::base::TYPE_NUMBER
-            || o->type_id( ) == objects::base::TYPE_INTEGER
-            || o->type_id( ) == objects::base::TYPE_UINTEGER
+//            || o->type_id( ) == objects::base::TYPE_INTEGER
+//            || o->type_id( ) == objects::base::TYPE_UINTEGER
             ;
     }
 
