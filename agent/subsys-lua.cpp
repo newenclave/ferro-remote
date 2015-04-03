@@ -44,12 +44,14 @@ namespace fr { namespace agent { namespace subsys {
             app_->unregister_service_creator( name );
         }
 
-        bool is_pair( frlua::objects::base const *o ) const
+        static
+        bool is_pair( frlua::objects::base const *o )
         {
             return o->type_id( ) == frlua::objects::base::TYPE_PAIR;
         }
 
-        bool is_string( frlua::objects::base const *o ) const
+        static
+        bool is_string( frlua::objects::base const *o )
         {
             return o->type_id( ) == frlua::objects::base::TYPE_STRING;
         }
