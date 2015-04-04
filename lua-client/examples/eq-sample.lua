@@ -1,12 +1,12 @@
 function stop( code )
     print( "stop" )
-    fr.exit( code ) -- завершим очередь, выйдем, вернем 100
+    fr.exit( code ) -- Stop the queue. return 100
 end
 
 function main( argv )
     fr.run( ) -- запустим очередь. 
-    fr.client.event_queue.post( stop, 100 ) -- отправили на исполнение функцию stop 
-                                            -- с параметром 100
+    fr.client.event_queue.post( stop, 100 ) -- post function 'stop' to the queue
+                                            -- with 100 as parameter
     print( "leave 'main'" )
 end
 
