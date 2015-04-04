@@ -15,7 +15,7 @@ end
 function main( argv )
     fr.run( ) 
     fr.client.event_queue.timer.post( stop, 10, 100 )
-    timer( nil, "." ) 
+    fr.client.event_queue.timer.post( timer, {[2]=1000}, "." ) 
     print( "leave 'main'" )
 end
 
