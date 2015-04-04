@@ -100,7 +100,7 @@ namespace fr { namespace lua {
         allp->insert( allp->end( ), params.begin( ), params.end( ));
         impl_->dispatcher_.post( std::bind( push_call_impl,
                                  weak_from_this( ), call, allp ) );
-        return 0;
+        return 1;
     }
 
     size_t event_caller::push_call( lua::objects::base_sptr call,
@@ -112,7 +112,7 @@ namespace fr { namespace lua {
         impl_->dispatcher_.post( std::bind( push_call_impl,
                                  weak_from_this( ), call,
                                  std::make_shared<param_vector>(params) ) );
-        return 0;
+        return 1;
     }
 
 }}
