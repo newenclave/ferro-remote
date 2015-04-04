@@ -43,6 +43,7 @@ Rectangle {
                 property bool connected: false
 
                 onClicked: {
+
                     connected
                         ? generalClient.disconnect(  )
                         : generalClient.connect( address.text )

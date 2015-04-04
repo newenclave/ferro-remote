@@ -25,7 +25,9 @@ function con_handler( data )
 end
 		
 function main( argv )
-
+				
+				fr.print( {1, 2, 3, 4} )
+				print( {1, 2, 3, 4} )
 		fr.print( fr.client.gpio, "\n\n" )
 	fr.print( "Main function; argv = ", argv, "\n" )	
 	fr.client.subscribe( "on_disconnect", 
