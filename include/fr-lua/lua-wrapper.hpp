@@ -618,38 +618,6 @@ namespace lua {
             set_value( path, index );              // copy here
             pop( 1 );                              // pop state from stack
             return res;
-#if 0
-            /// COPY-PASTE-COPY-PASTE-COPY-PASTE
-            //// crutch ... WILL FIX IT LATER
-            set( path, 0 );
-            ////////////////////
-
-            const char *pl = path_leaf( path );
-
-            lua_State *res = NULL;
-
-            if( pl == path ) {
-
-                res = lua_newthread( vm_ );
-                set_global( pl );
-
-            } else {
-
-                std::string tpath( path, (pl - path) );
-
-                int level = get_table( tpath.c_str( ) );
-
-                if( level ) {
-                    lua_getfield( vm_, -1, pl + 1 );
-                    pop( );
-                    push( pl + 1 );
-                    res = lua_newthread( vm_ );
-                    set_table( );
-                    pop( level );
-                }
-            }
-            return res;
-#endif
         }
 
         int exec_function( const char* func,
