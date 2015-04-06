@@ -108,6 +108,7 @@ namespace {
         {
             files_.erase( id );
             iterators_.erase( id );
+            //file_events_.clear( );
         }
 
         void file_event( unsigned err, const std::string &data,

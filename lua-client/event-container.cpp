@@ -58,9 +58,9 @@ namespace fr { namespace lua {
         }
 
         if( res ) {
-            res->call_      = call;
-            res->name_      = name;
-            res->result_    = 1;
+            res->call_   = call;
+            res->name_   = name;
+            res->result_ = 1;
         }
 
         ls.push( true );
