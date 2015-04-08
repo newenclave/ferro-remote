@@ -29,6 +29,23 @@ namespace {
     typedef std::shared_ptr<console_handle> console_handle_sptr;
     typedef std::weak_ptr<console_handle>   console_handle_wptr;
 
+    typedef struct position_type {
+
+        unsigned x;
+        unsigned y;
+
+        position_type( unsigned xin, unsigned yin )
+            :x(xin)
+            ,y(yin)
+        { }
+
+        position_type( )
+            :x(0)
+            ,y(0)
+        { }
+
+    } position_type;
+
     const std::string     module_name("console");
     const char *id_path = FR_CLIENT_LUA_HIDE_TABLE ".console.__i";
 
@@ -48,6 +65,83 @@ namespace {
         return res;
     }
 
+#ifdef _WIN32
+
+    void console_clear( )
+    {
+        HANDLE sout = GetStdHandle(STD_OUTPUT_HANDLE);
+        COORD coord = {0, 0};
+        DWORD count;
+        CONSOLE_SCREEN_BUFFER_INFO csbi;
+        GetConsoleScreenBufferInfo( sout, &csbi );
+        FillConsoleOutputCharacter( sout, ' ',
+                                    csbi.dwSize.X * csbi.dwSize.Y,
+                                    coord, &count);
+        SetConsoleCursorPosition( sout, coord );
+    }
+
+    position_type get_console_size( )
+    {
+        CONSOLE_SCREEN_BUFFER_INFO csbi;
+
+        int columns;
+        int rows;
+
+        GetConsoleScreenBufferInfo(GetStdHandle(STD_OUTPUT_HANDLE), &csbi);
+
+        columns = csbi.srWindow.Right  - csbi.srWindow.Left + 1;
+        rows    = csbi.srWindow.Bottom - csbi.srWindow.Top + 1;
+
+        return position_type( columns, rows );
+    }
+
+    void set_cursor_pos( int x, int y )
+    {
+        COORD Coord;
+
+        Coord.X = x;
+        Coord.Y = y;
+
+        SetConsoleCursorPosition( GetStdHandle(STD_OUTPUT_HANDLE), Coord );
+    }
+#else
+    position_type get_console_size( )
+    {
+        struct winsize w;
+        ioctl(STDOUT_FILENO, TIOCGWINSZ, &w);
+        return position_type( w.ws_col, w.ws_row );
+    }
+
+    void set_cursor_pos( int x, int y )
+    {
+        std::ostringstream oss;
+        oss << "\033[" << (y + 1) << ";" << (x + 1) << "H";
+        std::string s(oss.str( ));
+        std::cout.write( s.c_str( ), s.size( ) );
+        //write( STDIN_FILENO, s.c_str( ), s.size( ) );
+    }
+
+    void console_clear( )
+    {
+        auto xy = get_console_size( );
+        std::string ws( xy.x, ' ' );
+        for( unsigned i=0; i<xy.y; i++ ) {
+            set_cursor_pos( 0, i );
+            std::cout.write( ws.c_str( ), ws.size( ) );
+        }
+        // clear command does "write(0, "\E[H\E[2J", 7 )", we don't want
+        std::cout.flush( );
+    }
+#endif
+
+//    void set_console_size( const position_type &cs )
+//    {
+//        struct winsize w = { 0, 0, 0, 0 };
+//        w.ws_col = cs.first;
+//        w.ws_row = cs.second;
+//        ioctl( 0, TIOCSWINSZ, &w);
+//    }
+
     typedef std::ostream &(*func_type)( std::ostream & );
 
     static const struct  {
@@ -64,8 +158,12 @@ namespace {
         ,{ nullptr  ,&utils::ccout::none   }
     };
 
-    int lcall_colors   ( lua_State *L );
-    int lcall_set_color( lua_State *L );
+    int lcall_colors    ( lua_State *L );
+    int lcall_set_color ( lua_State *L );
+
+    int lcall_set_pos   ( lua_State *L );
+    int lcall_size      ( lua_State *L );
+    int lcall_clear     ( lua_State *L );
 
     int lcall_set_pattern   ( lua_State *L );
     int lcall_events        ( lua_State *L );
@@ -169,12 +267,16 @@ namespace {
         {
             objects::table_sptr res(std::make_shared<objects::table>( ));
 
-            res->add( "colors",     new_function( &lcall_colors ) );
-            res->add( "set_color",  new_function( &lcall_set_color ) );
+            res->add( "colors",       new_function( &lcall_colors ) );
+            res->add( "set_color",    new_function( &lcall_set_color ) );
+            res->add( "clear",        new_function( &lcall_clear ) );
+            res->add( "set_position", new_function( &lcall_set_pos ) );
+            res->add( "set_pos",      new_function( &lcall_set_pos ) );
+            res->add( "size",         new_function( &lcall_size ) );
 
-            res->add( "set_pattern",    new_function( &lcall_set_pattern ) );
-            res->add( "events",         new_function( &lcall_events ) );
-            res->add( "subscribe",      new_function( &lcall_subscribe ) );
+            res->add( "set_pattern",  new_function( &lcall_set_pattern ) );
+            res->add( "events",       new_function( &lcall_events ) );
+            res->add( "subscribe",    new_function( &lcall_subscribe ) );
 
             return res;
         }
@@ -215,6 +317,93 @@ namespace {
         }
 
         return 1;
+    }
+
+    int lcall_size( lua_State *L )
+    {
+        auto hw = get_console_size( );
+        table res;
+        res.add( "width",  new_integer( hw.x ) );
+        res.add( "height", new_integer( hw.y ) );
+        res.push( L );
+        return 1;
+    }
+
+    inline bool is_number( const base *o )
+    {
+        return o->type_id( ) == base::TYPE_NUMBER
+            || o->type_id( ) == base::TYPE_INTEGER
+            || o->type_id( ) == base::TYPE_UINTEGER
+            ;
+    }
+
+    inline bool is_string( const base *o )
+    {
+        return o->type_id( ) == base::TYPE_STRING
+            ;
+    }
+
+    position_type extract_posision( lua_State *L )
+    {
+        lua::state ls(L);
+        int t = ls.get_type( 1 );
+
+        unsigned x = 0;
+        unsigned y = 0;
+
+        position_type size = get_console_size( );
+        position_type res;
+
+        switch( t ) {
+        case base::TYPE_NUMBER: {
+            x = ls.get_opt<unsigned>( 1, 0 );
+            y = ls.get_opt<unsigned>( 2, 0 );
+            break;
+        }
+        case base::TYPE_TABLE: {
+            objects::base_sptr t = ls.get_object( 1 );
+            for( size_t i=0; i<t->count( ); i++ ) {
+                auto f = t->at(i)->at(0);
+                auto s = t->at(i)->at(1);
+                if( is_number( f ) && is_number( s ) ) {
+                    switch( static_cast<int>(f->num( )) ) {
+                    case 1:
+                        x = static_cast<unsigned>(s->num( ));
+                        break;
+                    case 2:
+                        y = static_cast<unsigned>(s->num( ));
+                        break;
+                    }
+                } else if ( is_string( f ) && is_number( s ) ) {
+                    std::string name(f->str( ));
+                    if( !name.compare( "x" ) ) {
+                        x = static_cast<unsigned>(s->num( ));
+                    } else if( !name.compare( "y" ) ) {
+                        y = static_cast<unsigned>(s->num( ));
+                    }
+                }
+            }
+            break;
+        }
+        }
+        res = position_type( std::min( size.x, x ),
+                             std::min( size.y, y ) );
+        return res;
+    }
+
+    int lcall_set_pos( lua_State *L )
+    {
+        lua::state ls(L);
+        auto pos = extract_posision( L );
+        set_cursor_pos( pos.x, pos.y );
+        ls.push( true );
+        return 1;
+    }
+
+    int lcall_clear( lua_State *L )
+    {
+        console_clear( );
+        return lcall_set_pos( L );
     }
 
     int lcall_set_pattern( lua_State *L )
