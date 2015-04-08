@@ -108,7 +108,7 @@ namespace {
     position_type get_console_size( )
     {
         struct winsize w;
-        ioctl(STDOUT_FILENO, TIOCGWINSZ, &w);
+        ioctl( STDOUT_FILENO, TIOCGWINSZ, &w );
         return position_type( w.ws_col, w.ws_row );
     }
 
