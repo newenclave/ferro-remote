@@ -129,7 +129,7 @@ namespace {
             set_cursor_pos( 0, i );
             std::cout.write( ws.c_str( ), ws.size( ) );
         }
-        // clear command does "write(1, "\E[H\E[2J", 7 )", we don't want
+        // clear command does "write("\E[H\E[2J", 7 )", we don't want
         std::cout.flush( );
     }
 

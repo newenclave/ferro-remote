@@ -9,8 +9,12 @@ function handler( data )
 				end				
 				local s = trim( data.data )
 				if s ~= "" then 
-								local f, e = fr.eval( "" .. s  .. " "  )
-								print( "-> ", f, e )
+								local f, e = load( "return "..s.."" )
+								if f then
+												print( "-> ", f( ) )
+								else
+												print( "e>", e ) 
+								end 
 				end 
 				fr.print( "\n$ " )
 end
@@ -18,6 +22,5 @@ end
 function main( )
 				con.subscribe( "on_read", handler )
 				fr.print( "$ " )
-				fr.eval( "f" )
 				fr.run( )
 end
