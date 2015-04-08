@@ -97,12 +97,12 @@ namespace {
 
     void set_cursor_pos( int x, int y )
     {
-        COORD Coord;
+        COORD coord;
 
-        Coord.X = x;
-        Coord.Y = y;
+        coord.X = x;
+        coord.Y = y;
 
-        SetConsoleCursorPosition( GetStdHandle(STD_OUTPUT_HANDLE), Coord );
+        SetConsoleCursorPosition( GetStdHandle(STD_OUTPUT_HANDLE), coord );
     }
 #else
     position_type get_console_size( )
@@ -129,18 +129,20 @@ namespace {
             set_cursor_pos( 0, i );
             std::cout.write( ws.c_str( ), ws.size( ) );
         }
-        // clear command does "write(0, "\E[H\E[2J", 7 )", we don't want
+        // clear command does "write(1, "\E[H\E[2J", 7 )", we don't want
         std::cout.flush( );
     }
+
+    //    void set_console_size( const position_type &cs )
+    //    {
+    //        struct winsize w = { 0, 0, 0, 0 };
+    //        w.ws_col = cs.first;
+    //        w.ws_row = cs.second;
+    //        ioctl( 0, TIOCSWINSZ, &w);
+    //    }
+
 #endif
 
-//    void set_console_size( const position_type &cs )
-//    {
-//        struct winsize w = { 0, 0, 0, 0 };
-//        w.ws_col = cs.first;
-//        w.ws_row = cs.second;
-//        ioctl( 0, TIOCSWINSZ, &w);
-//    }
 
     typedef std::ostream &(*func_type)( std::ostream & );
 
