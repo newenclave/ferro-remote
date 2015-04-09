@@ -19,7 +19,7 @@
 namespace fr { namespace lua {
 
     namespace client {
-        class general_info;
+        struct general_info;
     }
 
     struct event_info {
@@ -54,6 +54,7 @@ namespace fr { namespace lua {
         bool exists_and_set( const std::string &name ) const;
 
         struct subscribe_info {
+            bool               failed_;
             int                result_;
             std::string        name_;
             objects::base_sptr call_;

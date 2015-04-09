@@ -37,6 +37,12 @@ namespace fr { namespace lua {
             ls.push( std::string("Invalid event name '")
                    + name
                    + std::string("'."));
+            if( res ) {
+                res->failed_ = true;
+                res->call_   = call;
+                res->name_   = name;
+                res->result_ = 2;
+            }
             return 2;
         }
 
@@ -58,6 +64,7 @@ namespace fr { namespace lua {
         }
 
         if( res ) {
+            res->failed_ = false;
             res->call_   = call;
             res->name_   = name;
             res->result_ = 1;

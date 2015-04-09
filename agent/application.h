@@ -51,7 +51,8 @@ namespace fr { namespace agent {
         protected:
 
             const method_type *get_method ( const std::string &name ) const;
-
+            application *get_application( );
+            const application *get_application( ) const;
         };
 
         typedef vtrc::common::rpc_service_wrapper     parent_service_type;

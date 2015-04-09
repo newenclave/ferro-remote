@@ -136,10 +136,23 @@ namespace fr { namespace agent {
         return m;
     }
 
-///
+
+    application *application::service_wrapper_impl
+                            ::get_application( )
+    {
+        return app_;
+    }
+
+    const application *application::service_wrapper_impl
+                                  ::get_application( ) const
+    {
+        return app_;
+    }
+
+/////////////////////////////
 
     application::service_wrapper_sptr
-        application::wrap_service(vcomm::connection_iface_wptr cl,
+        application::wrap_service( vcomm::connection_iface_wptr cl,
                                    service_wrapper_impl::service_sptr serv )
     {
         return vtrc::make_shared<application::service_wrapper>(this, cl, serv);        

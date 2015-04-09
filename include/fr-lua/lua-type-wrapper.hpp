@@ -15,7 +15,7 @@ namespace LUA_WRAPPER_TOP_NAMESPACE {
 
 namespace lua { namespace types {
 
-    static const char * id_to_string( int t )
+    static inline const char * id_to_string( int t )
     {
         switch( t ) {
         case LUA_TNIL:

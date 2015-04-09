@@ -22,7 +22,7 @@ namespace lua { namespace objects {
 
     struct base {
 
-        static const char *type2string( unsigned value )
+        static const char *type2string( int value )
         {
             switch( value ) {
             case TYPE_NONE:

@@ -332,7 +332,7 @@ namespace fr { namespace agent { namespace subsys {
 
                     bool               success = true;
                     std::string        err;
-                    unsigned           error_code;
+                    unsigned           error_code = 0;
                     events_stub_type   events(event_channel_.get( ));
 
                     sproto::async_op_data       op_data;
