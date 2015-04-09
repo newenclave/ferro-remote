@@ -149,6 +149,12 @@ namespace {
             ;
     }
 
+    inline bool is_string( const objects::base *o )
+    {
+        return o->type_id( ) == objects::base::TYPE_STRING
+            ;
+    }
+
     int lcall_timer_post( lua_State *L )
     {
         module *m = get_module( L );
@@ -176,17 +182,34 @@ namespace {
                     auto f(p->at(0));
                     auto s(p->at(1));
 
-                    if( is_number( f ) && is_number( s ) ) {
-                        switch( static_cast<unsigned>(f->num( )) ) {
-                        case 1:
-                            sec   = static_cast<unsigned>(s->num( ));
-                            break;
-                        case 2:
-                            milli = static_cast<unsigned>(s->num( ));
-                            break;
-                        case 3:
-                            micro = static_cast<unsigned>(s->num( ));
-                            break;
+                    if( is_number( s ) ) {
+                        if( is_number( f ) ) {
+                            switch( static_cast<unsigned>(f->num( )) ) {
+                            case 1:
+                                sec   = static_cast<unsigned>(s->num( ));
+                                break;
+                            case 2:
+                                milli = static_cast<unsigned>(s->num( ));
+                                break;
+                            case 3:
+                                micro = static_cast<unsigned>(s->num( ));
+                                break;
+                            }
+                        } else if( is_string( f ) ) {
+                            std::string name(f->str( ));
+                            if( !name.compare( "seconds" ) ) {
+                                sec   = static_cast<unsigned>(s->num( ));
+                            } else if( !name.compare( "sec" ) ) {
+                                sec   = static_cast<unsigned>(s->num( ));
+                            } else if( !name.compare( "milliseconds" ) ) {
+                                milli = static_cast<unsigned>(s->num( ));
+                            } else if( !name.compare( "milli" ) ) {
+                                milli = static_cast<unsigned>(s->num( ));
+                            } else if( !name.compare( "microseconds" ) ) {
+                                micro = static_cast<unsigned>(s->num( ));
+                            } else if( !name.compare( "micro" ) ) {
+                                micro = static_cast<unsigned>(s->num( ));
+                            }
                         }
                     }
                 }
@@ -203,9 +226,9 @@ namespace {
             }
         }
 
-        typedef vcomm::timer::seconds      seconds;
-        typedef vcomm::timer::milliseconds millisec;
-        typedef vcomm::timer::microseconds microsec;
+        typedef vcomm::timer::monotonic_traits::seconds      seconds;
+        typedef vcomm::timer::monotonic_traits::milliseconds millisec;
+        typedef vcomm::timer::monotonic_traits::microseconds microsec;
 
         if( call ) {
             size_t id = m->info_.eventor_->next_index( );
