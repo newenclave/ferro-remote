@@ -197,6 +197,7 @@ namespace {
                             }
                         } else if( is_string( f ) ) {
                             std::string name(f->str( ));
+                            /// TODO: fix it
                             if( !name.compare( "seconds" ) ) {
                                 sec   = static_cast<unsigned>(s->num( ));
                             } else if( !name.compare( "sec" ) ) {
