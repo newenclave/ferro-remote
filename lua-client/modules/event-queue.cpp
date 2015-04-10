@@ -15,9 +15,9 @@ namespace {
     using namespace objects;
     namespace vcomm = vtrc::common;
 
-    typedef vtrc::common::delayed_call             delayed_call;
-    typedef std::shared_ptr<delayed_call>          delayed_call_sptr;
-    typedef std::map<size_t, delayed_call_sptr>    timers_map;
+    typedef vtrc::common::delayed_call           delayed_call;
+    typedef std::shared_ptr<delayed_call>        delayed_call_sptr;
+    typedef std::map<size_t, delayed_call_sptr>  timers_map;
 
     const std::string     module_name("event_queue");
     const char *id_path = FR_CLIENT_LUA_HIDE_TABLE ".event_queue.__i";
