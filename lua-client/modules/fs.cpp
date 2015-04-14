@@ -854,7 +854,13 @@ namespace {
         try {
             std::vector<char> data( max + 1 );
             size_t res = f->read( &data[0], max );
-            ls.push( &data[0], res );
+            if( res ) {
+                ls.push( &data[0], res );
+            } else {
+                ls.push( );
+                ls.push( "EOF." );
+                return 2;
+            }
         } catch( const std::exception &ex ) {
             ls.push( );
             ls.push( ex.what( ) );
