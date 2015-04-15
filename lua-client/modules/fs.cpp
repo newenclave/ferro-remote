@@ -939,9 +939,10 @@ namespace {
         lua::state ls( L );
         utils::handle h = m->get_file_object( L );
 
+        int t = ls.get_type( 2 );
         unsigned max = ls.get_opt<unsigned>( 2, 44000 );
 
-        if( max > 44000 ) { // fkn mgk!
+        if( max > 44000 || t == LUA_TNIL || t == LUA_TNONE ) { // fkn mgk!
             max = 44000;
         }
 
