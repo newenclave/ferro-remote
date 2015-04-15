@@ -99,7 +99,7 @@ namespace {
         ,{ nullptr,      nullptr }
     };
 
-    struct file_object {
+    struct meta_object {
         utils::handle hdl_;
     };
 
@@ -261,11 +261,11 @@ namespace {
             return utils::to_handle( nh );
         }
 
-        file_object *push_file_object( lua_State *L,
+        meta_object *push_file_object( lua_State *L,
                                        utils::handle hdl, const char *name )
         {
-            void *ud = lua_newuserdata( L, sizeof(file_object) );
-            file_object *nfo = static_cast<file_object *>(ud);
+            void *ud = lua_newuserdata( L, sizeof(meta_object) );
+            meta_object *nfo = static_cast<meta_object *>(ud);
             if( nfo ) {
                 luaL_getmetatable( L, name );
                 lua_setmetatable(L, -2);
@@ -278,7 +278,7 @@ namespace {
         {
             void *ud = luaL_testudata( L, id, name );
             if( ud ) {
-                return static_cast<file_object *>(ud)->hdl_;
+                return static_cast<meta_object *>(ud)->hdl_;
             } else {
                 return utils::handle( );
             }

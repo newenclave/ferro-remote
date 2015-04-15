@@ -36,8 +36,9 @@ namespace {
     typedef std::weak_ptr<lua::event_container>    eventor_wptr;
 
 
-    const std::string     module_name("gpio");
-    const char *id_path = FR_CLIENT_LUA_HIDE_TABLE ".gpio.__i";
+    const std::string       module_name("gpio");
+    const char *id_path     = FR_CLIENT_LUA_HIDE_TABLE ".gpio.__i";
+    const char *meta_name   = FR_CLIENT_LUA_HIDE_TABLE ".gpio.meta";
 
     struct module;
 
@@ -111,6 +112,18 @@ namespace {
     int lcall_file_events   ( lua_State *L );
     int lcall_file_subscribe( lua_State *L );
 
+    const struct luaL_Reg gpio_lib[ ] = {
+
+         { "unexport",    &lcall_unexport       }
+        ,{ "info",        &lcall_info           }
+        ,{ "set",         &lcall_set            }
+        ,{ "get",         &lcall_get            }
+        ,{ "close",       &lcall_close          }
+        ,{ "events",      &lcall_file_events    }
+        ,{ "subscribe",   &lcall_file_subscribe }
+        ,{ nullptr,      nullptr }
+    };
+
     std::vector<std::string> events_names( )
     {
         std::vector<std::string> res;
@@ -118,6 +131,24 @@ namespace {
         res.push_back( "on_changed" );
 
         return res;
+    }
+
+    struct meta_object {
+        utils::handle hdl_;
+    };
+
+    int lcall_register_meta( lua_State *L )
+    {
+        metatable mt( meta_name, gpio_lib );
+        mt.push( L );
+        return 1;
+    }
+
+    void register_meta_tables( lua_State *L )
+    {
+        lua::state ls(L);
+        ls.push( lcall_register_meta );
+        lua_call( L, 0, 0 );
     }
 
 
@@ -132,7 +163,9 @@ namespace {
         module( client::general_info &info )
             :info_(info)
             ,events_name_(events_names( ))
-        { }
+        {
+            register_meta_tables( info_.main_ );
+        }
 
         void init( )
         {
@@ -175,7 +208,6 @@ namespace {
 
             return res;
         }
-
 
         utils::handle new_dev( unsigned id, unsigned dir, unsigned val )
         {
@@ -250,6 +282,38 @@ namespace {
             }
         }
 
+        meta_object *push_object( lua_State *L, utils::handle hdl )
+        {
+            void *ud = lua_newuserdata( L, sizeof(meta_object) );
+            meta_object *nfo = static_cast<meta_object *>(ud);
+            if( nfo ) {
+                luaL_getmetatable( L, meta_name );
+                lua_setmetatable(L, -2);
+                nfo->hdl_ = hdl;
+            }
+            return nfo;
+        }
+
+        utils::handle get_object_hdl( lua_State *L, int id )
+        {
+            void *ud = luaL_testudata( L, id, meta_name );
+            if( ud ) {
+                return static_cast<meta_object *>(ud)->hdl_;
+            } else {
+                return utils::handle( );
+            }
+        }
+
+        meta_object *get_object( lua_State *L, int id )
+        {
+            void *ud = luaL_testudata( L, id, meta_name );
+            if( ud ) {
+                return static_cast<meta_object *>(ud);
+            } else {
+                return nullptr;
+            }
+        }
+
         void register_event( dev_sptr f, eventor_sptr e )
         {
             namespace ph = std::placeholders;
@@ -292,7 +356,7 @@ namespace {
                 }
             }
 
-            ls.push( m->new_dev( id, dir, val ) );
+            m->push_object( L, m->new_dev( id, dir, val ) );
 
         } catch( const std::exception &ex ) {
             ls.push(  );
@@ -367,7 +431,7 @@ namespace {
     {
         module *m = get_module( L );
         lua::state ls(L);
-        utils::handle h = ls.get_opt<utils::handle>( 1 );
+        utils::handle h = m->get_object_hdl( L, 1 );
 
         int n = ls.get_top( );
 
@@ -427,7 +491,7 @@ namespace {
     {
         module *m = get_module( L );
         lua::state ls(L);
-        utils::handle h = ls.get_opt<utils::handle>( 1 );
+        utils::handle h = m->get_object_hdl( L, 1 );
 
         try {
             int ft = ls.get_type( 2 );
@@ -456,7 +520,7 @@ namespace {
     {
         module *m = get_module( L );
         lua::state ls(L);
-        utils::handle h = ls.get_opt<utils::handle>( 1 );
+        utils::handle h = m->get_object_hdl( L, 1 );
 
         try {
             auto dev = m->get_dev_info( h );
@@ -486,7 +550,7 @@ namespace {
     {
         module *m = get_module( L );
         lua::state ls(L);
-        utils::handle h = ls.get_opt<utils::handle>( 1 );
+        utils::handle h = m->get_object_hdl( L, 1 );
         m->devs_.erase( utils::from_handle<size_t>( h ) );
         ls.push( true );
         return 1;
@@ -496,7 +560,7 @@ namespace {
     {
         module *m = get_module( L );
         lua::state ls(L);
-        utils::handle h = ls.get_opt<utils::handle>( 1 );
+        utils::handle h = m->get_object_hdl( L, 1 );
 
         try {
             m->get_dev( h )->unexport_device( );
@@ -513,7 +577,7 @@ namespace {
     {
         module *m = get_module( L );
         lua::state ls( L );
-        utils::handle h = ls.get_opt<utils::handle>( 1 );
+        utils::handle h = m->get_object_hdl( L, 1 );
 
         auto f  = m->get_eventor( h );
 
@@ -530,7 +594,7 @@ namespace {
     {
         module *m = get_module( L );
         lua::state ls( L );
-        utils::handle h = ls.get_opt<utils::handle>( 1 );
+        utils::handle h = m->get_object_hdl( L, 1 );
 
         auto e = m->get_eventor( h );
 

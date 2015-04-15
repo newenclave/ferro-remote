@@ -25,7 +25,7 @@ namespace {
 
     const std::string     module_name("smbus");
     const char *id_path     = FR_CLIENT_LUA_HIDE_TABLE ".smbus.__i";
-    const char *smbus_meta  = FR_CLIENT_LUA_HIDE_TABLE ".smbus.meta";
+    const char *meta_name   = FR_CLIENT_LUA_HIDE_TABLE ".smbus.meta";
 
     struct module;
 
@@ -79,7 +79,7 @@ namespace {
         ,{ nullptr,      nullptr }
     };
 
-    struct smbus_object {
+    struct meta_object {
         utils::handle hdl_;
     };
 
@@ -130,7 +130,7 @@ namespace {
 
     int lcall_register_smbus_meta( lua_State *L )
     {
-        metatable mt( smbus_meta, smbus_lib );
+        metatable mt( meta_name, smbus_lib );
         mt.push( L );
         return 1;
     }
@@ -195,12 +195,12 @@ namespace {
             return f->second;
         }
 
-        smbus_object *push_object( lua_State *L, utils::handle hdl )
+        meta_object *push_object( lua_State *L, utils::handle hdl )
         {
-            void *ud = lua_newuserdata( L, sizeof(smbus_object) );
-            smbus_object *nfo = static_cast<smbus_object *>(ud);
+            void *ud = lua_newuserdata( L, sizeof(meta_object) );
+            meta_object *nfo = static_cast<meta_object *>(ud);
             if( nfo ) {
-                luaL_getmetatable( L, smbus_meta );
+                luaL_getmetatable( L, meta_name );
                 lua_setmetatable(L, -2);
                 nfo->hdl_ = hdl;
             }
@@ -209,19 +209,19 @@ namespace {
 
         utils::handle get_object_hdl( lua_State *L, int id )
         {
-            void *ud = luaL_testudata( L, id, smbus_meta );
+            void *ud = luaL_testudata( L, id, meta_name );
             if( ud ) {
-                return static_cast<smbus_object *>(ud)->hdl_;
+                return static_cast<meta_object *>(ud)->hdl_;
             } else {
                 return utils::handle( );
             }
         }
 
-        smbus_object *get_object( lua_State *L, int id )
+        meta_object *get_object( lua_State *L, int id )
         {
-            void *ud = luaL_testudata( L, id, smbus_meta );
+            void *ud = luaL_testudata( L, id, meta_name );
             if( ud ) {
-                return static_cast<smbus_object *>(ud);
+                return static_cast<meta_object *>(ud);
             } else {
                 return nullptr;
             }
