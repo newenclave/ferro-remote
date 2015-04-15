@@ -24,7 +24,8 @@ namespace {
     static const unsigned slave_invalid = siface::I2C_SLAVE_INVALID_ADDRESS;
 
     const std::string     module_name("smbus");
-    const char *id_path = FR_CLIENT_LUA_HIDE_TABLE ".smbus.__i";
+    const char *id_path     = FR_CLIENT_LUA_HIDE_TABLE ".smbus.__i";
+    const char *smbus_meta  = FR_CLIENT_LUA_HIDE_TABLE ".smbus.meta";
 
     struct module;
 
@@ -55,6 +56,32 @@ namespace {
     int lcall_bus_write_block( lua_State *L );
 
     int lcall_bus_proc_call( lua_State *L );
+
+    const struct luaL_Reg smbus_lib[ ] = {
+
+         { "set_address",  &lcall_bus_set_addr  }
+        ,{ "close",        &lcall_bus_close     }
+        ,{ "functions",    &lcall_bus_functions }
+
+        ,{ "read",         &lcall_bus_read      }
+        ,{ "write",        &lcall_bus_write     }
+        ,{ "ioctl",        &lcall_bus_ioctl     }
+
+        ,{ "read_bytes",   &lcall_bus_read_byte  }
+        ,{ "read_words",   &lcall_bus_read_word  }
+        ,{ "read_block",   &lcall_bus_read_block }
+
+        ,{ "write_bytes",  &lcall_bus_write_byte  }
+        ,{ "write_words",  &lcall_bus_write_word  }
+        ,{ "write_block",  &lcall_bus_write_block }
+        ,{ "process_call", &lcall_bus_proc_call   }
+
+        ,{ nullptr,      nullptr }
+    };
+
+    struct smbus_object {
+        utils::handle hdl_;
+    };
 
     struct names_codes_type {
         const char * name_;
@@ -101,6 +128,21 @@ namespace {
 
 #undef CTLCODE_NAME_VALUE
 
+    int lcall_register_smbus_meta( lua_State *L )
+    {
+        metatable mt( smbus_meta, smbus_lib );
+        mt.push( L );
+        return 1;
+    }
+
+    void register_meta_tables( lua_State *L )
+    {
+        lua::state ls(L);
+
+        ls.push( lcall_register_smbus_meta );
+        lua_call( L, 0, 0 );
+    }
+
     struct module: public iface {
 
         client::general_info  &info_;
@@ -108,7 +150,9 @@ namespace {
 
         module( client::general_info &info )
             :info_(info)
-        { }
+        {
+            register_meta_tables( info_.main_ );
+        }
 
         size_t next_handle(  )
         {
@@ -149,6 +193,38 @@ namespace {
                 throw std::runtime_error( "Bad handle value." );
             }
             return f->second;
+        }
+
+        smbus_object *push_object( lua_State *L, utils::handle hdl )
+        {
+            void *ud = lua_newuserdata( L, sizeof(smbus_object) );
+            smbus_object *nfo = static_cast<smbus_object *>(ud);
+            if( nfo ) {
+                luaL_getmetatable( L, smbus_meta );
+                lua_setmetatable(L, -2);
+                nfo->hdl_ = hdl;
+            }
+            return nfo;
+        }
+
+        utils::handle get_object_hdl( lua_State *L, int id )
+        {
+            void *ud = luaL_testudata( L, id, smbus_meta );
+            if( ud ) {
+                return static_cast<smbus_object *>(ud)->hdl_;
+            } else {
+                return utils::handle( );
+            }
+        }
+
+        smbus_object *get_object( lua_State *L, int id )
+        {
+            void *ud = luaL_testudata( L, id, smbus_meta );
+            if( ud ) {
+                return static_cast<smbus_object *>(ud);
+            } else {
+                return nullptr;
+            }
         }
 
         const std::string &name( ) const
@@ -237,7 +313,7 @@ namespace {
             bool     force = ls.get_opt<bool>( 3, false );
 
             utils::handle nh( m->new_bus( busid, slave, force ) );
-            ls.push( nh );
+            m->push_object( L, nh );
 
         } catch( const std::exception &ex ) {
             ls.push( );
@@ -275,7 +351,7 @@ namespace {
         lua::state ls(L);
         int n = ls.get_top( );
         for( int i=1; i<=n; i++ ) {
-            utils::handle hdl = ls.get_opt<utils::handle>( i );
+            utils::handle hdl = m->get_object_hdl( L, 1 );
             m->buses_.erase( utils::from_handle<size_t>( hdl ) );
         }
         ls.push( true );
@@ -318,7 +394,7 @@ namespace {
         module *m = get_module( L );
         lua::state ls( L );
 
-        utils::handle h = ls.get_opt<utils::handle>( 1 );
+        utils::handle h = m->get_object_hdl( L, 1 );
         unsigned max = ls.get_opt<unsigned>( 2, 1025 );
 
         if( max > 1025 ) { // fkn mgk!
@@ -343,7 +419,7 @@ namespace {
         module *m = get_module( L );
         lua::state ls( L );
 
-        utils::handle h = ls.get_opt<utils::handle>( 1 );
+        utils::handle h = m->get_object_hdl( L, 1 );
         std::string   d = ls.get_opt<std::string>( 2 );
 
         try {
@@ -363,7 +439,7 @@ namespace {
         module *m = get_module( L );
         lua::state ls( L );
 
-        utils::handle h = ls.get_opt<utils::handle>( 1 );
+        utils::handle h = m->get_object_hdl( L, 1 );
         unsigned   code = ls.get_opt<unsigned>( 2 );
         uint64_t   data = ls.get_opt<uint64_t>( 3 );
 
@@ -383,7 +459,7 @@ namespace {
         module *m = get_module( L );
         lua::state ls( L );
 
-        utils::handle h = ls.get_opt<utils::handle>( 1 );
+        utils::handle h = m->get_object_hdl( L, 1 );
         uint8_t    code = ls.get_opt<uint8_t>( 2 );
 
         if( ls.get_top( ) <= 2 ) {
@@ -471,7 +547,7 @@ namespace {
 
         lua::state ls( L );
         module * m = get_module( L );
-        utils::handle h = ls.get_opt<utils::handle>( 1 );
+        utils::handle h = m->get_object_hdl( L, 1 );
 
         int t = ls.get_type( 2 );
 
@@ -514,7 +590,7 @@ namespace {
 
         lua::state ls( L );
         module * m = get_module( L );
-        utils::handle h = ls.get_opt<utils::handle>( 1 );
+        utils::handle h = m->get_object_hdl( L, 1 );
 
         int t = ls.get_type( 2 );
 
@@ -572,7 +648,7 @@ namespace {
     {
         lua::state ls( L );
         module * m = get_module( L );
-        utils::handle h = ls.get_opt<utils::handle>( 1 );
+        utils::handle h = m->get_object_hdl( L, 1 );
 
         try {
             unsigned cmd = ls.get_opt<unsigned>( 2 );
@@ -589,7 +665,7 @@ namespace {
     {
         lua::state ls( L );
         module * m = get_module( L );
-        utils::handle h = ls.get_opt<utils::handle>( 1 );
+        utils::handle h = m->get_object_hdl( L, 1 );
 
         try {
             unsigned cmd     = ls.get_opt<unsigned>( 2 );

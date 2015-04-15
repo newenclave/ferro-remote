@@ -23,8 +23,10 @@ namespace {
     typedef std::shared_ptr<lua::event_container>             eventor_sptr;
     typedef std::weak_ptr<lua::event_container>               eventor_wptr;
 
-    const std::string     module_name("fs");
-    const char *id_path = FR_CLIENT_LUA_HIDE_TABLE ".fs.__i";
+    const std::string       module_name("fs");
+    const char *id_path     = FR_CLIENT_LUA_HIDE_TABLE ".fs.__i";
+    const char *file_meta   = FR_CLIENT_LUA_HIDE_TABLE ".fs.file.meta";
+    const char *iter_meta   = FR_CLIENT_LUA_HIDE_TABLE ".fs.iterator.meta";
 
     struct module;
 
@@ -69,6 +71,38 @@ namespace {
     int lcall_file_events   ( lua_State *L );
     int lcall_file_subscribe( lua_State *L );
 
+    const struct luaL_Reg file_lib[ ] = {
+
+         { "ioctl",     &lcall_file_ioctl   }
+        ,{ "seek",      &lcall_file_seek    }
+        ,{ "close",     &lcall_close        }
+        ,{ "tell",      &lcall_file_tell    }
+        ,{ "flush",     &lcall_file_flush   }
+        ,{ "read",      &lcall_file_read    }
+        ,{ "write",     &lcall_file_write   }
+        ,{ "events",    &lcall_file_events  }
+        ,{ "subscribe", &lcall_file_subscribe }
+
+        ,{ nullptr,      nullptr }
+    };
+
+    const struct luaL_Reg iter_lib[ ] = {
+
+         { "begin",      &lcall_fs_iter_begin    }
+        ,{ "end",        &lcall_fs_iter_end      }
+        ,{ "has_next",   &lcall_fs_iter_has_next }
+        ,{ "next",       &lcall_fs_iter_next     }
+        ,{ "get",        &lcall_fs_iter_get      }
+        ,{ "clone",      &lcall_fs_iter_clone    }
+        ,{ "close",      &lcall_close            }
+
+        ,{ nullptr,      nullptr }
+    };
+
+    struct file_object {
+        utils::handle hdl_;
+    };
+
     std::vector<std::string> file_events( )
     {
         std::vector<std::string> res;
@@ -76,6 +110,31 @@ namespace {
         res.push_back( "on_pollin" );
 
         return res;
+    }
+
+    int lcall_register_file_meta( lua_State *L )
+    {
+        metatable mt( file_meta, file_lib );
+        mt.push( L );
+        return 1;
+    }
+
+    int lcall_register_iter_meta( lua_State *L )
+    {
+        metatable mt( iter_meta, iter_lib );
+        mt.push( L );
+        return 1;
+    }
+
+    void register_meta_tables( lua_State *L )
+    {
+        lua::state ls(L);
+
+        ls.push( lcall_register_file_meta );
+        lua_call( L, 0, 0 );
+
+        ls.push( lcall_register_iter_meta );
+        lua_call( L, 0, 0 );
     }
 
     struct module: public iface {
@@ -91,7 +150,9 @@ namespace {
         module( client::general_info &info )
             :info_(info)
             ,events_name_(file_events( ))
-        { }
+        {
+            register_meta_tables( info_.main_ );
+        }
 
         void init( )
         {
@@ -198,6 +259,39 @@ namespace {
             files_[nh] = nf;
             file_events_[nh] = new_eventor( );
             return utils::to_handle( nh );
+        }
+
+        file_object *push_file_object( lua_State *L,
+                                       utils::handle hdl, const char *name )
+        {
+            void *ud = lua_newuserdata( L, sizeof(file_object) );
+            file_object *nfo = static_cast<file_object *>(ud);
+            if( nfo ) {
+                luaL_getmetatable( L, name );
+                lua_setmetatable(L, -2);
+                nfo->hdl_ = hdl;
+            }
+            return nfo;
+        }
+
+        utils::handle get_meta_object( lua_State *L, int id, const char *name )
+        {
+            void *ud = luaL_testudata( L, id, name );
+            if( ud ) {
+                return static_cast<file_object *>(ud)->hdl_;
+            } else {
+                return utils::handle( );
+            }
+        }
+
+        utils::handle get_file_object( lua_State *L, int id = 1 )
+        {
+            return get_meta_object( L, id, file_meta );
+        }
+
+        utils::handle get_iter_object( lua_State *L, int id = 1 )
+        {
+            return get_meta_object( L, id, iter_meta );
         }
 
         utils::handle new_file( const std::string &path,
@@ -526,8 +620,13 @@ namespace {
         lua::state ls(L);
         int n = ls.get_top( );
         for( int i=1; i<=n; i++ ) {
-            const utils::handle hdl = ls.get_opt<utils::handle>( i );
-            m->close( utils::from_handle<size_t>( hdl ) );
+            const utils::handle fhdl = m->get_file_object( L, i );
+            if( fhdl ) {
+                m->close( utils::from_handle<size_t>( fhdl ) );
+            } else {
+                const utils::handle ihdl = m->get_iter_object( L, 1 );
+                m->close( utils::from_handle<size_t>( ihdl ) );
+            }
         }
         ls.push( true );
         return 1;
@@ -536,6 +635,7 @@ namespace {
     int lcall_fs_iter_begin ( lua_State *L )
     {
         module *m = get_module( L );
+
         lua::state ls(L);
 
         try {
@@ -543,7 +643,7 @@ namespace {
             if( ls.get_top( ) && ls.get_type( 1 ) == base::TYPE_STRING ) {
                 path = ls.get<std::string>( 1 );
             }
-            ls.push( m->new_fs_iter( path ) );
+            m->push_file_object( L, m->new_fs_iter( path ), iter_meta );
         } catch ( const std::exception &ex ) {
             ls.push(  );
             ls.push( ex.what( ) );
@@ -558,7 +658,7 @@ namespace {
         lua::state ls(L);
 
         try {
-            utils::handle h = ls.get_opt<utils::handle>( 1 );
+            utils::handle h = m->get_iter_object( L, 1 );
             auto hi( m->get_fs_iter( h ) );
             if( hi ) {
                 ls.push( hi->end( ) );
@@ -581,7 +681,7 @@ namespace {
         lua::state ls(L);
 
         try {
-            utils::handle h = ls.get_opt<utils::handle>( 1 );
+            utils::handle h = m->get_iter_object( L, 1 );
             auto hi( m->get_fs_iter( h ) );
             if( hi ) {
                 ls.push( !hi->end( ) );
@@ -601,7 +701,7 @@ namespace {
     int lcall_fs_iter_next( lua_State *L )
     {
         LUA_CALL_TRUE_FALSE_PROLOGUE
-            utils::handle hdl(ls.get_opt<utils::handle>( 1 ));
+            utils::handle hdl = m->get_iter_object( L, 1 );
             auto hi( m->get_fs_iter( hdl ) );
             if( !hi ) {
                 ls.push(  );
@@ -616,7 +716,7 @@ namespace {
     {
         module *m = get_module( L );
         lua::state ls(L);
-        utils::handle h = ls.get_opt<utils::handle>( 1 );
+        utils::handle h = m->get_iter_object( L, 1 );
         auto hi( m->get_fs_iter( h ) );
         if( hi ) {
             ls.push( hi->get( ).path ); // 'get' does never throw
@@ -633,7 +733,7 @@ namespace {
         module *m = get_module( L );
         lua::state ls(L);
         try {
-            utils::handle h = ls.get_opt<utils::handle>( 1 );
+            utils::handle h = m->get_iter_object( L, 1 );
             if( h ) {
                 ls.push( m->clone_fs_iter( h ) );
             } else {
@@ -648,7 +748,6 @@ namespace {
         }
         return 1;
     }
-
 
     utils::handle file_from_string_mode( module *m,
                                          lua::state &ls,
@@ -698,7 +797,8 @@ namespace {
             } else {
                 res = m->new_file( path, "rb", false );
             }
-            ls.push( res );
+            m->push_file_object( L, res, file_meta );
+            //ls.push( res );
         } catch( const std::exception &ex ) {
             ls.push( );
             ls.push( ex.what( ) );
@@ -712,7 +812,7 @@ namespace {
         module *m = get_module( L );
         lua::state ls( L );
 
-        utils::handle h = ls.get_opt<utils::handle>( 1 );
+        utils::handle h = m->get_file_object( L );
         unsigned      c = ls.get_opt<unsigned>( 2 );
         lua_Integer   p = ls.get_opt<lua_Integer>( 3 );
 
@@ -761,7 +861,7 @@ namespace {
         module *m = get_module( L );
         lua::state ls( L );
 
-        utils::handle h = ls.get_opt<utils::handle>( 1 );
+        utils::handle h = m->get_file_object( L );
         lua_Integer pos = ls.get_opt<lua_Integer>( 2 );
         fiface::seek_whence whence = position_from( ls, 3 );
 
@@ -788,7 +888,7 @@ namespace {
         module *m = get_module( L );
         lua::state ls( L );
 
-        utils::handle h = ls.get_opt<utils::handle>( 1 );
+        utils::handle h = m->get_file_object( L );
 
         auto f = m->get_file_hdl(h);
         if( !f ) {
@@ -812,7 +912,7 @@ namespace {
         module *m = get_module( L );
         lua::state ls( L );
 
-        utils::handle h = ls.get_opt<utils::handle>( 1 );
+        utils::handle h = m->get_file_object( L );
 
         auto f = m->get_file_hdl(h);
         if( !f ) {
@@ -835,9 +935,10 @@ namespace {
     int lcall_file_read ( lua_State *L )
     {
         module *m = get_module( L );
-        lua::state ls( L );
 
-        utils::handle h = ls.get_opt<utils::handle>( 1 );
+        lua::state ls( L );
+        utils::handle h = m->get_file_object( L );
+
         unsigned max = ls.get_opt<unsigned>( 2, 44000 );
 
         if( max > 44000 ) { // fkn mgk!
@@ -874,7 +975,7 @@ namespace {
         module *m = get_module( L );
         lua::state ls( L );
 
-        utils::handle h = ls.get_opt<utils::handle>( 1 );
+        utils::handle h = m->get_file_object( L );
         std::string   d = ls.get_opt<std::string>( 2 );
 
         auto f = m->get_file_hdl(h);
@@ -899,7 +1000,7 @@ namespace {
     {
         module *m = get_module( L );
         lua::state ls( L );
-        utils::handle h = ls.get_opt<utils::handle>( 1 );
+        utils::handle h = m->get_file_object( L );
         auto f = m->get_eventor( h );
         if( !f ) {
             ls.push( );
@@ -913,7 +1014,7 @@ namespace {
     {
         module *m = get_module( L );
         lua::state ls( L );
-        utils::handle h = ls.get_opt<utils::handle>( 1 );
+        utils::handle h = m->get_file_object( L );
 
         auto e = m->get_eventor( h );
         auto f = m->get_file_hdl( h );

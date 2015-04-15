@@ -195,7 +195,7 @@ int main( int argc, const char *argv[] )
 
     } while(0);
 
-
+    google::protobuf::ShutdownProtobufLibrary( );
     return res;
 
 } catch( const std::exception &ex ) {

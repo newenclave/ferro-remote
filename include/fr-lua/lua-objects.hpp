@@ -486,6 +486,7 @@ namespace lua { namespace objects {
 
     class table: public base {
 
+    protected:
 
         typedef std::vector<pair_sptr> pair_vector;
         pair_vector list_;
@@ -660,6 +661,54 @@ namespace lua { namespace objects {
     };
 
     typedef std::shared_ptr<table> table_sptr;
+
+    class metatable: public table {
+
+        std::string     name_;
+        const luaL_Reg *funcs_;
+
+    public:
+
+        metatable( std::string name, const luaL_Reg *funcs )
+            :name_(name)
+            ,funcs_(funcs)
+        { }
+
+        void push( lua_State *L ) const
+        {
+            typedef pair_vector::const_iterator citr;
+
+            luaL_newmetatable( L, name_.c_str( ) );
+
+            /// push self
+            lua_pushstring(L, "__index"); /// __index name
+            lua_pushvalue (L, -2);        /// metatable
+            lua_settable  (L, -3);        /// metatble
+
+            if( funcs_ ) {
+                luaL_setfuncs( L, funcs_, 0 );
+            }
+
+            size_t len = index_;
+            for( citr b(list_.begin( )), e(list_.end( )); b!=e; ++b, ++len ) {
+                size_t n((*b)->nil_size( ));
+                switch (n) {
+                case 1:
+                    lua_pushinteger( L, len );
+                    (*b)->push( L );
+                    lua_settable( L, -3 );
+                    break;
+                case 0:
+                    (*b)->push( L );
+                    lua_settable( L, -3 );
+                    break;
+                default: // nothing to do here
+                    break;
+                }
+            }
+        }
+
+    };
 
     class reference: public base {
 
