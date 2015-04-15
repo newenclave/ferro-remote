@@ -103,7 +103,7 @@ namespace lua { namespace objects {
             return 0;
         }
 
-        virtual void push( lua_State *L ) const
+        virtual void push( lua_State * /*L*/ ) const
         {
             throw std::runtime_error( "push for 'none' is not available" );
         }
@@ -123,7 +123,7 @@ namespace lua { namespace objects {
             return 0;
         }
 
-        const bool none_or_nil( ) const
+        bool none_or_nil( ) const
         {
             int ti = type_id( );
             return ( ti == LUA_TNONE ) || ( ti == LUA_TNIL );

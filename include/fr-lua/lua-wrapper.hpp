@@ -30,7 +30,7 @@ namespace lua {
         lua_State *vm_;
         bool       own_;
 
-        static void *def_alloc( void *ud, void *ptr,
+        static void *def_alloc( void * /*ud*/, void *ptr,
                                 size_t old_size, size_t new_size )
         {
             void *tmp = NULL;
@@ -246,7 +246,7 @@ namespace lua {
 
         bool none_or_nil( int id = -1 ) const
         {
-            return lua_isnoneornil( vm_, -1 );
+            return lua_isnoneornil( vm_, id );
         }
 
         template<typename T>
