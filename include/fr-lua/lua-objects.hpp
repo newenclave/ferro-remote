@@ -707,12 +707,16 @@ namespace lua { namespace objects {
 
         std::string     name_;
         const luaL_Reg *funcs_;
+        bool            disable_index_;
 
     public:
 
-        metatable( std::string name, const luaL_Reg *funcs = nullptr )
+        metatable( std::string name,
+                   const luaL_Reg *funcs = nullptr,
+                   bool disable_index = false )
             :name_(name)
             ,funcs_(funcs)
+            ,disable_index_(disable_index)
         { }
 
         void push( lua_State *L ) const
@@ -721,10 +725,12 @@ namespace lua { namespace objects {
 
             luaL_newmetatable( L, name_.c_str( ) );
 
-            /// push self
-            lua_pushstring( L, "__index" ); /// __index name
-            lua_pushvalue ( L, -2 );        /// metatable
-            lua_settable  ( L, -3 );        /// metatble
+            if( !disable_index_ ) {
+                /// push self
+                lua_pushstring( L, "__index" ); /// __index name
+                lua_pushvalue ( L, -2 );        /// metatable
+                lua_settable  ( L, -3 );        /// metatble
+            }
 
             if( funcs_ ) {
                 luaL_setfuncs( L, funcs_, 0 ); /// push function lists

@@ -128,15 +128,8 @@ namespace {
 
     void register_meta_tables( lua_State *L )
     {
-        //lua::state ls(L);
-
         lcall_register_file_meta( L );
         lcall_register_iter_meta( L );
-//        ls.push( lcall_register_file_meta );
-//        lua_call( L, 0, 0 );
-
-//        ls.push( lcall_register_iter_meta );
-//        lua_call( L, 0, 0 );
     }
 
     struct module: public iface {
