@@ -402,6 +402,39 @@ namespace lua { namespace objects {
 
     typedef std::shared_ptr<string> string_sptr;
 
+    class function: public base {
+
+        lua_CFunction func_;
+
+    public:
+
+        function( lua_CFunction func )
+            :func_(func)
+        { }
+
+        virtual int type_id( ) const
+        {
+            return base::TYPE_FUNCTION;
+        }
+
+        virtual base *clone( ) const
+        {
+            return new function( func_ );
+        }
+
+        void push( lua_State *L ) const
+        {
+            lua_pushcfunction( L, func_ );
+        }
+
+        std::string str( ) const
+        {
+            std::ostringstream oss;
+            oss << "function@" << std::hex << func_;
+            return oss.str( );
+        }
+    };
+
     class pair: public base {
 
         std::pair<base_sptr, base_sptr> pair_;
@@ -601,6 +634,14 @@ namespace lua { namespace objects {
             return this;
         }
 
+        table * add( const luaL_Reg *reglib )
+        {
+            for( const luaL_Reg *p = reglib; p->name; ++p ) {
+                add( p->name, new function( p->func ) );
+            }
+            return this;
+        }
+
         base *clone( ) const
         {
             return new table( *this );
@@ -611,11 +652,11 @@ namespace lua { namespace objects {
             typedef pair_vector::const_iterator citr;
             lua_newtable( L );
             size_t len = index_;
-            for( citr b(list_.begin( )), e(list_.end( )); b!=e; ++b, ++len ) {
+            for( citr b(list_.begin( )), e(list_.end( )); b!=e; ++b ) {
                 size_t n((*b)->nil_size( ));
                 switch (n) {
                 case 1:
-                    lua_pushinteger( L, len );
+                    lua_pushinteger( L, len++ );
                     (*b)->push( L );
                     lua_settable( L, -3 );
                     break;
@@ -669,7 +710,7 @@ namespace lua { namespace objects {
 
     public:
 
-        metatable( std::string name, const luaL_Reg *funcs )
+        metatable( std::string name, const luaL_Reg *funcs = nullptr )
             :name_(name)
             ,funcs_(funcs)
         { }
@@ -681,20 +722,20 @@ namespace lua { namespace objects {
             luaL_newmetatable( L, name_.c_str( ) );
 
             /// push self
-            lua_pushstring(L, "__index"); /// __index name
-            lua_pushvalue (L, -2);        /// metatable
-            lua_settable  (L, -3);        /// metatble
+            lua_pushstring( L, "__index" ); /// __index name
+            lua_pushvalue ( L, -2 );        /// metatable
+            lua_settable  ( L, -3 );        /// metatble
 
             if( funcs_ ) {
-                luaL_setfuncs( L, funcs_, 0 );
+                luaL_setfuncs( L, funcs_, 0 ); /// push function lists
             }
 
             size_t len = index_;
-            for( citr b(list_.begin( )), e(list_.end( )); b!=e; ++b, ++len ) {
+            for( citr b(list_.begin( )), e(list_.end( )); b!=e; ++b ) {
                 size_t n((*b)->nil_size( ));
                 switch (n) {
                 case 1:
-                    lua_pushinteger( L, len );
+                    lua_pushinteger( L, len++ );
                     (*b)->push( L );
                     lua_settable( L, -3 );
                     break;
@@ -765,39 +806,6 @@ namespace lua { namespace objects {
             oss << "ref[" << base::type2string( type_ & ~base::TYPE_REFERENCE )
                 << "]@"
                 << std::hex << state_ << ":" << ref_;
-            return oss.str( );
-        }
-    };
-
-    class function: public base {
-
-        lua_CFunction func_;
-
-    public:
-
-        function( lua_CFunction func )
-            :func_(func)
-        { }
-
-        virtual int type_id( ) const
-        {
-            return base::TYPE_FUNCTION;
-        }
-
-        virtual base *clone( ) const
-        {
-            return new function( func_ );
-        }
-
-        void push( lua_State *L ) const
-        {
-            lua_pushcfunction( L, func_ );
-        }
-
-        std::string str( ) const
-        {
-            std::ostringstream oss;
-            oss << "function@" << std::hex << func_;
             return oss.str( );
         }
     };
