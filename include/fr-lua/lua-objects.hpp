@@ -728,8 +728,8 @@ namespace lua { namespace objects {
             if( index_name_ ) {
                 /// push self
                 lua_pushstring( L, index_name_ ); /// __index name
-                lua_pushvalue ( L, -2 );          /// metatable
-                lua_settable  ( L, -3 );          /// metatble
+                lua_pushvalue ( L, -2 );          /// metatable reference
+                lua_settable  ( L, -3 );          /// metatable
             }
 
             if( funcs_ ) {
