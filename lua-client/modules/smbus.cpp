@@ -331,7 +331,7 @@ namespace {
 
         try {
 
-            utils::handle hdl = ls.get_opt<utils::handle>( 1 );
+            utils::handle hdl = m->get_object_hdl( L, 1 );
             unsigned slave = ls.get_opt<unsigned>( 2, slave_invalid );
 
             m->get_bus ( hdl )->set_address( slave );
@@ -351,7 +351,7 @@ namespace {
         lua::state ls(L);
         int n = ls.get_top( );
         for( int i=1; i<=n; i++ ) {
-            utils::handle hdl = m->get_object_hdl( L, 1 );
+            utils::handle hdl = m->get_object_hdl( L, i );
             m->buses_.erase( utils::from_handle<size_t>( hdl ) );
         }
         ls.push( true );
