@@ -1,6 +1,7 @@
 i2c  = fr.client.smbus
 eq = fr.client.event_queue
 eqt = eq.timer 
+con = fr.client.console
 
 RANGE	        = 1500000
 PRECISION       = 6
@@ -39,8 +40,13 @@ end
 
 function main ( argv )
 
+    local id = 1
+    if argv[1] then 
+        id = tonumber(argv[1])
+    end
     local i, err = i2c.open( 1 )
 
+    con.clear( )
     if err then
         println( "Bus error: ", err )
         return 1
@@ -53,12 +59,12 @@ function main ( argv )
                                      mma7660fc.Y,
                                      mma7660fc.Z,
                                      mma7660fc.TILT } )
-
-        fr.print( "X=",     convert_value(d[mma7660fc.X]),       "\t",
-                  "Y=",     convert_value(d[mma7660fc.Y]),       "\t",
-                  "Z=",     convert_value(d[mma7660fc.Z]),       "\t",
-                  "TILT=",  d[mma7660fc.TILT],    "\t",
-                "\n" )
+        con.set_pos( 0, con.size( ).height - id )
+        fr.print( "X=",     convert_value(d[mma7660fc.X]), "    ",
+                  "Y=",     convert_value(d[mma7660fc.Y]), "    ",
+                  "Z=",     convert_value(d[mma7660fc.Z]), "    ",
+                  -- "TILT=",  d[mma7660fc.TILT],		   "    ",
+                "    " )
 	eqt.post( read, {milli=100} )
     end
     fr.run( )
