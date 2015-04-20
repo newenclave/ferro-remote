@@ -114,11 +114,24 @@ namespace {
 
     struct meta_object {
         utils::handle hdl_;
+        unsigned      id_;
     };
 
-    int lcall_meta_len( lua_State *L )
+    int lcall_meta_string( lua_State *L )
     {
-        lua_pushinteger( L, sizeof(meta_object) );
+        lua::state ls(L);
+        void *ud = luaL_testudata( L, 1, meta_name );
+        if( ud ) {
+            std::ostringstream oss;
+            oss << "gpio@"
+                << std::hex
+                << static_cast<meta_object *>(ud)->hdl_
+                << ":"
+                << static_cast<meta_object *>(ud)->id_;
+            ls.push( oss.str( ) );
+        } else {
+            ls.push( "Unknown object." );
+        }
         return 1;
     }
 
@@ -130,7 +143,7 @@ namespace {
         ,{ "get",         &lcall_get            }
         ,{ "close",       &lcall_close          }
         ,{ "__gc",        &lcall_close          }
-        ,{ "__len",       &lcall_meta_len       }
+        ,{ "__tostring",  &lcall_meta_string    }
         ,{ "events",      &lcall_file_events    }
         ,{ "subscribe",   &lcall_file_subscribe }
         ,{ nullptr,        nullptr }
@@ -290,7 +303,7 @@ namespace {
             }
         }
 
-        meta_object *push_object( lua_State *L, utils::handle hdl )
+        meta_object *push_object( lua_State *L, utils::handle hdl, unsigned id )
         {
             void *ud = lua_newuserdata( L, sizeof(meta_object) );
             meta_object *nfo = static_cast<meta_object *>(ud);
@@ -298,6 +311,7 @@ namespace {
                 luaL_getmetatable( L, meta_name );
                 lua_setmetatable(L, -2);
                 nfo->hdl_ = hdl;
+                nfo->id_  = id;
             }
             return nfo;
         }
@@ -364,7 +378,7 @@ namespace {
                 }
             }
 
-            m->push_object( L, m->new_dev( id, dir, val ) );
+            m->push_object( L, m->new_dev( id, dir, val ), id );
 
         } catch( const std::exception &ex ) {
             ls.push(  );

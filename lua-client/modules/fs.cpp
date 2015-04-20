@@ -41,13 +41,6 @@ namespace {
         utils::handle hdl_;
     };
 
-    int lcall_meta_len( lua_State *L )
-    {
-        lua::state ls(L);
-        ls.push( sizeof(meta_object) );
-        return 1;
-    }
-
     int lcall_meta_file_string( lua_State *L )
     {
         lua::state ls(L);

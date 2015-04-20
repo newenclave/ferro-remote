@@ -57,6 +57,26 @@ namespace {
 
     int lcall_bus_proc_call( lua_State *L );
 
+    struct meta_object {
+        utils::handle hdl_;
+    };
+
+    int lcall_meta_string( lua_State *L )
+    {
+        lua::state ls(L);
+        void *ud = luaL_testudata( L, 1, meta_name );
+        if( ud ) {
+            std::ostringstream oss;
+            oss << "smbus@"
+                << std::hex
+                << static_cast<meta_object *>(ud)->hdl_;
+            ls.push( oss.str( ) );
+        } else {
+            ls.push( "Unknown object." );
+        }
+        return 1;
+    }
+
     const struct luaL_Reg smbus_lib[ ] = {
 
          { "set_address",  &lcall_bus_set_addr  }
@@ -75,12 +95,11 @@ namespace {
         ,{ "write_words",  &lcall_bus_write_word  }
         ,{ "write_block",  &lcall_bus_write_block }
         ,{ "process_call", &lcall_bus_proc_call   }
+        ,{ "__gc",         &lcall_bus_close       }
+        ,{ "__tostring",   &lcall_meta_string     }
+
 
         ,{ nullptr,      nullptr }
-    };
-
-    struct meta_object {
-        utils::handle hdl_;
     };
 
     struct names_codes_type {
