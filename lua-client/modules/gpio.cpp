@@ -133,7 +133,7 @@ namespace {
         ,{ "__len",       &lcall_meta_len       }
         ,{ "events",      &lcall_file_events    }
         ,{ "subscribe",   &lcall_file_subscribe }
-        ,{ nullptr,      nullptr }
+        ,{ nullptr,        nullptr }
     };
 
     std::vector<std::string> events_names( )
