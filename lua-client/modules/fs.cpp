@@ -174,6 +174,7 @@ namespace {
         {
             if( files_.find( id ) != files_.end( ) ) {
                 files_.erase( id );
+                file_events_.erase( id );
             } else if( iterators_.find( id ) != iterators_.end( ) ) {
                 iterators_.erase( id );
             }
