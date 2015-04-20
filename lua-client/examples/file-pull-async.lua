@@ -11,8 +11,6 @@ function file_get( from, to, maximum_block )
 			output:write( d )
 			eq.post( impl, input, output )
 		else
-			--input:close( )
-			--output:close( ) 
 			fr.exit( )
 		end
 	end	
@@ -21,6 +19,7 @@ function file_get( from, to, maximum_block )
     local out, eout = io.open( to, "wb" )
 	
 	if f and out then 
+		print( "file: ", f, out )
 		impl( f, out )
 	else 
         print( "remote error:", e, "local error:", eout )
