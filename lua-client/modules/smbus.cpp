@@ -98,7 +98,6 @@ namespace {
         ,{ "__gc",         &lcall_bus_close       }
         ,{ "__tostring",   &lcall_meta_string     }
 
-
         ,{ nullptr,      nullptr }
     };
 
