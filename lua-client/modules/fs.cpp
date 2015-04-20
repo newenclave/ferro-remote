@@ -48,6 +48,37 @@ namespace {
         return 1;
     }
 
+    int lcall_meta_file_string( lua_State *L )
+    {
+        lua::state ls(L);
+        void *ud = luaL_testudata( L, 1, file_meta );
+        if( ud ) {
+            std::ostringstream oss;
+            oss << "file@" << std::hex << static_cast<meta_object *>(ud)->hdl_;
+            ls.push( oss.str( ) );
+        } else {
+            ls.push( "Unknown object." );
+        }
+        return 1;
+    }
+
+    int lcall_meta_iter_string( lua_State *L )
+    {
+        lua::state ls(L);
+        void *ud = luaL_testudata( L, 1, iter_meta );
+        if( ud ) {
+            std::ostringstream oss;
+            oss << "fs_iterator@"
+                << std::hex
+                << static_cast<meta_object *>(ud)->hdl_;
+            ls.push( oss.str( ) );
+        } else {
+            ls.push( "Unknown object." );
+        }
+        return 1;
+    }
+
+
     int lcall_pwd   ( lua_State *L );
     int lcall_cd    ( lua_State *L );
     int lcall_exists( lua_State *L );
@@ -84,17 +115,17 @@ namespace {
 
     const struct luaL_Reg file_lib[ ] = {
 
-         { "ioctl",     &lcall_file_ioctl   }
-        ,{ "seek",      &lcall_file_seek    }
-        ,{ "tell",      &lcall_file_tell    }
-        ,{ "flush",     &lcall_file_flush   }
-        ,{ "read",      &lcall_file_read    }
-        ,{ "write",     &lcall_file_write   }
-        ,{ "events",    &lcall_file_events  }
-        ,{ "subscribe", &lcall_file_subscribe }
-        ,{ "close",     &lcall_close        }
-        ,{ "__gc",      &lcall_close        }
-        ,{ "__len",     &lcall_meta_len     }
+         { "ioctl",      &lcall_file_ioctl   }
+        ,{ "seek",       &lcall_file_seek    }
+        ,{ "tell",       &lcall_file_tell    }
+        ,{ "flush",      &lcall_file_flush   }
+        ,{ "read",       &lcall_file_read    }
+        ,{ "write",      &lcall_file_write   }
+        ,{ "events",     &lcall_file_events  }
+        ,{ "subscribe",  &lcall_file_subscribe }
+        ,{ "close",      &lcall_close        }
+        ,{ "__gc",       &lcall_close        }
+        ,{ "__tostring", &lcall_meta_file_string }
 
         ,{ nullptr,      nullptr }
     };
@@ -108,9 +139,9 @@ namespace {
         ,{ "clone",      &lcall_fs_iter_clone    }
         ,{ "close",      &lcall_close            }
         ,{ "__gc",       &lcall_close            }
-        ,{ "__len",      &lcall_meta_len         }
+        ,{ "__tostring", &lcall_meta_iter_string }
 
-         ,{ nullptr,      nullptr }
+        ,{ nullptr,      nullptr }
     };
 
     std::vector<std::string> file_events( )
