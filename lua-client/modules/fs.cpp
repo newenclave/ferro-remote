@@ -88,8 +88,7 @@ namespace {
 
     const struct luaL_Reg iter_lib[ ] = {
 
-         { "begin",      &lcall_fs_iter_begin    }
-        ,{ "end",        &lcall_fs_iter_end      }
+         { "end",        &lcall_fs_iter_end      }
         ,{ "has_next",   &lcall_fs_iter_has_next }
         ,{ "next",       &lcall_fs_iter_next     }
         ,{ "get",        &lcall_fs_iter_get      }
