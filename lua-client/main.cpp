@@ -187,7 +187,7 @@ int main( int argc, const char *argv[] )
             res = 5;
         }
 
-        //lua_gc( ls.get_state( ), LUA_GCCOLLECT, 0 );
+        lua_gc( ls.get_state( ), LUA_GCCOLLECT, 0 );
 
         for( auto &m: ci.modules_ ) {
             m->deinit( );
