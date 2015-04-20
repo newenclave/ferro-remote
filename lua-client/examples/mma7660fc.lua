@@ -1,12 +1,12 @@
-i2c  = fr.client.smbus
-eq = fr.client.event_queue
+i2c = fr.client.smbus
+eq  = fr.client.event_queue
 eqt = eq.timer 
 con = fr.client.console
 
 RANGE	        = 1500000
 PRECISION       = 6
-BOUNDARY	= 1 << (PRECISION - 1)
-GRAVITY_STEP    = (RANGE // BOUNDARY)
+BOUNDARY        = 1 << (PRECISION - 1)
+GRAVITY_STEP    = RANGE // BOUNDARY
 
 mma7660fc = {
 
@@ -24,11 +24,6 @@ mma7660fc = {
     SPCNT           = 5,
     INTSU           = 6,
 }
-
-function mma7660fc_activate( dev )
-    dev:set_address( mma7660fc.default_address )
-    dev:write_bytes( { [mma7660fc.mode] = mma7660fc.active } )
-end
 
 function convert_value( val )
     if val < BOUNDARY then 
@@ -52,7 +47,9 @@ function main ( argv )
         return 1
     end
 
-    mma7660fc_activate( i )
+	--- activate device
+    dev:set_address( mma7660fc.default_address )
+    dev:write_bytes( { [mma7660fc.mode] = mma7660fc.active } )
     
     local function read(  )
         local d, e = i:read_bytes( { mma7660fc.X,
