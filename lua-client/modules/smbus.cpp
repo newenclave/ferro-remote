@@ -190,6 +190,8 @@ namespace {
 
         void deinit( )
         {
+            lua::state ls( info_.main_ );
+            ls.set( id_path, (void *)nullptr );
             buses_.clear( );
         }
 
@@ -366,6 +368,10 @@ namespace {
     int lcall_bus_close( lua_State *L )
     {
         module *m = get_module( L );
+        if( !m ) {
+            return 0;
+        }
+
         lua::state ls(L);
         int n = ls.get_top( );
         for( int i=1; i<=n; i++ ) {

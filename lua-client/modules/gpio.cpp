@@ -201,6 +201,9 @@ namespace {
 
         void deinit( )
         {
+            lua::state ls( info_.main_ );
+            ls.set( id_path, (void *)nullptr );
+
             devs_.clear( );
         }
 
@@ -571,6 +574,9 @@ namespace {
     int lcall_close( lua_State *L )
     {
         module *m = get_module( L );
+        if( !m ) {
+            return 0;
+        }
         lua::state ls(L);
         utils::handle h = m->get_object_hdl( L, 1 );
         m->devs_.erase( utils::from_handle<size_t>( h ) );

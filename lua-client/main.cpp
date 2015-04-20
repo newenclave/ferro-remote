@@ -165,19 +165,25 @@ int main( int argc, const char *argv[] )
             m->init( );
         }
 
-        ls.check_call_error( ls.load_file( script_path.c_str( ) ) );
+        try {
+            ls.check_call_error( ls.load_file( script_path.c_str( ) ) );
 
-        if( ls.exists( main_name.c_str( ) ) ) {
-            int res = ls.exec_function( main_name.c_str( ), *par );
-            ls.check_call_error( res );
-        } else if( custom_main ) {
-            std::cerr << "Function '" << main_name << "'"
-                      << " was not found in the script.\n";
-            res = 4;
-        }
+            if( ls.exists( main_name.c_str( ) ) ) {
+                int res = ls.exec_function( main_name.c_str( ), *par );
+                ls.check_call_error( res );
 
-        if( ci.eventor_->get_enable( ) ) {
-            et.attach( );
+                if( ci.eventor_->get_enable( ) ) {
+                    et.attach( );
+                }
+
+            } else if( custom_main ) {
+                std::cerr << "Function '" << main_name << "'"
+                          << " was not found in the script.\n";
+                res = 4;
+            }
+        } catch( const std::exception &ex ) {
+            std::cerr << "Execution failed: " << ex.what( ) << "\n";
+            res = 5;
         }
 
         lua_gc( ls.get_state( ), LUA_GCCOLLECT, 0 );
