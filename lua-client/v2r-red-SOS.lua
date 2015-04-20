@@ -29,7 +29,7 @@ function next_call( err, info )
 	    eq.timer.post( next_call, {[2] = vals[info.index]}, info )
 	end
 	if info.index == 1 and info.on then 
-					fr.print( "SOS\n" )
+	    fr.print( "SOS\n" )
 	end
 end
 
