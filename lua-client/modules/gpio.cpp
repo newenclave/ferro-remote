@@ -112,6 +112,16 @@ namespace {
     int lcall_file_events   ( lua_State *L );
     int lcall_file_subscribe( lua_State *L );
 
+    struct meta_object {
+        utils::handle hdl_;
+    };
+
+    int lcall_meta_len( lua_State *L )
+    {
+        lua_pushinteger( L, sizeof(meta_object) );
+        return 1;
+    }
+
     const struct luaL_Reg gpio_lib[ ] = {
 
          { "unexport",    &lcall_unexport       }
@@ -119,6 +129,8 @@ namespace {
         ,{ "set",         &lcall_set            }
         ,{ "get",         &lcall_get            }
         ,{ "close",       &lcall_close          }
+        ,{ "__gc",        &lcall_close          }
+        ,{ "__len",       &lcall_meta_len       }
         ,{ "events",      &lcall_file_events    }
         ,{ "subscribe",   &lcall_file_subscribe }
         ,{ nullptr,      nullptr }
@@ -132,10 +144,6 @@ namespace {
 
         return res;
     }
-
-    struct meta_object {
-        utils::handle hdl_;
-    };
 
     int lcall_register_meta( lua_State *L )
     {
