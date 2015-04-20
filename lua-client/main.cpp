@@ -166,6 +166,7 @@ int main( int argc, const char *argv[] )
         }
 
         try {
+
             ls.check_call_error( ls.load_file( script_path.c_str( ) ) );
 
             if( ls.exists( main_name.c_str( ) ) ) {
