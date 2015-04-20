@@ -144,13 +144,13 @@ namespace {
 
     struct module: public iface {
 
-        client::general_info                &info_;
-        std::unique_ptr<fsiface::iface>      iface_;
+        client::general_info            &info_;
+        std::unique_ptr<fsiface::iface>  iface_;
 
-        std::map<size_t, iterator_sptr>      iterators_;
-        std::map<size_t, file_sptr>          files_;
-        std::map<size_t, eventor_sptr>       file_events_;
-        std::vector<std::string>             events_name_;
+        std::map<size_t, iterator_sptr>  iterators_;
+        std::map<size_t, file_sptr>      files_;
+        std::map<size_t, eventor_sptr>   file_events_;
+        std::vector<std::string>         events_name_;
 
         module( client::general_info &info )
             :info_(info)
