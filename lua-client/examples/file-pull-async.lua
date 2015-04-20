@@ -19,7 +19,7 @@ function file_get( from, to, maximum_block )
     local out, eout = io.open( to, "wb" )
 	
 	if f and out then 
-		print( "files:", "in: "..f, "out: ", out )
+		print( "files:", "in ", f, "out ", out )
 		impl( f, out )
 	else 
         print( "remote error:", e, "local error:", eout )
