@@ -21,7 +21,6 @@ function main( argv )
             out:write( d )
             d = f:read( ) 
         end
-        f:close( ) 
     else
         print( "remote error:", e, "local error:", eout )
 	end

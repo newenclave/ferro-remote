@@ -180,6 +180,8 @@ int main( int argc, const char *argv[] )
             et.attach( );
         }
 
+        lua_gc( ls.get_state( ), LUA_GCCOLLECT, 0 );
+
         for( auto &m: ci.modules_ ) {
             m->deinit( );
         }

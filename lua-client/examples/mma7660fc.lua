@@ -62,7 +62,7 @@ function main ( argv )
                   "Z=",     convert_value(d[mma7660fc.Z]), "    ",
                   -- "TILT=",  d[mma7660fc.TILT],		   "    ",
                 "    " )
-	eqt.post( read, {milli=100} )
+        eqt.post( read, {milli=100} )
     end
     fr.run( )
     read( )

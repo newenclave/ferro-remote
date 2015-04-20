@@ -11,8 +11,8 @@ function file_get( from, to, maximum_block )
 			output:write( d )
 			eq.post( impl, input, output )
 		else
-			input:close( )
-			output:close( ) 
+			--input:close( )
+			--output:close( ) 
 			fr.exit( )
 		end
 	end	

@@ -37,6 +37,17 @@ namespace {
         return static_cast<module *>(ptr);
     }
 
+    struct meta_object {
+        utils::handle hdl_;
+    };
+
+    int lcall_meta_len( lua_State *L )
+    {
+        lua::state ls(L);
+        ls.push( sizeof(meta_object) );
+        return 1;
+    }
+
     int lcall_pwd   ( lua_State *L );
     int lcall_cd    ( lua_State *L );
     int lcall_exists( lua_State *L );
@@ -75,13 +86,15 @@ namespace {
 
          { "ioctl",     &lcall_file_ioctl   }
         ,{ "seek",      &lcall_file_seek    }
-        ,{ "close",     &lcall_close        }
         ,{ "tell",      &lcall_file_tell    }
         ,{ "flush",     &lcall_file_flush   }
         ,{ "read",      &lcall_file_read    }
         ,{ "write",     &lcall_file_write   }
         ,{ "events",    &lcall_file_events  }
         ,{ "subscribe", &lcall_file_subscribe }
+        ,{ "close",     &lcall_close        }
+        ,{ "__gc",      &lcall_close        }
+        ,{ "__len",     &lcall_meta_len     }
 
         ,{ nullptr,      nullptr }
     };
@@ -94,12 +107,10 @@ namespace {
         ,{ "get",        &lcall_fs_iter_get      }
         ,{ "clone",      &lcall_fs_iter_clone    }
         ,{ "close",      &lcall_close            }
+        ,{ "__gc",       &lcall_close            }
+        ,{ "__len",      &lcall_meta_len         }
 
-        ,{ nullptr,      nullptr }
-    };
-
-    struct meta_object {
-        utils::handle hdl_;
+         ,{ nullptr,      nullptr }
     };
 
     std::vector<std::string> file_events( )
@@ -161,9 +172,11 @@ namespace {
 
         void close( size_t id )
         {
-            files_.erase( id );
-            iterators_.erase( id );
-            //file_events_.clear( );
+            if( files_.find( id ) != files_.end( ) ) {
+                files_.erase( id );
+            } else if( iterators_.find( id ) != iterators_.end( ) ) {
+                iterators_.erase( id );
+            }
         }
 
         void file_event( unsigned err, const std::string &data,
