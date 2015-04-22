@@ -102,7 +102,8 @@ namespace fr { namespace client { namespace interfaces {
                 ii_ = open_setup_inst( client_, id_, setup );
             }
 
-            ~gpio_impl( ) {
+            ~gpio_impl( )
+            {
                 if( ii_.hdl_ != 0 ) try {
                     client_.channel( )->set_flags( nw_flag );
                     close_impl( );
