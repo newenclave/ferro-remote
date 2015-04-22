@@ -1,8 +1,11 @@
 #ifndef FR_INTERFACE_FILESYSTEM_H
 #define FR_INTERFACE_FILESYSTEM_H
 
+#include "IBaseIface.h"
+
 #include <string>
 #include "vtrc-stdint.h"
+
 
 namespace fr { namespace client {
 
@@ -43,7 +46,7 @@ namespace interfaces { namespace filesystem {
     inline bool operator == ( const iterator_value &l, const iterator_value &r )
     { return  l.path == r.path; }
 
-    struct directory_iterator_impl {
+    struct directory_iterator_impl: public interfaces::base {
 
         virtual ~directory_iterator_impl( ) { }
 
@@ -91,7 +94,7 @@ namespace interfaces { namespace filesystem {
 
     };
 
-    struct iface {
+    struct iface: public interfaces::base {
 
         virtual ~iface( ) { }
 

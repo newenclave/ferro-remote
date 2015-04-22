@@ -1,6 +1,8 @@
 #ifndef FR_II2C_H
 #define FR_II2C_H
 
+#include "IBaseIface.h"
+
 #include <stdint.h>
 #include "vtrc-memory.h"
 

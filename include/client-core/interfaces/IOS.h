@@ -1,6 +1,8 @@
 #ifndef FR_INTERFACE_OS_H
 #define FR_INTERFACE_OS_H
 
+#include "IBaseIface.h"
+
 #include <string>
 
 namespace fr { namespace client {
@@ -11,7 +13,7 @@ namespace core {
 
 namespace interfaces { namespace os {
 
-    struct iface {
+    struct iface: public interfaces::base {
         virtual ~iface( ) { }
         virtual int execute( const std::string &cmd ) const = 0;
     };

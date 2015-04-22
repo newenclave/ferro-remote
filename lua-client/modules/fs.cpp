@@ -47,7 +47,9 @@ namespace {
         void *ud = luaL_testudata( L, 1, file_meta );
         if( ud ) {
             std::ostringstream oss;
-            oss << "file@" << std::hex << static_cast<meta_object *>(ud)->hdl_;
+            oss << "file@"
+                << std::hex
+                << static_cast<meta_object *>(ud)->hdl_;
             ls.push( oss.str( ) );
         } else {
             ls.push( "Unknown object." );

@@ -1,6 +1,8 @@
 #ifndef FR_IGPIO_H
 #define FR_IGPIO_H
 
+#include "IBaseIface.h"
+
 #include "vtrc-function.h"
 #include "vtrc-stdint.h"
 
@@ -71,7 +73,7 @@ namespace interfaces { namespace gpio {
         edge_type       edge;
     };
 
-    struct iface {
+    struct iface: public interfaces::base {
         virtual ~iface( ) { }
 
         virtual info get_info( ) const = 0;

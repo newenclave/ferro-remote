@@ -5,6 +5,7 @@
 #include <stdint.h>
 
 #include "vtrc-function.h"
+#include "IBaseIface.h"
 
 namespace fr { namespace client {
 
@@ -68,7 +69,7 @@ namespace interfaces { namespace file {
             void (unsigned, const std::string &)
     > file_event_callback;
 
-    struct base_file_iface {
+    struct base_file_iface: public interfaces::base {
         virtual ~base_file_iface( ) { }
         virtual size_t  read( void *data,       size_t length  ) const = 0;
         virtual size_t write( const void *data, size_t length  ) const = 0;

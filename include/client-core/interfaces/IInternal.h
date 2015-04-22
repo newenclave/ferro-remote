@@ -1,6 +1,8 @@
 #ifndef FR_IINTERNAL_H
 #define FR_IINTERNAL_H
 
+#include "IBaseIface.h"
+
 namespace fr { namespace client {
 
 namespace core {
@@ -9,7 +11,7 @@ namespace core {
 
 namespace interfaces { namespace internal {
 
-    struct iface {
+    struct iface: public interfaces::base {
         virtual ~iface( ) { }
         virtual void exit_process( ) const = 0;
     };
