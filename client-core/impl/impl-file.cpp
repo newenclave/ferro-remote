@@ -75,6 +75,24 @@ namespace fr { namespace client { namespace interfaces {
                 ,hdl_(open_file(client_, path, mode, as_device ))
             { }
 
+            file_impl( core::client_core &ccore,
+                       vtrc::common::rpc_channel *chan,
+                       const std::string &path,
+                       unsigned flags, unsigned mode, bool as_device )
+                :core_(ccore)
+                ,client_(chan, true)
+                ,hdl_(open_file(client_, path, flags, mode, as_device))
+            { }
+
+            file_impl( core::client_core &ccore,
+                       vtrc::common::rpc_channel *chan,
+                       const std::string &path, const std::string &mode,
+                       bool as_device )
+                :core_(ccore)
+                ,client_(chan, true)
+                ,hdl_(open_file(client_, path, mode, as_device ))
+            { }
+
             ~file_impl( )
             {
                 try {

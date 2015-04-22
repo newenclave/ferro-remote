@@ -223,6 +223,15 @@ namespace filesystem {
                 ,hdl_(open_fs_inst(client_, path_))
             { }
 
+            fs_impl( core::client_core &cl, vtrc::common::rpc_channel *chan,
+                     const std::string &path )
+                :core_(cl)
+                ,channel_(chan)
+                ,client_(channel_)
+                ,path_(path)
+                ,hdl_(open_fs_inst(client_, path_))
+            { }
+
             ~fs_impl( )
             {
                 try {

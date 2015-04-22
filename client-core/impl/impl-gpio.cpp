@@ -102,6 +102,37 @@ namespace fr { namespace client { namespace interfaces {
                 ii_ = open_setup_inst( client_, id_, setup );
             }
 
+
+            gpio_impl( core::client_core &cl, vtrc::common::rpc_channel *chan,
+                       unsigned id )
+                :core_(cl)
+                ,id_(id)
+                ,client_(chan, true)
+                ,ii_(open_instance( client_, id_ ))
+            { }
+
+            gpio_impl( core::client_core &cl, vtrc::common::rpc_channel *chan )
+                :core_(cl)
+                ,id_(0)
+                ,client_(chan, true)
+            { }
+
+            gpio_impl( core::client_core &cl, vtrc::common::rpc_channel *chan,
+                       unsigned id,
+                       gpio::direction_type dir, unsigned value )
+                :core_(cl)
+                ,id_(id)
+                ,client_(chan, true)
+            {
+                gproto::setup_data setup;
+                setup.set_direction( dir );
+                if( ( dir == gpio::DIRECT_OUT ) && ( value != 0 ) ) {
+                    setup.set_value( 1 );
+                }
+
+                ii_ = open_setup_inst( client_, id_, setup );
+            }
+
             ~gpio_impl( )
             {
                 if( ii_.hdl_ != 0 ) try {

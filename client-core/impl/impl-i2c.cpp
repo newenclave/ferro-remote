@@ -48,6 +48,12 @@ namespace fr { namespace client { namespace interfaces { namespace i2c {
                 ,hdl_(open_device( client_, bid, sa, sf ))
             { }
 
+            i2s_impl( vtrc::common::rpc_channel *chan,
+                      unsigned bid, unsigned sa, bool sf )
+                :client_(chan, true)
+                ,hdl_(open_device( client_, bid, sa, sf ))
+            { }
+
             ~i2s_impl( )
             {
                 client_.channel( )->set_flags( nw_flag );
