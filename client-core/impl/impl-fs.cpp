@@ -66,6 +66,16 @@ namespace fr { namespace client { namespace interfaces {
                 } catch( ... ) { }
             }
 
+            vtrc::common::rpc_channel *channel( )
+            {
+                return client_.channel( );
+            }
+
+            const vtrc::common::rpc_channel *channel( ) const
+            {
+                return client_.channel( );
+            }
+
             void copy_data( const fproto::iterator_info &info )
             {
                 val_.path   = info.path( );
@@ -224,6 +234,16 @@ namespace filesystem {
                 } catch( ... ) {
                     ;;;
                 }
+            }
+
+            vtrc::common::rpc_channel *channel( )
+            {
+                return client_.channel( );
+            }
+
+            const vtrc::common::rpc_channel *channel( ) const
+            {
+                return client_.channel( );
             }
 
             void fill_request( fproto::handle_path &req,

@@ -54,6 +54,16 @@ namespace fr { namespace client { namespace interfaces { namespace i2c {
                 close_impl( );
             }
 
+            vtrc::common::rpc_channel *channel( )
+            {
+                return client_.channel( );
+            }
+
+            const vtrc::common::rpc_channel *channel( ) const
+            {
+                return client_.channel( );
+            }
+
             void close_impl( )
             {
                 try {

@@ -83,6 +83,16 @@ namespace fr { namespace client { namespace interfaces {
                 } catch( ... ) {  }
             }
 
+            vtrc::common::rpc_channel *channel( )
+            {
+                return client_.channel( );
+            }
+
+            const vtrc::common::rpc_channel *channel( ) const
+            {
+                return client_.channel( );
+            }
+
             void close_impl( )
             {
                 client_.call_request( &stub_type::close, &hdl_ );

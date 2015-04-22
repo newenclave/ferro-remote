@@ -12,9 +12,10 @@ namespace fr { namespace client { namespace interfaces {
     namespace {
 
         namespace oproto = fr::proto::os;
-        typedef oproto::instance::Stub                stub_type;
-        typedef vtrc::common::stub_wrapper<stub_type> client_type;
-        typedef vtrc::common::rpc_channel             rpc_channel;
+        namespace vcomm = vtrc::common;
+        typedef vcomm::rpc_channel                           channel_type;
+        typedef oproto::instance::Stub                       stub_type;
+        typedef vcomm::stub_wrapper<stub_type, channel_type> client_type;
 
         class os_impl: public os::iface {
 
@@ -35,6 +36,17 @@ namespace fr { namespace client { namespace interfaces {
 
                 return res.result( );
             }
+
+            vtrc::common::rpc_channel *channel( )
+            {
+                return client_.channel( );
+            }
+
+            const vtrc::common::rpc_channel *channel( ) const
+            {
+                return client_.channel( );
+            }
+
         };
     }
 
