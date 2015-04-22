@@ -7,6 +7,7 @@
 #include "vtrc-function.h"
 #include "vtrc-common/vtrc-closure.h"
 #include "vtrc-common/vtrc-signal-declaration.h"
+#include "vtrc-common/vtrc-rpc-channel.h"
 
 #include "vtrc-stdint.h"
 #include "interfaces/IAsyncOperation.h"
@@ -38,6 +39,14 @@ namespace fr {  namespace client { namespace core {
         ~client_core(  );
 
     public:
+
+        typedef vtrc::common::rpc_channel
+                    ::proto_error_cb_type proto_error_cb_type;
+        typedef vtrc::common::rpc_channel
+                    ::channel_error_cb_type channel_error_cb_type;
+
+        void set_proto_error_cb( const proto_error_cb_type &cb );
+        void set_channel_error_cb( const channel_error_cb_type &cb );
 
         /// format is:
         ///  /path/with/file_name for UNIX socket

@@ -77,11 +77,17 @@ namespace fr {  namespace client { namespace core {
 
     struct client_core::impl {
 
+        typedef client_core::proto_error_cb_type    pe_cb;
+        typedef client_core::channel_error_cb_type  ce_cb;
+
         vclient::vtrc_client_sptr client_;
         connect_info_sptr         last_connection_;
         mutable vtrc::mutex       client_lock_;
         callbacks_info_sptr       cbi_;
         client_core              *parent_;
+
+        pe_cb                     proto_error_;
+        ce_cb                     channel_error_;
 
         impl( vcommon::pool_pair &pp )
             :client_(vclient::vtrc_client::create(pp))
@@ -225,6 +231,16 @@ namespace fr {  namespace client { namespace core {
         delete impl_;
     }
 
+    void client_core::set_proto_error_cb( const proto_error_cb_type &cb )
+    {
+        impl_->proto_error_ = cb;
+    }
+
+    void client_core::set_channel_error_cb( const channel_error_cb_type &cb )
+    {
+        impl_->channel_error_ = cb;
+    }
+
     void client_core::connect( const std::string &server )
     {
         impl_->set_new_info( server, false );
@@ -270,12 +286,22 @@ namespace fr {  namespace client { namespace core {
 
     vtrc::common::rpc_channel *client_core::create_channel( )
     {
-        return impl_->client_->create_channel( );
+        vtrc::common::rpc_channel *r = impl_->client_->create_channel( );
+
+        r->set_proto_error_callback( impl_->proto_error_ );
+        r->set_channel_error_callback( impl_->channel_error_ );
+
+        return r;
     }
 
     vtrc::common::rpc_channel *client_core::create_channel( unsigned flags )
     {
-        return impl_->client_->create_channel( flags );
+        vtrc::common::rpc_channel *r = impl_->client_->create_channel( flags );
+
+        r->set_proto_error_callback( impl_->proto_error_ );
+        r->set_channel_error_callback( impl_->channel_error_ );
+
+        return r;
     }
 
     void client_core::register_async_op( size_t id, async_op_callback_type cb )
