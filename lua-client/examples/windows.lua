@@ -114,7 +114,7 @@ function timer( err, win )
 	win.value = 0
     end
     win:draw( )
-    fr.client.event_queue.timer.post( timer, {0, 50}, win )
+    fr.client.event_queue.timer.post( timer, {0, 200}, win )
 end
 
 function main( )
