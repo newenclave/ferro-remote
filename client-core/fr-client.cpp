@@ -58,7 +58,7 @@ namespace fr {  namespace client { namespace core {
 
                 ci->name_ = CONN_TCP;
                 ci->server_.assign( name.begin( ),
-                                   name.begin( ) + delim_pos );
+                                    name.begin( ) + delim_pos );
                 ci->port_ = atoi( name.c_str( ) + delim_pos + 1 );
                 ci->tcp_nowait_ = nw;
 
