@@ -46,6 +46,7 @@ end
 window.draw = function( self )
     local W = io.stdout
     local P = con.set_pos
+    
     local x, y = self:pos( )
     local w, h = self:size( )
 
@@ -91,6 +92,12 @@ window.draw = function( self )
     io.stdout:flush( )
 end
 
+function draw_all(  )
+    con.clear( )
+    window:draw( )
+    fr.client.event_queue.timer.post(draw_all, {0, 100} )
+end
+
 function main( )
     con.clear( )
     
@@ -102,7 +109,10 @@ function main( )
     local h2 = h:clone( )	
     h2.x, h2.y = h2.x + 2, h2.y + 2 
 
-    window:draw( )    
+    local h3 = h2:clone( )
+    h3.x, h3.y = 25, 8 
+
+    draw_all( window ) 
 
     fr.run( )
 end
