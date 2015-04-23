@@ -121,20 +121,7 @@ function main( )
     con.clear( )
     
     local h = window:new( )
-    status = window:new( )
-    status.text = ""
-    status.size = function( )
-	return con.size( ).width - 1, 3
-    end
-    status.pos = function( )
-	return 0, con.size( ).height - 3 
-    end
-    status.cdraw = function( self )
-	con.set_pos( 2, con.size( ).height - 2 )
-	io.stdout:write( self.text )
-    end   
 
- 
     h.x, h.y = 5,  5
     h.w, h.h = 10, 5
 
@@ -150,7 +137,7 @@ function main( )
     h4.value = 0    
 
     h4.cdraw = function( self )
-	con.set_pos( self.x + 1, self.y + 1 )
+	con.set_pos( self.x + 1 + self.parent.x, self.y + 1 + self.parent.y )
 
 	if self.value < ( self.w // 3 ) then
 	    con.set_color( "green" )
@@ -165,7 +152,21 @@ function main( )
 	end
 	con.set_color( )
     end
+    
+    status = window:new( )
+    status.text = ""
+    status.size = function( )
+	return con.size( ).width - 1, 3
+    end
+    status.pos = function( )
+	return 0, con.size( ).height - 3 
+    end
+    status.cdraw = function( self )
+	con.set_pos( 2, con.size( ).height - 2 )
+	io.stdout:write( self.text )
+    end   
 
+ 
     draw_all( nil, window ) 
     timer( nil, h4 )
 
