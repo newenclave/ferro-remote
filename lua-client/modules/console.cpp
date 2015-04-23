@@ -166,6 +166,7 @@ namespace {
     int lcall_set_pos   ( lua_State *L );
     int lcall_size      ( lua_State *L );
     int lcall_clear     ( lua_State *L );
+    int lcall_flush     ( lua_State *L );
 
     int lcall_set_pattern   ( lua_State *L );
     int lcall_events        ( lua_State *L );
@@ -275,6 +276,7 @@ namespace {
             res->add( "set_position", new_function( &lcall_set_pos ) );
             res->add( "set_pos",      new_function( &lcall_set_pos ) );
             res->add( "size",         new_function( &lcall_size ) );
+            res->add( "flush",        new_function( &lcall_size ) );
 
             res->add( "set_pattern",  new_function( &lcall_set_pattern ) );
             res->add( "events",       new_function( &lcall_events ) );
@@ -288,6 +290,13 @@ namespace {
             return false;
         }
     };
+
+
+    int lcall_flush( lua_State * /*L*/ )
+    {
+        std::cout.flush( );
+        return 0;
+    }
 
     int lcall_colors( lua_State *L )
     {
