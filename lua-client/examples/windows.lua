@@ -4,14 +4,14 @@ cf = con.flush
 window = { 
     x = 0, y = 0, 
     children = { },    
-    h = con.size( ).height - 3, w = con.size( ).width
+    h = con.size( ).height - 3, w = con.size( ).width - 1
 }
 
 window.size = function ( self )
     if self.parent then
         return self.w, self.h
     else 
-	return con.size( ).width, con.size( ).height - 3 
+	return con.size( ).width - 1, con.size( ).height - 3 
     end
 end
 
@@ -124,7 +124,7 @@ function main( )
     status = window:new( )
     status.text = ""
     status.size = function( )
-	return con.size( ).width, 3
+	return con.size( ).width - 1, 3
     end
     status.pos = function( )
 	return 0, con.size( ).height - 3 
