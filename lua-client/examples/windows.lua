@@ -4,14 +4,14 @@ cf = con.flush
 window = { 
     x = 0, y = 0, 
     children = { },    
-    h = con.size( ).height - 3, w = con.size( ).width - 1
+    h = con.size( ).height, w = con.size( ).width
 }
 
 window.size = function ( self )
     if self.parent then
         return self.w, self.h
     else 
-	return con.size( ).width - 1, con.size( ).height - 3 
+	return con.size( ).width, con.size( ).height 
     end
 end
 
@@ -53,6 +53,8 @@ window.draw = function( self )
     
     local x, y = self:pos( )
     local w, h = self:size( )
+    
+    w, h = w - 1, h -1
 
     local function mkstring( c )    
 	local s = '' 
@@ -107,14 +109,16 @@ function draw_all( err, win )
     fr.client.event_queue.timer.post(draw_all, {0, 100}, win )
 end
 
-function timer( err, win )
+function timer( err, win, milli, set_text )
     win.value = win.value + 1
-    status.text =  "progress: "..tostring(win.value)..":"..tostring(win.w - 1)
-    if win.value > (win.w - 2) then
+    if set_text then
+        status.text =  "progress: "..tostring(win.value)..":"..tostring(win.w - 1)
+    end
+    if win.value > (win.w - 3) then
 	win.value = 0
     end
     win:draw( )
-    fr.client.event_queue.timer.post( timer, {0, 200}, win )
+    fr.client.event_queue.timer.post( timer, {0, milli}, win, milli, set_text )
 end
 
 function main( )
@@ -128,35 +132,35 @@ function main( )
     local h2 = h:clone( )	
     h2.x, h2.y = h2.x + 2, h2.y + 2 
 
-    local h3 = h2:clone( )
-    h3.x, h3.y = 25, 8 
-    
     local h4 = h:clone( )
-    h4.x, h4.y = 10,  1
-    h4.w, h4.h = 35, 2 
+    h4.x, h4.y = 10, 1
+    h4.w, h4.h = 35, 3 
     h4.value = 0    
 
     h4.cdraw = function( self )
-	con.set_pos( self.x + 1 + self.parent.x, self.y + 1 + self.parent.y )
-
-	if self.value < ( self.w // 3 ) then
-	    con.set_color( "green" )
-	elseif self.value < ( self.w - self.w // 3 )  then 
-	    con.set_color( "yellow" )
-	else 
-	    con.set_color( "red" )
-	end
-
-	for i = 0, self.value do 
-	    io.stdout:write( "|" )
-	end
-	con.set_color( )
+        con.set_pos( self.x + 1 + self.parent.x, self.y + 1 + self.parent.y )
+        
+        if self.value < ( self.w // 3 ) then
+            con.set_color( "green" )
+        elseif self.value < ( self.w - self.w // 3 )  then 
+            con.set_color( "yellow" )
+        else 
+            con.set_color( "red" )
+        end
+        
+        for i = 0, self.value do 
+            io.stdout:write( "|" )
+        end
+        con.set_color( )
     end
-    
+
+    local h5 = h4:clone( )
+    h5.x, h5.y = h5.x, h5.y + h4.h
+ 
     status = window:new( )
     status.text = ""
     status.size = function( )
-	return con.size( ).width - 1, 3
+	return con.size( ).width, 3
     end
     status.pos = function( )
 	return 0, con.size( ).height - 3 
@@ -168,7 +172,8 @@ function main( )
 
  
     draw_all( nil, window ) 
-    timer( nil, h4 )
+    timer( nil, h4, 200, true )
+    timer( nil, h5, 500 )    
 
     fr.run( )
 end
