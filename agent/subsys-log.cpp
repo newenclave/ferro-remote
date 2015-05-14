@@ -55,6 +55,8 @@ namespace fr { namespace agent { namespace subsys {
             }
         };
 
+        typedef std::shared_ptr<ostream_info> ostream_info_sptr;
+
         std::vector<std::string> log_files( const po::variables_map &vm )
         {
             if( vm.count( "log" ) ) {
@@ -92,8 +94,8 @@ namespace fr { namespace agent { namespace subsys {
             return logger::info;
         }
 
-        void log_slot( std::ostream &o, logger::level lev,
-                       const std::string &data )
+        void con_log_slot( std::ostream &o, logger::level lev,
+                           const std::string &data )
         {
             static const char *names[ ] = {
                 "ZER", "ERR",  "WRN", "INF", "DBG"
@@ -102,6 +104,12 @@ namespace fr { namespace agent { namespace subsys {
             o << boost::posix_time::microsec_clock::local_time( )
               << " [" << names[lev] << "] " << data << "\n";
             //o.flush( );
+        }
+
+        void log_slot( ostream_info_sptr o, logger::level lev,
+                       const std::string &data )
+        {
+            con_log_slot( *o->stream_, lev, data );
         }
     }
 
@@ -130,16 +138,16 @@ namespace fr { namespace agent { namespace subsys {
             }
         };
 
-        application                 *app_;
-        ba::io_service::strand       dispatcher_;
-        my_logger                    logger_;
-        std::vector<connection_pair> connections_;
-        bs::connection               stdout_connection_;
-        bs::connection               stderr_connection_;
+        application                    *app_;
+        ba::io_service::strand          dispatcher_;
+        my_logger                       logger_;
+        std::vector<ostream_info_sptr>  connections_;
+        bs::connection                  stdout_connection_;
+        bs::connection                  stderr_connection_;
 
         void set_connections( const std::vector<std::string> &files )
         {
-            std::vector<connection_pair> tmp;
+            std::vector<ostream_info_sptr> tmp;
 
             try {
 
@@ -148,23 +156,27 @@ namespace fr { namespace agent { namespace subsys {
 
                 for( auto &f: files ) {
                     if( f == "-" ) {
+
                         sout = true;
                         stdout_connection_ = logger_.on_write_connect(
-                                    std::bind( log_slot, std::ref( std::cout ),
-                                               ph::_1, ph::_2 ) );
+                                std::bind( con_log_slot, std::ref( std::cout ),
+                                           ph::_1, ph::_2 ) );
+
                     } else if( f == "-!" ) {
+
                         serr = true;
                         stderr_connection_ = logger_.on_write_connect(
-                                    std::bind( log_slot, std::ref( std::cerr ),
-                                               ph::_1, ph::_2 ) );
+                                std::bind( con_log_slot, std::ref( std::cerr ),
+                                           ph::_1, ph::_2 ) );
+
                     } else {
-                        size_t s = 0;
-                        ostream_sptr out = open_file( f, &s );
-                        bs::connection sc( logger_.on_write_connect(
-                                std::bind( log_slot, std::ref( *out ),
+                        ostream_info_sptr next (
+                                    std::make_shared<ostream_info>( f ) );
+                        next->connect_ = logger_.on_write_connect(
+                                std::bind( log_slot, std::ref( next ),
                                            ph::_1, ph::_2 )
-                            ) );
-                        tmp.push_back( std::make_pair( out, sc ) );
+                            );
+                        tmp.push_back( next );
                     }
                 }
                 if( !sout ) {
@@ -195,7 +207,7 @@ namespace fr { namespace agent { namespace subsys {
         void flush_all( )
         {
             for( auto &f: connections_ ) {
-                f.first->flush( );
+                f->stream_->flush( );
             }
         }
 
