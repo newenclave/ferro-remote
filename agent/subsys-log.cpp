@@ -122,8 +122,10 @@ namespace fr { namespace agent { namespace subsys {
             std::vector<connection_pair> tmp;
 
             try {
+
                 bool sout = false;
                 bool serr = false;
+
                 for( auto &f: files ) {
                     if( f == "-" ) {
                         sout = true;
