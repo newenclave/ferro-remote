@@ -98,7 +98,7 @@ namespace fr { namespace agent { namespace subsys {
                 ,parent_(parent)
             { }
 
-            void write_signal( level lev, const std::string &data )
+            void do_write( level lev, const std::string &data )
             {
                 this->get_on_write( )( lev, data );
             }
@@ -106,7 +106,7 @@ namespace fr { namespace agent { namespace subsys {
             void send_data( level lev, const std::string &data )
             {
                 parent_->dispatcher_.post( std::bind(
-                        &my_logger::write_signal, this, lev, data ) );
+                        &my_logger::do_write, this, lev, data ) );
             }
         };
 
