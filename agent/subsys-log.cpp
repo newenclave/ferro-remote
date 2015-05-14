@@ -124,21 +124,22 @@ namespace fr { namespace agent { namespace subsys {
 
             void do_write( level lev, const std::string &data )
             {
+                this->get_on_write( )( lev, data );
+            }
+
+            void send_data( level lev, const std::string &data )
+            {
                 static const char *names[ ] = {
                     "ZER", "ERR",  "WRN", "INF", "DBG"
                 };
 
                 std::ostringstream oss;
-
                 oss << boost::posix_time::microsec_clock::local_time( )
                     << " [" << names[lev] << "] " << data << "\n";
-                this->get_on_write( )( lev, oss.str( ) );
-            }
 
-            void send_data( level lev, const std::string &data )
-            {
                 parent_->dispatcher_.post( std::bind(
-                        &my_logger::do_write, this, lev, data ) );
+                        &my_logger::do_write, this, lev, oss.str( ) ) );
+
             }
         };
 
