@@ -116,8 +116,15 @@ int main( int argc, const char **argv )
 
         init_subsystems( vm, app );
 
+        agent::logger &lgger( app.subsystem<agent::subsys::log>( )
+                                 .get_logger( ) );
+
+        lgger(agent::logger::info) << "Agent started.";
+
         pp->get_io_pool( ).attach( ); /// RUN!
         pp->join_all( );
+
+        lgger(agent::logger::info) << "Agent stopped.";
 
     } catch( const std::exception &ex ) {
         std::cerr << "Application failed: " << ex.what( ) << "\n";
