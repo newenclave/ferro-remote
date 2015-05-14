@@ -173,7 +173,7 @@ namespace fr { namespace agent { namespace subsys {
                         ostream_info_sptr next (
                                     std::make_shared<ostream_info>( f ) );
                         next->connect_ = logger_.on_write_connect(
-                                std::bind( log_slot, std::ref( next ),
+                                std::bind( log_slot, next,
                                            ph::_1, ph::_2 )
                             );
                         tmp.push_back( next );
