@@ -45,10 +45,10 @@ namespace fr { namespace agent { namespace subsys {
 
         logger::level log_level( const po::variables_map &vm )
         {
-            const struct loglevels {
+            static const struct loglevels {
                 const char      *name_;
                 logger::level    lev_;
-            } static names[ ] = {
+            } names[ ] = {
                  { "zero",    logger::zero    }
                 ,{ "error",   logger::error   }
                 ,{ "warning", logger::warning }
@@ -75,9 +75,10 @@ namespace fr { namespace agent { namespace subsys {
         void log_slot( std::ostream &o, logger::level lev,
                        const std::string &data )
         {
-            const char *names[ ] = {
+            static const char *names[ ] = {
                 "ZRO", "ERR",  "WRN", "INF", "DBG"
             };
+
             o << boost::posix_time::microsec_clock::local_time( )
               << " [" << names[lev] << "] " << data << "\n";
             //o.flush( );
