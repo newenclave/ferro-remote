@@ -4,15 +4,16 @@
 #include "subsys-config.h"
 
 #include "boost/program_options/variables_map.hpp"
+#include "boost/date_time/posix_time/posix_time.hpp"
 #include "boost/asio/io_service.hpp"
 #include "boost/asio/strand.hpp"
+
+#include "vtrc-common/config/vtrc-chrono.h"
 
 #include <string>
 #include <list>
 #include <fstream>
 #include <functional>
-
-//#include "vtrc-memory.h"
 
 namespace fr { namespace agent { namespace subsys {
 
@@ -77,7 +78,8 @@ namespace fr { namespace agent { namespace subsys {
             const char *names[ ] = {
                 "ZRO", "ERR",  "WRN", "INF", "DBG"
             };
-            o << "[" << names[lev] << "] " << data << "\n";
+            o << boost::posix_time::microsec_clock::local_time( )
+              << " [" << names[lev] << "] " << data << "\n";
             //o.flush( );
         }
     }
