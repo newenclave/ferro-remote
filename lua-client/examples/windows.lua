@@ -104,7 +104,7 @@ window.draw = function( self )
 end
 
 function draw_all( err, win )
-    con.clear( )
+    --con.clear( )
     win:draw( )
     fr.client.event_queue.timer.post(draw_all, {0, 100}, win )
 end

@@ -8,3 +8,4 @@
 #include "subsys-i2c.h"
 #include "subsys-lua.h"
 #include "subsys-multicast.h"
+#include "subsys-log.h"
