@@ -920,7 +920,7 @@ namespace fr { namespace agent { namespace subsys {
 
     void fs::start( )
     {
-        impl_->reg_creator( proto_fs_impl::name( ), create_fs_inst );
+        impl_->reg_creator( proto_fs_impl::name( ),   create_fs_inst );
         impl_->reg_creator( proto_file_impl::name( ), create_file_inst );
     }
 
