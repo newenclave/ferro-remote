@@ -107,7 +107,7 @@ namespace fr { namespace agent { namespace subsys {
                     << "Close connection: "
                     << c->name( )
                     << "; count: " << --counter_
-                    << "";
+                       ;
         }
 
         void on_accept_failed( vserv::listener *l,

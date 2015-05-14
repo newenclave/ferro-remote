@@ -8,8 +8,8 @@
 #include "boost/asio/io_service.hpp"
 #include "boost/asio/strand.hpp"
 
-#include "vtrc-common/config/vtrc-chrono.h"
-#include "vtrc-common/config/vtrc-atomic.h"
+#include "vtrc-chrono.h"
+#include "vtrc-atomic.h"
 
 #include <string>
 #include <list>
