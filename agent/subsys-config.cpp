@@ -107,7 +107,7 @@ namespace fr { namespace agent { namespace subsys {
                     "files for log output; use '-' for stdout")
 
             ("log-level,L", po::value<std::string>( ),
-                    "Loglevel: zero, error, warning, info, debug")
+                    "Loglevel: zero, error, warning, info[default], debug")
 
             ("server,s", po::value< std::vector< std::string> >( ),
                     "endpoint name; <tcp address>:<port> or <file name>")
