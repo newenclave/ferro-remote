@@ -150,8 +150,9 @@ namespace fr { namespace agent { namespace subsys {
                 try {
                     (*b)->start( );
                     ++count;
-                    log_( logger::info ) << (*b)->name( )
-                                         << " started";
+                    log_( logger::info )
+                            << "Listener "
+                            << (*b)->name( ) << " started";
                 } catch( const std::exception &ex ) {
                     log_( logger::error )
                             << "Listener " << (*b)->name( )
@@ -167,8 +168,10 @@ namespace fr { namespace agent { namespace subsys {
                  e(listenrs_.end( )); b!=e; ++b )
             {
                 (*b)->stop( );
-                log_( logger::info ) << (*b)->name( )
-                                     << " stopped";
+                log_( logger::info )
+                        << "Listener "
+                        << (*b)->name( )
+                        << " stopped";
             }
         }
     };
