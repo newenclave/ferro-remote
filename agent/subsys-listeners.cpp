@@ -20,6 +20,8 @@
 #include "boost/program_options.hpp"
 #include "boost/system/error_code.hpp"
 
+#include "subsys-log.h"
+
 namespace fr { namespace agent { namespace subsys {
 
     namespace {
@@ -79,38 +81,42 @@ namespace fr { namespace agent { namespace subsys {
 
         vtrc::atomic<size_t> counter_;
 
+        logger &log_;
+
         impl( application *app )
             :app_(app)
             ,counter_(0)
+            ,log_(app_->subsystem<subsys::log>( ).get_logger( ))
         { }
-
 
         void on_new_connection( vserv::listener *l,
                                 const vcomm::connection_iface *c )
         {
-            std::cout << "New connection: "
+            log_( logger::info )
+                      << "New connection: "
                       << "\n\tep:     " << l->name( )
                       << "\n\tclient: " << c->name( )
                       << "\n\ttotal:  " << ++counter_
-                      << "\n"
                         ;
         }
 
         void on_stop_connection( vserv::listener *l,
                                  const vcomm::connection_iface *c )
         {
-            std::cout << "Close connection: "
-                      << c->name( )
-                      << "; count: " << --counter_
-                      << "\n";
+            log_( logger::info )
+                    << "Close connection: "
+                    << c->name( )
+                    << "; count: " << --counter_
+                    << "";
         }
 
         void on_accept_failed( vserv::listener *l,
                                unsigned retry_to,
                                const boost::system::error_code &code )
         {
-            std::cout << "Accept failed at " << l->name( )
-                      << " due to '" << code.message( ) << "'\n";
+            log_( logger::error )
+                      << "Accept failed at " << l->name( )
+                      << " due to '" << code.message( ) << "'";
             //start_retry_accept( l->shared_from_this( ), retry_to );
         }
 
@@ -144,12 +150,13 @@ namespace fr { namespace agent { namespace subsys {
                 try {
                     (*b)->start( );
                     ++count;
-                    std::cout << (*b)->name( )
-                              << " started\n";
+                    log_( logger::info ) << (*b)->name( )
+                                         << " started";
                 } catch( const std::exception &ex ) {
-                    std::cerr << "Listener " << (*b)->name( )
-                              << " failed to start; "
-                              << ex.what( );
+                    log_( logger::error )
+                            << "Listener " << (*b)->name( )
+                            << " failed to start; "
+                            << ex.what( );
                 }
             }
         }
@@ -160,8 +167,8 @@ namespace fr { namespace agent { namespace subsys {
                  e(listenrs_.end( )); b!=e; ++b )
             {
                 (*b)->stop( );
-                std::cout << (*b)->name( )
-                          << " stopped\n";
+                log_( logger::info ) << (*b)->name( )
+                                     << " stopped";
             }
         }
     };

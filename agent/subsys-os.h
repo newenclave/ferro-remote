@@ -25,7 +25,7 @@ namespace subsys {
 
         static vtrc::shared_ptr<os> create( application *app );
 
-        const std::string &name( )  const;
+        const std::string &name( ) const;
 
         void init( )  ;
         void start( ) ;

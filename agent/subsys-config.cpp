@@ -102,6 +102,13 @@ namespace fr { namespace agent { namespace subsys {
     {
         desc.add_options( )
             ("help,?",   "help message")
+
+            ("log,l", po::value<std::vector< std::string> >( ),
+                    "files for log output; use '-' for stdout")
+
+            ("log-level,L", po::value<std::string>( ),
+                    "Loglevel: zero, error, warning, info, debug")
+
             ("server,s", po::value< std::vector< std::string> >( ),
                     "endpoint name; <tcp address>:<port> or <file name>")
 

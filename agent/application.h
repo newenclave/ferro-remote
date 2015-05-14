@@ -38,10 +38,6 @@ namespace fr { namespace agent {
 
             typedef super_type::method_type  method_type;
 
-//            service_wrapper_impl( application *app,
-//                                  vtrc::common::connection_iface_wptr c,
-//                                  service_type *serv );
-
             service_wrapper_impl( application *app,
                                   vtrc::common::connection_iface_wptr c,
                                   service_sptr serv );

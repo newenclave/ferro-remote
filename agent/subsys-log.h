@@ -3,6 +3,7 @@
 #define FR_SUBSYS_log_H
 
 #include "subsystem-iface.h"
+#include "logger.hxx"
 
 namespace fr { namespace agent {
 
@@ -26,6 +27,10 @@ namespace subsys {
         static vtrc::shared_ptr<log> create( application *app );
 
         const std::string &name( ) const;
+
+    public:
+
+        logger &get_logger(  );
 
         void init( )  ;
         void start( ) ;

@@ -42,6 +42,8 @@ namespace {
         using namespace agent::subsys;
 
         app.add_subsystem<config>( vm );
+        app.add_subsystem<agent::subsys::log>( );
+
 #if FR_WITH_LUA
         app.add_subsystem<lua>( );
 #endif
