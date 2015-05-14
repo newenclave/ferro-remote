@@ -77,7 +77,7 @@ namespace fr { namespace agent { namespace subsys {
                 ,{ "warning", logger::warning }
                 ,{ "info",    logger::info    }
                 ,{ "debug",   logger::debug   }
-                ,{ nullptr,   logger::zero    }
+                ,{  nullptr,  logger::zero    }
             };
 
             if( vm.count( "log-level" ) ) {
