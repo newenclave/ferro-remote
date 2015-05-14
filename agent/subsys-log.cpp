@@ -9,6 +9,7 @@
 #include "boost/asio/strand.hpp"
 
 #include "vtrc-common/config/vtrc-chrono.h"
+#include "vtrc-common/config/vtrc-atomic.h"
 
 #include <string>
 #include <list>
@@ -26,14 +27,33 @@ namespace fr { namespace agent { namespace subsys {
         namespace ba = boost::asio;
         namespace ph = std::placeholders;
 
-        typedef std::shared_ptr<std::ostream> ostream_sptr;
-
+        typedef std::shared_ptr<std::ostream>           ostream_sptr;
         typedef std::pair<ostream_sptr, bs::connection> connection_pair;
 
-        ostream_sptr open_file( const std::string &path )
+        ostream_sptr open_file( const std::string &path, size_t *size )
         {
-            return ostream_sptr( new std::ofstream( path, std::ios::app ) );
+            ostream_sptr res( new std::ofstream( path, std::ios::app ) );
+            if( size )  {
+                *size = res->tellp( );
+            }
+            return res;
         }
+
+        struct ostream_info {
+
+            std::string          path_;
+            ostream_sptr         stream_;
+            vtrc::atomic<size_t> size_;
+            bs::connection       connect_;
+
+            ostream_info( std::string const &path )
+                :path_(path)
+            {
+                size_t s = 0;
+                stream_ = open_file( path_, &s );
+                size_   = s;
+            }
+        };
 
         std::vector<std::string> log_files( const po::variables_map &vm )
         {
@@ -132,13 +152,14 @@ namespace fr { namespace agent { namespace subsys {
                         stdout_connection_ = logger_.on_write_connect(
                                     std::bind( log_slot, std::ref( std::cout ),
                                                ph::_1, ph::_2 ) );
-                    } if( f == "-!" ) {
+                    } else if( f == "-!" ) {
                         serr = true;
                         stderr_connection_ = logger_.on_write_connect(
                                     std::bind( log_slot, std::ref( std::cerr ),
                                                ph::_1, ph::_2 ) );
                     } else {
-                        ostream_sptr out = open_file( f );
+                        size_t s = 0;
+                        ostream_sptr out = open_file( f, &s );
                         bs::connection sc( logger_.on_write_connect(
                                 std::bind( log_slot, std::ref( *out ),
                                            ph::_1, ph::_2 )
