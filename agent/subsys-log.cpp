@@ -113,13 +113,13 @@ namespace fr { namespace agent { namespace subsys {
 
         class my_logger: public logger {
 
-            impl *parent_;
+            ba::io_service::strand  &dispatcher_;
 
         public:
 
-            my_logger( impl *parent )
+            my_logger( ba::io_service::strand &dispatcher )
                 :logger(logger::info)
-                ,parent_(parent)
+                ,dispatcher_(dispatcher)
             { }
 
             void do_write( level lev, const std::string &data )
@@ -137,7 +137,7 @@ namespace fr { namespace agent { namespace subsys {
                 oss << boost::posix_time::microsec_clock::local_time( )
                     << " [" << names[lev] << "] " << data << "\n";
 
-                parent_->dispatcher_.post( std::bind(
+                dispatcher_.post( std::bind(
                         &my_logger::do_write, this, lev, oss.str( ) ) );
 
             }
@@ -202,7 +202,7 @@ namespace fr { namespace agent { namespace subsys {
         impl( application *app )
             :app_(app)
             ,dispatcher_(app_->get_io_service( ))
-            ,logger_(this)
+            ,logger_(dispatcher_)
         {
             config &c(app_->subsystem<config>( ));
             logger_.set_level( log_level( c.variables( ) ) );
