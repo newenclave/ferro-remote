@@ -73,10 +73,15 @@ namespace fr { namespace agent { namespace subsys {
                 logger::level    lev_;
             } names[ ] = {
                  { "zero",    logger::zero    }
+                ,{ "ZER",     logger::zero    }
                 ,{ "error",   logger::error   }
+                ,{ "ERR",     logger::error   }
                 ,{ "warning", logger::warning }
+                ,{ "WRN",     logger::warning }
                 ,{ "info",    logger::info    }
+                ,{ "INF",     logger::info    }
                 ,{ "debug",   logger::debug   }
+                ,{ "DBG",     logger::debug   }
                 ,{  nullptr,  logger::zero    }
             };
 
