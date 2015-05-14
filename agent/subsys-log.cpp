@@ -164,14 +164,16 @@ namespace fr { namespace agent { namespace subsys {
 
                         sout = true;
                         stdout_connection_ = logger_.on_write_connect(
-                                std::bind( ostream_log_slot, std::ref( std::cout ),
+                                std::bind( ostream_log_slot,
+                                           std::ref( std::cout ),
                                            ph::_1, ph::_2 ) );
 
                     } else if( f == "-!" ) {
 
                         serr = true;
                         stderr_connection_ = logger_.on_write_connect(
-                                std::bind( ostream_log_slot, std::ref( std::cerr ),
+                                std::bind( ostream_log_slot,
+                                           std::ref( std::cerr ),
                                            ph::_1, ph::_2 ) );
 
                     } else {
