@@ -111,4 +111,4 @@ namespace fr { namespace agent {
 
 }}
 
-#endif // LOGGER_CXX
+#endif // FR_LOGGER_CXX
