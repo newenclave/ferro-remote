@@ -76,7 +76,7 @@ namespace fr { namespace agent { namespace subsys {
                        const std::string &data )
         {
             static const char *names[ ] = {
-                "ZRO", "ERR",  "WRN", "INF", "DBG"
+                "ZER", "ERR",  "WRN", "INF", "DBG"
             };
 
             o << boost::posix_time::microsec_clock::local_time( )

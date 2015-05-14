@@ -93,10 +93,10 @@ namespace fr { namespace agent { namespace subsys {
                                 const vcomm::connection_iface *c )
         {
             log_( logger::info )
-                      << "New connection: "
-                      << "\n\tep:     " << l->name( )
-                      << "\n\tclient: " << c->name( )
-                      << "\n\ttotal:  " << ++counter_
+                      << "New connection:"
+                      << " ep: "     << l->name( )
+                      << " client: " << c->name( )
+                      << " total: "  << ++counter_
                         ;
         }
 
