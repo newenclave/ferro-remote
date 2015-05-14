@@ -94,22 +94,18 @@ namespace fr { namespace agent { namespace subsys {
             return logger::info;
         }
 
-        void con_log_slot( std::ostream &o, logger::level lev,
-                           const std::string &data )
+        void ostream_log_slot( std::ostream &o, logger::level /*lev*/,
+                               const std::string &data )
         {
-            static const char *names[ ] = {
-                "ZER", "ERR",  "WRN", "INF", "DBG"
-            };
-
-            o << boost::posix_time::microsec_clock::local_time( )
-              << " [" << names[lev] << "] " << data << "\n";
+            o << data;
             //o.flush( );
         }
 
         void log_slot( ostream_info_sptr o, logger::level lev,
                        const std::string &data )
         {
-            con_log_slot( *o->stream_, lev, data );
+            ostream_log_slot( *o->stream_, lev, data );
+            o->size_ += data.size( );
         }
     }
 
@@ -128,7 +124,15 @@ namespace fr { namespace agent { namespace subsys {
 
             void do_write( level lev, const std::string &data )
             {
-                this->get_on_write( )( lev, data );
+                static const char *names[ ] = {
+                    "ZER", "ERR",  "WRN", "INF", "DBG"
+                };
+
+                std::ostringstream oss;
+
+                oss << boost::posix_time::microsec_clock::local_time( )
+                    << " [" << names[lev] << "] " << data << "\n";
+                this->get_on_write( )( lev, oss.str( ) );
             }
 
             void send_data( level lev, const std::string &data )
@@ -155,18 +159,19 @@ namespace fr { namespace agent { namespace subsys {
                 bool serr = false;
 
                 for( auto &f: files ) {
+
                     if( f == "-" ) {
 
                         sout = true;
                         stdout_connection_ = logger_.on_write_connect(
-                                std::bind( con_log_slot, std::ref( std::cout ),
+                                std::bind( ostream_log_slot, std::ref( std::cout ),
                                            ph::_1, ph::_2 ) );
 
                     } else if( f == "-!" ) {
 
                         serr = true;
                         stderr_connection_ = logger_.on_write_connect(
-                                std::bind( con_log_slot, std::ref( std::cerr ),
+                                std::bind( ostream_log_slot, std::ref( std::cerr ),
                                            ph::_1, ph::_2 ) );
 
                     } else {
