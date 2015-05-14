@@ -56,11 +56,12 @@ namespace fr { namespace agent { namespace subsys {
         };
 
         typedef std::shared_ptr<ostream_info> ostream_info_sptr;
+        typedef std::vector<std::string>      string_vector;
 
-        std::vector<std::string> log_files( const po::variables_map &vm )
+        string_vector log_files( const po::variables_map &vm )
         {
             if( vm.count( "log" ) ) {
-                return vm["log"].as< std::vector<std::string> >( );
+                return vm["log"].as<string_vector>( );
             }
             return std::vector<std::string>( );
         }
