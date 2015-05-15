@@ -24,6 +24,8 @@
 #include "boost/filesystem.hpp"
 
 #include "subsys-reactor.h"
+#include "subsys-log.h"
+
 #include "vtrc-bind.h"
 
 namespace fr { namespace agent { namespace subsys {
@@ -875,9 +877,12 @@ namespace fr { namespace agent { namespace subsys {
     struct fs::impl {
 
         application     *app_;
+        logger          &log_;
         impl( application *app )
             :app_(app)
-        { }
+            ,log_(app_->subsystem<subsys::log>( ).get_logger( ))
+        {
+        }
 
         void reg_creator( const std::string &name,
                           application::service_getter_type func )
@@ -922,12 +927,15 @@ namespace fr { namespace agent { namespace subsys {
     {
         impl_->reg_creator( proto_fs_impl::name( ),   create_fs_inst );
         impl_->reg_creator( proto_file_impl::name( ), create_file_inst );
+        impl_->log_(logger::info) << "[fs] Started.";
+
     }
 
     void fs::stop( )
     {
         impl_->unreg_creator( proto_fs_impl::name( ) );
         impl_->unreg_creator( proto_file_impl::name( ) );
+        impl_->log_(logger::info) << "[fs] Stopped.";
     }
 
 }}}
