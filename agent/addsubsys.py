@@ -4,7 +4,7 @@
 from sys import argv
 import os
 
-def header_file():
+def header_file( ):
     """
 #ifndef FR_SUBSYS_%ss-name%_H
 #define FR_SUBSYS_%ss-name%_H
@@ -46,7 +46,7 @@ namespace subsys {
     """
     return header_file.__doc__
 
-def source_file():
+def source_file( ):
     """
 #include "application.h"
 #include "subsys-%ss-name%.h"
@@ -129,12 +129,12 @@ namespace fr { namespace agent { namespace subsys {
 
     void %ss-name%::start( )
     {
-
+        impl_->LOGINF << "Started.";
     }
 
     void %ss-name%::stop( )
     {
-
+        impl_->LOGINF << "Stopped.";
     }
 
 
