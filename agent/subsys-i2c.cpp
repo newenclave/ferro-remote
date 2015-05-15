@@ -37,7 +37,6 @@ namespace fr { namespace agent { namespace subsys {
         namespace vserv  = vtrc::server;
         namespace gpb    = google::protobuf;
 
-
         using vserv::channels::unicast::create_event_channel;
         typedef vtrc::shared_ptr<vcomm::rpc_channel> rpc_channel_sptr;
 
@@ -48,9 +47,9 @@ namespace fr { namespace agent { namespace subsys {
 
         class i2c_inst_impl: public fr::proto::i2c::instance {
 
-            device_map                           devices_;
-            vtrc::shared_mutex                   devices_lock_;
-            vtrc::atomic<vtrc::uint32_t>         index_;
+            device_map                   devices_;
+            vtrc::shared_mutex           devices_lock_;
+            vtrc::atomic<vtrc::uint32_t> index_;
 
         public:
 
