@@ -50,6 +50,7 @@ def source_file():
     """
 #include "application.h"
 #include "subsys-%ss-name%.h"
+#include "subsystem-log.h"
 
 //#include "vtrc-memory.h"
 
@@ -73,9 +74,11 @@ namespace fr { namespace agent { namespace subsys {
     struct %ss-name%::impl {
 
         application     *app_;
+        logger          &log_;
 
         impl( application *app )
             :app_(app)
+            ,log_(app_->subsystem<subsys::log>( ).get_logger( ))
         { }
 
         void reg_creator( const std::string &name,
