@@ -22,6 +22,12 @@
 
 #include "subsys-log.h"
 
+#define LOG(lev) log_(lev) << "[listener] "
+#define LOGINF   LOG(logger::info)
+#define LOGDBG   LOG(logger::debug)
+#define LOGERR   LOG(logger::error)
+#define LOGWRN   LOG(logger::warning)
+
 namespace fr { namespace agent { namespace subsys {
 
     namespace {
@@ -92,31 +98,30 @@ namespace fr { namespace agent { namespace subsys {
         void on_new_connection( vserv::listener *l,
                                 const vcomm::connection_iface *c )
         {
-            log_( logger::info ) << "[listener] "
-                      << "New connection:"
-                      << " ep: "     << l->name( )
-                      << " client: " << c->name( )
-                      << " total: "  << ++counter_
-                        ;
+            LOGINF << l->name( )
+                   << "New connection:"
+                   << " ep: "     << l->name( )
+                   << " client: " << c->name( )
+                   << " total: "  << ++counter_
+                   ;
         }
 
         void on_stop_connection( vserv::listener *l,
                                  const vcomm::connection_iface *c )
         {
-            log_( logger::info ) << "[listener] "
-                    << "Close connection: "
-                    << c->name( )
-                    << "; count: " << --counter_
-                       ;
+            LOGINF << l->name( )
+                   << " Close connection: "
+                   << c->name( )
+                   << "; count: " << --counter_
+                      ;
         }
 
         void on_accept_failed( vserv::listener *l,
-                               unsigned retry_to,
+                               unsigned /*retry_to*/,
                                const boost::system::error_code &code )
         {
-            log_( logger::error ) << "[listener] "
-                      << "Accept failed at " << l->name( )
-                      << " due to '" << code.message( ) << "'";
+            LOGERR << "Accept failed at " << l->name( )
+                   << " due to '" << code.message( ) << "'";
             //start_retry_accept( l->shared_from_this( ), retry_to );
         }
 
@@ -150,13 +155,11 @@ namespace fr { namespace agent { namespace subsys {
                 try {
                     (*b)->start( );
                     ++count;
-                    log_( logger::info ) << "[listener] "
-                            << (*b)->name( ) << " started";
+                    LOGINF << (*b)->name( ) << " started";
                 } catch( const std::exception &ex ) {
-                    log_( logger::error ) << "[listener] "
-                            << (*b)->name( )
-                            << " failed to start; "
-                            << ex.what( );
+                    LOGERR << (*b)->name( )
+                           << " failed to start; "
+                           << ex.what( );
                 }
             }
         }
@@ -167,9 +170,8 @@ namespace fr { namespace agent { namespace subsys {
                  e(listenrs_.end( )); b!=e; ++b )
             {
                 (*b)->stop( );
-                log_( logger::info )  << "[listener] "
-                        << (*b)->name( )
-                        << " stopped";
+                LOGINF << (*b)->name( )
+                       << " stopped";
             }
         }
     };
@@ -210,13 +212,13 @@ namespace fr { namespace agent { namespace subsys {
                                    vtrc::placeholders::_1 ));
 
         impl_->start_all( );
-        impl_->log_(logger::info) << "[listener] Started.";
+        impl_->LOGINF << "Started.";
     }
 
     void listeners::stop( )
     {
         impl_->stop_all( );
-        impl_->log_(logger::info) << "[listener] Stopped.";
+        impl_->LOGINF << "Stopped.";
     }
 
 }}}

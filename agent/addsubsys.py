@@ -54,6 +54,12 @@ def source_file():
 
 //#include "vtrc-memory.h"
 
+#define LOG(lev) log_(lev) << "[%ss-name%] "
+#define LOGINF   LOG(logger::info)
+#define LOGDBG   LOG(logger::debug)
+#define LOGERR   LOG(logger::error)
+#define LOGWRN   LOG(logger::warning)
+
 namespace fr { namespace agent { namespace subsys {
 
     namespace {

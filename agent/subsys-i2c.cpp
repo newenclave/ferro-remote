@@ -3,6 +3,7 @@
 
 #include "application.h"
 #include "subsys-i2c.h"
+#include "subsys-log.h"
 
 #include "protocol/i2c.pb.h"
 
@@ -17,6 +18,12 @@
 
 #include "vtrc-server/vtrc-channels.h"
 #include "vtrc-common/vtrc-mutex-typedefs.h"
+
+#define LOG(lev) log_(lev) << "[i2c] "
+#define LOGINF   LOG(logger::info)
+#define LOGDBG   LOG(logger::debug)
+#define LOGERR   LOG(logger::error)
+#define LOGWRN   LOG(logger::warning)
 
 namespace fr { namespace agent { namespace subsys {
 
@@ -71,8 +78,8 @@ namespace fr { namespace agent { namespace subsys {
                          ::google::protobuf::Closure* done) override
             {
                 vcomm::closure_holder holder( done );
-                response->
-                      set_value( agent::i2c::available( request->bus_id( ) ) );
+                response->set_value(
+                            agent::i2c::available( request->bus_id( ) ) );
             }
 
             i2c_sptr i2c_by_index( vtrc::uint32_t id )
@@ -394,9 +401,11 @@ namespace fr { namespace agent { namespace subsys {
     struct i2c::impl {
 
         application     *app_;
+        logger          &log_;
 
         impl( application *app )
             :app_(app)
+            ,log_(app_->subsystem<subsys::log>( ).get_logger( ))
         { }
 
         void reg_creator( const std::string &name,
@@ -442,11 +451,13 @@ namespace fr { namespace agent { namespace subsys {
     void i2c::start( )
     {
         impl_->reg_creator( i2c_inst_impl::name( ), create_service );
+        impl_->LOGINF << "Started.";
     }
 
     void i2c::stop( )
     {
         impl_->unreg_creator( i2c_inst_impl::name( ) );
+        impl_->LOGINF << "Stopped.";
     }
 
 }}}

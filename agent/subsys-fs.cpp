@@ -28,6 +28,12 @@
 
 #include "vtrc-bind.h"
 
+#define LOG(lev) log_(lev) << "[fs] "
+#define LOGINF   LOG(logger::info)
+#define LOGDBG   LOG(logger::debug)
+#define LOGERR   LOG(logger::error)
+#define LOGWRN   LOG(logger::warning)
+
 namespace fr { namespace agent { namespace subsys {
 
     namespace {
@@ -927,7 +933,7 @@ namespace fr { namespace agent { namespace subsys {
     {
         impl_->reg_creator( proto_fs_impl::name( ),   create_fs_inst );
         impl_->reg_creator( proto_file_impl::name( ), create_file_inst );
-        impl_->log_(logger::info) << "[fs] Started.";
+        impl_->LOGINF << "Started.";
 
     }
 
@@ -935,7 +941,7 @@ namespace fr { namespace agent { namespace subsys {
     {
         impl_->unreg_creator( proto_fs_impl::name( ) );
         impl_->unreg_creator( proto_file_impl::name( ) );
-        impl_->log_(logger::info) << "[fs] Stopped.";
+        impl_->LOGINF << "Stopped.";
     }
 
 }}}

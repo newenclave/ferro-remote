@@ -7,6 +7,7 @@
 #include "application.h"
 #include "subsys-gpio.h"
 #include "subsys-reactor.h"
+#include "subsys-log.h"
 
 #include "protocol/ferro.pb.h"
 #include "protocol/gpio.pb.h"
@@ -28,6 +29,12 @@
 #include "vtrc-server/vtrc-channels.h"
 
 #include "errno-check.h"
+
+#define LOG(lev) log_(lev) << "[gpio] "
+#define LOGINF   LOG(logger::info)
+#define LOGDBG   LOG(logger::debug)
+#define LOGERR   LOG(logger::error)
+#define LOGWRN   LOG(logger::warning)
 
 namespace fr { namespace agent { namespace subsys {
 
@@ -425,10 +432,12 @@ namespace fr { namespace agent { namespace subsys {
     struct gpio::impl {
 
         application     *app_;
+        logger          &log_;
         subsys::reactor *reactor_;
 
         impl( application *app )
             :app_(app)
+            ,log_(app_->subsystem<subsys::log>( ).get_logger( ))
         { }
 
         void reg_creator( const std::string &name,
@@ -474,7 +483,9 @@ namespace fr { namespace agent { namespace subsys {
     {
         if( agent::gpio::available( ) ) {
             impl_->reg_creator( gpio_impl::name( ),  create_service );
+            impl_->LOGINF << "Started";
         } else {
+            impl_->LOGDBG << "Not found";
             //std::cout << "GPIO was not found\n";
         }
     }
@@ -482,6 +493,7 @@ namespace fr { namespace agent { namespace subsys {
     void gpio::stop( )
     {
         impl_->unreg_creator( gpio_impl::name( ) );
+        impl_->LOGINF << "Stopped";
     }
 
 }}}
