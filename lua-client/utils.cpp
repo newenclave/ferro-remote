@@ -44,9 +44,9 @@ namespace {
     };
 
     const unsigned color_map[ ] = {
-            LightGrey,
-            LightRed, LightGreen, LightBlue,
-            Yellow, White, Cyan
+        LightGrey,
+        LightRed, LightGreen, LightBlue,
+        Yellow, White, Cyan
     };
 #else
 
@@ -63,9 +63,9 @@ namespace {
     static const char * cp_white     = "\x1b[37;1m";
 
     const char *color_map[ ] = {
-            cp_none,
-            cp_red, cp_green, cp_blue,
-            cp_yellow, cp_white, cp_cyan
+        cp_none,
+        cp_red, cp_green, cp_blue,
+        cp_yellow, cp_white, cp_cyan
     };
 #endif
     const size_t color_count = sizeof(color_map)/sizeof(color_map[0]);
