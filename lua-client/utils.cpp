@@ -50,7 +50,8 @@ namespace {
     };
 #else
 
-    static const char * cp_none      = "\x1b[0m";
+    static const char * cp_none      = "\033[0m";
+    //static const char * cp_none      = "\x1b[0m";
     //static const char * cp_black     = "\x1b[30;1m";
     static const char * cp_red       = "\x1b[31;1m";
     static const char * cp_green     = "\x1b[32;1m";
@@ -71,8 +72,9 @@ namespace {
 
     std::ostream &set_stream_color( std::ostream &s, unsigned color )
     {
-        if( color >= color_count )
+        if( color >= color_count ) {
             color = COLOR_NONE;
+        }
 #ifdef _WIN32
         SetConsoleTextAttribute( GetStdHandle( STD_OUTPUT_HANDLE ),
                                  color_map[color] );
