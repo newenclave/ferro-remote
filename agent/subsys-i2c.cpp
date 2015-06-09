@@ -223,9 +223,9 @@ namespace fr { namespace agent { namespace subsys {
                 }
             }
 
-            void write_bytes(::google::protobuf::RpcController* /*controller*/,
+            void write_bytes(::google::protobuf::RpcController*  /*controller*/,
                          const ::fr::proto::i2c::write_read_datas_req* request,
-                         ::fr::proto::i2c::write_read_datas_res* response,
+                         ::fr::proto::i2c::write_read_datas_res* /*response*/,
                          ::google::protobuf::Closure* done) override
             {
                vcomm::closure_holder holder( done );

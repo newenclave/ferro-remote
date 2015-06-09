@@ -107,16 +107,14 @@ namespace fr { namespace agent {
     void i2c_helper::smbus_read( uint8_t command,
                                  i2c_smbus_data *data, uint32_t len )
     {
-        int res = smbus_read_write( fd_, I2C_SMBUS_READ,
-                                    command, len, data );
+        int res = smbus_read_write( fd_, I2C_SMBUS_READ, command, len, data );
         errno_error::errno_assert( -1 != res, "smbus_read" );
     }
 
     void i2c_helper::smbus_write( uint8_t command,
                                   i2c_smbus_data *data, uint32_t len )
     {
-        int res = smbus_read_write( fd_, I2C_SMBUS_WRITE,
-                                    command, len, data );
+        int res = smbus_read_write( fd_, I2C_SMBUS_WRITE, command, len, data );
         errno_error::errno_assert( -1 != res, "smbus_write" );
     }
 
