@@ -199,19 +199,19 @@ message register_res {
 // files operations
 service file {
 
-    rpc open(  file_open_req ) returns ( handle );
+    rpc open( file_open_req )     returns ( handle );
 
     rpc tell( handle)             returns ( file_position );
     rpc seek( file_set_position ) returns ( file_position );
 
-    rpc ioctl( ioctl_req ) returns ( ioctl_res );
+    rpc ioctl( ioctl_req )        returns ( ioctl_res );
     rpc read(  file_data_block )  returns ( file_data_block );
     rpc write( file_data_block )  returns ( file_data_block );
 
-    rpc flush( handle )  returns ( empty );
+    rpc flush( handle )           returns ( empty );
 
     rpc register_for_events( register_req ) returns ( register_res );
-    rpc unregister ( register_req ) returns ( empty );
+    rpc unregister ( register_req )         returns ( empty );
 
     rpc close( handle)   returns ( empty );
 
