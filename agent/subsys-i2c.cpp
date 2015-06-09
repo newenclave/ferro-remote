@@ -68,7 +68,8 @@ namespace fr { namespace agent { namespace subsys {
                          ::fr::proto::i2c::empty*           /*response*/,
                          ::google::protobuf::Closure* done) override
             {
-                if( done ) done->Run( ); // does nothing
+                // does nothing
+                if( done ) { done->Run( ); }
             }
 
             void bus_available(::google::protobuf::RpcController* /*cont*/,
@@ -77,8 +78,8 @@ namespace fr { namespace agent { namespace subsys {
                          ::google::protobuf::Closure* done) override
             {
                 vcomm::closure_holder holder( done );
-                response->set_value(
-                            agent::i2c::available( request->bus_id( ) ) );
+                const unsigned bus_id = request->bus_id( );
+                response->set_value( agent::i2c::available( bus_id ) );
             }
 
             i2c_sptr i2c_by_index( vtrc::uint32_t id )
