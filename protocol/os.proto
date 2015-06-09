@@ -12,7 +12,7 @@ message execute_res {
     optional int32  result = 1;
 }
 
-message byte_order_req {}
+message byte_order_req { }
 message byte_order_res {
     optional bool big_endian = 1;
 }

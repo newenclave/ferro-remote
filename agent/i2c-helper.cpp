@@ -283,7 +283,7 @@ namespace fr { namespace agent {
         smbus_write( cmd, &ldata, I2C_SMBUS_I2C_BLOCK_BROKEN );
     }
 
-    /// read as files
+    /// write/read as file
     size_t i2c_helper::write( const void *data, size_t length )
     {
         ssize_t res = ::write( fd_, data, length );

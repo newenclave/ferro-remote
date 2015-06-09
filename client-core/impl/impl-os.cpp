@@ -37,6 +37,14 @@ namespace fr { namespace client { namespace interfaces {
                 return res.result( );
             }
 
+            bool big_endian( ) const override
+            {
+                oproto::byte_order_req req;
+                oproto::byte_order_res res;
+                client_.call( &stub_type::byte_order, &req, &res );
+                return res.big_endian( );
+            }
+
             vtrc::common::rpc_channel *channel( )
             {
                 return client_.channel( );

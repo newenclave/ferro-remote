@@ -16,6 +16,7 @@ namespace interfaces { namespace os {
     struct iface: public interfaces::base {
         virtual ~iface( ) { }
         virtual int execute( const std::string &cmd ) const = 0;
+        virtual bool big_endian( ) const = 0;
     };
 
     typedef iface* iface_ptr;
