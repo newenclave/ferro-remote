@@ -209,8 +209,9 @@ namespace fr { namespace agent { namespace subsys {
                 vcomm::closure_holder holder( done );
                 i2c_sptr dev(i2c_by_index( request->hdl( ).value( ) ));
                 for( int i = 0; i<request->request( ).value_size( ); ++i ) {
+
                     const
-                    i2cproto::code_data &next(request->request( ).value( i ));
+                    i2cproto::code_data &next( request->request( ).value( i ) );
 
                     uint8_t b = dev->smbus_read_byte_data( next.code( ) );
 
@@ -231,7 +232,7 @@ namespace fr { namespace agent { namespace subsys {
                i2c_sptr dev(i2c_by_index( request->hdl( ).value( ) ));
                for( int i = 0; i<request->request( ).value_size( ); ++i ) {
                    const
-                   i2cproto::code_data &next(request->request( ).value( i ));
+                   i2cproto::code_data &next( request->request( ).value( i ) );
                    dev->smbus_write_byte_data( next.code( ),
                                                next.data( ).value( ) & 0xFF );
                 }
