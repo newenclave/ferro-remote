@@ -55,9 +55,7 @@ namespace fr { namespace agent { namespace subsys {
 
                 /// local: <localname>
                 params.push_back( name );
-#ifndef _WIN32
                 ::unlink( name.c_str( ) ); /// unlink old file socket
-#endif
                 result = vserv::listeners::local::create( app, name );
 
             } else {
@@ -146,13 +144,11 @@ namespace fr { namespace agent { namespace subsys {
 
         void start_all(  )
         {
-            size_t count = 0;
             for( listener_vector::iterator b(listenrs_.begin( )),
                  e(listenrs_.end( )); b!=e; ++b )
             {
                 try {
                     (*b)->start( );
-                    ++count;
                     LOGINF << (*b)->name( ) << " started";
                 } catch( const std::exception &ex ) {
                     LOGERR << (*b)->name( )
