@@ -98,8 +98,7 @@ namespace fr { namespace agent { namespace subsys {
         void on_new_connection( vserv::listener *l,
                                 const vcomm::connection_iface *c )
         {
-            LOGINF << l->name( )
-                   << "New connection:"
+            LOGINF << "New connection:"
                    << " ep: "     << l->name( )
                    << " client: " << c->name( )
                    << " total: "  << ++counter_
@@ -124,7 +123,6 @@ namespace fr { namespace agent { namespace subsys {
                    << " due to '" << code.message( ) << "'";
             //start_retry_accept( l->shared_from_this( ), retry_to );
         }
-
 
         void add_listener( const std::string &name )
         {

@@ -39,9 +39,8 @@ namespace fr { namespace client { namespace interfaces {
 
             bool big_endian( ) const override
             {
-                oproto::byte_order_req req;
                 oproto::byte_order_res res;
-                client_.call( &stub_type::byte_order, &req, &res );
+                client_.call_response( &stub_type::byte_order, &res );
                 return res.big_endian( );
             }
 

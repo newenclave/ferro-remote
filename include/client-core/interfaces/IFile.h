@@ -66,7 +66,7 @@ namespace interfaces { namespace file {
     }
 
     typedef vtrc::function<
-            void (unsigned, const std::string &)
+            void (unsigned, const std::string &) // error, data
     > file_event_callback;
 
     struct base_file_iface: public interfaces::base {

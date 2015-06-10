@@ -59,7 +59,7 @@ namespace interfaces { namespace gpio {
     > value_change_callback;
 
     ///
-    /// error, new_state, vtrc::interval
+    /// error, new_state, interval
     ///
     typedef vtrc::function<
             void (unsigned, unsigned, uint64_t)
