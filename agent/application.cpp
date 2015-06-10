@@ -11,6 +11,7 @@
 #include "vtrc-bind.h"
 
 #include "subsys-config.h"
+#include "subsys-log.h"
 
 #include "vtrc-common/vtrc-hash-iface.h"
 
@@ -47,13 +48,14 @@ namespace fr { namespace agent {
             :app_(app)
         { }
 
-        void exit_process(::google::protobuf::RpcController* controller,
-                          const ::fr::proto::empty* request,
-                          ::fr::proto::empty* response,
-                          ::google::protobuf::Closure* done) override
+        void exit_process( ::google::protobuf::RpcController* /*controller*/,
+                           const ::fr::proto::empty*          /*request*/,
+                           ::fr::proto::empty*                /*response*/,
+                           ::google::protobuf::Closure* done ) override
         {
             vcomm::closure_holder holder(done);
-            std::cout << "Shutdown service ...\n";
+            app_->subsystem<subsys::log>( ).get_logger( )( logger::info )
+                           << "Shutdown service ...\n";
             app_->quit( );
         }
 
@@ -67,7 +69,7 @@ namespace fr { namespace agent {
                                       vtrc::common::connection_iface_wptr cl)
         {
             vtrc::shared_ptr<internal_calls>
-                    inst(vtrc::make_shared<internal_calls>( app ) );
+                    inst( vtrc::make_shared<internal_calls>( app ) );
 
             return app->wrap_service( cl, inst );
         }
