@@ -181,9 +181,9 @@ namespace fr { namespace agent { namespace subsys {
                 lgr_(lvl) << request->text( );
             }
 
-            void set_level(::google::protobuf::RpcController* controller,
+            void set_level(::google::protobuf::RpcController*  /*controller*/,
                      const ::fr::proto::logger::set_level_req* request,
-                     ::fr::proto::logger::empty* response,
+                     ::fr::proto::logger::empty*               /*response*/,
                      ::google::protobuf::Closure* done) override
             {
                 vcomm::closure_holder holder( done );
