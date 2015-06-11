@@ -36,7 +36,7 @@ namespace fr { namespace client { namespace interfaces {
                 return client_.channel( );
             }
 
-            void exit_process( ) const
+            void exit_process( ) const override
             {
                 client_.channel( )->set_flags( no_wait_flags );
                 client_.call( &stub_type::exit_process );
