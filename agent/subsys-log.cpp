@@ -19,6 +19,12 @@
 
 #include "protocol/logger.pb.h"
 
+#define LOG(lev) logger_(lev) << "[log] "
+#define LOGINF   LOG(logger::info)
+#define LOGDBG   LOG(logger::debug)
+#define LOGERR   LOG(logger::error)
+#define LOGWRN   LOG(logger::warning)
+
 namespace fr { namespace agent { namespace subsys {
 
     namespace {
@@ -131,7 +137,7 @@ namespace fr { namespace agent { namespace subsys {
             case logger::debug   :
                 return static_cast<logger::level>(proto_level);
             }
-            return logger::debug;
+            return logger::info;
         }
 
         fr::proto::logger::log_level level2proto( unsigned lvl )
@@ -144,17 +150,23 @@ namespace fr { namespace agent { namespace subsys {
             case fr::proto::logger::debug   :
                 return static_cast<fr::proto::logger::log_level>(lvl);
             }
-            return fr::proto::logger::debug;
+            return fr::proto::logger::info;
         }
 
         class proto_looger_impl: public fr::proto::logger::instance {
 
-            fr::agent::logger *lgr_;
+            fr::agent::logger &lgr_;
 
         public:
 
-            proto_looger_impl( fr::agent::logger *lgr )
-                :lgr_(lgr)
+            static const std::string &name( )
+            {
+                return fr::proto::logger::instance::descriptor( )->full_name( );
+            }
+
+            proto_looger_impl( fr::agent::application *app,
+                               vcomm::connection_iface_wptr /*cli*/)
+                :lgr_(app->subsystem<subsys::log>( ).get_logger( ))
             { }
 
             void send_log( ::google::protobuf::RpcController*  /*controller*/,
@@ -165,10 +177,19 @@ namespace fr { namespace agent { namespace subsys {
                 vcomm::closure_holder holder( done );
                 logger::level lvl = request->has_level( )
                                   ? proto2level( request->level( ) )
-                                  : lgr_->get_level( );
-                (*lgr_)(lvl) << request->text( );
+                                  : logger::info;
+                lgr_(lvl) << request->text( );
             }
         };
+
+        application::service_wrapper_sptr create_service(
+                                      fr::agent::application *app,
+                                      vtrc::common::connection_iface_wptr cl )
+        {
+            vtrc::shared_ptr<proto_looger_impl>
+                    inst(vtrc::make_shared<proto_looger_impl>( app, cl ));
+            return app->wrap_service( cl, inst );
+        }
     }
 
     struct log::impl {
@@ -281,6 +302,17 @@ namespace fr { namespace agent { namespace subsys {
             }
         }
 
+        void reg_creator( const std::string &name,
+                          application::service_getter_type func )
+        {
+            app_->register_service_creator( name, func );
+        }
+
+        void unreg_creator( const std::string &name )
+        {
+            app_->unregister_service_creator( name );
+        }
+
         ~impl( )
         {
             flush_all( );
@@ -320,14 +352,15 @@ namespace fr { namespace agent { namespace subsys {
 
     void log::start( )
     {
-
+        impl_->reg_creator( proto_looger_impl::name( ), create_service );
+        impl_->LOGINF << "Started.";
     }
 
     void log::stop( )
     {
-
+        impl_->unreg_creator( proto_looger_impl::name( ) );
+        impl_->LOGINF << "Stopped.";
     }
-
 
 }}}
 
