@@ -60,12 +60,12 @@ namespace fr { namespace client { namespace interfaces { namespace i2c {
                 close_impl( );
             }
 
-            vtrc::common::rpc_channel *channel( )
+            vtrc::common::rpc_channel *channel( ) override
             {
                 return client_.channel( );
             }
 
-            const vtrc::common::rpc_channel *channel( ) const
+            const vtrc::common::rpc_channel *channel( ) const override
             {
                 return client_.channel( );
             }
@@ -79,7 +79,7 @@ namespace fr { namespace client { namespace interfaces { namespace i2c {
                 } catch( ... ) { ;;; }
             }
 
-            uint64_t function_mask( ) const
+            uint64_t function_mask( ) const override
             {
                 i2cproto::func_mask_req req;
                 i2cproto::func_mask_res res;
@@ -88,12 +88,12 @@ namespace fr { namespace client { namespace interfaces { namespace i2c {
                 return res.mask( );
             }
 
-            void  set_address( uint16_t addr ) const
+            void  set_address( uint16_t addr ) const override
             {
                 ioctl( i2cproto::CODE_I2C_SLAVE, addr );
             }
 
-            void ioctl( unsigned code, uint64_t par ) const
+            void ioctl( unsigned code, uint64_t par ) const override
             {
                 i2cproto::ioctl_req req;
                 req.mutable_hdl( )->set_value( hdl_ );
@@ -127,13 +127,13 @@ namespace fr { namespace client { namespace interfaces { namespace i2c {
                 client_.call_request( call, &req  );
             }
 
-            uint8_t read_byte( uint8_t cmd ) const
+            uint8_t read_byte( uint8_t cmd ) const override
             {
                 return static_cast<uint8_t>
                         ( read_impl( &stub_type::read_byte, cmd ) );
             }
 
-            void write_byte( uint8_t cmd, uint8_t value ) const
+            void write_byte( uint8_t cmd, uint8_t value ) const override
             {
                 write_impl( &stub_type::write_byte, cmd, value );
             }
@@ -169,7 +169,8 @@ namespace fr { namespace client { namespace interfaces { namespace i2c {
                 o.swap( result );
             }
 
-            cmd_uint8_vector read_bytes( const uint8_vector &cmds ) const
+            cmd_uint8_vector
+            read_bytes( const uint8_vector &cmds ) const override
             {
                 cmd_uint8_vector result;
                 read_many_impl(&stub_type::read_bytes, cmds, result);
@@ -193,35 +194,36 @@ namespace fr { namespace client { namespace interfaces { namespace i2c {
                 client_.call_request( call, &req );
             }
 
-            void write_bytes( const cmd_uint8_vector &cmds ) const
+            void write_bytes( const cmd_uint8_vector &cmds ) const override
             {
                 write_many_impl( &stub_type::write_bytes, cmds );
             }
 
-            uint16_t read_word( uint8_t cmd ) const
+            uint16_t read_word( uint8_t cmd ) const override
             {
                 return static_cast<uint8_t>
                         ( read_impl( &stub_type::read_word, cmd ) );
             }
 
-            void write_word( uint8_t cmd, uint16_t value ) const
+            void write_word( uint8_t cmd, uint16_t value ) const override
             {
                 write_impl( &stub_type::write_word, cmd, value );
             }
 
-            cmd_uint16_vector read_words( const uint8_vector &cmds ) const
+            cmd_uint16_vector
+            read_words( const uint8_vector &cmds ) const override
             {
                 cmd_uint16_vector result;
                 read_many_impl( &stub_type::read_words, cmds, result );
                 return result;
             }
 
-            void write_words( const cmd_uint16_vector &cmds ) const
+            void write_words( const cmd_uint16_vector &cmds ) const override
             {
                 write_many_impl( &stub_type::write_words, cmds );
             }
 
-            std::string read_block( uint8_t cmd ) const
+            std::string read_block( uint8_t cmd ) const override
             {
                 i2cproto::write_read_data_req req;
                 i2cproto::write_read_data_res res;
@@ -234,7 +236,8 @@ namespace fr { namespace client { namespace interfaces { namespace i2c {
                 return res.data( ).block( );
             }
 
-            void write_block( uint8_t cmd, const std::string &value ) const
+            void write_block( uint8_t cmd,
+                              const std::string &value ) const override
             {
                 i2cproto::write_read_data_req req;
 
@@ -245,7 +248,8 @@ namespace fr { namespace client { namespace interfaces { namespace i2c {
                 client_.call_request( &stub_type::write_block, &req );
             }
 
-            std::string read_block_broken( uint8_t cmd, uint8_t len ) const
+            std::string read_block_broken( uint8_t cmd,
+                                           uint8_t len ) const override
             {
                 i2cproto::write_read_data_req req;
                 i2cproto::write_read_data_res res;
@@ -262,7 +266,8 @@ namespace fr { namespace client { namespace interfaces { namespace i2c {
                 return res.data( ).block( );
             }
 
-            void write_block_broken( uint8_t cmd, const std::string &val ) const
+            void write_block_broken( uint8_t cmd,
+                                     const std::string &val ) const override
             {
                 i2cproto::write_read_data_req req;
 
@@ -278,7 +283,7 @@ namespace fr { namespace client { namespace interfaces { namespace i2c {
 
 
             virtual uint16_t process_call( uint8_t command,
-                                           uint16_t value ) const
+                                           uint16_t value ) const override
             {
                 i2cproto::write_read_data_req req;
                 i2cproto::write_read_data_res res;
@@ -292,8 +297,8 @@ namespace fr { namespace client { namespace interfaces { namespace i2c {
                 return static_cast<uint16_t>(res.data( ).value( ));
             }
 
-            virtual std::string process_call( uint8_t command,
-                                              const std::string &value ) const
+            std::string process_call( uint8_t command,
+                                      const std::string &value ) const override
             {
                 i2cproto::write_read_data_req req;
                 i2cproto::write_read_data_res res;
@@ -307,7 +312,7 @@ namespace fr { namespace client { namespace interfaces { namespace i2c {
                 return res.data( ).block( );
             }
 
-            size_t read( void *data, size_t length ) const
+            size_t read( void *data, size_t length ) const override
             {
                 i2cproto::data_block req;
                 i2cproto::data_block res;
@@ -324,7 +329,7 @@ namespace fr { namespace client { namespace interfaces { namespace i2c {
                 return res.data( ).size( );
             }
 
-            size_t write( const void *data, size_t length ) const
+            size_t write( const void *data, size_t length ) const override
             {
                 i2cproto::data_block req;
                 i2cproto::data_block res;
