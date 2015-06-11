@@ -22,6 +22,9 @@ namespace interfaces { namespace logger {
         virtual ~iface( ) { }
     };
 
+    typedef iface* iface_ptr;
+    iface_ptr create( core::client_core &cl );
+
 }} // intrerface
 
 }} // fr::client
