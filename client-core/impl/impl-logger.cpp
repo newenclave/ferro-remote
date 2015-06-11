@@ -79,7 +79,8 @@ namespace fr { namespace client { namespace interfaces {
             logger::log_level get_level( ) const override
             {
                 client_type tmp_client( cl_.create_channel( ), true );
-                //client_.channel( )->set_channel_error_callback( channel_error );
+                //client_.channel( )
+                //       ->set_channel_error_callback( channel_error );
 
                 log_proto::get_level_res res;
                 res.set_level( level2proto( logger::info ) );
