@@ -1,12 +1,13 @@
 #ifndef FR_ILOGGER_H
 #define FR_ILOGGER_H
 
+#include <string>
+
 namespace fr { namespace client {
 
 namespace core {
     class client_core;
 }
-
 
 namespace interfaces { namespace logger {
 
@@ -20,6 +21,8 @@ namespace interfaces { namespace logger {
 
     struct iface {
         virtual ~iface( ) { }
+        virtual void set_level( log_level lvl ) const = 0;
+        virtual void write( log_level lvl, const std::string &text ) const = 0;
     };
 
     typedef iface* iface_ptr;
