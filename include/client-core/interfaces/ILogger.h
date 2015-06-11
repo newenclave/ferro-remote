@@ -22,6 +22,7 @@ namespace interfaces { namespace logger {
     struct iface {
         virtual ~iface( ) { }
         virtual void set_level( log_level lvl ) const = 0;
+        virtual log_level get_level( ) const = 0;
         virtual void write( log_level lvl, const std::string &text ) const = 0;
     };
 

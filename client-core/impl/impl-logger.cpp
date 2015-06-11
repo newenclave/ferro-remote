@@ -51,12 +51,14 @@ namespace fr { namespace client { namespace interfaces {
 
         class logger_impl: public logger::iface {
 
+            core::client_core &cl_;
             mutable client_type client_;
 
         public:
 
             logger_impl( core::client_core &cl )
-                :client_(cl.create_channel( ), true)
+                :cl_(cl)
+                ,client_(cl_.create_channel( ), true)
             {
                 const unsigned def_flags = vcomm::rpc_channel::DISABLE_WAIT;
 
@@ -67,14 +69,26 @@ namespace fr { namespace client { namespace interfaces {
                 client_.channel( )->set_channel_error_callback( channel_error );
             }
 
-            void set_level( logger::log_level lvl ) const
+            void set_level( logger::log_level lvl ) const override
             {
                 log_proto::set_level_req req;
                 req.set_level( level2proto( lvl ) );
                 client_.call_request( &stub_type::set_level, &req );
             }
 
-            void write( logger::log_level lvl, const std::string &text ) const
+            logger::log_level get_level( ) const override
+            {
+                client_type tmp_client( cl_.create_channel( ), true );
+                //client_.channel( )->set_channel_error_callback( channel_error );
+
+                log_proto::get_level_res res;
+                res.set_level( level2proto( logger::info ) );
+                tmp_client.call_response( &stub_type::get_level, &res );
+                return proto2level( res.level( ) );
+            }
+
+            void write( logger::log_level lvl,
+                        const std::string &text ) const override
             {
                 log_proto::log_req req;
                 req.set_level( level2proto( lvl ) );

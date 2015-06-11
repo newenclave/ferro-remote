@@ -192,6 +192,15 @@ namespace fr { namespace agent { namespace subsys {
                                   : logger::info;
                 lgr_.set_level( lvl );
             }
+
+            void get_level(::google::protobuf::RpcController* /*controller*/,
+                         const ::fr::proto::logger::empty*    /*request*/,
+                         ::fr::proto::logger::get_level_res*  response,
+                         ::google::protobuf::Closure* done) override
+            {
+                vcomm::closure_holder holder( done );
+                response->set_level( level2proto( lgr_.get_level( ) ) );
+            }
         };
 
         application::service_wrapper_sptr create_service(
