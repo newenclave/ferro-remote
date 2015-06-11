@@ -1,0 +1,23 @@
+
+package fr.proto.logger;
+
+option cc_generic_services = true;
+
+enum log_level {
+    zero    = 0;
+    error   = 1;
+    warning = 2;
+    info    = 3;
+    debug   = 4;
+}
+
+message log_req {
+    optional log_level level = 1;
+    optional string    text  = 2;
+}
+
+message log_res { }
+
+service instance {
+    rpc send_log( log_req ) returns ( log_res );
+}

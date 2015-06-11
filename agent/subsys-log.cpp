@@ -10,11 +10,14 @@
 
 #include "vtrc-chrono.h"
 #include "vtrc-atomic.h"
+#include "vtrc-common/vtrc-closure-holder.h"
 
 #include <string>
 #include <list>
 #include <fstream>
 #include <functional>
+
+#include "protocol/logger.pb.h"
 
 namespace fr { namespace agent { namespace subsys {
 
@@ -26,6 +29,10 @@ namespace fr { namespace agent { namespace subsys {
         namespace bs = boost::signals2;
         namespace ba = boost::asio;
         namespace ph = std::placeholders;
+
+        namespace vcomm  = vtrc::common;
+        namespace vserv  = vtrc::server;
+        namespace gpb    = google::protobuf;
 
         typedef std::shared_ptr<std::ostream>           ostream_sptr;
         typedef std::pair<ostream_sptr, bs::connection> connection_pair;
@@ -113,6 +120,55 @@ namespace fr { namespace agent { namespace subsys {
             ostream_log_slot( *o->stream_, lev, data );
             o->size_ += data.size( );
         }
+
+        logger::level proto2level( unsigned proto_level )
+        {
+            switch(proto_level) {
+            case logger::zero    :
+            case logger::error   :
+            case logger::warning :
+            case logger::info    :
+            case logger::debug   :
+                return static_cast<logger::level>(proto_level);
+            }
+            return logger::debug;
+        }
+
+        fr::proto::logger::log_level level2proto( unsigned lvl )
+        {
+            switch( lvl ) {
+            case fr::proto::logger::zero    :
+            case fr::proto::logger::error   :
+            case fr::proto::logger::warning :
+            case fr::proto::logger::info    :
+            case fr::proto::logger::debug   :
+                return static_cast<fr::proto::logger::log_level>(lvl);
+            }
+            return fr::proto::logger::debug;
+        }
+
+        class proto_looger_impl: public fr::proto::logger::instance {
+
+            fr::agent::logger *lgr_;
+
+        public:
+
+            proto_looger_impl( fr::agent::logger *lgr )
+                :lgr_(lgr)
+            { }
+
+            void send_log( ::google::protobuf::RpcController*  /*controller*/,
+                           const ::fr::proto::logger::log_req* request,
+                           ::fr::proto::logger::log_res*       /*response*/,
+                           ::google::protobuf::Closure* done ) override
+            {
+                vcomm::closure_holder holder( done );
+                logger::level lvl = request->has_level( )
+                                  ? proto2level( request->level( ) )
+                                  : lgr_->get_level( );
+                (*lgr_)(lvl) << request->text( );
+            }
+        };
     }
 
     struct log::impl {

@@ -202,7 +202,7 @@ namespace {
         void deinit( )
         {
             lua::state ls( info_.main_ );
-            ls.set( id_path, (void *)nullptr );
+            ls.set( id_path, static_cast<void *>(nullptr) );
 
             devs_.clear( );
         }
