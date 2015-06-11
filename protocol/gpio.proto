@@ -72,8 +72,8 @@ message register_res {
 
 message pulse_req {
     optional handle hdl         = 1;
-    optional uint32 set_value   = 2 [default = 1]; // 1 or 0
-    optional uint32 reset_value = 3 [default = 0]; // 0 or 1
+    optional uint32 set_value   = 2; // 1 or 0
+    optional uint32 reset_value = 3; // 0 or 1
     optional uint64 length      = 4; // microseconds
 }
 
