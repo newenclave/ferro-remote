@@ -344,7 +344,6 @@ namespace fr { namespace client { namespace interfaces { namespace i2c {
         };
     }
 
-
     iface_ptr open( core::client_core &cc, unsigned bus_id )
     {
         return new i2s_impl( cc, bus_id, I2C_SLAVE_INVALID_ADDRESS, false );
