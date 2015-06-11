@@ -16,7 +16,7 @@ namespace fr { namespace client { namespace interfaces {
         typedef proto::internal::Stub                           stub_type;
         typedef vcomm::stub_wrapper<stub_type, channel_type>    client_type;
 
-        static unsigned no_wait_flags = vcomm::rpc_channel::DISABLE_WAIT;
+        const unsigned no_wait_flags = vcomm::rpc_channel::DISABLE_WAIT;
 
         struct internal_impl: public internal::iface {
 
