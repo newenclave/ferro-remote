@@ -171,7 +171,7 @@ namespace fr { namespace agent { namespace subsys {
 
             void send_log( ::google::protobuf::RpcController*  /*controller*/,
                            const ::fr::proto::logger::log_req* request,
-                           ::fr::proto::logger::log_res*       /*response*/,
+                           ::fr::proto::logger::empty*       /*response*/,
                            ::google::protobuf::Closure* done ) override
             {
                 vcomm::closure_holder holder( done );
@@ -179,6 +179,18 @@ namespace fr { namespace agent { namespace subsys {
                                   ? proto2level( request->level( ) )
                                   : logger::info;
                 lgr_(lvl) << request->text( );
+            }
+
+            void set_level(::google::protobuf::RpcController* controller,
+                     const ::fr::proto::logger::set_level_req* request,
+                     ::fr::proto::logger::empty* response,
+                     ::google::protobuf::Closure* done) override
+            {
+                vcomm::closure_holder holder( done );
+                logger::level lvl = request->has_level( )
+                                  ? proto2level( request->level( ) )
+                                  : logger::info;
+                lgr_.set_level( lvl );
             }
         };
 

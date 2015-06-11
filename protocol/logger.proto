@@ -11,13 +11,19 @@ enum log_level {
     debug   = 4;
 }
 
+message empty { }
+
 message log_req {
     optional log_level level = 1;
     optional string    text  = 2;
 }
 
-message log_res { }
+message set_level_req {
+    optional log_level level = 1;
+}
+
 
 service instance {
-    rpc send_log( log_req ) returns ( log_res );
+    rpc send_log( log_req )         returns ( empty );
+    rpc set_level( set_level_req )  returns ( empty );
 }
