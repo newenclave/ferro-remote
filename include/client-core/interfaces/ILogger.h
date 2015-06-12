@@ -19,6 +19,20 @@ namespace interfaces { namespace logger {
         ,debug      = 4
     };
 
+    static
+    inline log_level level_val2enum( unsigned val )
+    {
+        switch (val) {
+        case zero:
+        case error:
+        case warning:
+        case info:
+        case debug:
+            return static_cast<log_level>(val);
+        }
+        return info;
+    }
+
     struct iface {
         virtual ~iface( ) { }
         virtual void set_level( log_level lvl ) const = 0;

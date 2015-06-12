@@ -219,6 +219,7 @@ namespace fr { namespace agent { namespace subsys {
                 logger::level lvl = request->has_level( )
                                   ? proto2level( request->level( ) )
                                   : logger::info;
+                //std::cout << "Write! " << request->text( ) << "\n";
                 lgr_(lvl) << request->text( );
             }
 
@@ -231,6 +232,7 @@ namespace fr { namespace agent { namespace subsys {
                 logger::level lvl = request->has_level( )
                                   ? proto2level( request->level( ) )
                                   : logger::info;
+                //std::cout << "Level! " << lvl << "\n";
                 lgr_.set_level( lvl );
             }
 
