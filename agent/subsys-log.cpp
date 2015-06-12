@@ -229,7 +229,6 @@ namespace fr { namespace agent { namespace subsys {
                 logger::level lvl = request->has_level( )
                                   ? proto2level( request->level( ) )
                                   : logger::info;
-                //std::cout << "Write! " << request->text( ) << "\n";
                 lgr_(lvl) << request->text( );
             }
 
@@ -242,7 +241,6 @@ namespace fr { namespace agent { namespace subsys {
                 logger::level lvl = request->has_level( )
                                   ? proto2level( request->level( ) )
                                   : logger::info;
-                //std::cout << "Level! " << lvl << "\n";
                 lgr_.set_level( lvl );
             }
 
@@ -258,8 +256,8 @@ namespace fr { namespace agent { namespace subsys {
             void on_write( logger::level lvl,
                            const std::string &data, size_t opid )
             {
-                std::cout << "EVENT!!!!: " << lvl << " " << data
-                          << " " << opid << "\n";
+//                std::cout << "EVENT!!!!: " << lvl << " " << data
+//                          << " " << opid << "\n";
             }
 
             void subscribe(::google::protobuf::RpcController* /*controller*/,
