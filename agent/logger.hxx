@@ -69,8 +69,6 @@ namespace fr { namespace agent {
             }
         };
 
-        //friend struct string_accumulator;
-
     public:
 
         virtual void send_data( level lev, const std::string &data )

@@ -76,6 +76,9 @@ namespace fr { namespace lua {
         int push_state( lua_State *L ) const;
     };
 
+    typedef std::shared_ptr<lua::event_container>  event_container_sptr;
+    typedef std::weak_ptr<lua::event_container>    event_container_wptr;
+
 }}
 
 

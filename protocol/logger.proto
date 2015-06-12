@@ -26,8 +26,16 @@ message get_level_res {
     optional log_level level = 1;
 }
 
+message subscribe_res {
+    optional uint32 async_op_id  = 1;
+}
+
 service instance {
     rpc send_log( log_req )         returns ( empty );
     rpc set_level( set_level_req )  returns ( empty );
     rpc get_level( empty )          returns ( get_level_res );
+
+    rpc subscribe( empty )          returns ( subscribe_res );
+    rpc unsubscribe( empty )        returns ( empty );
 }
+

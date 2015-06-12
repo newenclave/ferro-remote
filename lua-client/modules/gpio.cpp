@@ -32,10 +32,6 @@ namespace {
     typedef std::shared_ptr<dev_info>  dev_info_sptr;
     typedef std::map<size_t, dev_info> dev_map;
 
-    typedef std::shared_ptr<lua::event_container>  eventor_sptr;
-    typedef std::weak_ptr<lua::event_container>    eventor_wptr;
-
-
     const std::string       module_name("gpio");
     const char *id_path     = FR_CLIENT_LUA_HIDE_TABLE ".gpio.__i";
     const char *meta_name   = FR_CLIENT_LUA_HIDE_TABLE ".gpio.meta";
@@ -172,14 +168,16 @@ namespace {
         lua_call( L, 0, 0 );
     }
 
+    typedef event_container_sptr eventor_sptr;
+    typedef event_container_wptr eventor_wptr;
 
     struct module: public iface {
 
-        client::general_info           &info_;
-        bool                            available_;
-        dev_map                         devs_;
-        std::map<size_t, eventor_sptr>  events_;
-        std::vector<std::string>        events_name_;
+        client::general_info                   &info_;
+        bool                                    available_;
+        dev_map                                 devs_;
+        std::map<size_t, event_container_sptr>  events_;
+        std::vector<std::string>                events_name_;
 
         module( client::general_info &info )
             :info_(info)

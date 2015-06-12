@@ -18,6 +18,7 @@
 #include <functional>
 
 #include "protocol/logger.pb.h"
+#include "protocol/ferro.pb.h"
 
 #define LOG(lev) logger_(lev) << "[log] "
 #define LOGINF   LOG(logger::info)
@@ -40,8 +41,10 @@ namespace fr { namespace agent { namespace subsys {
         namespace vserv  = vtrc::server;
         namespace gpb    = google::protobuf;
 
-        typedef std::shared_ptr<std::ostream>           ostream_sptr;
-        typedef std::pair<ostream_sptr, bs::connection> connection_pair;
+        typedef std::shared_ptr<std::ostream>  ostream_sptr;
+
+        namespace sproto = fr::proto;
+        typedef   sproto::events::Stub events_stub_type;
 
         ostream_sptr open_file( const std::string &path, size_t *size )
         {
@@ -153,68 +156,6 @@ namespace fr { namespace agent { namespace subsys {
             return fr::proto::logger::info;
         }
 
-        class proto_looger_impl: public fr::proto::logger::instance {
-
-            fr::agent::logger &lgr_;
-
-        public:
-
-            static const std::string &name( )
-            {
-                return fr::proto::logger::instance::descriptor( )->full_name( );
-            }
-
-            proto_looger_impl( fr::agent::application *app,
-                               vcomm::connection_iface_wptr /*cli*/)
-                :lgr_(app->subsystem<subsys::log>( ).get_logger( ))
-            { }
-
-            void send_log( ::google::protobuf::RpcController*  /*controller*/,
-                           const ::fr::proto::logger::log_req* request,
-                           ::fr::proto::logger::empty*       /*response*/,
-                           ::google::protobuf::Closure* done ) override
-            {
-                vcomm::closure_holder holder( done );
-                logger::level lvl = request->has_level( )
-                                  ? proto2level( request->level( ) )
-                                  : logger::info;
-                lgr_(lvl) << request->text( );
-            }
-
-            void set_level(::google::protobuf::RpcController*  /*controller*/,
-                     const ::fr::proto::logger::set_level_req* request,
-                     ::fr::proto::logger::empty*               /*response*/,
-                     ::google::protobuf::Closure* done) override
-            {
-                vcomm::closure_holder holder( done );
-                logger::level lvl = request->has_level( )
-                                  ? proto2level( request->level( ) )
-                                  : logger::info;
-                lgr_.set_level( lvl );
-            }
-
-            void get_level(::google::protobuf::RpcController* /*controller*/,
-                         const ::fr::proto::logger::empty*    /*request*/,
-                         ::fr::proto::logger::get_level_res*  response,
-                         ::google::protobuf::Closure* done) override
-            {
-                vcomm::closure_holder holder( done );
-                response->set_level( level2proto( lgr_.get_level( ) ) );
-            }
-        };
-
-        application::service_wrapper_sptr create_service(
-                                      fr::agent::application *app,
-                                      vtrc::common::connection_iface_wptr cl )
-        {
-            vtrc::shared_ptr<proto_looger_impl>
-                    inst(vtrc::make_shared<proto_looger_impl>( app, cl ));
-            return app->wrap_service( cl, inst );
-        }
-    }
-
-    struct log::impl {
-
         class my_logger: public logger {
 
             ba::io_service::strand  &dispatcher_;
@@ -241,11 +182,96 @@ namespace fr { namespace agent { namespace subsys {
                 oss << boost::posix_time::microsec_clock::local_time( )
                     << " [" << names[lev] << "] " << data << "\n";
 
-                dispatcher_.post( std::bind(
-                        &my_logger::do_write, this, lev, oss.str( ) ) );
+                dispatcher_.post( std::bind( &my_logger::do_write, this,
+                                              lev, oss.str( ) ) );
 
             }
         };
+
+        class proto_looger_impl: public fr::proto::logger::instance {
+
+            fr::agent::logger &lgr_;
+            bs::connection     connect_;
+
+        public:
+
+            static const std::string &name( )
+            {
+                return fr::proto::logger::instance::descriptor( )->full_name( );
+            }
+
+            ~proto_looger_impl( )
+            {
+                connect_.disconnect( );
+            }
+
+            proto_looger_impl( fr::agent::application *app,
+                               vcomm::connection_iface_wptr /*cli*/)
+                :lgr_(app->subsystem<subsys::log>( ).get_logger( ))
+            { }
+
+            void send_log( ::google::protobuf::RpcController*  /*controller*/,
+                           const ::fr::proto::logger::log_req* request,
+                           ::fr::proto::logger::empty*         /*response*/,
+                           ::google::protobuf::Closure* done ) override
+            {
+                vcomm::closure_holder holder( done );
+                logger::level lvl = request->has_level( )
+                                  ? proto2level( request->level( ) )
+                                  : logger::info;
+                lgr_(lvl) << request->text( );
+            }
+
+            void set_level(::google::protobuf::RpcController*   /*controller*/,
+                         const ::fr::proto::logger::set_level_req* request,
+                         ::fr::proto::logger::empty*             /*response*/,
+                         ::google::protobuf::Closure* done) override
+            {
+                vcomm::closure_holder holder( done );
+                logger::level lvl = request->has_level( )
+                                  ? proto2level( request->level( ) )
+                                  : logger::info;
+                lgr_.set_level( lvl );
+            }
+
+            void get_level(::google::protobuf::RpcController* /*controller*/,
+                         const ::fr::proto::logger::empty*    /*request*/,
+                         ::fr::proto::logger::get_level_res*  response,
+                         ::google::protobuf::Closure* done) override
+            {
+                vcomm::closure_holder holder( done );
+                response->set_level( level2proto( lgr_.get_level( ) ) );
+            }
+
+            void subscribe(::google::protobuf::RpcController* /*controller*/,
+                         const ::fr::proto::logger::empty*    /*request*/,
+                         ::fr::proto::logger::subscribe_res* response,
+                         ::google::protobuf::Closure* done) override
+            {
+                vcomm::closure_holder holder( done );
+            }
+
+            void unsubscribe(::google::protobuf::RpcController* /*controller*/,
+                         const ::fr::proto::logger::empty*      /*request*/,
+                         ::fr::proto::logger::empty*            /*response*/,
+                         ::google::protobuf::Closure* done) override
+            {
+                vcomm::closure_holder holder( done );
+            }
+
+        };
+
+        application::service_wrapper_sptr create_service(
+                                      fr::agent::application *app,
+                                      vtrc::common::connection_iface_wptr cl )
+        {
+            vtrc::shared_ptr<proto_looger_impl>
+                    inst(vtrc::make_shared<proto_looger_impl>( app, cl ));
+            return app->wrap_service( cl, inst );
+        }
+    }
+
+    struct log::impl {
 
         application                    *app_;
         ba::io_service::strand          dispatcher_;
