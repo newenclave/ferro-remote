@@ -338,7 +338,27 @@ namespace {
 
     int lcall_subscribe( lua_State *L )
     {
-        return 0;
+        module *m = get_module( L );
+        lua::state ls( L );
+        utils::handle h = m->get_object_hdl( L, 1 );
+
+        try {
+            auto e = m->get_eventor( h );
+            event_container::subscribe_info si;
+
+            e->subscribe( L, 1, &si );
+
+            if( !si.name_.compare( "on_write" ) ) {
+
+            }
+            return si.result_;
+
+        } catch( const std::exception &ex ) {
+            ls.push( );
+            ls.push( ex.what( ) );
+            return 2;
+        }
+        return 1;
     }
 
     int lcall_set_level( lua_State *L )
