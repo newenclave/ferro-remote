@@ -30,6 +30,11 @@ message subscribe_res {
     optional uint32 async_op_id  = 1;
 }
 
+message write_data {
+    optional log_level level = 1;
+    optional string    text  = 2;
+}
+
 service instance {
     rpc send_log( log_req )         returns ( empty );
     rpc set_level( set_level_req )  returns ( empty );

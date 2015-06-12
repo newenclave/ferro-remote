@@ -2,6 +2,7 @@
 #include "application.h"
 #include "subsys-log.h"
 #include "subsys-config.h"
+#include "subsys-reactor.h"
 
 #include "boost/program_options/variables_map.hpp"
 #include "boost/date_time/posix_time/posix_time.hpp"
@@ -190,10 +191,18 @@ namespace fr { namespace agent { namespace subsys {
 
         class proto_looger_impl: public fr::proto::logger::instance {
 
+            typedef proto_looger_impl this_type;
+
             fr::agent::logger &lgr_;
             bs::connection     connect_;
+            subsys::reactor   &reactor_;
 
         public:
+
+            size_t next_op_id( )
+            {
+                return reactor_.next_op_id( );
+            }
 
             static const std::string &name( )
             {
@@ -208,6 +217,7 @@ namespace fr { namespace agent { namespace subsys {
             proto_looger_impl( fr::agent::application *app,
                                vcomm::connection_iface_wptr /*cli*/)
                 :lgr_(app->subsystem<subsys::log>( ).get_logger( ))
+                ,reactor_(app->subsystem<subsys::reactor>( ))
             { }
 
             void send_log( ::google::protobuf::RpcController*  /*controller*/,
@@ -245,12 +255,28 @@ namespace fr { namespace agent { namespace subsys {
                 response->set_level( level2proto( lgr_.get_level( ) ) );
             }
 
+            void on_write( logger::level lvl,
+                           const std::string &data, size_t opid )
+            {
+                std::cout << "EVENT!!!!: " << lvl << " " << data
+                          << " " << opid << "\n";
+            }
+
             void subscribe(::google::protobuf::RpcController* /*controller*/,
                          const ::fr::proto::logger::empty*    /*request*/,
                          ::fr::proto::logger::subscribe_res* response,
                          ::google::protobuf::Closure* done) override
             {
                 vcomm::closure_holder holder( done );
+                size_t op_id = next_op_id( );
+
+                namespace ph = std::placeholders;
+
+                connect_ = lgr_.on_write_connect(
+                                std::bind( &this_type::on_write, this,
+                                           ph::_1, ph::_2, op_id ) );
+
+                response->set_async_op_id( op_id );
             }
 
             void unsubscribe(::google::protobuf::RpcController* /*controller*/,
@@ -259,6 +285,7 @@ namespace fr { namespace agent { namespace subsys {
                          ::google::protobuf::Closure* done) override
             {
                 vcomm::closure_holder holder( done );
+                connect_.disconnect( );
             }
 
         };

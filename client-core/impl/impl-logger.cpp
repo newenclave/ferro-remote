@@ -18,6 +18,8 @@ namespace fr { namespace client { namespace interfaces {
         typedef log_proto::instance::Stub                    stub_type;
         typedef vcomm::stub_wrapper<stub_type, channel_type> client_type;
 
+        typedef std::shared_ptr<channel_type> channel_sptr;
+
         logger::log_level proto2level( unsigned lvl )
         {
             switch(lvl) {
@@ -51,14 +53,16 @@ namespace fr { namespace client { namespace interfaces {
 
         class logger_impl: public logger::iface {
 
-            core::client_core &cl_;
+            core::client_core  &cl_;
             mutable client_type client_;
+            channel_sptr        default_channel_;
 
         public:
 
             logger_impl( core::client_core &cl )
                 :cl_(cl)
                 ,client_(cl_.create_channel( ), true)
+                ,default_channel_(cl_.create_channel( ))
             {
                 const unsigned def_flags = vcomm::rpc_channel::DISABLE_WAIT;
 
@@ -78,7 +82,7 @@ namespace fr { namespace client { namespace interfaces {
 
             logger::log_level get_level( ) const override
             {
-                client_type tmp_client( cl_.create_channel( ), true );
+                client_type tmp_client( default_channel_ );
                 //client_.channel( )
                 //       ->set_channel_error_callback( channel_error );
 
@@ -96,6 +100,19 @@ namespace fr { namespace client { namespace interfaces {
                 req.set_text( text );
                 client_.call_request( &stub_type::send_log, &req );
             }
+
+            void subscribe( logger::on_write_callback cb ) const override
+            {
+                client_type tmp(default_channel_);
+                log_proto::subscribe_res res;
+                tmp.call_response( &stub_type::subscribe, &res );
+            }
+
+            void unsubscribe( ) const override
+            {
+                client_.call( &stub_type::unsubscribe );
+            }
+
         };
     }
 

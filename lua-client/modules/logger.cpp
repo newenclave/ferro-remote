@@ -340,16 +340,22 @@ namespace {
     {
         module *m = get_module( L );
         lua::state ls( L );
-        utils::handle h = m->get_object_hdl( L, 1 );
 
         try {
+            utils::handle h = m->get_object_hdl( L, 1 );
             auto e = m->get_eventor( h );
+            auto lgr = m->get_object( L, 1 );
+
             event_container::subscribe_info si;
 
             e->subscribe( L, 1, &si );
 
             if( !si.name_.compare( "on_write" ) ) {
-
+                if( si.call_ ) {
+                    lgr->subscribe( logiface::on_write_callback( ) );
+                } else {
+                    lgr->unsubscribe( );
+                }
             }
 
             return si.result_;

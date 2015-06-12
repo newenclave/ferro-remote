@@ -2,6 +2,7 @@
 #define FR_ILOGGER_H
 
 #include <string>
+#include <functional>
 
 namespace fr { namespace client {
 
@@ -33,11 +34,21 @@ namespace interfaces { namespace logger {
         return info;
     }
 
+    ///
+    /// error, new_state, interval
+    ///
+    typedef std::function<
+            void ( log_level, const std::string & )
+    > on_write_callback;
+
     struct iface {
         virtual ~iface( ) { }
         virtual void set_level( log_level lvl ) const = 0;
         virtual log_level get_level( ) const = 0;
         virtual void write( log_level lvl, const std::string &text ) const = 0;
+
+        virtual void subscribe( on_write_callback cb ) const = 0;
+        virtual void unsubscribe( ) const = 0;
     };
 
     typedef iface* iface_ptr;

@@ -99,7 +99,6 @@ namespace fr { namespace agent { namespace subsys {
 
             time_point                           event_last_time_;
 
-
         public:
 
             gpio_impl( fr::agent::application *app,
