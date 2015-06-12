@@ -351,6 +351,7 @@ namespace {
             if( !si.name_.compare( "on_write" ) ) {
 
             }
+
             return si.result_;
 
         } catch( const std::exception &ex ) {
