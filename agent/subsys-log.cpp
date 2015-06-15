@@ -33,10 +33,11 @@ namespace fr { namespace agent { namespace subsys {
 
         const std::string subsys_name( "log" );
 
-        namespace po = boost::program_options;
-        namespace bs = boost::signals2;
-        namespace ba = boost::asio;
-        namespace ph = std::placeholders;
+        namespace po  = boost::program_options;
+        namespace bs  = boost::signals2;
+        namespace ba  = boost::asio;
+        namespace ph  = std::placeholders;
+        namespace bpt = boost::posix_time;
 
         namespace vcomm  = vtrc::common;
         namespace vserv  = vtrc::server;
@@ -168,23 +169,34 @@ namespace fr { namespace agent { namespace subsys {
                 ,dispatcher_(dispatcher)
             { }
 
-            void do_write( level lev, const std::string &data )
-            {
-                this->get_on_write( )( lev, data );
-            }
-
-            void send_data( level lev, const std::string &data )
+            void do_write( level lev, uint64_t microsec,
+                           const std::string &data )
             {
                 static const char *names[ ] = {
                     "ZER", "ERR",  "WRN", "INF", "DBG"
                 };
+                static const bpt::ptime
+                        epoch(bpt::ptime::date_type(1970, 1, 1));
 
+                bpt::ptime dt( epoch + bpt::microseconds(microsec) );
                 std::ostringstream oss;
-                oss << boost::posix_time::microsec_clock::local_time( )
-                    << " [" << names[lev] << "] " << data << "\n";
+
+                oss << dt << " [" << names[lev] << "] " << data << "\n";
+
+                this->get_on_write( )( lev, oss.str( ) );
+            }
+
+            void send_data( level lev, const std::string &data )
+            {
+                static const bpt::ptime
+                        epoch(bpt::ptime::date_type(1970, 1, 1));
+
+                bpt::ptime local_time = bpt::microsec_clock::local_time( );
+                bpt::time_duration td( local_time - epoch );
 
                 dispatcher_.post( std::bind( &my_logger::do_write, this,
-                                              lev, oss.str( ) ) );
+                                             lev, td.total_microseconds( ),
+                                             data ) );
 
             }
         };
