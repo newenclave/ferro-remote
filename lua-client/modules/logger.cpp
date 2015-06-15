@@ -26,7 +26,6 @@ namespace {
     const char *id_path   = FR_CLIENT_LUA_HIDE_TABLE ".logger.__i";
     const char *meta_name = FR_CLIENT_LUA_HIDE_TABLE ".logger.meta";
 
-
     struct module;
 
     struct name_level_type {
@@ -154,19 +153,18 @@ namespace {
             eventor_sptr le(evtr.lock( ));
             if( le ) {
                 FR_LUA_EVENT_PROLOGUE( "on_write", *le );
-                result->add( "level", new_integer( lvl ) );
-                result->add( "time",  new_integer( microsec ) );
-                result->add( "text",  new_string( data ) );
+                result->add( "level",    new_integer( lvl ) );
+                result->add( "levelstr", new_string( level2str( lvl ) ) );
+                result->add( "time",     new_integer( microsec ) );
+                result->add( "text",     new_string( data ) );
                 FR_LUA_EVENT_EPILOGUE;
             }
         }
 
         eventor_sptr new_eventor( )
         {
-            eventor_sptr res = std::make_shared<
-                                    lua::event_container
-                               >( info_, events_name_ );
-            return res;
+            return std::make_shared<lua::event_container>( info_,
+                                                           events_name_ );
         }
 
         eventor_sptr get_eventor( utils::handle hdl )
