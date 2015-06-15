@@ -3,6 +3,7 @@
 
 #include "vtrc-common/vtrc-signal-declaration.h"
 #include <sstream>
+#include <stdint.h>
 
 namespace fr { namespace agent {
 
@@ -18,7 +19,9 @@ namespace fr { namespace agent {
             ,debug   = 4
         };
 
-        VTRC_DECLARE_SIGNAL( on_write, void( level, std::string const &data ) );
+        VTRC_DECLARE_SIGNAL( on_write, void( level, uint64_t microsec,
+                                             std::string const &text,
+                                             std::string const &ready ) );
 
     private:
 
@@ -73,7 +76,7 @@ namespace fr { namespace agent {
 
         virtual void send_data( level lev, const std::string &data )
         {
-            on_write_( lev, data );
+            on_write_( lev, 0, data, data );
         }
 
         string_accumulator operator ( )( level lev )

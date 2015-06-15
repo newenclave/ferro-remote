@@ -3,6 +3,7 @@
 
 #include <string>
 #include <functional>
+#include <stdint.h>
 
 namespace fr { namespace client {
 
@@ -38,7 +39,7 @@ namespace interfaces { namespace logger {
     /// error, new_state, interval
     ///
     typedef std::function<
-            void ( log_level, const std::string & )
+            void ( log_level, uint64_t microsec, const std::string & )
     > on_write_callback;
 
     struct iface {

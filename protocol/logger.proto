@@ -31,8 +31,9 @@ message subscribe_res {
 }
 
 message write_data {
-    optional log_level level = 1;
-    optional string    text  = 2;
+    optional log_level level    = 1;
+    optional fixed64   microsec = 2;
+    optional string    text     = 3;
 }
 
 service instance {

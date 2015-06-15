@@ -147,13 +147,16 @@ namespace {
 
         }
 
-        void on_write( logiface::log_level lvl, const std::string &data,
+        void on_write( logiface::log_level lvl,
+                       uint64_t microsec,
+                       const std::string &data,
                        eventor_wptr evtr )
         {
             eventor_sptr le(evtr.lock( ));
             if( le ) {
                 FR_LUA_EVENT_PROLOGUE( "on_write", *le );
                 result->add( "level", new_integer( lvl ) );
+                result->add( "time",  new_integer( microsec ) );
                 result->add( "text",  new_string( data ) );
                 FR_LUA_EVENT_EPILOGUE;
             }
@@ -340,6 +343,7 @@ namespace {
     {
         module *m = get_module( L );
         lua::state ls( L );
+        namespace ph = std::placeholders;
 
         try {
             utils::handle h = m->get_object_hdl( L, 1 );
@@ -352,7 +356,9 @@ namespace {
 
             if( !si.name_.compare( "on_write" ) ) {
                 if( si.call_ ) {
-                    lgr->subscribe( logiface::on_write_callback( ) );
+                    lgr->subscribe( std::bind( &module::on_write, m,
+                                               ph::_1, ph::_2, ph::_3,
+                                               eventor_wptr( e ) ) );
                 } else {
                     lgr->unsubscribe( );
                 }

@@ -101,11 +101,24 @@ namespace fr { namespace client { namespace interfaces {
                 client_.call_request( &stub_type::send_log, &req );
             }
 
+            static
+            void async_cb( unsigned /*err*/, const std::string &data,
+                           logger::on_write_callback cb )
+            {
+                log_proto::write_data req;
+                req.ParseFromString( data );
+                cb( proto2level( req.level( ) ), req.microsec( ), req.text( ) );
+            }
+
             void subscribe( logger::on_write_callback cb ) const override
             {
+                namespace ph = std::placeholders;
                 client_type tmp(default_channel_);
                 log_proto::subscribe_res res;
                 tmp.call_response( &stub_type::subscribe, &res );
+                cl_.register_async_op( res.async_op_id( ),
+                                       std::bind( &logger_impl::async_cb,
+                                                   ph::_1, ph::_2, cb ) );
             }
 
             void unsubscribe( ) const override

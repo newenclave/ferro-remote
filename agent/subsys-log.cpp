@@ -12,6 +12,8 @@
 #include "vtrc-chrono.h"
 #include "vtrc-atomic.h"
 #include "vtrc-common/vtrc-closure-holder.h"
+#include "vtrc-server/vtrc-channels.h"
+#include "vtrc-common/vtrc-stub-wrapper.h"
 
 #include <string>
 #include <list>
@@ -42,11 +44,15 @@ namespace fr { namespace agent { namespace subsys {
         namespace vcomm  = vtrc::common;
         namespace vserv  = vtrc::server;
         namespace gpb    = google::protobuf;
+        using vserv::channels::unicast::create_event_channel;
 
         typedef std::shared_ptr<std::ostream>  ostream_sptr;
 
         namespace sproto = fr::proto;
         typedef   sproto::events::Stub events_stub_type;
+        typedef   vcomm::stub_wrapper<
+            events_stub_type, vcomm::rpc_channel
+        > event_client_type;
 
         ostream_sptr open_file( const std::string &path, size_t *size )
         {
@@ -119,16 +125,20 @@ namespace fr { namespace agent { namespace subsys {
         }
 
         void ostream_log_slot( std::ostream &o, logger::level /*lev*/,
+                               uint64_t /*microsec*/,
+                               const std::string &/*text*/,
                                const std::string &data )
         {
             o << data;
             //o.flush( );
         }
 
-        void log_slot( ostream_info_sptr o, logger::level lev,
+        void log_slot( ostream_info_sptr o,
+                       logger::level lev, uint64_t microsec,
+                       const std::string &text,
                        const std::string &data )
         {
-            ostream_log_slot( *o->stream_, lev, data );
+            ostream_log_slot( *o->stream_, lev, microsec, text, data );
             o->size_ += data.size( );
         }
 
@@ -158,6 +168,12 @@ namespace fr { namespace agent { namespace subsys {
             return fr::proto::logger::info;
         }
 
+
+        void chan_err( const char * /*mess*/ )
+        {
+            //std::cerr << "logger channel error: " << mess << "\n";
+        }
+
         class my_logger: public logger {
 
             ba::io_service::strand  &dispatcher_;
@@ -183,7 +199,7 @@ namespace fr { namespace agent { namespace subsys {
 
                 oss << dt << " [" << names[lev] << "] " << data << "\n";
 
-                this->get_on_write( )( lev, oss.str( ) );
+                this->get_on_write( )( lev, microsec, data, oss.str( ) );
             }
 
             void send_data( level lev, const std::string &data )
@@ -208,6 +224,7 @@ namespace fr { namespace agent { namespace subsys {
             fr::agent::logger &lgr_;
             bs::connection     connect_;
             subsys::reactor   &reactor_;
+            event_client_type  eventor_;
 
         public:
 
@@ -227,10 +244,13 @@ namespace fr { namespace agent { namespace subsys {
             }
 
             proto_looger_impl( fr::agent::application *app,
-                               vcomm::connection_iface_wptr /*cli*/)
+                               vcomm::connection_iface_wptr cli)
                 :lgr_(app->subsystem<subsys::log>( ).get_logger( ))
                 ,reactor_(app->subsystem<subsys::reactor>( ))
-            { }
+                ,eventor_(create_event_channel(cli.lock( ), true), true)
+            {
+                eventor_.channel( )->set_channel_error_callback( chan_err );
+            }
 
             void send_log( ::google::protobuf::RpcController*  /*controller*/,
                            const ::fr::proto::logger::log_req* request,
@@ -265,11 +285,21 @@ namespace fr { namespace agent { namespace subsys {
                 response->set_level( level2proto( lgr_.get_level( ) ) );
             }
 
-            void on_write( logger::level lvl,
-                           const std::string &data, size_t opid )
+            void on_write( logger::level lvl, uint64_t microsec,
+                           const std::string &data,
+                           const std::string &/*format*/,
+                           size_t opid )
             {
-//                std::cout << "EVENT!!!!: " << lvl << " " << data
-//                          << " " << opid << "\n";
+                fr::proto::logger::write_data req;
+                req.set_level( level2proto(lvl) );
+                req.set_text( data );
+                req.set_microsec( microsec );
+
+                fr::proto::async_op_data areq;
+                areq.set_id( opid );
+                areq.set_data( req.SerializeAsString( ) );
+                eventor_.call_request( &events_stub_type::async_op, &areq );
+
             }
 
             void subscribe(::google::protobuf::RpcController* /*controller*/,
@@ -284,7 +314,8 @@ namespace fr { namespace agent { namespace subsys {
 
                 connect_ = lgr_.on_write_connect(
                                 std::bind( &this_type::on_write, this,
-                                           ph::_1, ph::_2, op_id ) );
+                                           ph::_1, ph::_2, ph::_3, ph::_4,
+                                           op_id ) );
 
                 response->set_async_op_id( op_id );
             }
@@ -336,7 +367,7 @@ namespace fr { namespace agent { namespace subsys {
                         stdout_connection_ = logger_.on_write_connect(
                                 std::bind( ostream_log_slot,
                                            std::ref( std::cout ),
-                                           ph::_1, ph::_2 ) );
+                                           ph::_1, ph::_2, ph::_3, ph::_4 ) );
 
                     } else if( f == "-!" ) {
 
@@ -344,14 +375,14 @@ namespace fr { namespace agent { namespace subsys {
                         stderr_connection_ = logger_.on_write_connect(
                                 std::bind( ostream_log_slot,
                                            std::ref( std::cerr ),
-                                           ph::_1, ph::_2 ) );
+                                           ph::_1, ph::_2, ph::_3, ph::_4 ) );
 
                     } else {
                         ostream_info_sptr next (
                                     std::make_shared<ostream_info>( f ) );
                         next->connect_ = logger_.on_write_connect(
                                 std::bind( log_slot, next,
-                                           ph::_1, ph::_2 )
+                                           ph::_1, ph::_2, ph::_3, ph::_4 )
                             );
                         tmp.push_back( next );
                     }
