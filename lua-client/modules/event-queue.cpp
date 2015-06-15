@@ -101,7 +101,9 @@ namespace {
             if( !working_ ) {
                 return;
             }
-            auto kl(k.lock( ));
+
+            event_caller_sptr kl(k.lock( ));
+
             if( !kl ) {
                 return;
             }
