@@ -144,13 +144,12 @@ namespace {
 
         void deinit( )
         {
-
+            loggers_.clear( );
+            events_.clear( );
         }
 
-        void on_write( logiface::log_level lvl,
-                       uint64_t microsec,
-                       const std::string &data,
-                       eventor_wptr evtr )
+        void on_write( logiface::log_level lvl, uint64_t microsec,
+                       const std::string &data, eventor_wptr evtr )
         {
             eventor_sptr le(evtr.lock( ));
             if( le ) {
