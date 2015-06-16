@@ -12,9 +12,9 @@ namespace fr { namespace client { namespace interfaces {
     namespace {
         namespace vcomm  = vtrc::common;
 
-        typedef vcomm::rpc_channel                              channel_type;
-        typedef proto::internal::Stub                           stub_type;
-        typedef vcomm::stub_wrapper<stub_type, channel_type>    client_type;
+        typedef vcomm::rpc_channel                           channel_type;
+        typedef proto::internal::Stub                        stub_type;
+        typedef vcomm::stub_wrapper<stub_type, channel_type> client_type;
 
         const unsigned no_wait_flags = vcomm::rpc_channel::DISABLE_WAIT;
 

@@ -167,7 +167,13 @@ int main( int argc, const char *argv[] )
 
         try {
 
-            ls.check_call_error( ls.load_file( script_path.c_str( ) ) );
+            if( fs::exists( script_path ) ) {
+                ls.check_call_error( ls.load_file( script_path.c_str( ) ) );
+            } else {
+                ls.check_call_error( ls.load_buffer( script_path.c_str( ),
+                                                     script_path.size( ),
+                                                     "cmd" ) );
+            }
 
             if( ls.exists( main_name.c_str( ) ) ) {
                 int res = ls.exec_function( main_name.c_str( ), *par );

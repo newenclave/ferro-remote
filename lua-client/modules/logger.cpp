@@ -147,6 +147,21 @@ namespace {
             events_.clear( );
         }
 
+        table_sptr time_table( const uint64_t microsec )
+        {
+            table_sptr res(new_table( ));
+
+            const uint64_t sec = microsec / 1000000;
+            const uint64_t mic = microsec % 1000000;
+
+            res->add( "sec",          new_integer( sec ) )
+               ->add( "seconds",      new_integer( sec ) )
+               ->add( "micro",        new_integer( mic ) )
+               ->add( "microseconds", new_integer( mic ) );
+
+            return res;
+        }
+
         void on_write( logiface::log_level lvl, uint64_t microsec,
                        const std::string &data, eventor_wptr evtr )
         {
@@ -155,7 +170,7 @@ namespace {
                 FR_LUA_EVENT_PROLOGUE( "on_write", *le );
                 result->add( "level",    new_integer( lvl ) );
                 result->add( "levelstr", new_string( level2str( lvl ) ) );
-                result->add( "time",     new_integer( microsec ) );
+                result->add( "time",     time_table( microsec ) );
                 result->add( "text",     new_string( data ) );
                 FR_LUA_EVENT_EPILOGUE;
             }

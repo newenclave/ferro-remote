@@ -5,16 +5,18 @@ function main( )
     fr.run( )
     local lgr, err = log.add( )
     -- timer event. after 1 second process will send log string and exit
-    timer.post( function( err, lgr ) 
-        lgr:write( "INF", "Client logger: Goodbye!" ) 
-        fr.exit( ) 
-    end, { sec=1 }, lgr )
+    local function lcall( err, lgr, id )
+        lgr:write( "INF", "Cient log "..tostring(id).."!" )
+        timer.post( lcall, { millii = 100 }, lgr, id + 1 )
+    end
+
+    lcall( nil, lgr, 0 )    
 
     -- logger event handler. 
     lgr:subscribe( "on_write", function( data ) 
-        local dt = os.date( "*t", data.time // 1000000 )
-        fr.print( dt.hour, ":", dt.min, ":", dt.sec, 
-                  ":", data.time % 1000000, 
+        local dt = os.date( "%H:%M:%S", data.time.sec )
+        fr.print( dt, 
+                  ":", data.time.micro, 
                   " [", data.levelstr, "] ",  
                   data.text, "\n" ) 
     end )
