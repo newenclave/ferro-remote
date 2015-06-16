@@ -46,24 +46,24 @@ namespace {
             ,working_(true)
         { }
 
-        void init( )
+        void init( ) override
         {
             lua::state ls( info_.main_ );
             ls.set( id_path, this );
         }
 
-        void deinit( )
+        void deinit( ) override
         {
             working_ = false;
             timers_.clear( );
         }
 
-        const std::string &name( ) const
+        const std::string &name( ) const override
         {
             return module_name;
         }
 
-        std::shared_ptr<objects::table> table( ) const
+        std::shared_ptr<objects::table> table( ) const override
         {
             objects::table_sptr res(std::make_shared<objects::table>( ));
             res->add( "post", new_function( &lcall_post ) );
@@ -74,7 +74,7 @@ namespace {
             return res;
         }
 
-        bool connection_required( ) const
+        bool connection_required( ) const override
         {
             return false;
         }
