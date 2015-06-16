@@ -24,7 +24,9 @@ namespace fr { namespace client { namespace interfaces {
 
             internal_impl( core::client_core &cl )
                 :client_(cl.create_channel( ), true)
-            { }
+            {
+                client_.channel( )->set_flags( no_wait_flags );
+            }
 
             vtrc::common::rpc_channel *channel( )
             {
@@ -38,7 +40,6 @@ namespace fr { namespace client { namespace interfaces {
 
             void exit_process( ) const override
             {
-                client_.channel( )->set_flags( no_wait_flags );
                 client_.call( &stub_type::exit_process );
             }
         };
