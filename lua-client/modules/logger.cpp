@@ -147,6 +147,7 @@ namespace {
             events_.clear( );
         }
 
+        static
         table_sptr time_table( const uint64_t microsec )
         {
             table_sptr res(new_table( ));
