@@ -17,6 +17,7 @@
 
 #include "google/protobuf/descriptor.h"
 #include "protocol/ferro.pb.h"
+#include "vtrc-common/protocol/vtrc-rpc-lowlevel.pb.h"
 
 #include "boost/program_options.hpp"
 
@@ -280,7 +281,10 @@ namespace fr { namespace agent {
     void application::configure_session( vcomm::connection_iface* connection,
                                          vtrc::rpc::session_options &opts )
     {
-
+        opts.set_max_active_calls  ( 5 );
+        opts.set_max_message_length( 65536 );
+        opts.set_max_stack_size    ( 64 );
+        opts.set_read_buffer_size  ( 4096 );
     }
 
     application::parent_service_sptr
