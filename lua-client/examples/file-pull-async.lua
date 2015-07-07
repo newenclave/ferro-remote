@@ -5,9 +5,9 @@ function file_get( from, to, maximum_block )
     local eq = fr.client.event_queue	
     
     local function impl( input, output )
-        local d = input:read( maximum_block )	
+        local d, e = input:read( maximum_block )	
         if d then 
-            --print( "got", string.len(d), "bytes" )
+            print( "got", string.len(d), "bytes" )
             output:write( d )
             eq.post( impl, input, output )
         else
@@ -17,7 +17,8 @@ function file_get( from, to, maximum_block )
 
     local f, e = file.open( from, "rb" )
     local out, eout = io.open( to, "wb" )
-	
+
+    print(e)	
     if f and out then 
         print( "files:", "in ", f, "out ", out )
         impl( f, out )

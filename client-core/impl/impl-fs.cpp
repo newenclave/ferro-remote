@@ -204,6 +204,7 @@ namespace filesystem {
             req_res.set_path( path );
 
             cl.call( &stub_type::open, &req_res, &req_res );
+
             return req_res.hdl( ).value( );
         }
 
