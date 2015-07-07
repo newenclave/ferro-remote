@@ -278,7 +278,7 @@ namespace fr { namespace agent {
     ///
     //// parent calls
     ///
-    void application::configure_session( vcomm::connection_iface* connection,
+    void application::configure_session( vcomm::connection_iface*/*connection*/,
                                          vtrc::rpc::session_options &opts )
     {
         opts.set_max_active_calls  ( 5 );
@@ -296,7 +296,7 @@ namespace fr { namespace agent {
     }
 
     std::string application::get_session_key( vcomm::connection_iface* c,
-                                               const std::string &id )
+                                               const std::string & /*id*/ )
     {
         key_map_type::const_iterator f( impl_->keys_.find( c->id( ) ) );
 

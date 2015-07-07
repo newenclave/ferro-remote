@@ -116,7 +116,7 @@ int main( int argc, const char *argv[] )
     }
 
     if( !vm.count( "script" ) ) {
-        std::cerr << "script name isn't' specified.\n";
+        std::cerr << "script name isn't specified.\n";
         show_help( description );
         return 2;
     }

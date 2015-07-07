@@ -7,10 +7,11 @@ function file_get( from, to, maximum_block )
     local function impl( input, output )
         local d = input:read( maximum_block )	
         if d then 
-            --print( "got", string.len(d), "bytes" )
+            print( "got", string.len(d), "bytes" )
             output:write( d )
             eq.post( impl, input, output )
         else
+	    print( "exit" )
             fr.exit( )
         end
     end	

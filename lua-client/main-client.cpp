@@ -220,6 +220,14 @@ namespace fr { namespace lua { namespace client {
         return static_cast<general_info *>(ptr);
     }
 
+    std::string hash_key( const std::string &id, const std::string &key )
+    {
+        std::string key_info( id + key );
+        vcomm::hash_iface_uptr s(vcomm::hash::sha2::create256( ));
+        std::string hs(s->get_data_hash( &key_info[0], key_info.size( ) ));
+        return hs;
+    }
+
     int lua_call_connect( lua_State *L )
     {
         general_info *info = get_gen_info( L );
@@ -231,12 +239,8 @@ namespace fr { namespace lua { namespace client {
         std::string key   ( ls.get_opt<std::string>( 3 ) );
 
         if( ls.get_top( ) > 2 && !key.empty( ) ) {
-            std::string key_info( id + key );
-            vcomm::hash_iface_uptr s(vcomm::hash::sha2::create256( ));
-            std::string hs(s->get_data_hash( &key_info[0], key_info.size( ) ));
-            key.assign( hs );
+            key.assign( hash_key( id, key ) );
         }
-
         make_connect( info, server, id, key, true );
 
         return 0;
@@ -275,7 +279,11 @@ namespace fr { namespace lua { namespace client {
             if( info->cmd_opts_.count( "key" ) ) {
                 key = info->cmd_opts_["key"].as<std::string>( );
             }
-            make_connect( info, server, id, key, false );
+
+            bool empty = key.empty( );
+            key = hash_key( id, key );
+
+            make_connect( info, server, id, empty ? "" : key, false );
             info->connected_ = true;
         }
 
