@@ -137,9 +137,8 @@ namespace fr { namespace agent { namespace subsys {
                 return ++handle_;
             }
 
-
             bfs::path path_from_request( const proto::fs::handle_path* request,
-                                        vtrc::uint32_t &hdl )
+                                         vtrc::uint32_t &hdl )
             {
                 bfs::path p(request->path( ));
 
@@ -166,10 +165,10 @@ namespace fr { namespace agent { namespace subsys {
                 return p;
             }
 
-            void open(::google::protobuf::RpcController* /*controller*/,
-                         const ::fr::proto::fs::handle_path* request,
-                         ::fr::proto::fs::handle_path* response,
-                         ::google::protobuf::Closure* done) override
+            void open( ::google::protobuf::RpcController* /*controller*/,
+                       const ::fr::proto::fs::handle_path* request,
+                       ::fr::proto::fs::handle_path* response,
+                       ::google::protobuf::Closure* done) override
             {
                 vcomm::closure_holder holder(done);
 
@@ -181,7 +180,6 @@ namespace fr { namespace agent { namespace subsys {
                 }
                 response->mutable_hdl( )->set_value( hdl );
                 response->set_path( p.string( ) );
-
             }
 
             void cd(::google::protobuf::RpcController* /*controller*/,
@@ -718,6 +716,7 @@ namespace fr { namespace agent { namespace subsys {
                          ::google::protobuf::Closure* done) override
             {
                 vcomm::closure_holder holder(done);
+
                 file_sptr f(get_file( request->hdl( ).value( ) ));
                 size_t max_block = request->length( );
 
