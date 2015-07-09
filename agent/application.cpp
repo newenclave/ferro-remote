@@ -282,7 +282,7 @@ namespace fr { namespace agent {
                                          vtrc::rpc::session_options &opts )
     {
 
-        opts.CopyFrom( vtrc::common::default_session_options( ) );
+        opts.CopyFrom( vtrc::common::defaults::session_options( ) );
     }
 
     application::parent_service_sptr
