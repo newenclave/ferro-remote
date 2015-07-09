@@ -251,7 +251,7 @@ namespace fr { namespace agent {
     }
 
     ///
-    //// services
+    /// services
     ///
     void application::register_service_creator( const std::string &name,
                                                 service_getter_type func )
@@ -276,15 +276,13 @@ namespace fr { namespace agent {
     }
 
     ///
-    //// parent calls
+    /// parent calls
     ///
-    void application::configure_session( vcomm::connection_iface* connection,
+    void application::configure_session( vcomm::connection_iface*/*connection*/,
                                          vtrc::rpc::session_options &opts )
     {
-        opts.set_max_active_calls  ( 5 );
-        opts.set_max_message_length( 65536 );
-        opts.set_max_stack_size    ( 64 );
-        opts.set_read_buffer_size  ( 4096 );
+
+        opts.CopyFrom( vtrc::common::default_session_options( ) );
     }
 
     application::parent_service_sptr
