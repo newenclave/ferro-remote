@@ -294,7 +294,7 @@ namespace fr { namespace agent {
     }
 
     std::string application::get_session_key( vcomm::connection_iface* c,
-                                               const std::string &id )
+                                               const std::string & /*id*/ )
     {
         key_map_type::const_iterator f( impl_->keys_.find( c->id( ) ) );
 
