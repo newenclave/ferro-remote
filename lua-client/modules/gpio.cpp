@@ -425,10 +425,12 @@ namespace {
         switch( ls.get_type( id ) ) {
         case base::TYPE_STRING:
             dev.dev_->set_direction( str2dir( ls.get_opt<std::string>( id ) ) );
+            break;
         case base::TYPE_NUMBER:
         case base::TYPE_NONE:
             dev.dev_->set_direction( giface::direction_val2enum(
                              ls.get_opt<unsigned>( id, giface::DIRECT_IN ) ) );
+            break;
         default:
             throw std::runtime_error( "Bad value for 'direction'." );
         }
