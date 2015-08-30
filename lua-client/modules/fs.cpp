@@ -803,7 +803,7 @@ namespace {
         utils::handle res = nullptr;
         unsigned flags( ls.get_opt<unsigned>(2) );
         unsigned mode ( ls.get_opt<unsigned>(3) );
-        return m->new_file( path, flags, mode, false );
+        res = m->new_file( path, flags, mode, false );
 
         return res;
     }
