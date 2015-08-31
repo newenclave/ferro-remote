@@ -10,6 +10,8 @@
 
 #include "../utils.h"
 
+#include <iostream>
+
 namespace fr { namespace lua { namespace m { namespace fs {
 
 namespace {
