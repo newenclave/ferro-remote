@@ -157,12 +157,19 @@ namespace fr { namespace agent {
         void make_callback( int fd, unsigned events )
         {
             vtrc::upgradable_lock slck(react_lock_);
+            std::cout << "Value changed: " << __LINE__ << "\n";
             reaction_map::iterator f( react_.find( fd ) );
+            std::cout << "Value changed: " << __LINE__ << "\n";
             if( f != react_.end( ) ){
+                std::cout << "Value changed: " << __LINE__ << "\n";
                 bool res = f->second->call_( events );
+                std::cout << "Value changed: " << __LINE__ << "\n";
                 if( !res ) {
+                    std::cout << "Value changed: " << __LINE__ << "\n";
                     vtrc::upgrade_to_unique utu(slck);
+                    std::cout << "Value changed: " << __LINE__ << "\n";
                     del_fd_unsafe( fd );
+                    std::cout << "Value changed: " << __LINE__ << "\n";
                 }
             }
         }
