@@ -322,10 +322,11 @@ namespace fr { namespace agent { namespace subsys {
                                 value_data &data,
                                 vcomm::connection_iface_wptr cli )
             {
-                std::cout << "Value changed: \n";
+                std::cout << "Value changed: " << __LINE__ << "\n";
                 try {
                     vcomm::connection_iface_sptr lck( cli.lock( ) );
                     if( !lck ) {
+                        std::cout << "Value changed: " << __LINE__ << "\n";
                         return false;
                     }
 
@@ -355,6 +356,7 @@ namespace fr { namespace agent { namespace subsys {
                         op_data.set_data( vdat.SerializeAsString( ) );
 
                     } catch( const std::exception &ex ) {
+                        std::cout << "Value changed: " << __LINE__ << "\n";
                         error_code = errno;
                         err.assign( ex.what( ) );
                         success = false;
@@ -365,14 +367,17 @@ namespace fr { namespace agent { namespace subsys {
                         op_data.mutable_error( )->set_text( err );
                     }
 
+                    std::cout << "Value changed: " << __LINE__ << "\n";
                     events.async_op( NULL, &op_data, NULL, NULL );
+                    std::cout << "Value changed: " << __LINE__ << "\n";
 
                     return success;
 
                 } catch( ... ) {
+                    std::cout << "Value changed: " << __LINE__ << "\n";
                     return false;
                 }
-                std::cout << "Value changed: end\n";
+                std::cout << "Value changed: " << __LINE__ << "\n";
             }
 
             void register_for_change(::google::protobuf::RpcController* ,
