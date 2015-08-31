@@ -322,6 +322,7 @@ namespace fr { namespace agent { namespace subsys {
                                 value_data &data,
                                 vcomm::connection_iface_wptr cli )
             {
+                std::cout << "Value changed: \n";
                 try {
                     vcomm::connection_iface_sptr lck( cli.lock( ) );
                     if( !lck ) {
@@ -371,6 +372,7 @@ namespace fr { namespace agent { namespace subsys {
                 } catch( ... ) {
                     return false;
                 }
+                std::cout << "Value changed: end\n";
             }
 
             void register_for_change(::google::protobuf::RpcController* ,
@@ -389,8 +391,7 @@ namespace fr { namespace agent { namespace subsys {
                 agent::reaction_callback
                         cb( vtrc::bind( &gpio_impl::value_changed, this,
                                          vtrc::placeholders::_1,
-                                         value_data( hdl, fd, g,
-                                                     opid ),
+                                         value_data( hdl, fd, g, opid ),
                                          client_) );
 
                 reactor_.add_fd( fd, EPOLLET | EPOLLPRI, cb );
