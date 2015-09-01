@@ -391,8 +391,7 @@ namespace fr { namespace agent { namespace subsys {
                 agent::reaction_callback
                         cb( vtrc::bind( &gpio_impl::value_changed, this,
                                          vtrc::placeholders::_1,
-                                         value_data( hdl, fd, g,
-                                                     opid ),
+                                         value_data( hdl, fd, g, opid ),
                                          client_) );
 
                 reactor_.add_fd( fd, EPOLLET | EPOLLPRI, cb );
