@@ -830,9 +830,9 @@ namespace fr { namespace agent { namespace subsys {
                 response->set_async_op_id( op_id );
             }
 
-            void unregister(::google::protobuf::RpcController* controller,
+            void unregister(::google::protobuf::RpcController* /*controller*/,
                          const ::fr::proto::fs::register_req* request,
-                         ::fr::proto::fs::empty* response,
+                         ::fr::proto::fs::empty*               /*response*/,
                          ::google::protobuf::Closure* done) override
             {
                 vcomm::closure_holder holder(done);
@@ -840,7 +840,7 @@ namespace fr { namespace agent { namespace subsys {
                 reactor_.del_fd( f->handle( ) );
             }
 
-            void close(::google::protobuf::RpcController* controller,
+            void close(::google::protobuf::RpcController* /*controller*/,
                          const ::fr::proto::fs::handle* request,
                          ::fr::proto::fs::empty* /*response*/,
                          ::google::protobuf::Closure* done) override
