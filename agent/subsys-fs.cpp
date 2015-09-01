@@ -887,6 +887,7 @@ namespace fr { namespace agent { namespace subsys {
             :app_(app)
             ,log_(app_->subsystem<subsys::log>( ).get_logger( ))
         {
+
         }
 
         void reg_creator( const std::string &name,

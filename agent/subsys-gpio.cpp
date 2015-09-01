@@ -60,6 +60,8 @@ namespace fr { namespace agent { namespace subsys {
 
         typedef std::map<vtrc::uint32_t, gpio_sptr> gpio_map;
 
+        typedef chrono::high_resolution_clock::time_point time_point;
+
         agent::gpio::direction_type direct_from_proto( unsigned dir )
         {
             switch ( dir ) {
@@ -96,9 +98,8 @@ namespace fr { namespace agent { namespace subsys {
             events_stub_type                     eventor_;
             subsys::reactor                     &reactor_;
 
-            typedef chrono::high_resolution_clock::time_point time_point;
-
             time_point                           event_last_time_;
+            logger                              &log_;
 
         public:
 
@@ -110,6 +111,7 @@ namespace fr { namespace agent { namespace subsys {
                 ,eventor_(event_channel_.get( ))
                 ,reactor_(app->subsystem<subsys::reactor>( ))
                 ,event_last_time_(chrono::high_resolution_clock::now( ))
+                ,log_(app->subsystem<subsys::log>( ).get_logger( ))
             { }
 
             ~gpio_impl( )
@@ -341,7 +343,6 @@ namespace fr { namespace agent { namespace subsys {
                     bool               success = true;
                     std::string        err;
                     unsigned           error_code = 0;
-                    //events_stub_type   events(event_channel_.get( ));
 
                     sproto::async_op_data       op_data;
                     gproto::value_change_data   vdat;
@@ -370,9 +371,12 @@ namespace fr { namespace agent { namespace subsys {
 
                     return success;
 
+                } catch( std::exception &ex ) {
+                    LOGERR << "Failed to send event: " << ex.what( );
                 } catch( ... ) {
-                    return false;
+                    LOGERR << "Failed to send event: ...";
                 }
+                return false;
             }
 
             void register_for_change(::google::protobuf::RpcController* ,
@@ -469,7 +473,7 @@ namespace fr { namespace agent { namespace subsys {
         return new_inst;
     }
 
-    const std::string &gpio::name( )  const
+    const std::string &gpio::name( ) const
     {
         return subsys_name;
     }
@@ -485,8 +489,7 @@ namespace fr { namespace agent { namespace subsys {
             impl_->reg_creator( gpio_impl::name( ),  create_service );
             impl_->LOGINF << "Started";
         } else {
-            impl_->LOGDBG << "Not found";
-            //std::cout << "GPIO was not found\n";
+            impl_->LOGDBG << "GPIO is not available";
         }
     }
 

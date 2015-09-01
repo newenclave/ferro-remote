@@ -146,6 +146,7 @@ namespace {
         std::vector<std::string> res;
 
         res.push_back( "on_pollin" );
+        res.push_back( "on_read" );
 
         return res;
     }
