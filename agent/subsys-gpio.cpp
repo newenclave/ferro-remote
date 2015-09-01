@@ -93,6 +93,7 @@ namespace fr { namespace agent { namespace subsys {
             vtrc::atomic<vtrc::uint32_t>         index_;
             vtrc::common::connection_iface_wptr  client_;
             rpc_channel_sptr                     event_channel_;
+            events_stub_type                     eventor_;
             subsys::reactor                     &reactor_;
 
             typedef chrono::high_resolution_clock::time_point time_point;
@@ -106,6 +107,7 @@ namespace fr { namespace agent { namespace subsys {
                 :index_(100)
                 ,client_(cli)
                 ,event_channel_(create_event_channel(client_.lock( )))
+                ,eventor_(event_channel_.get( ))
                 ,reactor_(app->subsystem<subsys::reactor>( ))
                 ,event_last_time_(chrono::high_resolution_clock::now( ))
             { }
@@ -160,10 +162,10 @@ namespace fr { namespace agent { namespace subsys {
                 }
             }
 
-            void ping(::google::protobuf::RpcController*  /* controller */,
-                         const ::fr::proto::gpio::empty*  /* request    */,
-                         ::fr::proto::gpio::empty*        /* response   */,
-                         ::google::protobuf::Closure* done) override
+            void ping( ::google::protobuf::RpcController* /* controller */,
+                       const ::fr::proto::gpio::empty*    /* request    */,
+                       ::fr::proto::gpio::empty*          /* response   */,
+                       ::google::protobuf::Closure* done) override
             {
                 if( done ) done->Run( );
             }
@@ -339,7 +341,7 @@ namespace fr { namespace agent { namespace subsys {
                     bool               success = true;
                     std::string        err;
                     unsigned           error_code = 0;
-                    events_stub_type   events(event_channel_.get( ));
+                    //events_stub_type   events(event_channel_.get( ));
 
                     sproto::async_op_data       op_data;
                     gproto::value_change_data   vdat;
@@ -364,7 +366,7 @@ namespace fr { namespace agent { namespace subsys {
                         op_data.mutable_error( )->set_text( err );
                     }
 
-                    events.async_op( NULL, &op_data, NULL, NULL );
+                    eventor_.async_op( NULL, &op_data, NULL, NULL );
 
                     return success;
 
