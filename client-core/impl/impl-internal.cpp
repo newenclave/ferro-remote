@@ -42,6 +42,11 @@ namespace fr { namespace client { namespace interfaces {
             {
                 client_.call( &stub_type::exit_process );
             }
+
+            void ping( ) const override
+            {
+                client_.call( &stub_type::ping );
+            }
         };
     }
 

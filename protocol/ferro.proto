@@ -4,8 +4,15 @@ option cc_generic_services = true;
 
 message empty { }
 
+message ping_req {
+    optional bytes payload = 1;
+}
+
+message ping_res { }
+
 service internal {
     rpc exit_process( empty ) returns ( empty );
+    rpc ping( ping_req ) returns ( ping_res );
 }
 
 message error_data {

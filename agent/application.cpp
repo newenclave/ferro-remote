@@ -60,6 +60,15 @@ namespace fr { namespace agent {
             app_->quit( );
         }
 
+        void ping( ::google::protobuf::RpcController* controller,
+                   const ::fr::proto::ping_req* request,
+                   ::fr::proto::ping_res* response,
+                   ::google::protobuf::Closure* done) override
+        {
+            // do nothing!
+            vcomm::closure_holder holder(done);
+        }
+
         static const std::string &name( )
         {
             return fr::proto::internal::descriptor( )->full_name( );
