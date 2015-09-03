@@ -1,0 +1,5 @@
+
+package fr.proto.spi;
+
+option cc_generic_services = true;
+
