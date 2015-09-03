@@ -1,6 +1,7 @@
 
 #include "application.h"
 #include "subsys-os.h"
+#include "subsys-log.h"
 
 #include "protocol/os.pb.h"
 #include "vtrc-common/vtrc-closure-holder.h"
@@ -8,6 +9,13 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+
+
+#define LOG(lev) log_(lev) << "[os] "
+#define LOGINF   LOG(logger::info)
+#define LOGDBG   LOG(logger::debug)
+#define LOGERR   LOG(logger::error)
+#define LOGWRN   LOG(logger::warning)
 
 namespace fr { namespace agent { namespace subsys {
 
@@ -62,9 +70,11 @@ namespace fr { namespace agent { namespace subsys {
     struct os::impl {
 
         application  *app_;
+        logger       &log_;
 
         impl( application *app )
             :app_(app)
+            ,log_(app_->subsystem<subsys::log>( ).get_logger( ))
         { }
     };
 
@@ -99,11 +109,13 @@ namespace fr { namespace agent { namespace subsys {
     {
         impl_->app_->register_service_creator(
                     os_proto_impl::name( ), create_service );
+        impl_->LOGINF << "Started.";
     }
 
     void os::stop( )
     {
         impl_->app_->unregister_service_creator( os_proto_impl::name( ) );
+        impl_->LOGINF << "Stopped.";
     }
 
 

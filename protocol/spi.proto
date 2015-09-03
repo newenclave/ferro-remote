@@ -3,3 +3,8 @@ package fr.proto.spi;
 
 option cc_generic_services = true;
 
+message empty { }
+
+service instance {
+    rpc test(empty) returns (empty);
+}

@@ -50,7 +50,7 @@ def source_file( ):
     """
 #include "application.h"
 #include "subsys-%ss-name%.h"
-#include "subsystem-log.h"
+#include "subsys-log.h"
 
 //#include "vtrc-memory.h"
 
