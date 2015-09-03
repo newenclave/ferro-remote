@@ -73,7 +73,7 @@ namespace fr { namespace client { namespace interfaces { namespace i2c {
             void close_impl( )
             {
                 try {
-                    i2cproto::handle req;
+                    proto::handle req;
                     req.set_value( hdl_ );
                     client_.call_request( &stub_type::close, &req );
                 } catch( ... ) { ;;; }
