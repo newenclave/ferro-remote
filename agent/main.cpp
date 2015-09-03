@@ -49,8 +49,9 @@ namespace {
 #endif
         app.add_subsystem<os>( );
         app.add_subsystem<fs>( );
-        app.add_subsystem<gpio>( );
         app.add_subsystem<i2c>( );
+        app.add_subsystem<spi>( );
+        app.add_subsystem<gpio>( );
         app.add_subsystem<reactor>( );
         app.add_subsystem<multicast>( );
 
