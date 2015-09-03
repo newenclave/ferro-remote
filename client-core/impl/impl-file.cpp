@@ -25,12 +25,12 @@ namespace fr { namespace client { namespace interfaces {
 
         const unsigned nw_flag  = vcomm::rpc_channel::DISABLE_WAIT;
 
-        fproto::handle open_file( client_type &cl, const std::string &path,
-                                  unsigned flags, unsigned mode,
-                                  bool as_device )
+        proto::handle open_file( client_type &cl, const std::string &path,
+                                 unsigned flags, unsigned mode,
+                                 bool as_device )
         {
             fproto::file_open_req req;
-            fproto::handle        res;
+            proto::handle         res;
             req.set_path( path );
             req.set_flags( flags );
             req.set_mode( mode );
@@ -40,11 +40,11 @@ namespace fr { namespace client { namespace interfaces {
             return res;
         }
 
-        fproto::handle open_file( client_type &cl, const std::string &path,
-                                  const std::string &mode, bool as_device )
+        proto::handle open_file( client_type &cl, const std::string &path,
+                                 const std::string &mode, bool as_device )
         {
             fproto::file_open_req req;
-            fproto::handle        res;
+            proto::handle         res;
             req.set_path( path );
             req.set_strmode( mode );
             req.set_as_device( as_device );
@@ -57,7 +57,7 @@ namespace fr { namespace client { namespace interfaces {
 
             core::client_core     &core_;
             mutable client_type    client_;
-            fproto::handle         hdl_;
+            proto::handle          hdl_;
 
             file_impl( core::client_core &ccore,
                        const std::string &path,

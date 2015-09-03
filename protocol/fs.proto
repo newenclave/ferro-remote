@@ -5,10 +5,6 @@ import "common.proto";
 
 option cc_generic_services = true;
 
-message handle {
-    optional uint32 value = 1;
-}
-
 message file_position {
     optional uint64 position = 1;
 }

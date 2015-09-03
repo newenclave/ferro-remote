@@ -292,7 +292,7 @@ namespace fr { namespace agent { namespace subsys {
             }
 
             void close(::google::protobuf::RpcController* /*controller*/,
-                         const ::fr::proto::gpio::handle* request,
+                         const ::fr::proto::handle*         request,
                          ::fr::proto::empty*              /*response*/,
                          ::google::protobuf::Closure* done) override
             {

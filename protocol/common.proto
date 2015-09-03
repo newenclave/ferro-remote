@@ -2,3 +2,7 @@
 package fr.proto;
 
 message empty { }
+
+message handle {
+    optional uint32 value = 1;
+}

@@ -59,7 +59,7 @@ namespace fr { namespace client { namespace interfaces {
             ~dir_iter_impl( )
             {
                 try {
-                    fproto::handle req;
+                    proto::handle req;
                     req.set_value( hdl_ );
                     client_.channel( )->set_flags( nw_flag );
                     client_.call_request( &stub_type::close, &req );
@@ -236,7 +236,7 @@ namespace filesystem {
             ~fs_impl( )
             {
                 try {
-                    fproto::handle req;
+                    proto::handle req;
                     req.set_value( hdl_ );
                     client_.call_request( &stub_type::close, &req );
 

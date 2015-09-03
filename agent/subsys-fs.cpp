@@ -458,7 +458,7 @@ namespace fr { namespace agent { namespace subsys {
             }
 
             void close(::google::protobuf::RpcController*   /*controller*/,
-                         const ::fr::proto::fs::handle*    request,
+                         const ::fr::proto::handle*         request,
                          ::fr::proto::empty*                /*response*/,
                          ::google::protobuf::Closure* done) override
             {
@@ -620,7 +620,7 @@ namespace fr { namespace agent { namespace subsys {
 
             void open(::google::protobuf::RpcController* /*controller*/,
                          const ::fr::proto::fs::file_open_req* request,
-                         ::fr::proto::fs::handle* response,
+                         ::fr::proto::handle*                  response,
                          ::google::protobuf::Closure* done ) override
             {
                 vcomm::closure_holder holder(done);
@@ -665,7 +665,7 @@ namespace fr { namespace agent { namespace subsys {
             }
 
             void tell(::google::protobuf::RpcController* /*controller*/,
-                         const ::fr::proto::fs::handle* request,
+                         const ::fr::proto::handle*      request,
                          ::fr::proto::fs::file_position* response,
                          ::google::protobuf::Closure* done) override
             {
@@ -756,7 +756,7 @@ namespace fr { namespace agent { namespace subsys {
             }
 
             void flush(::google::protobuf::RpcController* /*controller*/,
-                         const ::fr::proto::fs::handle* request,
+                         const ::fr::proto::handle*       request,
                          ::fr::proto::empty*              /*response*/,
                          ::google::protobuf::Closure* done) override
             {
@@ -841,7 +841,7 @@ namespace fr { namespace agent { namespace subsys {
             }
 
             void close(::google::protobuf::RpcController* /*controller*/,
-                         const ::fr::proto::fs::handle* request,
+                         const ::fr::proto::handle*       request,
                          ::fr::proto::empty*              /*response*/,
                          ::google::protobuf::Closure* done) override
             {

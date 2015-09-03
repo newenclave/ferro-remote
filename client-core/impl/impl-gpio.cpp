@@ -153,7 +153,7 @@ namespace fr { namespace client { namespace interfaces {
 
             void close_impl( )
             {
-                gproto::handle req;
+                proto::handle req;
                 req.set_value( ii_.hdl_ );
                 client_.call_request( &stub_type::close, &req );
             }
