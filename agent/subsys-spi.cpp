@@ -10,6 +10,7 @@
 
 #include "protocol/spi.pb.h"
 
+#include "vtrc-common/vtrc-closure-holder.h"
 #include "vtrc-memory.h"
 
 #define LOG(lev) log_(lev) << "[spi] "
@@ -38,6 +39,22 @@ namespace fr { namespace agent { namespace subsys {
                 :app_(app)
                 ,client_(client)
             { }
+
+            void open(::google::protobuf::RpcController* controller,
+                     const ::fr::proto::spi::open_req* request,
+                     ::fr::proto::spi::open_res* response,
+                     ::google::protobuf::Closure* done) override
+            {
+                vcomm::closure_holder holder(done);
+            }
+
+            void close(::google::protobuf::RpcController* /*controller*/,
+                     const ::fr::proto::handle*           request,
+                     ::fr::proto::empty*                  /*response*/,
+                     ::google::protobuf::Closure* done) override
+            {
+                vcomm::closure_holder holder(done);
+            }
 
             static const std::string &name( )
             {

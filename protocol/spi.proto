@@ -4,10 +4,16 @@ import "common.proto";
 
 option cc_generic_services = true;
 
-message handle {
-    optional uint32 value = 1;
+message open_req {
+    optional uint32 bus_id = 1;
+}
+
+message open_res {
+    optional handle hdl = 1;
 }
 
 service instance {
-    rpc test(empty) returns (empty);
+    rpc open (open_req) returns (open_res);
+    rpc close(handle)   returns (empty);
 }
+
