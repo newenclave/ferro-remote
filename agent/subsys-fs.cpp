@@ -459,7 +459,7 @@ namespace fr { namespace agent { namespace subsys {
 
             void close(::google::protobuf::RpcController*   /*controller*/,
                          const ::fr::proto::fs::handle*    request,
-                         ::fr::proto::fs::empty*         /*response*/,
+                         ::fr::proto::empty*                /*response*/,
                          ::google::protobuf::Closure* done) override
             {
                 vcomm::closure_holder holder(done);
@@ -757,7 +757,7 @@ namespace fr { namespace agent { namespace subsys {
 
             void flush(::google::protobuf::RpcController* /*controller*/,
                          const ::fr::proto::fs::handle* request,
-                         ::fr::proto::fs::empty* /*response*/,
+                         ::fr::proto::empty*              /*response*/,
                          ::google::protobuf::Closure* done) override
             {
                 vcomm::closure_holder holder(done);
@@ -832,7 +832,7 @@ namespace fr { namespace agent { namespace subsys {
 
             void unregister(::google::protobuf::RpcController* /*controller*/,
                          const ::fr::proto::fs::register_req* request,
-                         ::fr::proto::fs::empty*               /*response*/,
+                         ::fr::proto::empty*                   /*response*/,
                          ::google::protobuf::Closure* done) override
             {
                 vcomm::closure_holder holder(done);
@@ -842,7 +842,7 @@ namespace fr { namespace agent { namespace subsys {
 
             void close(::google::protobuf::RpcController* /*controller*/,
                          const ::fr::proto::fs::handle* request,
-                         ::fr::proto::fs::empty* /*response*/,
+                         ::fr::proto::empty*              /*response*/,
                          ::google::protobuf::Closure* done) override
             {
                 vcomm::closure_holder holder(done);

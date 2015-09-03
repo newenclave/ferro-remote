@@ -1,9 +1,12 @@
-
 package fr.proto.spi;
+
+import "common.proto";
 
 option cc_generic_services = true;
 
-message empty { }
+message handle {
+    optional uint32 value = 1;
+}
 
 service instance {
     rpc test(empty) returns (empty);

@@ -1,8 +1,9 @@
 
 package fr.proto;
-option cc_generic_services = true;
 
-message empty { }
+import "common.proto";
+
+option cc_generic_services = true;
 
 message ping_req {
     optional bytes payload = 1;

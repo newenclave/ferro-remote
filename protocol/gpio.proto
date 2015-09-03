@@ -1,13 +1,13 @@
 
 package fr.proto.gpio;
 
+import "common.proto";
+
 option cc_generic_services = true;
 
 message handle {
     optional uint32 value = 1;
 }
-
-message empty { }
 
 enum direction_type {
     DIRECT_IN   = 0;

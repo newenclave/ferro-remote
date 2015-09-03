@@ -21,6 +21,7 @@
 namespace fr { namespace agent { namespace subsys {
 
     namespace {
+
         const std::string subsys_name( "spi" );
 
         namespace vcomm = vtrc::common;

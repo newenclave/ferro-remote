@@ -254,7 +254,7 @@ namespace fr { namespace agent { namespace subsys {
 
             void send_log( ::google::protobuf::RpcController*  /*controller*/,
                            const ::fr::proto::logger::log_req* request,
-                           ::fr::proto::logger::empty*         /*response*/,
+                           ::fr::proto::empty*                 /*response*/,
                            ::google::protobuf::Closure* done ) override
             {
                 vcomm::closure_holder holder( done );
@@ -266,7 +266,7 @@ namespace fr { namespace agent { namespace subsys {
 
             void set_level(::google::protobuf::RpcController*   /*controller*/,
                          const ::fr::proto::logger::set_level_req* request,
-                         ::fr::proto::logger::empty*             /*response*/,
+                         ::fr::proto::empty*                    /*response*/,
                          ::google::protobuf::Closure* done) override
             {
                 vcomm::closure_holder holder( done );
@@ -277,7 +277,7 @@ namespace fr { namespace agent { namespace subsys {
             }
 
             void get_level(::google::protobuf::RpcController* /*controller*/,
-                         const ::fr::proto::logger::empty*    /*request*/,
+                         const ::fr::proto::empty*            /*request*/,
                          ::fr::proto::logger::get_level_res*  response,
                          ::google::protobuf::Closure* done) override
             {
@@ -303,7 +303,7 @@ namespace fr { namespace agent { namespace subsys {
             }
 
             void subscribe(::google::protobuf::RpcController* /*controller*/,
-                         const ::fr::proto::logger::empty*    /*request*/,
+                         const ::fr::proto::empty*            /*request*/,
                          ::fr::proto::logger::subscribe_res* response,
                          ::google::protobuf::Closure* done) override
             {
@@ -321,8 +321,8 @@ namespace fr { namespace agent { namespace subsys {
             }
 
             void unsubscribe(::google::protobuf::RpcController* /*controller*/,
-                         const ::fr::proto::logger::empty*      /*request*/,
-                         ::fr::proto::logger::empty*            /*response*/,
+                         const ::fr::proto::empty*      /*request*/,
+                         ::fr::proto::empty*            /*response*/,
                          ::google::protobuf::Closure* done) override
             {
                 vcomm::closure_holder holder( done );

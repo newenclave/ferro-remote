@@ -64,8 +64,8 @@ namespace fr { namespace agent { namespace subsys {
             }
 
             void ping(::google::protobuf::RpcController*    /*controller*/,
-                         const ::fr::proto::i2c::empty*     /*request*/,
-                         ::fr::proto::i2c::empty*           /*response*/,
+                         const ::fr::proto::empty*          /*request*/,
+                         ::fr::proto::empty*                /*response*/,
                          ::google::protobuf::Closure* done) override
             {
                 // does nothing
@@ -373,7 +373,7 @@ namespace fr { namespace agent { namespace subsys {
 
             void close(::google::protobuf::RpcController* /*controller*/,
                          const ::fr::proto::i2c::handle* request,
-                         ::fr::proto::i2c::empty*         /*response*/,
+                         ::fr::proto::empty*              /*response*/,
                          ::google::protobuf::Closure* done) override
             {
                 vcomm::closure_holder holder( done );

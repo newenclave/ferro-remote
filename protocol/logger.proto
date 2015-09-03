@@ -1,5 +1,6 @@
-
 package fr.proto.logger;
+
+import "common.proto";
 
 option cc_generic_services = true;
 
@@ -10,8 +11,6 @@ enum log_level {
     info    = 3;
     debug   = 4;
 }
-
-message empty { }
 
 message log_req {
     optional log_level level = 1;

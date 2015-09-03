@@ -1,6 +1,8 @@
 
 package fr.proto.fs;
 
+import "common.proto";
+
 option cc_generic_services = true;
 
 message handle {
@@ -10,8 +12,6 @@ message handle {
 message file_position {
     optional uint64 position = 1;
 }
-
-message empty { }
 
 // fs directory operations;
 message handle_path {
