@@ -66,44 +66,50 @@ namespace fr { namespace agent {
             }
 
             vtrc::int64_t seek( vtrc::int64_t offset,
-                                 seek_whence whence )
+                                 seek_whence whence ) override
             {
                 off_t res = lseek( fd_, static_cast<off_t>(offset), whence );
                 return lseek_ret( res );
             }
 
-            vtrc::int64_t tell( ) const
+            vtrc::int64_t tell( ) const override
             {
                 off_t res = lseek( fd_, 0, SEEK_CUR );
                 return lseek_ret( res );
             }
 
-            size_t write( const void *data, size_t length )
+            size_t write( const void *data, size_t length ) override
             {
                 ssize_t res = ::write( fd_, data, length );
                 errno_error::errno_assert( -1 != res, "write" );
                 return static_cast<size_t>(res);
             }
 
-            void ioctl( int code, unsigned long data )
+            void ioctl( int code, unsigned long data ) override
             {
                 int res = ::ioctl( fd_, code, data );
                 errno_error::errno_assert( res != -1, "ioctl" );
             }
 
-            size_t read( void *data, size_t length )
+            void ioctl( int code, void *data ) override
+            {
+                int res = ::ioctl( fd_, code, data );
+                errno_error::errno_assert( res != -1, "ioctl" );
+            }
+
+            size_t read( void *data, size_t length ) override
             {
                 ssize_t res = ::read( fd_, data, length );
                 errno_error::errno_assert( -1 != res, "read" );
                 return static_cast<size_t>(res);
             }
 
-            void flush( )
+            void flush( ) override
             {
                 syncfs( fd_ );
             }
 
-            int handle( ) const
+            int handle( ) const override
             {
                 return fd_;
             }
@@ -133,44 +139,50 @@ namespace fr { namespace agent {
             }
 
             vtrc::int64_t seek( vtrc::int64_t offset,
-                                 seek_whence whence )
+                                 seek_whence whence ) override
             {
                 off_t res = lseek( fd_, static_cast<off_t>(offset), whence );
                 return lseek_ret( res );
             }
 
-            vtrc::int64_t tell( ) const
+            vtrc::int64_t tell( ) const override
             {
                 off_t res = lseek( fd_, 0, SEEK_CUR );
                 return lseek_ret( res );
             }
 
-            size_t write( const void *data, size_t length )
+            size_t write( const void *data, size_t length ) override
             {
                 ssize_t res = ::write( fd_, data, length );
                 errno_error::errno_assert( -1 != res, "write" );
                 return static_cast<size_t>(res);
             }
 
-            void ioctl( int code, unsigned long data )
+            void ioctl( int code, unsigned long data ) override
             {
                 int res = ::ioctl( fd_, code, data );
                 errno_error::errno_assert( res != -1, "ioctl" );
             }
 
-            size_t read( void *data, size_t length )
+            void ioctl( int code, void *data ) override
+            {
+                int res = ::ioctl( fd_, code, data );
+                errno_error::errno_assert( res != -1, "ioctl" );
+            }
+
+            size_t read( void *data, size_t length ) override
             {
                 ssize_t res = ::read( fd_, data, length );
                 errno_error::errno_assert( -1 != res, "read" );
                 return static_cast<size_t>(res);
             }
 
-            void flush( )
+            void flush( ) override
             {
                 syncfs( fd_ );
             }
 
-            int handle( ) const
+            int handle( ) const override
             {
                 return fd_;
             }
@@ -196,7 +208,7 @@ namespace fr { namespace agent {
             }
 
             vtrc::int64_t seek( vtrc::int64_t /*offset*/,
-                                seek_whence   /*whence*/ )
+                                seek_whence   /*whence*/ ) override
             {
                 return 0;
             }
@@ -206,13 +218,19 @@ namespace fr { namespace agent {
                 return 0;
             }
 
-            void ioctl( int code, unsigned long data )
+            void ioctl( int code, unsigned long data ) override
             {
                 int res = ::ioctl( fd_, code, data );
                 errno_error::errno_assert( res != -1, "ioctl" );
             }
 
-            size_t write( const void *data, size_t length )
+            void ioctl( int code, void *data ) override
+            {
+                int res = ::ioctl( fd_, code, data );
+                errno_error::errno_assert( res != -1, "ioctl" );
+            }
+
+            size_t write( const void *data, size_t length ) override
             {
                 ssize_t res = ::write( fd_, data, length );
                 lseek( fd_, 0, SEEK_SET );
@@ -220,7 +238,7 @@ namespace fr { namespace agent {
                 return static_cast<size_t>(res);
             }
 
-            size_t read( void *data, size_t length )
+            size_t read( void *data, size_t length ) override
             {
                 ssize_t res = ::read( fd_, data, length );
                 lseek( fd_, 0, SEEK_SET );
@@ -228,12 +246,12 @@ namespace fr { namespace agent {
                 return static_cast<size_t>(res);
             }
 
-            void flush( )
+            void flush( ) override
             {
                 syncfs( fd_ );
             }
 
-            int handle( ) const
+            int handle( ) const override
             {
                 return fd_;
             }
@@ -257,23 +275,29 @@ namespace fr { namespace agent {
             }
 
             vtrc::int64_t seek( vtrc::int64_t /*offset*/,
-                                seek_whence   /*whence*/ )
+                                seek_whence   /*whence*/ ) override
             {
                 return 0;
             }
 
-            vtrc::int64_t tell( ) const
+            vtrc::int64_t tell( ) const override
             {
                 return 0;
             }
 
-            void ioctl( int code, unsigned long data )
+            void ioctl( int code, unsigned long data ) override
             {
                 int res = ::ioctl( fd_, code, data );
                 errno_error::errno_assert( res != -1, "ioctl" );
             }
 
-            size_t write( const void *data, size_t length )
+            void ioctl( int code, void *data ) override
+            {
+                int res = ::ioctl( fd_, code, data );
+                errno_error::errno_assert( res != -1, "ioctl" );
+            }
+
+            size_t write( const void *data, size_t length ) override
             {
                 ssize_t res = ::write( fd_, data, length );
                 lseek( fd_, 0, SEEK_SET );
@@ -281,7 +305,7 @@ namespace fr { namespace agent {
                 return static_cast<size_t>(res);
             }
 
-            size_t read( void *data, size_t length )
+            size_t read( void *data, size_t length ) override
             {
                 ssize_t res = ::read( fd_, data, length );
                 lseek( fd_, 0, SEEK_SET );
@@ -289,12 +313,12 @@ namespace fr { namespace agent {
                 return static_cast<size_t>(res);
             }
 
-            void flush( )
+            void flush( ) override
             {
                 syncfs( fd_ );
             }
 
-            int handle( ) const
+            int handle( ) const override
             {
                 return fd_;
             }

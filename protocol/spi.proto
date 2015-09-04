@@ -25,9 +25,19 @@ message setup_req {
 
 message setup_res { }
 
+message write_read_req {
+    optional handle hdl   = 1;
+    optional bytes  data  = 2;
+}
+
+message write_read_res {
+    optional bytes  data  = 2;
+}
+
 service instance {
-    rpc open  (open_req)    returns (open_res);
-    rpc setup (setup_req)   returns (setup_res);
-    rpc close (handle)      returns (empty);
+    rpc open       (open_req)        returns (open_res);
+    rpc setup      (setup_req)       returns (setup_res);
+    rpc write_read (write_read_req)  returns(write_read_res);
+    rpc close      (handle)          returns (empty);
 }
 
