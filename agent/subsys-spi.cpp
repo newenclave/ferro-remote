@@ -134,15 +134,13 @@ namespace fr { namespace agent { namespace subsys {
 
                 LOGDBG << name << ": was success opened.";
 
-                if( request->has_setup( ) ) {
-                    vtrc::uint32_t mode =  request->setup( ).mode( );
-                    vtrc::uint32_t speed = request->setup( ).speed( );
-                    LOGDBG << "Try to configure " << name
-                           << "; speed: " << speed
-                           << "; mode: " << mode
-                               ;
-                    setup_device( si.file_, speed, mode );
-                }
+                vtrc::uint32_t mode =  request->setup( ).mode( );
+                vtrc::uint32_t speed = request->setup( ).speed( );
+                LOGDBG << "Try to configure " << name
+                       << "; speed: " << speed
+                       << "; mode: " << mode
+                           ;
+                setup_device( si.file_, speed, mode );
 
                 /// all is success! hold the file
                 response->mutable_hdl( )->set_value( files_.set( si ) );

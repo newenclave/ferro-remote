@@ -132,7 +132,6 @@ namespace {
     }
 
     const struct luaL_Reg gpio_lib[ ] = {
-
          { "unexport",    &lcall_unexport       }
         ,{ "info",        &lcall_info           }
         ,{ "set",         &lcall_set            }

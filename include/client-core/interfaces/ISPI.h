@@ -15,11 +15,17 @@ namespace interfaces { namespace spi {
 
     struct iface: public interfaces::base {
         virtual ~iface( ) { }
+        virtual void close( ) const = 0;
     };
 
     typedef iface* iface_ptr;
 
-    iface_ptr create( core::client_core &cl );
+    iface_ptr create( core::client_core &cl,
+                      unsigned bus, unsigned channel,
+                      unsigned speed, unsigned mode );
+
+    iface_ptr create( core::client_core &cl, unsigned channel,
+                      unsigned speed, unsigned mode );
 
 }}}}
 

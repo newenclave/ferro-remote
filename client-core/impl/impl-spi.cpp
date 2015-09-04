@@ -15,34 +15,83 @@ namespace fr { namespace client { namespace interfaces {
         typedef vcomm::rpc_channel                           channel_type;
         typedef sproto::instance::Stub                       stub_type;
         typedef vcomm::stub_wrapper<stub_type, channel_type> client_type;
+        static const unsigned nw_flag = vcomm::rpc_channel::DISABLE_WAIT;
+
+        vtrc::uint32_t open_instance( client_type &cl, unsigned bus,
+                                      unsigned channel,
+                                      unsigned speed, unsigned mode )
+        {
+            sproto::open_req req;
+            sproto::open_res res;
+            req.set_bus( bus );
+            req.set_channel( channel );
+            req.mutable_setup( )->set_speed( speed );
+            req.mutable_setup( )->set_mode( mode );
+
+            cl.call( &stub_type::open, &req, &res );
+
+            return res.hdl( ).value( );
+        }
 
         class spi_impl: public spi::iface {
 
             mutable client_type client_;
+            vtrc::uint32_t      hdl_;
 
         public:
 
-            spi_impl( core::client_core &cl )
+            spi_impl( core::client_core &cl,
+                      unsigned bus, unsigned channel,
+                      unsigned speed, unsigned mode )
                 :client_(cl.create_channel( ), true)
+                ,hdl_(open_instance(client_, bus, channel, speed, mode))
             { }
 
-            vtrc::common::rpc_channel *channel( )
+            ~spi_impl( )
+            {
+                if( hdl_ != 0 ) try {
+                    client_.channel( )->set_flags( nw_flag );
+                    close_impl( );
+                } catch( ... ) {  }
+            }
+
+            vtrc::common::rpc_channel *channel( ) override
             {
                 return client_.channel( );
             }
 
-            const vtrc::common::rpc_channel *channel( ) const
+            const vtrc::common::rpc_channel *channel( ) const override
             {
                 return client_.channel( );
             }
 
+            void close_impl( ) const
+            {
+                proto::handle hdl;
+                hdl.set_value( hdl_ );
+                client_.call_request( &stub_type::close, &hdl );
+            }
+
+            void close( ) const override
+            {
+                close_impl( );
+            }
         };
     }
 
     namespace spi {
-        iface_ptr create( core::client_core &cl )
+
+        iface_ptr create( core::client_core &cl,
+                          unsigned bus, unsigned channel,
+                          unsigned speed, unsigned mode )
         {
-            return new spi_impl( cl );
+            return new spi_impl( cl, bus, channel, speed, mode );
+        }
+
+        iface_ptr create( core::client_core &cl, unsigned channel,
+                          unsigned speed, unsigned mode )
+        {
+            return create( cl, 0, channel, speed, mode );
         }
     }
 
