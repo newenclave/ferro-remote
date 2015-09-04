@@ -17,8 +17,8 @@ namespace fr { namespace client { namespace interfaces {
         typedef vcomm::stub_wrapper<stub_type, channel_type> client_type;
         static const unsigned nw_flag = vcomm::rpc_channel::DISABLE_WAIT;
 
-        vtrc::uint32_t open_instance( client_type &cl, unsigned bus,
-                                      unsigned channel,
+        vtrc::uint32_t open_instance( client_type &cl,
+                                      unsigned bus, unsigned channel,
                                       unsigned speed, unsigned mode )
         {
             sproto::open_req req;
