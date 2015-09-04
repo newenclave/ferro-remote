@@ -17,7 +17,6 @@
 #include "vtrc-common/vtrc-mutex-typedefs.h"
 #include "vtrc-server/vtrc-channels.h"
 
-
 #include "vtrc-atomic.h"
 #include "vtrc-common/vtrc-exception.h"
 
@@ -45,7 +44,6 @@ namespace fr { namespace agent { namespace subsys {
 
         int flags_to_native( vtrc::uint32_t value )
         {
-            int flags = 0;
             static const struct {
                 vtrc::uint32_t p;
                 mode_t         n;
@@ -64,6 +62,8 @@ namespace fr { namespace agent { namespace subsys {
 
             static
             const size_t value_size = sizeof(values_map)/sizeof(values_map[0]);
+
+            int flags = 0;
 
             for( size_t i=0; i<value_size; ++i ) {
                 if( value & values_map[i].p ) {
@@ -121,6 +121,10 @@ namespace fr { namespace agent { namespace subsys {
         using vtrc::server::channels::unicast::create_event_channel;
 
         typedef vtrc::shared_ptr<vcomm::rpc_channel> rpc_channel_sptr;
+
+        typedef vtrc::shared_ptr<agent::file_iface> file_sptr;
+        typedef vtrc::weak_ptr<agent::file_iface>   file_wptr;
+        typedef std::map<vtrc::uint32_t, file_sptr> file_map;
 
         class proto_fs_impl: public fr::proto::fs::instance {
 
@@ -539,11 +543,6 @@ namespace fr { namespace agent { namespace subsys {
 
         class proto_file_impl: public fr::proto::fs::file {
 
-            typedef vtrc::shared_ptr<agent::file_iface> file_sptr;
-            typedef vtrc::weak_ptr<agent::file_iface>   file_wptr;
-
-            typedef std::map<vtrc::uint32_t, file_sptr>  file_map;
-
             vcomm::connection_iface_wptr  client_;
             file_map                      files_;
             vtrc::shared_mutex            files_lock_;
@@ -618,10 +617,10 @@ namespace fr { namespace agent { namespace subsys {
                 return f->second;
             }
 
-            void open(::google::protobuf::RpcController* /*controller*/,
-                         const ::fr::proto::fs::file_open_req* request,
-                         ::fr::proto::handle*                  response,
-                         ::google::protobuf::Closure* done ) override
+            void open( ::google::protobuf::RpcController* /*controller*/,
+                       const ::fr::proto::fs::file_open_req* request,
+                       ::fr::proto::handle*                  response,
+                       ::google::protobuf::Closure* done ) override
             {
                 vcomm::closure_holder holder(done);
 

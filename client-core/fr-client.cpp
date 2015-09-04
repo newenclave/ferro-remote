@@ -105,7 +105,7 @@ namespace fr {  namespace client { namespace core {
 
             client_->on_init_error_connect(
                         vtrc::bind( &impl::on_init_error, this,
-                                       ph::_1, ph::_2 ) );
+                                     ph::_1, ph::_2 ) );
         }
 
         void on_init_error( const vtrc::rpc::errors::container & /*ec*/,

@@ -4,16 +4,30 @@ import "common.proto";
 
 option cc_generic_services = true;
 
+message setup_info {
+    optional uint32 speed   = 1;
+    optional uint32 mode    = 2;
+}
+
 message open_req {
-    optional uint32 bus_id = 1;
+    optional uint32     channel = 1;
+    optional setup_info setup   = 2;
 }
 
 message open_res {
     optional handle hdl = 1;
 }
 
+message setup_req {
+    optional handle     hdl   = 1;
+    optional setup_info setup = 2;
+}
+
+message setup_res { }
+
 service instance {
-    rpc open (open_req) returns (open_res);
-    rpc close(handle)   returns (empty);
+    rpc open  (open_req)    returns (open_res);
+    rpc setup (setup_req)   returns (setup_res);
+    rpc close (handle)      returns (empty);
 }
 
