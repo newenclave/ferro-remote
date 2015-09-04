@@ -171,12 +171,12 @@ namespace fr { namespace agent { namespace subsys {
                 char *data = &(*response->mutable_data( ))[0];
 
                 spi_ioc_transfer spi = {0};
-                spi.len           = request->data( ).size( );
-                spi.tx_buf        = reinterpret_cast<uint64_t>(data);
-                spi.rx_buf        = reinterpret_cast<uint64_t>(data);
-                spi.speed_hz      = si.speed_;
-                spi.delay_usecs   = spi_delay;
-                spi.bits_per_word = spi_BPW;
+                spi.len              = request->data( ).size( );
+                spi.tx_buf           = reinterpret_cast<uint64_t>(data);
+                spi.rx_buf           = reinterpret_cast<uint64_t>(data);
+                spi.speed_hz         = si.speed_;
+                spi.delay_usecs      = spi_delay;
+                spi.bits_per_word    = spi_BPW;
 
                 si.file_->ioctl( SPI_IOC_MESSAGE(1), &spi );
             }
