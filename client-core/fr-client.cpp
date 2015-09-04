@@ -93,6 +93,7 @@ namespace fr {  namespace client { namespace core {
             :client_(vclient::vtrc_client::create(pp))
             ,cbi_(vtrc::make_shared<callbacks_info>( ))
         {
+            namespace ph = vtrc::placeholders;
             client_->on_connect_connect(
                         vtrc::bind( &impl::on_connect, this ) );
 
@@ -104,8 +105,7 @@ namespace fr {  namespace client { namespace core {
 
             client_->on_init_error_connect(
                         vtrc::bind( &impl::on_init_error, this,
-                                     vtrc::placeholders::_1,
-                                     vtrc::placeholders::_2 ) );
+                                       ph::_1, ph::_2 ) );
         }
 
         void on_init_error( const vtrc::rpc::errors::container & /*ec*/,
