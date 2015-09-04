@@ -7,16 +7,30 @@
 
 #include "client-core/fr-client.h"
 
+#include "vtrc-chrono.h"
+
 namespace fr { namespace client { namespace interfaces {
 
     namespace {
+
         namespace vcomm  = vtrc::common;
+        namespace chrono = vtrc::chrono;
+
+        typedef chrono::high_resolution_clock     high_resolution_clock;
+        typedef high_resolution_clock::time_point time_point;
 
         typedef vcomm::rpc_channel                           channel_type;
         typedef proto::internal::Stub                        stub_type;
         typedef vcomm::stub_wrapper<stub_type, channel_type> client_type;
 
         const unsigned no_wait_flags = vcomm::rpc_channel::DISABLE_WAIT;
+
+        size_t get_micro( const time_point &f, const time_point &l )
+        {
+            return chrono::duration_cast<
+                        chrono::microseconds
+                   >( l - f ).count( );
+        }
 
         struct internal_impl: public internal::iface {
 
@@ -28,12 +42,12 @@ namespace fr { namespace client { namespace interfaces {
                 client_.channel( )->set_flags( no_wait_flags );
             }
 
-            vtrc::common::rpc_channel *channel( )
+            vtrc::common::rpc_channel *channel( ) override
             {
                 return client_.channel( );
             }
 
-            const vtrc::common::rpc_channel *channel( ) const
+            const vtrc::common::rpc_channel *channel( ) const override
             {
                 return client_.channel( );
             }
@@ -43,9 +57,12 @@ namespace fr { namespace client { namespace interfaces {
                 client_.call( &stub_type::exit_process );
             }
 
-            void ping( ) const override
+            size_t ping( ) const override
             {
+                time_point start = high_resolution_clock::now( );
                 client_.call( &stub_type::ping );
+                time_point stop = high_resolution_clock::now( );
+                return get_micro( stop, start );
             }
         };
     }

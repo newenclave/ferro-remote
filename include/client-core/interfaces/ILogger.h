@@ -4,6 +4,7 @@
 #include <string>
 #include <functional>
 #include <stdint.h>
+#include "IBaseIface.h"
 
 namespace fr { namespace client {
 
@@ -42,7 +43,7 @@ namespace interfaces { namespace logger {
             void ( log_level, uint64_t microsec, const std::string & )
     > on_write_callback;
 
-    struct iface {
+    struct iface: public interfaces::base {
         virtual ~iface( ) { }
         virtual void set_level( log_level lvl ) const = 0;
         virtual log_level get_level( ) const = 0;

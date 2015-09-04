@@ -14,7 +14,7 @@ namespace interfaces { namespace internal {
     struct iface: public interfaces::base {
         virtual ~iface( ) { }
         virtual void exit_process( ) const = 0;
-        virtual void ping( ) const = 0;
+        virtual size_t ping( ) const = 0;
     };
 
     typedef iface * iface_ptr;

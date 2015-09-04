@@ -57,6 +57,16 @@ namespace fr { namespace client { namespace interfaces {
             mutable client_type client_;
             channel_sptr        default_channel_;
 
+            vtrc::common::rpc_channel *channel( ) override
+            {
+                return client_.channel( );
+            }
+
+            const vtrc::common::rpc_channel *channel( ) const override
+            {
+                return client_.channel( );
+            }
+
         public:
 
             logger_impl( core::client_core &cl )

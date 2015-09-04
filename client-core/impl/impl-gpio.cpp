@@ -141,12 +141,12 @@ namespace fr { namespace client { namespace interfaces {
                 } catch( ... ) {  }
             }
 
-            vtrc::common::rpc_channel *channel( )
+            vtrc::common::rpc_channel *channel( ) override
             {
                 return client_.channel( );
             }
 
-            const vtrc::common::rpc_channel *channel( ) const
+            const vtrc::common::rpc_channel *channel( ) const override
             {
                 return client_.channel( );
             }
