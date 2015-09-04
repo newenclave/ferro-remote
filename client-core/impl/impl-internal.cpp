@@ -1,3 +1,4 @@
+#include <iostream>
 #include "client-core/interfaces/IInternal.h"
 
 #include "protocol/ferro.pb.h"
@@ -62,7 +63,7 @@ namespace fr { namespace client { namespace interfaces {
                 time_point start = high_resolution_clock::now( );
                 client_.call( &stub_type::ping );
                 time_point stop = high_resolution_clock::now( );
-                return get_micro( stop, start );
+                return get_micro( start, stop );
             }
         };
     }

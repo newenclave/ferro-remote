@@ -10,8 +10,9 @@ message setup_info {
 }
 
 message open_req {
-    optional uint32     channel = 1;
-    optional setup_info setup   = 2;
+    optional uint32     bus     = 1;
+    optional uint32     channel = 2;
+    optional setup_info setup   = 3;
 }
 
 message open_res {

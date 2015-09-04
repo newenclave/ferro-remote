@@ -15,6 +15,9 @@
 #include "boost/system/error_code.hpp"
 #include "boost/asio.hpp"
 
+#include "interfaces/IInternal.h"
+#include "vtrc-memory.h"
+
 namespace fr { namespace lua { namespace client {
 
     namespace {
@@ -146,6 +149,7 @@ namespace fr { namespace lua { namespace client {
         {
             objects::table_sptr res(common_table(info, main));
             main.add( "connect",    new_function( &lua_call_connect ) );
+            main.add( "ping",       new_function( &lua_call_ping ) );
             main.add( "disconnect", new_function( &lua_call_disconnect ) );
             main.add( "connected",  new_boolean( true ) );
 
@@ -226,6 +230,24 @@ namespace fr { namespace lua { namespace client {
         vcomm::hash_iface_uptr s(vcomm::hash::sha2::create256( ));
         std::string hs(s->get_data_hash( &key_info[0], key_info.size( ) ));
         return hs;
+    }
+
+    int lua_call_ping( lua_State *L )
+    {
+        general_info *info = get_gen_info( L );
+        lua::state ls(L);
+        namespace iproto = fr::client::interfaces::internal;
+        typedef iproto::iface iface_type;
+        vtrc::unique_ptr<iface_type> i;
+        try {
+            i.reset( iproto::create( *info->client_core_ ) );
+            ls.push( i->ping( ) );
+        } catch( const std::exception &ex ) {
+            ls.push( );
+            ls.push( ex.what( ) );
+            return 2;
+        }
+        return 1;
     }
 
     int lua_call_connect( lua_State *L )

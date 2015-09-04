@@ -54,17 +54,24 @@ namespace fr { namespace agent { namespace subsys {
             { }
         };
 
-        const char *s_channels[2] = { "/dev/spidev0.0", "/dev/spidev0.1" };
-        const uint8_t   spi_BPW   = 8 ;
-        const uint16_t  spi_delay = 0 ;
+        //const char *s_channels[2] = { "/dev/spidev0.0", "/dev/spidev0.1" };
+        const uint8_t   spi_BPW   = 8;
+        const uint16_t  spi_delay = 0;
 
-        typedef agent::index_map<spi_info>         file_map;
+        typedef agent::index_map<spi_info>  file_map;
 
         // typedef proto::events::Stub stub_type;
 
         using vtrc::server::channels::unicast::create_event_channel;
 
         typedef vtrc::shared_ptr<vcomm::rpc_channel> rpc_channel_sptr;
+
+        std::string make_spi_name( unsigned bus, unsigned channel )
+        {
+            std::ostringstream oss;
+            oss << "/dev/spidev" << bus << "." << channel;
+            return oss.str( );
+        }
 
         void setup_device( file_sptr f, vtrc::uint32_t speed,
                                         vtrc::uint32_t mode )
@@ -116,12 +123,17 @@ namespace fr { namespace agent { namespace subsys {
                      ::google::protobuf::Closure* done) override
             {
                 vcomm::closure_holder holder(done);
-                const char *name = s_channels[request->channel( ) & 1];
+
+                std::string name = make_spi_name( request->bus( ),
+                                                  request->channel( ) );
 
                 LOGDBG << "Try to open " << name << "...";
+
                 spi_info si;
-                si.file_.reset( agent::file::create(name, O_RDWR) );
-                LOGDBG << name << ": success";
+                si.file_.reset( agent::file::create( name, O_RDWR ) );
+
+                LOGDBG << name << ": was success opened.";
+
                 if( request->has_setup( ) ) {
                     vtrc::uint32_t mode =  request->setup( ).mode( );
                     vtrc::uint32_t speed = request->setup( ).speed( );
