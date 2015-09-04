@@ -16,6 +16,8 @@ namespace interfaces { namespace spi {
     struct iface: public interfaces::base {
         virtual ~iface( ) { }
         virtual void close( ) const = 0;
+        virtual void setup( unsigned speed, unsigned mode ) const = 0;
+        virtual void write_read( unsigned char *data, size_t len ) const = 0;
     };
 
     typedef iface* iface_ptr;
