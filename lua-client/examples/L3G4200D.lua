@@ -15,7 +15,9 @@ R_yH = 0x2B
 R_zL = 0x2C
 R_zH = 0x2D
 
-read_xyz_data = { R_xL, R_xH, R_yL, R_yH, R_zL, R_zH }
+R_Temp = 0x26
+
+read_xyz_data = { R_xL, R_xH, R_yL, R_yH, R_zL, R_zH, R_Temp }
 
 L3G4200D = { }
 
@@ -46,7 +48,8 @@ L3G4200D.read_xyz = function( self )
     local res = assert(self.i:read_bytes( read_xyz_data ))
     return { x = res[R_xH] << 8 | res[R_xL],
              y = res[R_yH] << 8 | res[R_yL],
-             z = res[R_zH] << 8 | res[R_zL] }
+             z = res[R_zH] << 8 | res[R_zL], 
+             t = res[R_Temp] }
 end
 
 function show_values( err, dev )
@@ -54,7 +57,7 @@ function show_values( err, dev )
         local values = dev:read_xyz( )
 	print( "X:", values.x, 
                "Y:", values.y, 
-               "Z:", values.z )
+               "Z:", values.z, "T: ", values.t )
 	eqt.post( show_values, {milli=100}, dev )
     else 
 	fr.exit(err)
