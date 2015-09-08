@@ -6,38 +6,18 @@ device_address	= 0x69
 ctrl_regs	= { 0x20, 0x21, 0x22, 0x23, 0x24 }
 scale_values	= { [250]=0, [500]=16, [2000]=48 }
 
-R_xLSB = 0x28
-R_xMSB = 0x29
+R_xL = 0x28
+R_xH = 0x29
 
-R_yLSB = 0x2A
-R_yMSB = 0x2B
+R_yL = 0x2A
+R_yH = 0x2B
 
-R_zLSB = 0x2C
-R_zMSB = 0x2D
+R_zL = 0x2C
+R_zH = 0x2D
 
-read_xyz_data = { R_xLSB, R_xMSB, R_yLSB, R_yMSB, R_zLSB, R_zMSB }
+read_xyz_data = { R_xL, R_xH, R_yL, R_yH, R_zL, R_zH }
 
 L3G4200D = { }
-
-L3G4200D.setup = function( self, scale ) 
-    -- setup table for write
-    local data = { 
-	[ctrl_regs[1]] = 15,
-	[ctrl_regs[2]] =  0,
-	[ctrl_regs[3]] =  8,
-	[ctrl_regs[4]] = scale_values[scale],
-	[ctrl_regs[5]] =  0 
-    }
-    -- write registry
-    assert(self.i:write_bytes(data))
-end
-
-L3G4200D.read_xyz = function( self )
-    local res = assert(self.i:read_bytes( read_xyz_data ))
-    return { x = res[R_xMSB] << 8 | res[R_xLSB],
-             y = res[R_yMSB] << 8 | res[R_yLSB],
-             z = res[R_zMSB] << 8 | res[R_zLSB] }
-end
 
 L3G4200D.new = function( ) 
     inst = { }
@@ -47,6 +27,26 @@ L3G4200D.new = function( )
     inst.i = assert(i2c.open( 1, device_address ))
     setmetatable( inst, L3G4200D )
     return inst
+end
+
+L3G4200D.setup = function( self, scale ) 
+    -- setup table for write
+    local data = { 
+	[ctrl_regs[1]] = 15, -- 00001111 PD, X, Y, Z
+	[ctrl_regs[2]] =  0, --  Normal mode (default)
+	[ctrl_regs[3]] =  8, -- Date Ready on DRDY/INT2.
+	[ctrl_regs[4]] = scale_values[scale],
+	[ctrl_regs[5]] =  0 -- default here
+    }
+    -- write registry
+    assert(self.i:write_bytes(data))
+end
+
+L3G4200D.read_xyz = function( self )
+    local res = assert(self.i:read_bytes( read_xyz_data ))
+    return { x = res[R_xH] << 8 | res[R_xL],
+             y = res[R_yH] << 8 | res[R_yL],
+             z = res[R_zH] << 8 | res[R_zL] }
 end
 
 function show_values( err, dev )
