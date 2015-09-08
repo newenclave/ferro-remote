@@ -35,7 +35,7 @@ L3G4200D.setup = function( self, scale )
     -- setup table for write
     local data = { 
 	[ctrl_regs[1]] = 15, -- 00001111 PD, X, Y, Z
-	[ctrl_regs[2]] =  0, --  Normal mode (default)
+	[ctrl_regs[2]] =  0, -- Normal mode (default)
 	[ctrl_regs[3]] =  8, -- Date Ready on DRDY/INT2.
 	[ctrl_regs[4]] = scale_values[scale],
 	[ctrl_regs[5]] =  0 -- default here
