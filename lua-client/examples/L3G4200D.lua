@@ -57,8 +57,9 @@ function show_values( err, dev )
         local values = dev:read_xyz( )
 	print( "X:", values.x, 
                "Y:", values.y, 
-               "Z:", values.z, "T: ", values.t )
-	eqt.post( show_values, {milli=100}, dev )
+               "Z:", values.z, 
+               "T:", values.t )
+	eqt.post( show_values, {milli=50}, dev )
     else 
 	fr.exit(err)
     end
