@@ -1,4 +1,5 @@
 #include <map>
+#include <iostream>
 
 #include "iface.h"
 #include "../fr-lua.h"
@@ -539,6 +540,7 @@ namespace {
             if( next->count( ) >= 2 ) {
                 const objects::base * id  = next->at( 0 );
                 const objects::base * val = next->at( 1 );
+                //std::cout << id->num( ) << " = " << val->num( ) << "\n";
                 res.push_back(
                     std::make_pair(
                         static_cast<uint8_t>( id->num( ) ),
