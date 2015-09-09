@@ -49,6 +49,16 @@ grove_lcd_rgb.write = function( self, txt )
     end
 end
 
+function next_char( err, b, dev )
+    dev:clr( )
+    dev.txt:write_bytes( {[0x40] = b} )
+    if b > 0 then 
+	eqt.post( next_char, {milli=500}, b - 1, dev )
+    else 
+	fr.exit( )
+    end
+end
+
 function set_color( err, R, G, B, dev )
     dev:set_color( R, G, B )
     local changed = false
@@ -74,12 +84,13 @@ function main( )
     local i = grove_lcd_rgb.new( )
     i:set_color( 255, 255, 100 ) 
     i:write( "Hello, grove\nSecond line" )
-    eqt.post( function( err, i ) 
-	  i:set_color( 0, 0, 0 ) 
-	  i:clr( )
-	  fr.exit( )  
-       end, 
-       {sec=5}, i )
+--   eqt.post( function( err, i ) 
+--         i:set_color( 0, 0, 0 ) 
+--         i:clr( )
+--         fr.exit( )  
+--      end, 
+--       {sec=5}, i )
+    next_char( nil, 255, i )
     -- set_color( nil, 255, 255, 255, i ) 
 end
 
