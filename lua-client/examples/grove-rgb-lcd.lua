@@ -53,9 +53,9 @@ function next_char( err, b, dev )
     dev:clr( )
     dev.txt:write_bytes( {[0x40] = b} )
     if b > 0 then 
-	eqt.post( next_char, {milli=500}, b - 1, dev )
+	eqt.post( next_char, {milli=1000}, b - 1, dev )
     else 
-	fr.exit( )
+	next_char( nil, 255, dev )
     end
 end
 
@@ -75,14 +75,14 @@ function set_color( err, R, G, B, dev )
     if changed then 
 	eqt.post( set_color, {milli=10}, R, G, B, dev )
     else 
-	fr.exit( )
+	eqt.post( set_color, {milli=10}, 255, 255, 255, dev )
     end
 end
 
 function main( )
     fr.run( )
     local i = grove_lcd_rgb.new( )
-    i:set_color( 255, 255, 100 ) 
+    i:set_color( 00, 255, 100 ) 
     i:write( "Hello, grove\nSecond line" )
 --   eqt.post( function( err, i ) 
 --         i:set_color( 0, 0, 0 ) 
@@ -91,6 +91,6 @@ function main( )
 --      end, 
 --       {sec=5}, i )
     next_char( nil, 255, i )
-    -- set_color( nil, 255, 255, 255, i ) 
+    set_color( nil, 255, 255, 255, i ) 
 end
 
