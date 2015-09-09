@@ -53,7 +53,7 @@ function next_char( err, b, dev )
     dev:clr( )
     dev.txt:write_bytes( {[0x40] = b} )
     if b > 0 then 
-	eqt.post( next_char, {milli=1000}, b - 1, dev )
+	eqt.post( next_char, {milli=500}, b - 1, dev )
     else 
 	next_char( nil, 255, dev )
     end
@@ -62,14 +62,14 @@ end
 function set_color( err, R, G, B, dev )
     dev:set_color( R, G, B )
     local changed = false
-    if R > 0 then 
-	R = R - 1
+    if B > 0 then 
+	B = B - 1
 	changed = true
     elseif G > 0 then 
 	G = G - 1
 	changed = true
-    elseif B > 0 then
-	B = B - 1
+    elseif R > 0 then
+	R = R - 1
 	changed = true
     end
     if changed then 
