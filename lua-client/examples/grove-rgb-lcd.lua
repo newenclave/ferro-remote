@@ -41,17 +41,22 @@ grove_lcd_rgb.write = function( self, txt )
     send_txt_cmd( 0x28 )
     for i = 1, string.len(txt) do 
 	local b = string.byte( txt, i )
-	send_txt( b )
+	if b == 0x0A then
+	    send_txt_cmd( 0xC0 )
+	else 
+	    send_txt( b )
+	end
     end
 end
 
 function main( )
     fr.run( )
     local i = grove_lcd_rgb.new( )
-    i:set_color( 255, 255, 255 ) 
-    i:write( "1" )
+    i:set_color( 255, 255, 100 ) 
+    i:write( "xyz?!\n1234567" )
     eqt.post( function( err, i ) 
 		  i:set_color( 0, 0, 0 ) 
+		  i:clr( )
 		  fr.exit( )  
 	      end, 
 	      {sec=5}, i )
