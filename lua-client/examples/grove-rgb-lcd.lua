@@ -29,9 +29,13 @@ grove_lcd_rgb.clr = function( self )
     assert(self.txt:write_bytes({[0x80] = 0x01}))
 end
 
+grove_lcd_rgb.control = function( self, byte )
+    assert(self.txt:write_bytes( {[0x80] = byte} ))
+end
+
 grove_lcd_rgb.write = function( self, txt )
     local send_txt_cmd = function( byte )
-	assert(self.txt:write_bytes( {[0x80] = byte} ))
+	self:control( byte )
     end
     local send_txt = function( byte )
 	assert(self.txt:write_bytes( {[0x40] = byte} ))
@@ -53,7 +57,7 @@ function next_char( err, b, dev )
     dev:clr( )
     dev.txt:write_bytes( {[0x40] = b} )
     if b > 0 then 
-	eqt.post( next_char, {milli=500}, b - 1, dev )
+	eqt.post( next_char, {milli=50}, b - 1, dev )
     else 
 	next_char( nil, 255, dev )
     end
@@ -62,11 +66,11 @@ end
 function set_color( err, R, G, B, dev )
     dev:set_color( R, G, B )
     local changed = false
-    if B > 0 then 
-	B = B - 1
+    if R > 0 then 
+	R = R - 1
 	changed = true
-    elseif G > 0 then 
-	G = G - 1
+    elseif B > 0 then 
+	B = B - 1
 	changed = true
     elseif R > 0 then
 	R = R - 1
