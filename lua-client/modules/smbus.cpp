@@ -524,12 +524,13 @@ namespace {
 ///
 
     template <typename T>
-    std::vector <
-        std::pair<uint8_t, T>
-    > create_cmd_params( lua_State *L, int id )
+    using pair_vector8 = std::vector <std::pair<uint8_t, T> >;
+
+    template <typename T>
+    pair_vector8<T> create_cmd_params( lua_State *L, int id )
     {
         lua::state ls( L );
-        typedef std::vector< std::pair<uint8_t, T> > pair_vector;
+        typedef pair_vector8<T> pair_vector;
 
         pair_vector res;
 

@@ -84,7 +84,7 @@ function set_color( err, R, G, B, dev )
 end
 
 function main( )
-    --fr.run( )
+    fr.run( )
     local i = grove_lcd_rgb.new( )
     i:set_color( 0, 0, 0 ) 
     i:write( "Hello, grove\nSecond line" )
@@ -94,7 +94,7 @@ function main( )
 --         fr.exit( )  
 --      end, 
 --       {sec=5}, i )
-    --next_char( nil, 255, i )
-    --set_color( nil, 255, 255, 255, i ) 
+    next_char( nil, 255, i )
+    set_color( nil, 255, 255, 255, i ) 
 end
 
