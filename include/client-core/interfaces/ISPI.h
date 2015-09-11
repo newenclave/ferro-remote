@@ -22,11 +22,11 @@ namespace interfaces { namespace spi {
 
     typedef iface* iface_ptr;
 
-    iface_ptr create( core::client_core &cl,
+    iface_ptr open( core::client_core &cl,
                       unsigned bus, unsigned channel,
                       unsigned speed, unsigned mode );
 
-    iface_ptr create( core::client_core &cl, unsigned channel,
+    iface_ptr open( core::client_core &cl, unsigned channel,
                       unsigned speed, unsigned mode );
 
 }}}}

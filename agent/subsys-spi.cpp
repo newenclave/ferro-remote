@@ -268,11 +268,14 @@ namespace fr { namespace agent { namespace subsys {
 
     void spi::start( )
     {
+        impl_->app_->register_service_creator(
+                     proto_impl::name( ), create_service );
         impl_->LOGINF << "Started.";
     }
 
     void spi::stop( )
     {
+        impl_->app_->unregister_service_creator( proto_impl::name( ) );
         impl_->LOGINF << "Stopped.";
     }
 

@@ -100,17 +100,17 @@ namespace fr { namespace client { namespace interfaces {
 
     namespace spi {
 
-        iface_ptr create( core::client_core &cl,
+        iface_ptr open( core::client_core &cl,
                           unsigned bus, unsigned channel,
                           unsigned speed, unsigned mode )
         {
             return new spi_impl( cl, bus, channel, speed, mode );
         }
 
-        iface_ptr create( core::client_core &cl, unsigned channel,
+        iface_ptr open( core::client_core &cl, unsigned channel,
                           unsigned speed, unsigned mode )
         {
-            return create( cl, 0, channel, speed, mode );
+            return open( cl, 0, channel, speed, mode );
         }
     }
 

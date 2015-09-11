@@ -7,6 +7,7 @@
 #include "interfaces/ISPI.h"
 
 #include "../utils.h"
+#include "../event-container.h"
 
 namespace fr { namespace lua { namespace m { namespace spi {
 
@@ -58,6 +59,7 @@ namespace {
         return 1;
     }
 
+    int lcall_open ( lua_State *L );
     int lcall_close( lua_State *L );
 
     const struct luaL_Reg spi_lib[ ] = {
@@ -126,6 +128,34 @@ namespace {
             }
         }
 
+        size_t next_handle(  )
+        {
+            return info_.eventor_->next_index( );
+        }
+
+        utils::handle new_dev( unsigned bus_id,
+                               unsigned channel, unsigned speed,
+                               unsigned mode)
+        {
+            size_t nh = next_handle( );
+            dev_sptr r( ispi::open( *info_.client_core_,
+                                     bus_id, channel, speed, mode ));
+            devs_[nh] = r;
+            return utils::to_handle( nh );
+        }
+
+        meta_object *push_object( lua_State *L, utils::handle hdl )
+        {
+            void *ud = lua_newuserdata( L, sizeof(meta_object) );
+            meta_object *nfo = static_cast<meta_object *>(ud);
+            if( nfo ) {
+                luaL_getmetatable( L, meta_name );
+                lua_setmetatable(L, -2);
+                nfo->hdl_ = hdl;
+            }
+            return nfo;
+        }
+
         void deinit( )
         {
             devs_.clear( );
@@ -139,9 +169,89 @@ namespace {
         std::shared_ptr<objects::table> table( ) const
         {
             objects::table_sptr res(std::make_shared<objects::table>( ));
+
+            res->add( "open", new_function( &lcall_open ) );
+
             return res;
         }
     };
+
+    inline bool is_number( const objects::base *o )
+    {
+        return o->type_id( ) == objects::base::TYPE_NUMBER;
+    }
+
+    inline bool is_string( const objects::base *o )
+    {
+        return o->type_id( ) == objects::base::TYPE_STRING;
+    }
+
+    int lcall_open( lua_State *L )
+    {
+        module *m = get_module( L );
+        lua::state ls(L);
+
+        unsigned bus   = 0;
+        unsigned chan  = 0;
+        unsigned speed = 500000;
+        unsigned mode  = 0;
+        try {
+            auto t = ls.get_type( 1 );
+            if( t == base::TYPE_TABLE ) {
+                auto tobj = ls.get_object( 1 );
+                for( size_t i=0; i<tobj->count( ); i++ ) {
+                    auto p(tobj->at(i));
+                    auto f(p->at(0));
+                    auto s(p->at(1));
+
+                    if( is_number( s ) ) {
+                        if( is_number( f ) ) {
+                            switch( static_cast<unsigned>(f->num( )) ) {
+                            case 1:
+                                bus   = static_cast<unsigned>(s->num( ));
+                                break;
+                            case 2:
+                                chan = static_cast<unsigned>(s->num( ));
+                                break;
+                            case 3:
+                                speed = static_cast<unsigned>(s->num( ));
+                                break;
+                            case 4:
+                                mode = static_cast<unsigned>(s->num( ));
+                                break;
+                            }
+                        } else if( is_string( f ) ) {
+                            std::string name(f->str( ));
+                            /// TODO: fix it
+                            if( !name.compare( "bus" ) ) {
+                                bus   = static_cast<unsigned>(s->num( ));
+                            } else if( !name.compare( "channel" ) ) {
+                                chan = static_cast<unsigned>(s->num( ));
+                            } else if( !name.compare( "chan" ) ) {
+                                chan = static_cast<unsigned>(s->num( ));
+                            } else if( !name.compare( "speed" ) ) {
+                                speed = static_cast<unsigned>(s->num( ));
+                            } else if( !name.compare( "mode" ) ) {
+                                mode = static_cast<unsigned>(s->num( ));
+                            }
+                        }
+                    }
+                }
+            } else {
+                bus   = ls.get_opt<unsigned>( 1, 0 );
+                chan  = ls.get_opt<unsigned>( 2, 1 );
+                speed = ls.get_opt<unsigned>( 3, 500000 );
+                mode  = ls.get_opt<unsigned>( 4, 0 );
+            }
+            m->push_object( L, m->new_dev( bus, chan, speed, mode ) );
+        } catch( const std::exception &ex ) {
+            ls.push( );
+            ls.push( ex.what( ) );
+            return 2;
+        }
+
+        return 1;
+    }
 
     int lcall_close( lua_State *L )
     {
