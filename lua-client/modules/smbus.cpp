@@ -19,8 +19,11 @@ namespace {
     namespace siface = fr::client::interfaces::i2c;
     typedef siface::iface siface_type;
 
-    typedef std::shared_ptr<siface::iface> dev_sptr;
-    typedef std::map<size_t, dev_sptr>     dev_map;
+    using dev_sptr = std::shared_ptr<siface::iface>;
+    using dev_map = std::map<size_t, dev_sptr>;
+
+    template <typename T>
+    using pair_vector8 = std::vector <std::pair<uint8_t, T> >;
 
     static const unsigned slave_invalid = siface::I2C_SLAVE_INVALID_ADDRESS;
 
@@ -524,9 +527,6 @@ namespace {
 ///
 
     template <typename T>
-    using pair_vector8 = std::vector <std::pair<uint8_t, T> >;
-
-    template <typename T>
     pair_vector8<T> create_cmd_params( lua_State *L, int id )
     {
         lua::state ls( L );
@@ -569,8 +569,8 @@ namespace {
     template <typename T, typename CallType, typename CallListType>
     int lcall_read_impl( CallType call, CallListType calllist, lua_State *L )
     {
-        typedef std::vector< std::pair<uint8_t, T> > pair_vector;
-        typedef std::vector<uint8_t>                 data_vector;
+        using pair_vector = pair_vector8<T>;
+        using data_vector = std::vector<uint8_t>;
 
         lua::state ls( L );
         module * m = get_module( L );
@@ -613,7 +613,7 @@ namespace {
     template <typename T, typename CallType, typename CallListType>
     int lcall_write_impl( CallType call, CallListType calllist, lua_State *L )
     {
-        typedef std::vector< std::pair<uint8_t, T> > pair_vector;
+        using pair_vector = pair_vector8<T>;
 
         lua::state ls( L );
         module * m = get_module( L );
@@ -626,7 +626,7 @@ namespace {
                 unsigned cmd  = ls.get_opt<unsigned>( 2 );
                 unsigned data = ls.get_opt<unsigned>( 3 );
                 (m->get_bus( h ).get( )->*call)( static_cast<uint8_t>( cmd ),
-                                               static_cast<T>( data ) );
+                                                 static_cast<T>( data ) );
                 ls.push( true );
             } else if( LUA_TTABLE == t ) {
                 pair_vector tab = create_cmd_params<T>( L, 2 );
