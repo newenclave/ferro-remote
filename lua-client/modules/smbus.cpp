@@ -17,13 +17,12 @@ namespace {
 
     using namespace objects;
     namespace siface = fr::client::interfaces::i2c;
-    typedef siface::iface siface_type;
-
-    using dev_sptr = std::shared_ptr<siface::iface>;
-    using dev_map = std::map<size_t, dev_sptr>;
 
     template <typename T>
-    using pair_vector8 = std::vector <std::pair<uint8_t, T> >;
+    using pair_vector8  = std::vector <std::pair<uint8_t, T> >;
+    using siface_type   = siface::iface;
+    using dev_sptr      = std::shared_ptr<siface::iface>;
+    using dev_map       = std::map<size_t, dev_sptr>;
 
     static const unsigned slave_invalid = siface::I2C_SLAVE_INVALID_ADDRESS;
 
