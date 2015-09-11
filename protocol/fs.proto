@@ -164,6 +164,12 @@ enum file_position_whence {
     POS_SEEK_END  = 2;
 }
 
+message file_custom_position {
+    optional int64   position = 1;
+    optional uint32  whence   = 2;
+    optional bool    set_back = 3;
+}
+
 message file_set_position {
     optional handle  hdl      = 1;
     optional int64   position = 2;
@@ -171,9 +177,10 @@ message file_set_position {
 }
 
 message file_data_block {
-    optional handle  hdl     = 1;
-    optional bytes   data    = 2;
-    optional uint32  length  = 3;
+    optional handle  hdl                   = 1;
+    optional bytes   data                  = 2;
+    optional uint32  length                = 3;
+    optional file_custom_position cust_pos = 4;
 }
 
 message ioctl_req {
@@ -189,7 +196,7 @@ message register_req {
 }
 
 message register_res {
-    optional uint32  async_op_id  = 1;
+    optional uint32 async_op_id = 1;
 }
 
 // files operations

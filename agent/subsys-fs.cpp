@@ -719,6 +719,14 @@ namespace fr { namespace agent { namespace subsys {
                 file_sptr f(get_file( request->hdl( ).value( ) ));
                 size_t max_block = request->length( );
 
+                vtrc::uint64_t pos = 0;
+
+                if( request->has_cust_pos( ) ) {
+                    pos = f->tell( );
+                    f->seek( request->cust_pos( ).position( ),
+                             value_to_enum(request->cust_pos( ).whence( )) );
+                }
+
                 if( max_block > 44000 ) { /// protocol violation
                     max_block = 44000;
                 }
@@ -729,8 +737,12 @@ namespace fr { namespace agent { namespace subsys {
 
                 std::vector<char> data(max_block);
                 size_t result = f->read( &data[0], max_block );
-                response->set_data( &data[0], result );
 
+                if( request->cust_pos( ).set_back( ) ) {
+                    f->seek( pos, agent::file_iface::F_SEEK_SET );
+                }
+
+                response->set_data( &data[0], result );
             }
 
             void write(::google::protobuf::RpcController* /*controller*/,
@@ -744,10 +756,24 @@ namespace fr { namespace agent { namespace subsys {
                 if( request->data( ).size( ) == 0 ) {
                     response->set_length( 0 );
                 } else {
+
+                    vtrc::uint64_t position = 0;
+
+                    if( request->has_cust_pos( ) ) {
+                        position = f->tell( );
+                        f->seek( request->cust_pos( ).position( ),
+                                 value_to_enum(request->cust_pos( ).whence( )));
+                    }
+
                     size_t total = request->data( ).size( );
                     size_t pos = 0;
+
                     while ( pos != total ) {
                         pos += f->write( &request->data( )[pos], total - pos);
+                    }
+
+                    if( request->cust_pos( ).set_back( ) ) {
+                        f->seek( position, agent::file_iface::F_SEEK_SET );
                     }
 
                     response->set_length( total );
