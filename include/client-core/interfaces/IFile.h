@@ -57,8 +57,8 @@ namespace interfaces { namespace file {
     inline seek_whence whence_value2enum( unsigned value )
     {
         switch ( value ) {
-        case file::POS_SEEK_CUR:
         case file::POS_SEEK_SET:
+        case file::POS_SEEK_CUR:
         case file::POS_SEEK_END:
             return static_cast<seek_whence>(value);
         }
@@ -82,6 +82,11 @@ namespace interfaces { namespace file {
         virtual int64_t seek( int64_t pos, seek_whence whence ) const = 0;
         virtual int64_t tell( )  const = 0;
         virtual void    flush( ) const = 0;
+
+        virtual size_t read_from( void *data, size_t length, uint64_t pos,
+                                  bool seek_back = false ) const = 0;
+        virtual size_t write_to( const void *data, size_t length, uint64_t pos,
+                                 bool seek_back = false ) const = 0;
 
         virtual void register_for_events( file_event_callback cb ) = 0;
         virtual void unregister( ) = 0;

@@ -192,7 +192,7 @@ namespace {
         lua::state ls(L);
 
         unsigned bus   = 0;
-        unsigned chan  = 0;
+        unsigned chan  = 1;
         unsigned speed = 500000;
         unsigned mode  = 0;
         try {

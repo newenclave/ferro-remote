@@ -149,12 +149,19 @@ namespace fr { namespace client { namespace interfaces {
                 client_.call_request( &stub_type::ioctl, &req );
             }
 
-            size_t read( void *data, size_t length ) const override
+            size_t read_impl( void *data, size_t length,
+                              bool from, uint64_t pos, bool seek_back ) const
             {
                 if( 0 == length ) {
                     return 0;
                 }
                 fproto::file_data_block req_res;
+
+                if( from ) {
+                    req_res.mutable_cust_pos( )->set_position( pos );
+                    req_res.mutable_cust_pos( )->set_whence(file::POS_SEEK_SET);
+                    req_res.mutable_cust_pos( )->set_set_back( seek_back );
+                }
 
                 req_res.mutable_hdl( )->set_value( hdl_.value( ) );
                 req_res.set_length( length );
@@ -174,7 +181,8 @@ namespace fr { namespace client { namespace interfaces {
                 return length;
             }
 
-            size_t write( const void *data, size_t length ) const  override
+            size_t write_impl( const void *data, size_t length,
+                               bool to, uint64_t pos, bool seek_back ) const
             {
                 if( 0 == length ) {
                     return 0;
@@ -182,12 +190,42 @@ namespace fr { namespace client { namespace interfaces {
                 if( length > 44000 ) {
                     length = 44000;
                 }
+
                 fproto::file_data_block req_res;
+
+                if( to ) {
+                    req_res.mutable_cust_pos( )->set_position( pos );
+                    req_res.mutable_cust_pos( )->set_whence(file::POS_SEEK_SET);
+                    req_res.mutable_cust_pos( )->set_set_back( seek_back );
+                }
+
                 req_res.mutable_hdl( )->set_value( hdl_.value( ) );
                 req_res.set_data( data, length );
                 client_.call( &stub_type::write, &req_res, &req_res );
 
                 return req_res.length( );
+            }
+
+            size_t read( void *data, size_t length ) const override
+            {
+                return read_impl( data, length, false, 0, false );
+            }
+
+            size_t write( const void *data, size_t length ) const  override
+            {
+                return write_impl( data, length, false, 0, false );
+            }
+
+            size_t read_from( void *data, size_t length, uint64_t pos,
+                              bool seek_back  ) const override
+            {
+                return read_impl( data, length, true, pos, seek_back );
+            }
+
+            size_t write_to( const void *data, size_t length, uint64_t pos,
+                             bool seek_back ) const override
+            {
+                return write_impl( data, length, true, pos, seek_back );
             }
 
             //unsigned, const std::string &, vtrc::uint64_t
