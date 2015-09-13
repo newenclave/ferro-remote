@@ -61,6 +61,11 @@ if(WIN32)
     target_link_libraries(${exe_name} ws2_32.lib)
 endif(WIN32)
 
+if(MINGW)
+set_target_properties(${exe_name}
+                      PROPERTIES COMPILE_DEFINITIONS "-DBOOST_THREAD_USE_LIB")
+endif(MINGW)
+
 set_target_properties(${exe_name}
                       PROPERTIES COMPILE_DEFINITIONS "${VTRC_LINK_TYPE}")
 
