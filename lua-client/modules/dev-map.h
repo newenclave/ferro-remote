@@ -10,7 +10,8 @@ namespace fr { namespace lua {
     template <typename DevType, typename MetaType>
     class dev_map {
         const char *meta_name_;
-        using storage_type = std::map<utils::handle, DevType>;
+        using storage_type = std::map<size_t, DevType>;
+        storage_type devs_;
     public:
         dev_map( const char *meta_name )
             :meta_name_(meta_name)
@@ -39,6 +40,16 @@ namespace fr { namespace lua {
             void *ud = luaL_testudata( L, id, meta_name_ );
             return ud ? static_cast<MetaType *>(ud) : nullptr;
         }
+
+        DevType get_dev( utils::handle hdl )
+        {
+            auto f( devs_.find( utils::from_handle<size_t>(hdl) ) );
+            if( f == devs_.end( ) ) {
+                throw std::runtime_error( "Bad handle value." );
+            }
+            return f->second;
+        }
+
     };
 
 }}

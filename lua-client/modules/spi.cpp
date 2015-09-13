@@ -59,11 +59,15 @@ namespace {
         return 1;
     }
 
-    int lcall_open ( lua_State *L );
-    int lcall_close( lua_State *L );
+    int lcall_open  ( lua_State *L );
+    int lcall_write ( lua_State *L );
+    int lcall_setup ( lua_State *L );
+    int lcall_close ( lua_State *L );
 
     const struct luaL_Reg spi_lib[ ] = {
          { "close",       &lcall_close          }
+        ,{ "write",       &lcall_write          }
+        ,{ "setup",       &lcall_setup          }
         ,{ "__gc",        &lcall_close          }
         ,{ "__tostring",  &lcall_meta_string    }
         ,{ nullptr,        nullptr }
@@ -170,7 +174,7 @@ namespace {
         {
             objects::table_sptr res(std::make_shared<objects::table>( ));
 
-            res->add( "open", new_function( &lcall_open ) );
+            res->add( "open",   new_function( &lcall_open ) );
 
             return res;
         }
@@ -186,64 +190,76 @@ namespace {
         return o->type_id( ) == objects::base::TYPE_STRING;
     }
 
+    struct setup_info {
+        unsigned bus   = 0;
+        unsigned chan  = 1;
+        unsigned speed = 500000;
+        unsigned mode  = 0;
+    };
+
+    setup_info get_si_from_lua_table( lua::state &ls, int id )
+    {
+        setup_info si;
+
+        auto t = ls.get_type( id );
+        if( t == base::TYPE_TABLE ) {
+            auto tobj = ls.get_object( id );
+            for( size_t i=0; i<tobj->count( ); i++ ) {
+                auto p(tobj->at(i));
+                auto f(p->at(0));
+                auto s(p->at(1));
+
+                if( is_number( s ) ) {
+                    if( is_number( f ) ) {
+                        switch( static_cast<unsigned>(f->num( )) ) {
+                        case 1:
+                            si.bus   = static_cast<unsigned>(s->num( ));
+                            break;
+                        case 2:
+                            si.chan = static_cast<unsigned>(s->num( ));
+                            break;
+                        case 3:
+                            si.speed = static_cast<unsigned>(s->num( ));
+                            break;
+                        case 4:
+                            si.mode = static_cast<unsigned>(s->num( ));
+                            break;
+                        }
+                    } else if( is_string( f ) ) {
+                        std::string name(f->str( ));
+                        /// TODO: fix it
+                        if( !name.compare( "bus" ) ) {
+                            si.bus   = static_cast<unsigned>(s->num( ));
+                        } else if( !name.compare( "channel" ) ) {
+                            si.chan = static_cast<unsigned>(s->num( ));
+                        } else if( !name.compare( "chan" ) ) {
+                            si.chan = static_cast<unsigned>(s->num( ));
+                        } else if( !name.compare( "speed" ) ) {
+                            si.speed = static_cast<unsigned>(s->num( ));
+                        } else if( !name.compare( "mode" ) ) {
+                            si.mode = static_cast<unsigned>(s->num( ));
+                        }
+                    }
+                }
+            }
+        } else {
+            si.bus   = ls.get_opt<unsigned>( id + 0, 0 );
+            si.chan  = ls.get_opt<unsigned>( id + 1, 1 );
+            si.speed = ls.get_opt<unsigned>( id + 2, 500000 );
+            si.mode  = ls.get_opt<unsigned>( id + 3, 0 );
+        }
+        return si;
+    }
+
     int lcall_open( lua_State *L )
     {
         module *m = get_module( L );
         lua::state ls(L);
 
-        unsigned bus   = 0;
-        unsigned chan  = 1;
-        unsigned speed = 500000;
-        unsigned mode  = 0;
         try {
-            auto t = ls.get_type( 1 );
-            if( t == base::TYPE_TABLE ) {
-                auto tobj = ls.get_object( 1 );
-                for( size_t i=0; i<tobj->count( ); i++ ) {
-                    auto p(tobj->at(i));
-                    auto f(p->at(0));
-                    auto s(p->at(1));
-
-                    if( is_number( s ) ) {
-                        if( is_number( f ) ) {
-                            switch( static_cast<unsigned>(f->num( )) ) {
-                            case 1:
-                                bus   = static_cast<unsigned>(s->num( ));
-                                break;
-                            case 2:
-                                chan = static_cast<unsigned>(s->num( ));
-                                break;
-                            case 3:
-                                speed = static_cast<unsigned>(s->num( ));
-                                break;
-                            case 4:
-                                mode = static_cast<unsigned>(s->num( ));
-                                break;
-                            }
-                        } else if( is_string( f ) ) {
-                            std::string name(f->str( ));
-                            /// TODO: fix it
-                            if( !name.compare( "bus" ) ) {
-                                bus   = static_cast<unsigned>(s->num( ));
-                            } else if( !name.compare( "channel" ) ) {
-                                chan = static_cast<unsigned>(s->num( ));
-                            } else if( !name.compare( "chan" ) ) {
-                                chan = static_cast<unsigned>(s->num( ));
-                            } else if( !name.compare( "speed" ) ) {
-                                speed = static_cast<unsigned>(s->num( ));
-                            } else if( !name.compare( "mode" ) ) {
-                                mode = static_cast<unsigned>(s->num( ));
-                            }
-                        }
-                    }
-                }
-            } else {
-                bus   = ls.get_opt<unsigned>( 1, 0 );
-                chan  = ls.get_opt<unsigned>( 2, 1 );
-                speed = ls.get_opt<unsigned>( 3, 500000 );
-                mode  = ls.get_opt<unsigned>( 4, 0 );
-            }
-            m->push_object( L, m->new_dev( bus, chan, speed, mode ) );
+            auto si = get_si_from_lua_table( ls, 1 );
+            m->push_object( L, m->new_dev( si.bus, si.chan,
+                                           si.speed, si.mode ) );
         } catch( const std::exception &ex ) {
             ls.push( );
             ls.push( ex.what( ) );
@@ -267,6 +283,47 @@ namespace {
 
         ls.push( true );
         return 0;
+    }
+
+    int lcall_write ( lua_State *L )
+    {
+        module *m = get_module( L );
+        lua::state ls(L);
+        utils::handle h = m->get_object_hdl( L, 1 );
+
+        try {
+            auto d    = m->get_dev( h );
+            auto data = ls.get_opt<std::string>( 2 );
+            auto ptr  = reinterpret_cast<const unsigned char *>(data.c_str( ));
+            ls.push( d->write_read( ptr, data.size( ) ));
+            return 1;
+        } catch( const std::exception &ex ) {
+            ls.push( );
+            ls.push( ex.what( ) );
+            return 2;
+        }
+
+        return 1;
+    }
+
+    int lcall_setup ( lua_State *L )
+    {
+        module *m = get_module( L );
+        lua::state ls(L);
+        utils::handle h = m->get_object_hdl( L, 1 );
+
+        try {
+            auto d  = m->get_dev( h );
+            auto si = get_si_from_lua_table( ls, 2 );
+            d->setup( si.speed, si.mode );
+            return 1;
+        } catch( const std::exception &ex ) {
+            ls.push( );
+            ls.push( ex.what( ) );
+            return 2;
+        }
+
+        return 1;
     }
 
 }

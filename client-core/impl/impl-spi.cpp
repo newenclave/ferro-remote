@@ -81,14 +81,15 @@ namespace fr { namespace client { namespace interfaces {
                 client_.call_request( &stub_type::setup, &req );
             }
 
-            void write_read( unsigned char *data, size_t len ) const override
+            std::string write_read( const unsigned char *data,
+                                    size_t len ) const override
             {
                 sproto::write_read_req req;
                 sproto::write_read_res res;
                 req.mutable_hdl( )->set_value( hdl_ );
                 req.set_data( data, len );
                 client_.call( &stub_type::write_read, &req, &res );
-                memcpy( data, res.data( ).c_str( ), res.data( ).size( ) );
+                return res.data( );
             }
 
             void close( ) const override
