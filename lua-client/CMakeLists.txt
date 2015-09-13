@@ -62,8 +62,7 @@ if(WIN32)
 endif(WIN32)
 
 if(MINGW)
-set_target_properties(${exe_name}
-                      PROPERTIES COMPILE_DEFINITIONS "-DBOOST_THREAD_USE_LIB")
+    add_definitions( -DBOOST_THREAD_USE_LIB )
 endif(MINGW)
 
 set_target_properties(${exe_name}
