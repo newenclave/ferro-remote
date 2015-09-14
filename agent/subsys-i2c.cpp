@@ -122,8 +122,7 @@ namespace fr { namespace agent { namespace subsys {
                 vcomm::closure_holder holder( done );
 
                 i2c_sptr dev(i2c_by_index( request->hdl( ).value( ) ));
-                unsigned long par =
-                        static_cast<unsigned long>( request->parameter( ) );
+                auto par = static_cast<unsigned long>( request->parameter( ) );
 
                 dev->ioctl( request->code( ), par );
             }
@@ -269,8 +268,8 @@ namespace fr { namespace agent { namespace subsys {
                vcomm::closure_holder holder( done );
                i2c_sptr dev(i2c_by_index( request->hdl( ).value( ) ));
                for( int i = 0; i<request->request( ).value_size( ); ++i ) {
-                   const
-                   i2cproto::code_data &next(request->request( ).value( i ));
+
+                   const auto &next(request->request( ).value( i ));
 
                    uint8_t b = dev->smbus_read_word_data( next.code( ) );
 
@@ -290,8 +289,7 @@ namespace fr { namespace agent { namespace subsys {
                 vcomm::closure_holder holder( done );
                 i2c_sptr dev(i2c_by_index( request->hdl( ).value( ) ));
                 for( int i = 0; i<request->request( ).value_size( ); ++i ) {
-                    const
-                    i2cproto::code_data &next(request->request( ).value( i ));
+                    const auto &next(request->request( ).value( i ));
                     dev->smbus_write_word_data( next.code( ),
                                               next.data( ).value( ) & 0xFFFF );
                  }
@@ -345,20 +343,20 @@ namespace fr { namespace agent { namespace subsys {
                 vcomm::closure_holder holder( done );
                 i2c_sptr dev(i2c_by_index( request->hdl( ).value( ) ));
 
-                uint16_t cmd = request->request( ).code( ) & 0xFFFF;
+                auto req = request->request( );
 
-                if( request->request( ).data( ).has_value( ) ) {
+                uint16_t cmd = req.code( ) & 0xFFFF;
 
-                    uint16_t code = request->request( ).data( ).value( )
-                                  & 0xFFFF;
+                if( req.data( ).has_value( ) ) {
+
+                    uint16_t code = req.data( ).value( ) & 0xFFFF;
 
                     response->mutable_data( )
                             ->set_value( dev->smbus_process_call( cmd, code ) );
 
-                } else if( request->request( ).data( ).has_block( ) ) {
+                } else if( req.data( ).has_block( ) ) {
 
-                    const std::string &code( request->request( )
-                                                     .data( ).block( ) );
+                    const std::string &code( req.data( ).block( ) );
 
                     response->mutable_data( )
                             ->set_block(
