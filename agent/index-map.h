@@ -9,7 +9,7 @@
 
 namespace fr { namespace agent {
 
-    template <typename T, typename IdType = vtrc::uint32_t>
+    template <typename IdType, typename T>
     class index_map {
 
     public:
@@ -18,7 +18,8 @@ namespace fr { namespace agent {
 
     private:
 
-        typedef std::map<index_type, value_type> map_type;
+        using map_type = std::map<index_type, value_type>;
+
         map_type                 map_;
         vtrc::shared_mutex       map_lock_;
         vtrc::atomic<index_type> id_;
@@ -46,8 +47,7 @@ namespace fr { namespace agent {
             return id;
         }
 
-        value_type &get( index_type id,
-                         int error = EBADF,
+        value_type &get( index_type id, int error = EBADF,
                          const char * mess = "Bad id value." )
         {
             vtrc::shared_lock lck( map_lock_ );
