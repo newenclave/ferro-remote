@@ -9,6 +9,8 @@
 #include "../utils.h"
 #include "../event-container.h"
 
+#include "vtrc-common/vtrc-exception.h"
+
 namespace fr { namespace lua { namespace m { namespace spi {
 
 namespace {
