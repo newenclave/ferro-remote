@@ -44,9 +44,10 @@ namespace fr { namespace agent { namespace subsys {
         namespace vcomm  = vtrc::common;
         namespace vserv  = vtrc::server;
         namespace gpb    = google::protobuf;
+
         using vserv::channels::unicast::create_event_channel;
 
-        typedef std::shared_ptr<std::ostream>  ostream_sptr;
+        typedef std::shared_ptr<std::ostream> ostream_sptr;
 
         namespace sproto = fr::proto;
         typedef   sproto::events::Stub events_stub_type;
