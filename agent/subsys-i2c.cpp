@@ -38,12 +38,11 @@ namespace fr { namespace agent { namespace subsys {
         namespace gpb    = google::protobuf;
 
         using vserv::channels::unicast::create_event_channel;
-        typedef vtrc::shared_ptr<vcomm::rpc_channel> rpc_channel_sptr;
+        using rpc_channel_sptr = vtrc::shared_ptr<vcomm::rpc_channel>;
+        using i2c_sptr = vtrc::shared_ptr<agent::i2c_helper>;
+        using i2c_wptr = vtrc::weak_ptr<agent::i2c_helper>;
 
-        typedef vtrc::shared_ptr<agent::i2c_helper> i2c_sptr;
-        typedef vtrc::weak_ptr<agent::i2c_helper> i2c_wptr;
-
-        typedef std::map<vtrc::uint32_t, i2c_sptr> device_map;
+        using device_map = std::map<vtrc::uint32_t, i2c_sptr>;
 
         class i2c_inst_impl: public fr::proto::i2c::instance {
 
