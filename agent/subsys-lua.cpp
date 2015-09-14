@@ -22,8 +22,8 @@ namespace fr { namespace agent { namespace subsys {
 
     namespace {
 
-        typedef std::map<std::string, std::string>  lua_table_type;
-        typedef std::vector<std::string>            lua_list_type;
+        using lua_table_type = std::map<std::string, std::string>;
+        using lua_list_type  = std::vector<std::string>;
 
         const std::string subsys_name( "lua" );
 

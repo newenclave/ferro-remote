@@ -36,10 +36,10 @@ namespace fr { namespace agent { namespace subsys {
         const std::string subsys_name( "spi" );
 
         namespace vcomm = vtrc::common;
-        typedef fr::proto::spi::instance proto_instance;
+        using proto_instance = fr::proto::spi::instance;
 
-        typedef vtrc::shared_ptr<agent::file_iface> file_sptr;
-        typedef vtrc::weak_ptr<agent::file_iface>   file_wptr;
+        using file_sptr = vtrc::shared_ptr<agent::file_iface>;
+        using file_wptr = vtrc::weak_ptr<agent::file_iface>  ;
 
         struct spi_info {
             file_sptr       file_;
@@ -58,13 +58,10 @@ namespace fr { namespace agent { namespace subsys {
         const uint8_t   spi_BPW   = 8;
         const uint16_t  spi_delay = 0;
 
-        typedef agent::index_map<spi_info>  file_map;
-
-        // typedef proto::events::Stub stub_type;
+        using file_map = agent::index_map<vtrc::uint32_t, spi_info> ;
 
         using vtrc::server::channels::unicast::create_event_channel;
-
-        typedef vtrc::shared_ptr<vcomm::rpc_channel> rpc_channel_sptr;
+        using rpc_channel_sptr = vtrc::shared_ptr<vcomm::rpc_channel>;
 
         std::string make_spi_name( unsigned bus, unsigned channel )
         {
