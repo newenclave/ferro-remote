@@ -39,8 +39,8 @@ namespace fr { namespace client { namespace interfaces { namespace i2c {
 
         struct i2s_impl: public iface {
 
-            mutable client_type                  client_;
-            unsigned                             hdl_;
+            mutable client_type  client_;
+            unsigned             hdl_;
 
             i2s_impl( core::client_core &cc,
                       unsigned bid, unsigned sa, bool sf )
