@@ -67,11 +67,12 @@ namespace {
     int lcall_close ( lua_State *L );
 
     const struct luaL_Reg spi_lib[ ] = {
-         { "close",       &lcall_close          }
-        ,{ "write",       &lcall_write          }
-        ,{ "setup",       &lcall_setup          }
-        ,{ "__gc",        &lcall_close          }
-        ,{ "__tostring",  &lcall_meta_string    }
+         { "close",       &lcall_close       }
+        ,{ "write",       &lcall_write       }
+        ,{ "transfer",    &lcall_write       }
+        ,{ "setup",       &lcall_setup       }
+        ,{ "__gc",        &lcall_close       }
+        ,{ "__tostring",  &lcall_meta_string }
         ,{ nullptr,        nullptr }
     };
 
