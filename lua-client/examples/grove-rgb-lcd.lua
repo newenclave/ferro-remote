@@ -94,7 +94,7 @@ function main( )
 --         fr.exit( )  
 --      end, 
 --       {sec=5}, i )
-    next_char( nil, 255, i )
+   -- next_char( nil, 255, i )
     set_color( nil, 255, 255, 255, i ) 
 end
 
