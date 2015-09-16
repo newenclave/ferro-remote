@@ -57,6 +57,7 @@ else( MSVC )
                     program_options
                     filesystem
                     regex
+                    #context
                   REQUIRED)
 endif( MSVC )
 
