@@ -17,7 +17,7 @@ namespace fr { namespace lua {
         return (f != event_map_.end( )) && (f->second);
     }
 
-    int event_container::subscribe( lua_State *L , int shift ,
+    int event_container::subscribe( lua_State *L, int shift,
                                     subscribe_info *res )
     {
         lua::state ls(L);
