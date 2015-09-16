@@ -2,6 +2,7 @@
 list( APPEND src_dirs
         .
         ./modules
+        ./3rd
     )
 
 foreach( dir ${src_dirs} )

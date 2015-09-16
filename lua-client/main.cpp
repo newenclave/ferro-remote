@@ -19,6 +19,8 @@
 #include "boost/filesystem.hpp"
 #include "boost/asio/io_service.hpp"
 
+#include "3rd/struct.h"
+
 namespace vcomm     = vtrc::common;
 namespace vclient   = vtrc::client;
 namespace fs        = boost::filesystem;
@@ -156,6 +158,8 @@ int main( int argc, const char *argv[] )
         ci.modules_ = lua::m::create_all( ci );
 
         ls.openlibs( );
+        ls.openlib( "struct", luaopen_struct, 1 );
+        //luaopen_struct( ls.get_state( ) );
         ls.set( FR_CLIENT_GEN_INFO_PATH, &ci );
 
         lua::client::events_init( &ci );

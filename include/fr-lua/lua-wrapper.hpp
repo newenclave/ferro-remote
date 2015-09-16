@@ -91,6 +91,22 @@ namespace lua {
             luaL_openlibs( vm_ );
         }
 
+        int openlib( const char *libname, lua_CFunction func, int results = 1 )
+        {
+#if( LUA_VERSION_NUM < 502 )
+            push( func );
+            lua_call( vm_, 0, 0 );
+#else
+            push( func );
+            lua_call( vm_, 0, results );
+            if( results > 0 ) {
+                lua_setglobal( vm_, libname );
+            }
+#endif
+            return 1;
+
+        }
+
         int openlib( const char *libname )
         {
             static const struct {
@@ -112,19 +128,8 @@ namespace lua {
             const size_t libs_count = sizeof( libs ) / sizeof( libs[0] );
 
             for( size_t i=0; i<libs_count; ++i ) {
-                if( 0 == libs[i].name.compare( libname ) ) {
-
-#if( LUA_VERSION_NUM < 502 )
-                    push( libs[i].func );
-                    lua_call( vm_, 0, 0 );
-#else
-                    push( libs[i].func );
-                    lua_call( vm_, 0, libs[i].results );
-                    if( libs[i].results > 0 ) {
-                        lua_setglobal( vm_, libname );
-                    }
-#endif
-                    return 1;
+                if( 0 == libs[i].name.compare( libname ) ) {                    
+                    return openlib( libname, libs[i].func, libs[i].results );
                 }
             }
             return 0;
