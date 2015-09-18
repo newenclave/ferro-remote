@@ -276,7 +276,7 @@ namespace {
             res->add( "set_position", new_function( &lcall_set_pos ) );
             res->add( "set_pos",      new_function( &lcall_set_pos ) );
             res->add( "size",         new_function( &lcall_size ) );
-            res->add( "flush",        new_function( &lcall_size ) );
+            res->add( "flush",        new_function( &lcall_flush ) );
 
             res->add( "set_pattern",  new_function( &lcall_set_pattern ) );
             res->add( "events",       new_function( &lcall_events ) );
