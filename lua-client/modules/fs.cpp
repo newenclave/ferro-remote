@@ -1074,7 +1074,13 @@ namespace {
 
         if( !si.name_.compare( "on_pollin" ) ) {
             if( si.call_ )  {
-                m->register_file( f, e );
+                try {
+                    m->register_file( f, e );
+                } catch( const std::exception &ex ) {
+                    ls.push(  );
+                    ls.push( ex.what( ) );
+                    return 2;
+                }
             } else {
                 m->unregister_file( f );
             }

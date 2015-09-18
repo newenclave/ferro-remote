@@ -369,9 +369,15 @@ namespace {
 
             if( !si.name_.compare( "on_write" ) ) {
                 if( si.call_ ) {
-                    lgr->subscribe( std::bind( &module::on_write, m,
-                                               ph::_1, ph::_2, ph::_3,
-                                               eventor_wptr( e ) ) );
+                    try {
+                        lgr->subscribe( std::bind( &module::on_write, m,
+                                                   ph::_1, ph::_2, ph::_3,
+                                                   eventor_wptr( e ) ) );
+                    } catch( const std::exception &ex ) {
+                        ls.push(  );
+                        ls.push( ex.what( ) );
+                        return 2;
+                    }
                 } else {
                     lgr->unsubscribe( );
                 }

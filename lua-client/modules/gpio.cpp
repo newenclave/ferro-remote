@@ -640,7 +640,13 @@ namespace {
             auto di = m->get_dev_info( h );
 
             if( si.call_ )  {
-                m->register_event( di.dev_, e );
+                try {
+                    m->register_event( di.dev_, e );
+                } catch( const std::exception &ex ) {
+                    ls.push(  );
+                    ls.push( ex.what( ) );
+                    return 2;
+                }
             } else {
                 m->unregister_event( di.dev_ );
             }
