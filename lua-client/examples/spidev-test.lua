@@ -20,7 +20,7 @@ function main( )
                   "\x00\x00\x00\x95\xFF\xFF\xFF\xFF"..
                   "\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF"..
                   "\xFF\xFF\xFF\xFF\xFF\xFF\xF0\x0D"
-    local dev = assert(spi.open(0, 1))
+    local dev = assert(spi.open(0, 3))
     local res = dev:transfer( inbuf )
     print( "Input: " )
     hex_dump( inbuf )

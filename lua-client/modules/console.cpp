@@ -291,7 +291,6 @@ namespace {
         }
     };
 
-
     int lcall_flush( lua_State * /*L*/ )
     {
         std::cout.flush( );

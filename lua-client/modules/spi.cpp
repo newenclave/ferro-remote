@@ -10,6 +10,9 @@
 #include "../event-container.h"
 
 #include "vtrc-common/vtrc-exception.h"
+#include "vtrc-common/vtrc-rpc-channel.h"
+#include "vtrc-bind.h"
+#include "vtrc-common/vtrc-exception.h"
 
 namespace fr { namespace lua { namespace m { namespace spi {
 
@@ -101,15 +104,46 @@ namespace {
 
     struct module: public iface {
 
-        client::general_info            &info_;
-        dev_map                          devs_;
+        client::general_info &info_;
+        dev_map               devs_;
+        int                   last_result_;
 
         module( client::general_info &info )
             :info_(info)
         {
             register_meta_tables( info_.main_ );
         }
+#if 0
+        void on_channel_error( lua_State *L, const char *mess )
+        {
+            lua::state ls(L);
+            ls.push(  );
+            ls.push( mess );
+            last_result_ = 2;
+        }
 
+        void on_proto_error( lua_State *L, unsigned code, unsigned cat,
+                             const char *mess )
+        {
+            lua::state ls(L);
+            std::ostringstream oss;
+            oss << "Error "
+                << code << " "
+                << vtrc::common::error_code_to_string( code, cat )
+                << " (" << mess << ")";
+            ls.push(  );
+            ls.push( oss.str( ) );
+            last_result_ = 2;
+        }
+
+        template <typename CallType>
+        int make_call( CallType ct )
+        {
+            last_result_ = 1;
+            ct( );
+            return last_result_;
+        }
+#endif
         void init( )
         {
             lua::state ls( info_.main_ );
