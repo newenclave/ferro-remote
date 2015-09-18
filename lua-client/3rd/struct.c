@@ -42,8 +42,8 @@
 #define luaL_register(L,n,f)	luaL_newlib(L,f)
 
 #else
-#define lua_Integer lua_Number
-#define lua_pushinteger lua_pushnumber
+#define lua_Integer         lua_Number
+#define lua_pushinteger     lua_pushnumber
 #endif
 
 /* basic integer type */

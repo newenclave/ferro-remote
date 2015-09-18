@@ -21,7 +21,7 @@ function main( )
                   "\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF"..
                   "\xFF\xFF\xFF\xFF\xFF\xFF\xF0\x0D"
     local dev = assert(spi.open(0, 1))
-    local res = dev:write( inbuf )
+    local res = dev:transfer( inbuf )
     print( "Input: " )
     hex_dump( inbuf )
     print( "Result:" )
