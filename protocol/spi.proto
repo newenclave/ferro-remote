@@ -38,7 +38,7 @@ message write_read_res {
 service instance {
     rpc open       (open_req)        returns (open_res);
     rpc setup      (setup_req)       returns (setup_res);
-    rpc write_read (write_read_req)  returns(write_read_res);
+    rpc write_read (write_read_req)  returns (write_read_res);
     rpc close      (handle)          returns (empty);
 }
 
