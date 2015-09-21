@@ -102,30 +102,6 @@ namespace fr { namespace agent {
             add_subsystem( typeid( T ), subsys );
         }
 
-#if VTRC_DISABLE_CXX11
-
-        template <typename T, typename P1>
-        void add_subsystem( const P1 &p1 )
-        {
-            subsystem_sptr subsys ( T::create( this, p1 ) );
-            add_subsystem( typeid( T ), subsys );
-        }
-
-        template <typename T, typename P1, typename P2>
-        void add_subsystem( const P1 &p1, const P2 &p2 )
-        {
-            subsystem_sptr subsys ( T::create( this, p1, p2 ) );
-            add_subsystem( typeid( T ), subsys );
-        }
-
-        template <typename T, typename P1, typename P2, typename P3>
-        void add_subsystem( const P1 &p1, const P2 &p2, const P3 &p3 )
-        {
-            subsystem_sptr subsys ( T::create( this, p1, p2, p3 ) );
-            add_subsystem( typeid( T ), subsys );
-        }
-
-#else
         template <typename T, typename ... Args >
         void add_subsystem( const Args & ... pars )
         {
@@ -133,7 +109,6 @@ namespace fr { namespace agent {
             add_subsystem( typeid( T ), subsys );
         }
 
-#endif
         template <typename T>
         T &subsystem( )
         {
