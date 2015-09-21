@@ -4,6 +4,7 @@
 
 #include "application.h"
 #include "subsys-reactor.h"
+#include "subsys-log.h"
 
 #include "vtrc-thread.h"
 #include "vtrc-bind.h"
@@ -13,23 +14,31 @@
 
 #include "vtrc-atomic.h"
 
+#define LOG(lev) log_(lev) << "[reactor] "
+#define LOGINF   LOG(logger::info)
+#define LOGDBG   LOG(logger::debug)
+#define LOGERR   LOG(logger::error)
+#define LOGWRN   LOG(logger::warning)
+
 namespace fr { namespace agent { namespace subsys {
 
     namespace {
         const std::string subsys_name( "reactor" );
 
-        typedef vtrc::shared_ptr<poll_reactor> poll_reactor_sptr;
-        typedef vtrc::shared_ptr<vtrc::thread> thread_sptr;
+        using poll_reactor_sptr = vtrc::shared_ptr<poll_reactor>;
+        using thread_sptr = std::shared_ptr<vtrc::thread>;
+        using thread_uptr = std::unique_ptr<vtrc::thread>;
     }
 
     struct reactor::impl {
 
-        application         *app_;
-        poll_reactor         reactor_;
-        thread_sptr          thread_;
-        bool                 running_;
-        vtrc::atomic<size_t> count_;
-        vtrc::atomic<size_t> id_;
+        application          *app_;
+        poll_reactor          reactor_;
+        thread_uptr           thread_;
+        bool                  running_;
+        vtrc::atomic<size_t>  count_;
+        vtrc::atomic<size_t>  id_;
+        logger               &log_;
 
 
         void reactor_thread( )
@@ -38,8 +47,8 @@ namespace fr { namespace agent { namespace subsys {
             while( 1 ) try {
                 while( reactor_.run_one( ) ) { }
                 return;
-            } catch( ... ) {
-                ;;;
+            } catch( const std::exception &ex ) {
+                LOGERR << "Exception while run_one: " << ex.what( );
             }
         }
 
@@ -48,6 +57,7 @@ namespace fr { namespace agent { namespace subsys {
             ,running_(false)
             ,count_(0)
             ,id_(100)
+            ,log_(app->subsystem<subsys::log>( ).get_logger( ))
         { }
 
         void reg_creator( const std::string &name,
@@ -64,8 +74,9 @@ namespace fr { namespace agent { namespace subsys {
         void start_thread( )
         {
             if( !running_ ) {
-                thread_.reset(new vtrc::thread(
-                                  vtrc::bind( &impl::reactor_thread, this ) ) );
+                thread_.reset( new vtrc::thread( [this]( ) {
+                    reactor_thread( );
+                } ) );
                 running_ = true;
             }
         }
