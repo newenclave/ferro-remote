@@ -144,14 +144,12 @@ namespace fr { namespace agent { namespace subsys {
 
         void start_all(  )
         {
-            for( listener_vector::iterator b(listenrs_.begin( )),
-                 e(listenrs_.end( )); b!=e; ++b )
-            {
+            for( auto &l: listenrs_ ) {
                 try {
-                    (*b)->start( );
-                    LOGINF << (*b)->name( ) << " started";
+                    l->start( );
+                    LOGINF << l->name( ) << " started";
                 } catch( const std::exception &ex ) {
-                    LOGERR << (*b)->name( )
+                    LOGERR << l->name( )
                            << " failed to start; "
                            << ex.what( );
                 }
@@ -198,7 +196,7 @@ namespace fr { namespace agent { namespace subsys {
 
     void listeners::start( )
     {
-        typedef std::vector<std::string> slist;
+        using slist = std::vector<std::string>;
 
         const slist &servs( impl_->config_->endpoints( ) );
         std::for_each( servs.begin( ), servs.end( ),
