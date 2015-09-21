@@ -157,8 +157,10 @@ namespace fr { namespace agent {
         void make_callback( int fd, unsigned events )
         {
             vtrc::upgradable_lock slck(react_lock_);
-            reaction_map::iterator f( react_.find( fd ) );
-            if( f != react_.end( ) ){
+
+            auto f( react_.find( fd ) );
+
+            if( f != react_.end( ) ) {
                 bool res = f->second->call_( events );
                 if( !res ) {
                     vtrc::upgrade_to_unique utu(slck);
