@@ -50,17 +50,17 @@ namespace fr { namespace agent { namespace subsys {
 
         namespace chrono = vtrc::chrono;
 
-        typedef sproto::events::Stub events_stub_type;
+        using events_stub_type = sproto::events::Stub;
 
         using vserv::channels::unicast::create_event_channel;
-        typedef vtrc::shared_ptr<vcomm::rpc_channel> rpc_channel_sptr;
+        using  rpc_channel_sptr = vtrc::shared_ptr<vcomm::rpc_channel>;
 
-        typedef vtrc::shared_ptr<agent::gpio_helper> gpio_sptr;
-        typedef vtrc::weak_ptr<agent::gpio_helper> gpio_wptr;
+        using gpio_sptr = vtrc::shared_ptr<agent::gpio_helper>;
+        using gpio_wptr = vtrc::weak_ptr<agent::gpio_helper>;
 
-        typedef std::map<vtrc::uint32_t, gpio_sptr> gpio_map;
+        using gpio_map = std::map<vtrc::uint32_t, gpio_sptr>;
 
-        typedef chrono::high_resolution_clock::time_point time_point;
+        using time_point = chrono::high_resolution_clock::time_point;
 
         agent::gpio::direction_type direct_from_proto( unsigned dir )
         {
