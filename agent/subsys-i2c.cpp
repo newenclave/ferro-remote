@@ -390,8 +390,7 @@ namespace fr { namespace agent { namespace subsys {
                                       fr::agent::application *app,
                                       vtrc::common::connection_iface_wptr cl )
         {
-            vtrc::shared_ptr<i2c_inst_impl>
-                    inst(vtrc::make_shared<i2c_inst_impl>( app, cl ));
+            auto inst(vtrc::make_shared<i2c_inst_impl>( app, cl ));
             return app->wrap_service( cl, inst );
         }
     }

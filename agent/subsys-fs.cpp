@@ -886,9 +886,7 @@ namespace fr { namespace agent { namespace subsys {
                                       fr::agent::application *app,
                                       vtrc::common::connection_iface_wptr cl)
         {
-            vtrc::shared_ptr<proto_fs_impl>
-                    inst(vtrc::make_shared<proto_fs_impl>( app, cl ));
-
+            auto inst(vtrc::make_shared<proto_fs_impl>( app, cl ));
             return app->wrap_service( cl, inst );
         }
 
@@ -896,9 +894,7 @@ namespace fr { namespace agent { namespace subsys {
                                       fr::agent::application *app,
                                       vtrc::common::connection_iface_wptr cl)
         {
-            vtrc::shared_ptr<proto_file_impl>
-                    inst(vtrc::make_shared<proto_file_impl>( app, cl ) );
-
+            auto inst(vtrc::make_shared<proto_file_impl>( app, cl ) );
             return app->wrap_service( cl, inst );
         }
 
