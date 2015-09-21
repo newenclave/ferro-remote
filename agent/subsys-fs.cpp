@@ -504,7 +504,7 @@ namespace fr { namespace agent { namespace subsys {
 
                 std::vector<char> data(len);
 
-                vtrc::shared_ptr<file_iface> f( file::create(
+                std::unique_ptr<file_iface> f( file::create(
                                                    p.string( ), O_RDONLY ) );
                 size_t r = f->read( &data[0], len );
                 response->set_data( &data[0], r );
@@ -523,9 +523,9 @@ namespace fr { namespace agent { namespace subsys {
                 vtrc::uint32_t dhdl;
                 bfs::path p( path_from_request( &request->dst( ), dhdl ) );
 
-                vtrc::shared_ptr<file_iface> f( file::create( p.string( ),
-                                                O_WRONLY | O_CREAT | O_TRUNC,
-                                                S_IRUSR | S_IWUSR ) );
+                std::unique_ptr<file_iface> f( file::create( p.string( ),
+                                                 O_WRONLY | O_CREAT | O_TRUNC,
+                                                 S_IRUSR | S_IWUSR ) );
                 response->set_len( f->write( request->data( ).c_str( ), len ) );
             }
 
