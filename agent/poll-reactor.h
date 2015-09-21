@@ -6,7 +6,7 @@
 
 namespace fr { namespace agent {
 
-    typedef vtrc::function<bool (unsigned)> reaction_callback;
+    using reaction_callback = vtrc::function<bool (unsigned)>;
 
     class poll_reactor {
         struct   impl;

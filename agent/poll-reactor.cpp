@@ -83,8 +83,8 @@ namespace fr { namespace agent {
             return res;
         }
 
-        typedef vtrc::shared_ptr<handle_reaction>   handle_reaction_sptr;
-        typedef std::map<int, handle_reaction_sptr> reaction_map;
+        using handle_reaction_sptr = vtrc::shared_ptr<handle_reaction>;
+        using reaction_map = std::map<int, handle_reaction_sptr>;
     }
 
     struct poll_reactor::impl {
