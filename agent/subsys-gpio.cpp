@@ -426,9 +426,7 @@ namespace fr { namespace agent { namespace subsys {
                                       fr::agent::application *app,
                                       vtrc::common::connection_iface_wptr cl )
         {
-            vtrc::shared_ptr<gpio_impl>
-                    inst( vtrc::make_shared<gpio_impl>( app, cl ) );
-
+            auto inst = vtrc::make_shared<gpio_impl>( app, cl );
             return app->wrap_service( cl, inst );
         }
     }
