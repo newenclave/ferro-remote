@@ -9,7 +9,7 @@ Rectangle {
 
     id: mainWindow
     width:  480
-    height: 100
+    height: 200
 
     FrClient {
         id: generalClient
@@ -46,10 +46,26 @@ Rectangle {
                 lcdDevice.set_color( r, g, b )
             }
         }
+
+        Connections {
+            target: rgbDev
+            onReadyChanged: {
+                if( value ) {
+                    lcdDevice.set_color( 200, 200, 200 )
+                }
+            }
+        }
+
         Connections {
             target: lcdText
             onTextChanged: {
-                lcdDevice.set_text( lcdText.text )
+                lcdDevice.set_text( lcdText.text, lcdText2.text )
+            }
+        }
+        Connections {
+            target: lcdText2
+            onTextChanged: {
+                lcdDevice.set_text( lcdText.text, lcdText2.text )
             }
         }
 
@@ -65,13 +81,17 @@ Rectangle {
                                  0x04: r, 0x03: g, 0x02: b } )
         }
 
-        function set_text( txt )
+        function set_text( txt, txt2 )
         {
             txt_control( 0x01 )
             txt_control( 0x08 | 0x4 )
             txt_control( 0x28 )
             for( var i = 0; i < txt.length; i++ ) {
                 txtDev.writeBytes({ 0x40: txt.charCodeAt(i) })
+            }
+            txt_control( 0xC0 )
+            for( i = 0; i < txt2.length; i++ ) {
+                txtDev.writeBytes({ 0x40: txt2.charCodeAt(i) })
             }
         }
 
@@ -189,12 +209,18 @@ Rectangle {
                     }
                 }
             }
+        }
+
+        Row {
+            spacing: 10
+            anchors.margins: 10
             TextField {
                 id: lcdText
                 width: 200
                 height: 22
                 text: ""
                 enabled: false
+                maximumLength: 16
                 Connections {
                     target: generalClient
                     onDisconnected: {
@@ -206,6 +232,27 @@ Rectangle {
                 }
             }
         }
-    }
 
+        Row {
+            spacing: 10
+            anchors.margins: 10
+            TextField {
+                id: lcdText2
+                width: 200
+                height: 22
+                text: ""
+                enabled: false
+                maximumLength: 16
+                Connections {
+                    target: generalClient
+                    onDisconnected: {
+                        lcdText2.enabled = false
+                    }
+                    onConnected: {
+                        lcdText2.enabled = true
+                    }
+                }
+            }
+        }
+    }
 }
