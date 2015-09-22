@@ -14,6 +14,9 @@ namespace fr { namespace agent {
 
     public:
 
+        poll_reactor( const poll_reactor & ) = delete;
+        poll_reactor &operator = ( const poll_reactor & ) = delete;
+
         poll_reactor( );
         ~poll_reactor( );
 
