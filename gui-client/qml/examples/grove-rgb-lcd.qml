@@ -1,82 +1,211 @@
 import QtQuick 2.0
 
 import QtQuick.Controls 1.1
+import QtQuick.Dialogs 1.0
 
 import Fr.Client 1.0
 
 Rectangle {
 
     id: mainWindow
-    width: 480
-    height: 42
+    width:  480
+    height: 100
 
     FrClient {
         id: generalClient
     }
 
-    Row {
+    Rectangle {
+        id: lcdDevice
+        width: 0
+        height: 0
+        FrClientI2c {
+            id: txtDev
+            client: generalClient
+            busId: 1
+            slaveAddress: 0x3E
+        }
+
+        FrClientI2c {
+            id: rgbDev
+            client: generalClient
+            busId: 1
+            slaveAddress: 0x62
+        }
+        Connections {
+            target: colorDialog
+            function fix( val )
+            {
+                return Math.floor(val === 1.0 ? 255 : val * 256.0)
+            }
+            onAccepted: {
+                var r = fix(colorDialog.currentColor.r)
+                var g = fix(colorDialog.currentColor.g)
+                var b = fix(colorDialog.currentColor.b)
+
+                lcdDevice.set_color( r, g, b )
+            }
+        }
+        Connections {
+            target: lcdText
+            onTextChanged: {
+                lcdDevice.set_text( lcdText.text )
+            }
+        }
+
+
+        function txt_control( command )
+        {
+            txtDev.writeBytes({ 0x80: command })
+        }
+
+        function set_color( r, g, b )
+        {
+            rgbDev.writeBytes( { 0x00: 0, 0x01: 0, 0x08: 0xAA,
+                                 0x04: r, 0x03: g, 0x02: b } )
+        }
+
+        function set_text( txt )
+        {
+            txt_control( 0x01 )
+            txt_control( 0x08 | 0x4 )
+            txt_control( 0x28 )
+            for( var i = 0; i < txt.length; i++ ) {
+                txtDev.writeBytes({ 0x40: txt.charCodeAt(i) })
+            }
+        }
+
+    }
+
+    ColorDialog {
+        id: colorDialog
+        title: "Please choose a color"
+        onRejected: {
+            console.log("Canceled")
+        }
+        Component.onCompleted: visible = false
+    }
+
+    Column {
 
         spacing: 10
         anchors.margins: 10
         anchors.top: parent.top
+        anchors.bottom: parent.bottom
         anchors.left: parent.left
         anchors.right: parent.right
+        anchors.fill: parent
 
-        TextField {
-            width: 200
-            height: 22
-            id: address
-            text: "192.168.3.1:12345"
-        }
+        Row {
 
-        Button {
+            spacing: 10
+            anchors.margins: 10
 
-            text: qsTr("Connect")
-            id: connectBtn
-            property bool connected: false
-
-            onClicked: {
-                connected
-                    ? generalClient.disconnect(  )
-                    : generalClient.connect( address.text )
+            TextField {
+                width: 200
+                height: 22
+                id: address
+                text: "192.168.3.1:12345"
             }
 
-            Connections {
-                target: generalClient
-                onReadyChanged: {
-                    connectBtn.connected = value
-                    if( value ) {
-                        connectBtn.text = qsTr("Disconnect")
-                    } else {
-                        connectBtn.text = qsTr("Connect")
+            Button {
+
+                text: qsTr("Connect")
+                id: connectBtn
+                property bool connected: false
+
+                onClicked: {
+                    connected
+                        ? generalClient.disconnect(  )
+                        : generalClient.connect( address.text )
+                }
+
+                Connections {
+                    target: generalClient
+                    onReadyChanged: {
+                        connectBtn.connected = value
+                        if( value ) {
+                            connectBtn.text = qsTr("Disconnect")
+                        } else {
+                            connectBtn.text = qsTr("Connect")
+                        }
                     }
+                }
+            }
+
+            Text {
+                id: status
+                text: qsTr("wait")
+                color: "black"
+                Connections {
+                   target: generalClient
+                   onChannelReady: {
+                       status.text = qsTr("ready")
+                       status.color = "green"
+                   }
+                   onConnected: {
+                       status.text = qsTr("connected")
+                       status.color = "yellow"
+                   }
+                   onDisconnected: {
+                       status.text = qsTr("disconnected")
+                       status.color = "black"
+                   }
+                   onInitError: {
+                       status.text = qsTr("init error: ") + message
+                       status.color = "red"
+                   }
                 }
             }
         }
 
-        Text {
-            id: status
-            text: qsTr("wait")
-            color: "black"
-            Connections {
-               target: generalClient
-               onChannelReady: {
-                   status.text = qsTr("ready")
-                   status.color = "green"
-               }
-               onConnected: {
-                   status.text = qsTr("connected")
-                   status.color = "yellow"
-               }
-               onDisconnected: {
-                   status.text = qsTr("disconnected")
-                   status.color = "black"
-               }
-               onInitError: {
-                   status.text = qsTr("init error: ") + message
-                   status.color = "red"
-               }
+        Row {
+            spacing: 10
+            anchors.margins: 10
+            Rectangle {
+                id: lcdColor
+                height: 22
+                width: 22
+                color: "gray"
+                MouseArea {
+                    anchors.fill: parent
+                    onClicked: {
+                        colorDialog.open( )
+                    }
+                }
+                Connections {
+                    target: generalClient
+                    onConnected: {
+                        lcdColor.color = colorDialog.color
+                    }
+                    onDisconnected: {
+                        lcdColor.color = "gray"
+                    }
+                }
+                Connections {
+                    target: colorDialog
+                    onColorChanged: {
+                        lcdColor.color = colorDialog.color
+                    }
+                }
+            }
+            TextField {
+                id: lcdText
+                width: 200
+                height: 22
+                text: ""
+                enabled: false
+                Connections {
+                    target: generalClient
+                    onDisconnected: {
+                        lcdText.enabled = false
+                    }
+                    onConnected: {
+                        lcdText.enabled = true
+                    }
+                }
             }
         }
     }
+
 }
