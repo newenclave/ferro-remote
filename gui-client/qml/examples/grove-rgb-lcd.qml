@@ -51,7 +51,8 @@ Rectangle {
             target: rgbDev
             onReadyChanged: {
                 if( value ) {
-                    lcdDevice.set_color( 200, 200, 200 )
+                    lcdDevice.set_color( 0, 0, 0 )
+                    lcdDevice.clear( )
                 }
             }
         }
@@ -69,32 +70,34 @@ Rectangle {
             }
         }
 
-
-        function txt_control( command )
-        {
-            txtDev.writeBytes({ 0x80: command })
-        }
-
         function set_color( r, g, b )
         {
             rgbDev.writeBytes( { 0x00: 0, 0x01: 0, 0x08: 0xAA,
                                  0x04: r, 0x03: g, 0x02: b } )
         }
 
-        function set_text( txt, txt2 )
+        function clear( txt, txt2 )
         {
-            txt_control( 0x01 )
-            txt_control( 0x08 | 0x4 )
-            txt_control( 0x28 )
-            for( var i = 0; i < txt.length; i++ ) {
-                txtDev.writeBytes({ 0x40: txt.charCodeAt(i) })
-            }
-            txt_control( 0xC0 )
-            for( i = 0; i < txt2.length; i++ ) {
-                txtDev.writeBytes({ 0x40: txt2.charCodeAt(i) })
-            }
+            txtDev.writeBytes({ 0x80: 0x01 })
         }
 
+        function set_text( txt, txt2 )
+        {
+            txtDev.writeBytes( [{ 0x80: 0x01 },
+                                { 0x80: 0x08 | 0x4 },
+                                { 0x80: 0x28 }] )
+
+            var txt_value = []
+
+            for( var i = 0; i < txt.length; i++ ) {
+                txt_value = txt_value.concat( [{ 0x40: txt.charCodeAt(i) }] )
+            }
+            txt_value = txt_value.concat({ 0x80: 0xC0 })
+            for( i = 0; i < txt2.length; i++ ) {
+                txt_value = txt_value.concat( [{ 0x40: txt2.charCodeAt(i) }] )
+            }
+            txtDev.writeBytes(txt_value)
+        }
     }
 
     ColorDialog {
