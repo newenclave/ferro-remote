@@ -22,6 +22,9 @@ namespace fr { namespace agent {
 
     public:
 
+        i2c_helper( const i2c_helper & ) = delete;
+        i2c_helper &operator = ( const i2c_helper & ) = delete;
+
         i2c_helper( unsigned bus_id );
         ~i2c_helper(  );
 
@@ -71,7 +74,7 @@ namespace fr { namespace agent {
         size_t write( const void *data, size_t length );
         size_t read(        void *data, size_t length );
 
-        int handle( ) const { return fd_; }
+        int handle( ) const noexcept { return fd_; }
     };
 
 }}
