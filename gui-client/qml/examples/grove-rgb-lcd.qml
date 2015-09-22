@@ -51,8 +51,8 @@ Rectangle {
             target: rgbDev
             onReadyChanged: {
                 if( value ) {
-                    lcdDevice.set_color( 0, 0, 0 )
                     lcdDevice.clear( )
+                    lcdDevice.set_color( 0, 0, 0 )
                 }
             }
         }
@@ -76,9 +76,9 @@ Rectangle {
                                  0x04: r, 0x03: g, 0x02: b } )
         }
 
-        function clear( txt, txt2 )
+        function clear( )
         {
-            txtDev.writeBytes({ 0x80: 0x01 })
+            txtDev.writeBytes( [{ 0x80: 0x01 }] )
         }
 
         function set_text( txt, txt2 )
@@ -86,7 +86,6 @@ Rectangle {
             txtDev.writeBytes( [{ 0x80: 0x01 },
                                 { 0x80: 0x08 | 0x4 },
                                 { 0x80: 0x28 }] )
-
             var txt_value = []
 
             for( var i = 0; i < txt.length; i++ ) {
