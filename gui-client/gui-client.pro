@@ -26,7 +26,8 @@ SOURCES += main.cpp \
     fr-client-fs-iterator.cpp \
     fr-client-component.cpp \
     fr-client-gpio.cpp \
-    fr-client-i2c.cpp
+    fr-client-i2c.cpp \
+    fr-client-spi.cpp
 
 include( ferro-remote-templ.pri )
 
@@ -52,5 +53,6 @@ HEADERS += \
     fr-client-fs-iterator.h \
     fr-client-component.h \
     fr-client-gpio.h \
-    fr-client-i2c.h
+    fr-client-i2c.h \
+    fr-client-spi.h
 
