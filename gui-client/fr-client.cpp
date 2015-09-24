@@ -99,7 +99,6 @@ namespace fr { namespace declarative {
                                           async_connect_handler );
             impl_->state_ = impl::state_connect;
         }
-
         FR_QML_CALL_EPILOGUE(  )
     }
 

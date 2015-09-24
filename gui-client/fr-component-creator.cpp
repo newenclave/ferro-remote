@@ -8,6 +8,7 @@
 #include "fr-client-file.h"
 #include "fr-client-gpio.h"
 #include "fr-client-i2c.h"
+#include "fr-client-spi.h"
 
 #include "qtquick2applicationviewer.h"
 
@@ -92,6 +93,7 @@ namespace fr { namespace declarative {
         qmlRegisterType<FrClientFile>( "Fr.Client", 1, 0, "FrClientFile" );
         qmlRegisterType<FrClientGpio>( "Fr.Client", 1, 0, "FrClientGpio" );
         qmlRegisterType<FrClientI2c> ( "Fr.Client", 1, 0, "FrClientI2c"  );
+        qmlRegisterType<FrClientSPI> ( "Fr.Client", 1, 0, "FrClientSPI"  );
     }
 
 }}

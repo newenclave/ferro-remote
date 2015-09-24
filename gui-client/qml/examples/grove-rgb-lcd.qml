@@ -45,6 +45,13 @@ Rectangle {
 
                 lcdDevice.set_color( r, g, b )
             }
+            onCurrentColorChanged: {
+                var r = fix(colorDialog.currentColor.r)
+                var g = fix(colorDialog.currentColor.g)
+                var b = fix(colorDialog.currentColor.b)
+
+                lcdDevice.set_color( r, g, b )
+            }
         }
 
         Connections {
