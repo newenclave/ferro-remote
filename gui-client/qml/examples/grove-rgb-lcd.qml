@@ -19,6 +19,9 @@ Rectangle {
         id: lcdDevice
         width: 0
         height: 0
+
+        property bool ready: txtDev.ready && rgbDev.ready
+
         FrClientI2c {
             id: txtDev
             client: generalClient
@@ -32,6 +35,7 @@ Rectangle {
             busId: 1
             slaveAddress: 0x62
         }
+
         Connections {
             target: colorDialog
             function fix( val )
@@ -54,13 +58,11 @@ Rectangle {
             }
         }
 
-        Connections {
-            target: rgbDev
-            onReadyChanged: {
-                if( value ) {
-                    lcdDevice.clear( )
-                    lcdDevice.set_color( 0, 0, 0 )
-                }
+        onReadyChanged: {
+            if( ready ) {
+                //clear( )
+                set_color( 100, 100, 100 )
+                set_text( "Hola,", "raspberrypi.ru" )
             }
         }
 
