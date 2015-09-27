@@ -56,7 +56,7 @@ namespace fr { namespace agent { namespace subsys {
 
         //const char *s_channels[2] = { "/dev/spidev0.0", "/dev/spidev0.1" };
         const uint8_t   spi_BPW   = 8;
-        const uint16_t  spi_delay = 0;
+        const uint16_t  spi_delay = 2;
 
         using file_map = agent::index_map<vtrc::uint32_t, spi_info> ;
 
