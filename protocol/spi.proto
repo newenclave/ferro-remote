@@ -55,7 +55,6 @@ message write_read_list_res {
     repeated uint32 errors = 3;
 }
 
-
 message register_info {
 
     enum register_bits {

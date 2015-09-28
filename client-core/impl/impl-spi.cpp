@@ -17,6 +17,48 @@ namespace fr { namespace client { namespace interfaces {
         typedef vcomm::stub_wrapper<stub_type, channel_type> client_type;
         static const unsigned nw_flag = vcomm::rpc_channel::DISABLE_WAIT;
 
+        typedef proto::spi::register_info register_info;
+        typedef register_info::register_bits register_bits;
+
+        template <typename T>
+        struct type_to_enum;
+
+        template <>
+        struct type_to_enum<uint8_t> {
+            typedef spi::cmd_uint8_vector res_type;
+            static const register_bits value = register_info::REG_8BIT;
+        };
+
+        template <>
+        struct type_to_enum<uint16_t> {
+            typedef spi::cmd_uint16_vector res_type;
+            static const register_bits value = register_info::REG_16BIT;
+        };
+
+        template <>
+        struct type_to_enum<uint32_t> {
+            typedef spi::cmd_uint32_vector res_type;
+            static const register_bits value = register_info::REG_32BIT;
+        };
+
+        template <>
+        struct type_to_enum<uint64_t> {
+            typedef spi::cmd_uint64_vector res_type;
+            static const register_bits value = register_info::REG_64BIT;
+        };
+
+        register_bits bits_val2enum( unsigned val )
+        {
+            switch (val) {
+            case register_info::REG_8BIT:
+            case register_info::REG_16BIT:
+            case register_info::REG_32BIT:
+            case register_info::REG_64BIT:
+                return static_cast<register_bits>(val);
+            }
+            return register_info::REG_8BIT;
+        }
+
         vtrc::uint32_t open_instance( client_type &cl,
                                       unsigned bus, unsigned channel,
                                       unsigned speed, unsigned mode )
@@ -37,6 +79,7 @@ namespace fr { namespace client { namespace interfaces {
 
             mutable client_type client_;
             vtrc::uint32_t      hdl_;
+            vtrc::uint32_t      addr_;
 
         public:
 
@@ -45,6 +88,7 @@ namespace fr { namespace client { namespace interfaces {
                       unsigned speed, unsigned mode )
                 :client_(cl.create_channel( ), true)
                 ,hdl_(open_instance(client_, bus, channel, speed, mode))
+                ,addr_(0)
             { }
 
             ~spi_impl( )
@@ -72,6 +116,11 @@ namespace fr { namespace client { namespace interfaces {
                 client_.call_request( &stub_type::close, &hdl );
             }
 
+            void set_address( unsigned address ) override
+            {
+                addr_ = address;
+            }
+
             void setup( unsigned speed, unsigned mode ) const override
             {
                 sproto::setup_req req;
@@ -79,6 +128,60 @@ namespace fr { namespace client { namespace interfaces {
                 req.mutable_setup( )->set_speed( speed );
                 req.mutable_setup( )->set_speed( mode );
                 client_.call_request( &stub_type::setup, &req );
+            }
+
+            template <typename T>
+            typename type_to_enum<T>::res_type
+                get_regs( const spi::uint8_vector &regs ) const
+            {
+                typedef spi::uint8_vector::const_iterator citr;
+                typename type_to_enum<T>::res_type ret;
+
+                proto::spi::get_register_list_req req;
+                proto::spi::get_register_list_res res;
+
+                req.mutable_hdl( )->set_value( hdl_ );
+
+                for( citr b(regs.begin( )), e(regs.end( )); b!=e; ++b ) {
+                    proto::spi::register_info *ni = req.add_infos( );
+                    ni->set_address( addr_ );
+                    ni->set_bits( type_to_enum<T>::value );
+                    ni->set_reg( *b );
+                }
+
+                client_.call( &stub_type::get_register_list, &req, &res );
+
+                ret.reserve( res.infos_size( ) );
+                for( int i=0; i<res.infos_size( ); i++ ) {
+                    const proto::spi::register_info &ni(res.infos(i));
+                    ret.push_back( std::make_pair( ni.reg( ), ni.value( ) ) );
+                }
+
+                return ret;
+
+            }
+
+            spi::cmd_uint8_vector
+                read_regs8( const spi::uint8_vector &regs ) const override
+            {
+                return get_regs<uint8_t>( regs );
+            }
+
+            spi::cmd_uint16_vector
+                read_regs16( const spi::uint8_vector &regs ) const override
+            {
+                return get_regs<uint16_t>( regs );
+            }
+            spi::cmd_uint32_vector
+                read_regs32( const spi::uint8_vector &regs ) const override
+            {
+                return get_regs<uint32_t>( regs );
+            }
+
+            spi::cmd_uint64_vector
+                read_regs64( const spi::uint8_vector &regs ) const override
+            {
+                return get_regs<uint64_t>( regs );
             }
 
             std::string transfer( const unsigned char *data,

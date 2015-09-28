@@ -4,6 +4,9 @@
 #include "IBaseIface.h"
 
 #include <string>
+#include <stdint.h>
+#include <vector>
+#include <map>
 
 namespace fr { namespace client {
 
@@ -28,16 +31,38 @@ namespace interfaces { namespace spi {
         case REG_32BIT:
         case REG_64BIT:
         case REG_8BIT:
-        default:
             return static_cast<reg_type>(val);
         }
         return REG_8BIT;
     }
 
+    typedef std::vector<uint8_t> uint8_vector; // registry for read
+    typedef std::pair<uint8_t, uint8_t>  cmd_uint8;  /// command + val8
+    typedef std::pair<uint8_t, uint16_t> cmd_uint16; /// command + val16
+    typedef std::pair<uint8_t, uint32_t> cmd_uint32; /// command + val32
+    typedef std::pair<uint8_t, uint64_t> cmd_uint64; /// command + val64
+
+    typedef std::vector<cmd_uint8>  cmd_uint8_vector;
+    typedef std::vector<cmd_uint16> cmd_uint16_vector;
+    typedef std::vector<cmd_uint32> cmd_uint32_vector;
+    typedef std::vector<cmd_uint64> cmd_uint64_vector;
+
     struct iface: public interfaces::base {
         virtual ~iface( ) { }
         virtual void close( ) const = 0;
         virtual void setup( unsigned speed, unsigned mode ) const = 0;
+
+        virtual cmd_uint8_vector read_regs8(
+                                    const uint8_vector &regs) const = 0;
+        virtual cmd_uint16_vector read_regs16(
+                                    const uint8_vector &regs) const = 0;
+        virtual cmd_uint32_vector read_regs32(
+                                    const uint8_vector &regs) const = 0;
+        virtual cmd_uint64_vector read_regs64(
+                                    const uint8_vector &regs) const = 0;
+
+        virtual void set_address( unsigned address ) = 0;
+
         virtual std::string transfer( const unsigned char *data,
                                       size_t len ) const = 0;
     };
