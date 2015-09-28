@@ -25,6 +25,8 @@ namespace fr { namespace agent {
         ~spi_helper( );
 
         void transfer( char *buf, size_t len );
+        int  transfer_nothrow( char *buf, size_t len );
+
         void setup( uint32_t mode, uint32_t speed );
 
         void     set_reg8 ( uint32_t addr,  uint32_t reg, uint8_t  value );

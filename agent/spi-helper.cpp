@@ -54,6 +54,12 @@ namespace fr { namespace agent {
 
     void spi_helper::transfer( char *buf, size_t len )
     {
+        auto res = transfer_nothrow( buf, len );
+        errno_error::errno_assert( res != -1, "spi_transfer" );
+    }
+
+    int spi_helper::transfer_nothrow( char *buf, size_t len )
+    {
         spi_ioc_transfer txrx = {0};
         txrx.len              = len;
         txrx.tx_buf           = reinterpret_cast<uint64_t>(buf);
@@ -62,8 +68,7 @@ namespace fr { namespace agent {
         txrx.delay_usecs      = spi_delay;
         txrx.bits_per_word    = spi_BPW;
 
-        auto res = ioctl( fd_, SPI_IOC_MESSAGE(1), &txrx );
-        errno_error::errno_assert( res != -1, "spi_transfer" );
+        return ioctl( fd_, SPI_IOC_MESSAGE(1), &txrx );
     }
 
     void spi_helper::setup( uint32_t mode, uint32_t speed )

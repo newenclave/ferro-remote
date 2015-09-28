@@ -158,6 +158,16 @@ namespace fr { namespace agent { namespace subsys {
 
             }
 
+            void close(::google::protobuf::RpcController* /*controller*/,
+                     const ::fr::proto::handle*           request,
+                     ::fr::proto::empty*                  /*response*/,
+                     ::google::protobuf::Closure* done) override
+            {
+                vcomm::closure_holder holder(done);
+
+                files_.del( request->value( ) );
+            }
+
             void write_read(::google::protobuf::RpcController* /*controller*/,
                      const ::fr::proto::spi::write_read_req* request,
                      ::fr::proto::spi::write_read_res* response,
@@ -177,13 +187,42 @@ namespace fr { namespace agent { namespace subsys {
                 si.file_->transfer( data, request->data( ).size( ) );
             }
 
-            void close(::google::protobuf::RpcController* /*controller*/,
-                     const ::fr::proto::handle*           request,
-                     ::fr::proto::empty*                  /*response*/,
+            void write_read_list(::google::protobuf::RpcController* /*control*/,
+                     const ::fr::proto::spi::write_read_list_req* request,
+                     ::fr::proto::spi::write_read_list_res* response,
                      ::google::protobuf::Closure* done) override
             {
                 vcomm::closure_holder holder(done);
-                files_.del( request->value( ) );
+                if( request->datas_size( ) == 0 ) {
+                    return;
+                }
+
+                spi_info &si = get_file( request->hdl( ).value( ) );
+
+                if( request->nothrow( ) ) {
+                    for( auto &d: request->datas( ) ) {
+                        auto nd = response->add_datas( );
+                        if( !d.empty( ) ) {
+                            nd->assign( d.begin( ), d.end( ) );
+                            char *data = &(*nd)[0];
+                            auto res = si.file_->transfer_nothrow( data,
+                                                                nd->size( ) );
+                            response->add_errors( -1 == res ? errno : 0 );
+                        } else {
+                            response->add_errors( 0 );
+                        }
+                    }
+                } else {
+                    for( auto &d: request->datas( ) ) {
+                        auto nd = response->add_datas( );
+                        if( !d.empty( ) ) {
+                            nd->assign( d.begin( ), d.end( ) );
+                            char *data = &(*nd)[0];
+                            si.file_->transfer( data, nd->size( ) );
+                        }
+                    }
+                }
+
             }
 
             static const std::string &name( )

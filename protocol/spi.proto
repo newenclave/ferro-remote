@@ -44,6 +44,16 @@ message write_read_res {
     optional bytes  data  = 2;
 }
 
+message write_read_list_req {
+    optional handle hdl     = 1;
+    repeated bytes  datas   = 2;
+    optional bool   nothrow = 3;
+}
+
+message write_read_list_res {
+    repeated bytes  datas  = 2;
+    repeated uint32 errors = 3;
+}
 
 service instance {
 
@@ -51,7 +61,9 @@ service instance {
 
     rpc open       (open_req)        returns (open_res);
     rpc setup      (setup_req)       returns (setup_res);
-    rpc write_read (write_read_req)  returns (write_read_res);
     rpc close      (handle)          returns (empty);
+
+    rpc write_read      (write_read_req)  returns (write_read_res);
+    rpc write_read_list (write_read_list_req)  returns (write_read_list_res);
 }
 
