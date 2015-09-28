@@ -304,6 +304,7 @@ namespace fr { namespace agent {
     {
         auto res = transfer_nothrow( txbuf, txlen, rxbuf, rxlen );
         errno_error::errno_assert( -1 != res, "i2c_transfer" );
+        return res;
     }
 
     ssize_t i2c_helper::transfer_nothrow( void *txbuf, size_t txlen,

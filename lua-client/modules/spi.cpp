@@ -332,7 +332,7 @@ namespace {
             auto d    = m->get_dev( h );
             auto data = ls.get_opt<std::string>( 2 );
             auto ptr  = reinterpret_cast<const unsigned char *>(data.c_str( ));
-            ls.push( d->write_read( ptr, data.size( ) ));
+            ls.push( d->transfer( ptr, data.size( ) ));
         } catch( const std::exception &ex ) {
             ls.push( );
             ls.push( ex.what( ) );

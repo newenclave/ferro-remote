@@ -81,8 +81,8 @@ namespace fr { namespace client { namespace interfaces {
                 client_.call_request( &stub_type::setup, &req );
             }
 
-            std::string write_read( const unsigned char *data,
-                                    size_t len ) const override
+            std::string transfer( const unsigned char *data,
+                                  size_t len ) const override
             {
                 sproto::write_read_req req;
                 sproto::write_read_res res;
