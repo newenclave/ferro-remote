@@ -47,17 +47,17 @@ namespace fr { namespace client { namespace interfaces {
             static const register_bits value = register_info::REG_64BIT;
         };
 
-        register_bits bits_val2enum( unsigned val )
-        {
-            switch (val) {
-            case register_info::REG_8BIT:
-            case register_info::REG_16BIT:
-            case register_info::REG_32BIT:
-            case register_info::REG_64BIT:
-                return static_cast<register_bits>(val);
-            }
-            return register_info::REG_8BIT;
-        }
+//        register_bits bits_val2enum( unsigned val )
+//        {
+//            switch (val) {
+//            case register_info::REG_8BIT:
+//            case register_info::REG_16BIT:
+//            case register_info::REG_32BIT:
+//            case register_info::REG_64BIT:
+//                return static_cast<register_bits>(val);
+//            }
+//            return register_info::REG_8BIT;
+//        }
 
         vtrc::uint32_t open_instance( client_type &cl,
                                       unsigned bus, unsigned channel,
