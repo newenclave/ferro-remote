@@ -40,8 +40,8 @@ namespace fr { namespace agent { namespace subsys {
         namespace vcomm = vtrc::common;
         using proto_instance = fr::proto::spi::instance;
 
-        using file_sptr = vtrc::shared_ptr<agent::file_iface>;
-        using file_wptr = vtrc::weak_ptr<agent::file_iface>  ;
+        using file_sptr = vtrc::shared_ptr<agent::spi_helper>;
+        using file_wptr = vtrc::weak_ptr<agent::spi_helper>  ;
 
         struct spi_info {
             file_sptr       file_;
@@ -55,10 +55,6 @@ namespace fr { namespace agent { namespace subsys {
                 :speed_(speed)
             { }
         };
-
-        //const char *s_channels[2] = { "/dev/spidev0.0", "/dev/spidev0.1" };
-        const uint8_t   spi_BPW   = 8;
-        const uint16_t  spi_delay = 2;
 
         using file_map = agent::index_map<vtrc::uint32_t, spi_info> ;
 
@@ -75,20 +71,7 @@ namespace fr { namespace agent { namespace subsys {
         void setup_device( file_sptr f, vtrc::uint32_t speed,
                                         vtrc::uint32_t mode )
         {
-            uint8_t bits = spi_BPW;
-
-            /// mode SPI_MODE_0..SPI_MODE_3
-            mode &= 3;
-
-            /// set mode
-            f->ioctl( SPI_IOC_WR_MODE,             &mode );
-            /// set bits per words
-
-            f->ioctl( SPI_IOC_WR_BITS_PER_WORD,    &bits );
-            if( speed ) {
-                // set speed
-                f->ioctl( SPI_IOC_WR_MAX_SPEED_HZ, &speed );
-            }
+            f->setup( mode, speed );
         }
 
         class proto_impl: public proto_instance {
@@ -140,7 +123,8 @@ namespace fr { namespace agent { namespace subsys {
                 LOGDBG << "Try to open " << name << "...";
 
                 spi_info si;
-                si.file_.reset( agent::file::create( name, O_RDWR ) );
+                si.file_.reset( new agent::spi_helper( request->bus( ),
+                                                       request->channel( ) ) );
 
                 LOGDBG << name << ": was success opened.";
 
@@ -190,15 +174,7 @@ namespace fr { namespace agent { namespace subsys {
                 response->set_data( request->data( ) );
                 char *data = &(*response->mutable_data( ))[0];
 
-                spi_ioc_transfer spi = {0};
-                spi.len              = request->data( ).size( );
-                spi.tx_buf           = reinterpret_cast<uint64_t>(data);
-                spi.rx_buf           = reinterpret_cast<uint64_t>(data);
-                spi.speed_hz         = si.speed_;
-                spi.delay_usecs      = spi_delay;
-                spi.bits_per_word    = spi_BPW;
-
-                si.file_->ioctl( SPI_IOC_MESSAGE(1), &spi );
+                si.file_->transfer( data, request->data( ).size( ) );
             }
 
             void close(::google::protobuf::RpcController* /*controller*/,
@@ -220,8 +196,7 @@ namespace fr { namespace agent { namespace subsys {
                                       fr::agent::application * app,
                                       vcomm::connection_iface_wptr cl )
         {
-            vtrc::shared_ptr<proto_impl>
-                            inst( vtrc::make_shared<proto_impl>( app, cl ) );
+            auto inst( vtrc::make_shared<proto_impl>( app, cl ) );
             return app->wrap_service( cl, inst );
         }
     }
