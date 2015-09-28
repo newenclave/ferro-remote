@@ -374,8 +374,10 @@ namespace fr { namespace agent { namespace subsys {
                         auto nd = response->add_datas( );
                         if( !d.empty( ) ) {
                             nd->assign( d.begin( ), d.end( ) );
+                            nd->resize( 255 );
                             char *data = &(*nd)[0];
-                            auto res = dev->transfer_nothrow(data, nd->size( ),
+
+                            auto res = dev->transfer_nothrow(data, d.size( ),
                                                              data, nd->size( ));
                             if( -1 == res ) {
                                 response->add_errors( errno );
