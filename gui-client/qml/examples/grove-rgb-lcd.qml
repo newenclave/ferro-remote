@@ -60,9 +60,9 @@ Rectangle {
 
         onReadyChanged: {
             if( ready ) {
-                //clear( )
-                set_color( 100, 100, 100 )
-                set_text( "Hola,", "raspberrypi.ru" )
+                clear( )
+                set_color( 0, 0, 0 )
+                //set_text( "Hola,", "raspberrypi.ru" )
             }
         }
 

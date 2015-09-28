@@ -12,6 +12,8 @@
 #include "files.h"
 #include "index-map.h"
 
+#include "spi-helper.h"
+
 #include "protocol/spi.pb.h"
 
 #include "vtrc-common/vtrc-exception.h"
@@ -112,6 +114,17 @@ namespace fr { namespace agent { namespace subsys {
             spi_info &get_file( vtrc::uint32_t id )
             {
                 return files_.get( id, EBADF, "Bad SPI file number." );
+            }
+
+            void bus_available(::google::protobuf::RpcController* /*control*/,
+                     const ::fr::proto::spi::bus_available_req* request,
+                     ::fr::proto::spi::bus_available_res* response,
+                     ::google::protobuf::Closure* done) override
+            {
+                vcomm::closure_holder holder(done);
+                response->set_value( agent::spi::available(
+                                         request->bus_id( ),
+                                         request->channel( ) ) );
             }
 
             void open(::google::protobuf::RpcController* /*controller*/,
