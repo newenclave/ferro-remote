@@ -71,6 +71,7 @@ namespace fr { namespace agent {
 
     i2c_helper::i2c_helper( unsigned bus_id )
         :fd_(open_bus(bus_id))
+        ,address_(-1)
     { }
 
     i2c_helper::~i2c_helper(  )
@@ -297,6 +298,40 @@ namespace fr { namespace agent {
         errno_error::errno_assert( -1 != res, "read" );
         return static_cast<size_t>(res);
     }
+
+    void i2c_helper::transfer( void *txbuf, size_t txlen,
+                               void *rxbuf, size_t rxlen )
+    {
+        auto res = transfer_nothrow( txbuf, txlen, rxbuf, rxlen );
+        errno_error::errno_assert( -1 != res, "i2c_transfer" );
+    }
+
+    int i2c_helper::transfer_nothrow( void *txbuf, size_t txlen,
+                                      void *rxbuf, size_t rxlen )
+    {
+        auto cbuf = static_cast<unsigned char *>(txbuf);
+
+        if( cbuf[0] != address_ ) {
+           if( ::ioctl(fd_, I2C_SLAVE, cbuf[0] >> 1) < 0 ) {
+               return -1;
+           }
+           address_ = cbuf[0];
+        }
+
+        auto res = ::write( fd_, cbuf+1, txlen-1 );
+        if( res != static_cast<ssize_t>( txlen - 1 ) ) {
+            return -1;
+        }
+
+        if( (rxlen > 0) ) {
+            res = ::read( fd_, rxbuf, rxlen );
+            if( res != static_cast<ssize_t>(rxlen) ) {
+                return -1;
+            }
+        }
+        return 0;
+    }
+
 
     namespace i2c {
 

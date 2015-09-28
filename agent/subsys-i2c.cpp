@@ -104,8 +104,7 @@ namespace fr { namespace agent { namespace subsys {
                 response->mutable_hdl( )->set_value( next_hdl );
 
                 if( request->has_slave_id( ) ) {
-                    unsigned long slv =
-                            static_cast<unsigned long>(request->slave_id( ));
+                    auto slv = static_cast<unsigned long>(request->slave_id( ));
                     bool force = request->force_slave( );
                     new_dev->ioctl( force ? I2C_SLAVE_FORCE : I2C_SLAVE, slv );
                 }
