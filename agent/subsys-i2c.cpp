@@ -334,6 +334,74 @@ namespace fr { namespace agent { namespace subsys {
                 }
             }
 
+            void write_read(::google::protobuf::RpcController* /*controller*/,
+                     const ::fr::proto::i2c::write_read_req* request,
+                     ::fr::proto::i2c::write_read_res* response,
+                     ::google::protobuf::Closure* done) override
+            {
+                vcomm::closure_holder holder( done );
+
+                if( request->data( ).empty( ) ) {
+                    return;
+                }
+                i2c_sptr dev(i2c_by_index( request->hdl( ).value( ) ));
+
+                response->set_data( request->data( ) );
+                response->mutable_data( )->resize( 255 );
+
+                char *data = &(*response->mutable_data( ))[0];
+
+                auto res = dev->transfer( data, request->data( ).size( ),
+                                          data, 255 );
+                response->mutable_data( )->resize( res );
+            }
+
+            void write_read_list(::google::protobuf::RpcController* /*control*/,
+                     const ::fr::proto::i2c::write_read_list_req* request,
+                     ::fr::proto::i2c::write_read_list_res* response,
+                     ::google::protobuf::Closure* done) override
+            {
+                vcomm::closure_holder holder( done );
+
+                if( request->datas_size( ) == 0 ) {
+                    return;
+                }
+
+                i2c_sptr dev(i2c_by_index( request->hdl( ).value( ) ));
+
+                if( request->nothrow( ) ) {
+                    for( auto &d: request->datas( ) ) {
+                        auto nd = response->add_datas( );
+                        if( !d.empty( ) ) {
+                            nd->assign( d.begin( ), d.end( ) );
+                            char *data = &(*nd)[0];
+                            auto res = dev->transfer_nothrow(data, nd->size( ),
+                                                             data, nd->size( ));
+                            if( -1 == res ) {
+                                response->add_errors( errno );
+                            } else {
+                                nd->resize( res );
+                                response->add_errors( 0 );
+                            }
+                        } else {
+                            response->add_errors( 0 );
+                        }
+                    }
+                } else {
+                    for( auto &d: request->datas( ) ) {
+                        auto nd = response->add_datas( );
+                        if( !d.empty( ) ) {
+                            nd->assign( d.begin( ), d.end( ) );
+                            nd->resize( 255 );
+                            char *data = &(*nd)[0];
+                            auto res = dev->transfer( data, d.size( ),
+                                                      data, nd->size( ) );
+                            nd->resize( res );
+                        }
+                    }
+                }
+            }
+
             void process_call(::google::protobuf::RpcController* /*controller*/,
                          const ::fr::proto::i2c::write_read_data_req* request,
                          ::fr::proto::i2c::write_read_data_res* response,

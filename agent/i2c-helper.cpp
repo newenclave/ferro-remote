@@ -299,15 +299,15 @@ namespace fr { namespace agent {
         return static_cast<size_t>(res);
     }
 
-    void i2c_helper::transfer( void *txbuf, size_t txlen,
-                               void *rxbuf, size_t rxlen )
+    ssize_t i2c_helper::transfer( void *txbuf, size_t txlen,
+                                  void *rxbuf, size_t rxlen )
     {
         auto res = transfer_nothrow( txbuf, txlen, rxbuf, rxlen );
         errno_error::errno_assert( -1 != res, "i2c_transfer" );
     }
 
-    int i2c_helper::transfer_nothrow( void *txbuf, size_t txlen,
-                                      void *rxbuf, size_t rxlen )
+    ssize_t i2c_helper::transfer_nothrow( void *txbuf, size_t txlen,
+                                          void *rxbuf, size_t rxlen )
     {
         auto cbuf = static_cast<unsigned char *>(txbuf);
 
@@ -319,19 +319,20 @@ namespace fr { namespace agent {
         }
 
         auto res = ::write( fd_, cbuf+1, txlen-1 );
-        if( res != static_cast<ssize_t>( txlen - 1 ) ) {
+        if( res == -1 ) {
             return -1;
         }
 
         if( (rxlen > 0) ) {
             res = ::read( fd_, rxbuf, rxlen );
-            if( res != static_cast<ssize_t>(rxlen) ) {
+            if( res == -1 ) {
                 return -1;
             }
+            return res;
+        } else {
+            return 0;
         }
-        return 0;
     }
-
 
     namespace i2c {
 

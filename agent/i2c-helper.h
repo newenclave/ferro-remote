@@ -70,10 +70,10 @@ namespace fr { namespace agent {
         void smbus_write_block_broken( uint8_t cmd,
                                        const uint8_t *data, uint8_t length );
 
-        void transfer( void *txbuf, size_t txlen,
-                       void *rxbuf, size_t rxlen );
-        int  transfer_nothrow( void *txbuf, size_t txlen,
-                               void *rxbuf, size_t rxlen );
+        ssize_t transfer( void *txbuf, size_t txlen,
+                          void *rxbuf, size_t rxlen );
+        ssize_t transfer_nothrow( void *txbuf, size_t txlen,
+                                  void *rxbuf, size_t rxlen );
 
         /// read and write as file
         size_t write( const void *data, size_t length );

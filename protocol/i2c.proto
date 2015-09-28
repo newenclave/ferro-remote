@@ -128,6 +128,26 @@ message write_read_datas_res {
     optional code_data.list  response = 1;
 }
 
+message write_read_req {
+    optional handle hdl   = 1;
+    optional bytes  data  = 2;
+}
+
+message write_read_res {
+    optional bytes  data  = 2;
+}
+
+message write_read_list_req {
+    optional handle hdl     = 1;
+    repeated bytes  datas   = 2;
+    optional bool   nothrow = 3;
+}
+
+message write_read_list_res {
+    repeated bytes  datas  = 2;
+    repeated uint32 errors = 3;
+}
+
 service instance {
 
     rpc ping( empty ) returns ( empty );
@@ -161,6 +181,9 @@ service instance {
     /// word  -> I2C_SMBUS_PROC_CALL -> word as result
     /// or data block -> I2C_SMBUS_BLOCK_PROC_CALL -> data block as result
     rpc process_call( write_read_data_req ) returns ( write_read_data_res );
+
+    rpc write_read      (write_read_req)  returns (write_read_res);
+    rpc write_read_list (write_read_list_req)  returns (write_read_list_res);
 
     rpc ioctl( ioctl_req ) returns ( ioctl_res );
     rpc func_mask( func_mask_req ) returns ( func_mask_res );
