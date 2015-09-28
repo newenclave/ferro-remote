@@ -156,9 +156,7 @@ namespace fr { namespace client { namespace interfaces {
                     const proto::spi::register_info &ni(res.infos(i));
                     ret.push_back( std::make_pair( ni.reg( ), ni.value( ) ) );
                 }
-
                 return ret;
-
             }
 
             spi::cmd_uint8_vector
