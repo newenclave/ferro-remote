@@ -48,7 +48,7 @@ namespace interfaces { namespace gpio {
         case EDGE_BOTH:
             return static_cast<edge_type>(val);
         }
-        return gpio::EDGE_NONE;
+        return EDGE_NONE;
     }
 
     ///
