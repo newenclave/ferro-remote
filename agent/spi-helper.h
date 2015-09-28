@@ -12,8 +12,8 @@ namespace fr { namespace agent {
 
     class spi_helper {
 
-        int fd_;
-//        uint32_t mode_;
+        int      fd_;
+        uint32_t address_;
         uint32_t speed_;
 
     public:
@@ -27,6 +27,10 @@ namespace fr { namespace agent {
         void transfer( char *buf, size_t len );
         void setup( uint32_t mode, uint32_t speed );
 
+        void    set_reg8( uint32_t addr, uint32_t reg, uint8_t value );
+        uint8_t get_reg8( uint32_t addr, uint32_t reg );
+
+        uint32_t address( ) const noexcept { return address_; }
         int handle( ) const noexcept { return fd_; }
     };
 

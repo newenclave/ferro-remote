@@ -43,6 +43,7 @@ namespace fr { namespace agent {
 
     spi_helper::spi_helper( unsigned bus_id, unsigned channel )
         :fd_(open_bus( bus_id, channel ))
+        ,address_(0)
         ,speed_(450000)
     { }
 
@@ -91,6 +92,29 @@ namespace fr { namespace agent {
         errno_error::errno_assert( res != -1, "spi_setup_speed" );
         res = ioctl( fd_, SPI_IOC_RD_MAX_SPEED_HZ, &speed );
         errno_error::errno_assert( res != -1, "spi_setup_speed" );
+    }
+
+    void spi_helper::set_reg8( uint32_t addr, uint32_t reg, uint8_t val )
+    {
+        char buf[8];
+
+        buf[0] = addr && 0xFF;
+        buf[1] = reg  && 0xFF;
+        buf[2] = val;
+
+        transfer( buf, 3 );
+    }
+
+    uint8_t spi_helper::get_reg8( uint32_t addr, uint32_t reg )
+    {
+        char buf[8];
+
+        buf[0] = (addr && 0xFF ) | 1;
+        buf[1] = reg && 0xFF;
+
+        transfer (buf, 3);
+
+        return buf[2];
     }
 
 
