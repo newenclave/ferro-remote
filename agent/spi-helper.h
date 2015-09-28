@@ -29,26 +29,26 @@ namespace fr { namespace agent {
 
         void setup( uint32_t mode, uint32_t speed );
 
-        void     set_reg8 ( uint32_t addr,  uint32_t reg, uint8_t  value );
-        void     set_reg8 (                 uint32_t reg, uint8_t  value );
+        void     set_reg8 ( uint32_t addr, uint32_t reg, uint8_t  value );
+        void     set_reg8 (                uint32_t reg, uint8_t  value );
 
-        void     set_reg16( uint32_t addr,  uint32_t reg, uint16_t value );
-        void     set_reg16(                 uint32_t reg, uint16_t value );
+        void     set_reg16( uint32_t addr, uint32_t reg, uint16_t value );
+        void     set_reg16(                uint32_t reg, uint16_t value );
 
-        void     set_reg32( uint32_t addr,  uint32_t reg, uint32_t value );
-        void     set_reg32(                 uint32_t reg, uint32_t value );
+        void     set_reg32( uint32_t addr, uint32_t reg, uint32_t value );
+        void     set_reg32(                uint32_t reg, uint32_t value );
 
-        void     set_reg64( uint32_t addr,  uint32_t reg, uint64_t value );
-        void     set_reg64(                 uint32_t reg, uint64_t value );
+        void     set_reg64( uint32_t addr, uint32_t reg, uint64_t value );
+        void     set_reg64(                uint32_t reg, uint64_t value );
 
-        uint8_t  get_reg8 ( uint32_t addr,  uint32_t reg );
-        uint8_t  get_reg8 (                 uint32_t reg );
-        uint16_t get_reg16( uint32_t addr,  uint32_t reg );
-        uint16_t get_reg16(                 uint32_t reg );
-        uint32_t get_reg32( uint32_t addr,  uint32_t reg );
-        uint32_t get_reg32(                 uint32_t reg );
-        uint64_t get_reg64( uint32_t addr,  uint32_t reg );
-        uint64_t get_reg64(                 uint32_t reg );
+        uint8_t  get_reg8 ( uint32_t addr, uint32_t reg );
+        uint8_t  get_reg8 (                uint32_t reg );
+        uint16_t get_reg16( uint32_t addr, uint32_t reg );
+        uint16_t get_reg16(                uint32_t reg );
+        uint32_t get_reg32( uint32_t addr, uint32_t reg );
+        uint32_t get_reg32(                uint32_t reg );
+        uint64_t get_reg64( uint32_t addr, uint32_t reg );
+        uint64_t get_reg64(                uint32_t reg );
 
         void set_address( uint32_t val ) noexcept { address_ = val; }
         uint32_t address( ) const noexcept { return address_; }
