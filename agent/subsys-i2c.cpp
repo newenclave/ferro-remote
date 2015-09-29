@@ -368,9 +368,9 @@ namespace fr { namespace agent { namespace subsys {
             }
 
             void transfer(::google::protobuf::RpcController* /*controller*/,
-                     const ::fr::proto::i2c::transfer_req* request,
-                     ::fr::proto::i2c::transfer_res* response,
-                     ::google::protobuf::Closure* done) override
+                         const ::fr::proto::i2c::transfer_req* request,
+                         ::fr::proto::i2c::transfer_res* response,
+                         ::google::protobuf::Closure* done) override
             {
                 vcomm::closure_holder holder( done );
                 i2c_sptr dev(i2c_by_index( request->hdl( ).value( ) ));
@@ -384,9 +384,9 @@ namespace fr { namespace agent { namespace subsys {
             }
 
             void transfer_list(::google::protobuf::RpcController* /*control*/,
-                     const ::fr::proto::i2c::transfer_list_req* request,
-                     ::fr::proto::i2c::transfer_list_res* response,
-                     ::google::protobuf::Closure* done) override
+                         const ::fr::proto::i2c::transfer_list_req* request,
+                         ::fr::proto::i2c::transfer_list_res* response,
+                         ::google::protobuf::Closure* done) override
             {
                 vcomm::closure_holder holder( done );
                 i2c_sptr dev(i2c_by_index( request->hdl( ).value( ) ));
