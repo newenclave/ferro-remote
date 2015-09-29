@@ -67,6 +67,22 @@ namespace fr { namespace agent {
             return ioctl( fd, I2C_SMBUS, &params );
         }
 
+        ssize_t transfer_impl( int fd,
+                               void *txbuf, size_t txlen,
+                               void *rxbuf, size_t rxlen )
+        {
+            auto res = ::write( fd, txbuf, txlen );
+            if( res == -1 ) {
+                return res;
+            }
+
+            if( rxlen > 0 ) {
+                res = ::read( fd, rxbuf, rxlen );
+                return res;
+            }
+            return 0;
+        }
+
     }
 
     i2c_helper::i2c_helper( unsigned bus_id )
@@ -299,40 +315,39 @@ namespace fr { namespace agent {
         return static_cast<size_t>(res);
     }
 
-    ssize_t i2c_helper::transfer( void *txbuf, size_t txlen,
-                                  void *rxbuf, size_t rxlen )
+    std::string i2c_helper::transfer(void *txbuf, size_t txlen , size_t rxlen)
     {
-        auto res = transfer_nothrow( txbuf, txlen, rxbuf, rxlen );
+        std::string ret;
+        ret.reserve( rxlen );
+        auto res = transfer_impl( fd_, txbuf, txlen, &ret[0], ret.size( ) );
         errno_error::errno_assert( -1 != res, "i2c_transfer" );
-        return res;
+        ret.resize( res );
+        return ret;
+    }
+
+    std::string i2c_helper::transfer_nothrow( void *txbuf, size_t txlen,
+                                              size_t rxlen )
+    {
+        std::string ret;
+        ret.reserve( rxlen );
+        auto res = transfer_impl( fd_, txbuf, txlen, &ret[0], ret.size( ) );
+        if( -1 == res ) {
+            ret.clear( );
+            return ret;
+        }
+        ret.resize( res );
+        return ret;
     }
 
     ssize_t i2c_helper::transfer_nothrow( void *txbuf, size_t txlen,
                                           void *rxbuf, size_t rxlen )
     {
-        auto cbuf = static_cast<unsigned char *>(txbuf);
+        return transfer_impl( fd_, txbuf, txlen, rxbuf, rxlen );
+    }
 
-        if( cbuf[0] != address_ ) {
-           if( ::ioctl(fd_, I2C_SLAVE, cbuf[0] >> 1) < 0 ) {
-               return -1;
-           }
-           address_ = cbuf[0];
-        }
-
-        auto res = ::write( fd_, cbuf+1, txlen-1 );
-        if( res == -1 ) {
-            return -1;
-        }
-
-        if( (rxlen > 0) ) {
-            res = ::read( fd_, rxbuf, rxlen );
-            if( res == -1 ) {
-                return -1;
-            }
-            return res;
-        } else {
-            return 0;
-        }
+    void i2c_helper::set_address( unsigned long addr, bool force )
+    {
+        ioctl( force ? I2C_SLAVE_FORCE : I2C_SLAVE, addr );
     }
 
     namespace i2c {

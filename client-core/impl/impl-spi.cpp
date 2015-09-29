@@ -185,11 +185,11 @@ namespace fr { namespace client { namespace interfaces {
             std::string transfer( const unsigned char *data,
                                   size_t len ) const override
             {
-                sproto::write_read_req req;
-                sproto::write_read_res res;
+                sproto::transfer_req req;
+                sproto::transfer_res res;
                 req.mutable_hdl( )->set_value( hdl_ );
                 req.set_data( data, len );
-                client_.call( &stub_type::write_read, &req, &res );
+                client_.call( &stub_type::transfer, &req, &res );
                 return res.data( );
             }
 

@@ -98,7 +98,7 @@ namespace fr { namespace agent { namespace subsys {
         uint64_t call_getter( file_sptr dev, int reg_bits,
                               uint32_t addr, uint32_t reg )
         {
-            uint64_t res;
+            uint64_t res = 0;
             switch (reg_bits) {
             case spiproto::register_info::REG_16BIT:
                 res = dev->get_reg16( addr, reg);
@@ -211,9 +211,9 @@ namespace fr { namespace agent { namespace subsys {
                 files_.del( request->value( ) );
             }
 
-            void write_read(::google::protobuf::RpcController* /*controller*/,
-                     const ::fr::proto::spi::write_read_req* request,
-                     ::fr::proto::spi::write_read_res* response,
+            void transfer(::google::protobuf::RpcController* /*controller*/,
+                     const ::fr::proto::spi::transfer_req* request,
+                     ::fr::proto::spi::transfer_res* response,
                      ::google::protobuf::Closure* done) override
             {
                 vcomm::closure_holder holder(done);
@@ -230,9 +230,9 @@ namespace fr { namespace agent { namespace subsys {
                 si.file_->transfer( data, request->data( ).size( ) );
             }
 
-            void write_read_list(::google::protobuf::RpcController* /*control*/,
-                     const ::fr::proto::spi::write_read_list_req* request,
-                     ::fr::proto::spi::write_read_list_res* response,
+            void transfer_list(::google::protobuf::RpcController* /*control*/,
+                     const ::fr::proto::spi::transfer_list_req* request,
+                     ::fr::proto::spi::transfer_list_res* response,
                      ::google::protobuf::Closure* done) override
             {
                 vcomm::closure_holder holder(done);

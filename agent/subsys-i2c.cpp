@@ -106,7 +106,7 @@ namespace fr { namespace agent { namespace subsys {
                 if( request->has_slave_id( ) ) {
                     auto slv = static_cast<unsigned long>(request->slave_id( ));
                     bool force = request->force_slave( );
-                    new_dev->ioctl( force ? I2C_SLAVE_FORCE : I2C_SLAVE, slv );
+                    new_dev->set_address( slv, force );
                 }
 
                 vtrc::unique_shared_lock lck(devices_lock_);
