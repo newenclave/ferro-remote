@@ -117,8 +117,7 @@ namespace fr { namespace agent {
 
             if( f == react_.end( ) ) {
 
-                handle_reaction_sptr new_react(
-                            vtrc::make_shared<handle_reaction>(fd));
+                auto new_react(vtrc::make_shared<handle_reaction>(fd));
 
                 new_react->call_ = cb;
 

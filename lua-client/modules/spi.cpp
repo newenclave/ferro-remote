@@ -64,16 +64,46 @@ namespace {
         return 1;
     }
 
-    int lcall_open  ( lua_State *L );
-    int lcall_write ( lua_State *L );
-    int lcall_setup ( lua_State *L );
-    int lcall_close ( lua_State *L );
+    int lcall_open      ( lua_State *L );
+    int lcall_write     ( lua_State *L );
+    int lcall_setup     ( lua_State *L );
+    int lcall_set_addr  ( lua_State *L );
+
+    int lcall_set_reg8  ( lua_State *L );
+    int lcall_set_reg16 ( lua_State *L );
+    int lcall_set_reg32 ( lua_State *L );
+    int lcall_set_reg64 ( lua_State *L );
+
+    int lcall_get_reg8  ( lua_State *L );
+    int lcall_get_reg16 ( lua_State *L );
+    int lcall_get_reg32 ( lua_State *L );
+    int lcall_get_reg64 ( lua_State *L );
+
+    int lcall_close     ( lua_State *L );
 
     const struct luaL_Reg spi_lib[ ] = {
          { "close",       &lcall_close       }
         ,{ "write",       &lcall_write       }
         ,{ "transfer",    &lcall_write       }
         ,{ "setup",       &lcall_setup       }
+        ,{ "set_address", &lcall_set_addr    }
+
+        ,{ "write_bytes", &lcall_set_reg8    }
+        ,{ "write_words", &lcall_set_reg16   }
+
+        ,{ "set_reg8",    &lcall_set_reg8    }
+        ,{ "set_reg16",   &lcall_set_reg16   }
+        ,{ "set_reg32",   &lcall_set_reg32   }
+        ,{ "set_reg64",   &lcall_set_reg64   }
+
+        ,{ "read_bytes",  &lcall_get_reg8    }
+        ,{ "read_words",  &lcall_get_reg16   }
+
+        ,{ "get_reg8",    &lcall_get_reg8    }
+        ,{ "get_reg16",   &lcall_get_reg16   }
+        ,{ "get_reg32",   &lcall_get_reg32   }
+        ,{ "get_reg64",   &lcall_get_reg64   }
+
         ,{ "__gc",        &lcall_close       }
         ,{ "__tostring",  &lcall_meta_string }
         ,{ nullptr,        nullptr }
@@ -217,22 +247,34 @@ namespace {
         }
     };
 
-    inline bool is_number( const objects::base *o )
-    {
-        return o->type_id( ) == objects::base::TYPE_NUMBER;
-    }
-
-    inline bool is_string( const objects::base *o )
-    {
-        return o->type_id( ) == objects::base::TYPE_STRING;
-    }
-
     struct setup_info {
         unsigned bus   = 0;
         unsigned chan  = 1;
         unsigned speed = 500000;
         unsigned mode  = 0;
     };
+
+    template <typename T>
+    T table2pair_vector( lua::state &ls, int id )
+    {
+        return utils::table2pair_vector<T>( ls, id );
+    }
+
+    ispi::uint8_vector table2vector( lua::state &ls, int id )
+    {
+        return utils::table2vector<ispi::uint8_vector>( ls, id );
+    }
+
+    template <typename T>
+    table_sptr vector2table( const T &values )
+    {
+        table_sptr res( new_table( ) );
+
+        for( auto &v: values ) {
+            res->add( new_integer( v.first ), new_integer( v.second ) );
+        }
+        return res;
+    }
 
     setup_info get_si_from_lua_table( lua::state &ls, int id )
     {
@@ -246,8 +288,8 @@ namespace {
                 auto f(p->at(0));
                 auto s(p->at(1));
 
-                if( is_number( s ) ) {
-                    if( is_number( f ) ) {
+                if( utils::is_number( s ) ) {
+                    if( utils::is_number( f ) ) {
                         switch( static_cast<unsigned>(f->num( )) ) {
                         case 1:
                             si.bus   = static_cast<unsigned>(s->num( ));
@@ -262,7 +304,7 @@ namespace {
                             si.mode = static_cast<unsigned>(s->num( ));
                             break;
                         }
-                    } else if( is_string( f ) ) {
+                    } else if( utils::is_string( f ) ) {
                         std::string name(f->str( ));
                         /// TODO: fix it
                         if( !name.compare( "bus" ) ) {
@@ -320,6 +362,175 @@ namespace {
 
         ls.push( true );
         return 0;
+    }
+
+    int lcall_set_addr( lua_State *L )
+    {
+        module *m = get_module( L );
+        lua::state ls(L);
+        utils::handle h = m->get_object_hdl( L, 1 );
+
+        try {
+            auto d    = m->get_dev( h );
+            auto addr = ls.get_opt<unsigned>( 2 );
+            d->set_address( addr );
+        } catch( const std::exception &ex ) {
+            ls.push( );
+            ls.push( ex.what( ) );
+            return 2;
+        }
+        return 1;
+    }
+
+    int lcall_set_reg8  ( lua_State *L )
+    {
+        module *m = get_module( L );
+        lua::state ls(L);
+        utils::handle h = m->get_object_hdl( L, 1 );
+
+        try {
+            auto d    = m->get_dev( h );
+            auto vals = table2pair_vector<ispi::cmd_uint8_vector>( ls, 2 );
+            d->write_regs8( vals );
+        } catch( const std::exception &ex ) {
+            ls.push( );
+            ls.push( ex.what( ) );
+            return 2;
+        }
+        return 1;
+    }
+
+    int lcall_set_reg16 ( lua_State *L )
+    {
+        module *m = get_module( L );
+        lua::state ls(L);
+        utils::handle h = m->get_object_hdl( L, 1 );
+
+        try {
+            auto d    = m->get_dev( h );
+            auto vals = table2pair_vector<ispi::cmd_uint16_vector>( ls, 2 );
+            d->write_regs16( vals );
+        } catch( const std::exception &ex ) {
+            ls.push( );
+            ls.push( ex.what( ) );
+            return 2;
+        }
+        return 1;
+    }
+
+    int lcall_set_reg32 ( lua_State *L )
+    {
+        module *m = get_module( L );
+        lua::state ls(L);
+        utils::handle h = m->get_object_hdl( L, 1 );
+
+        try {
+            auto d    = m->get_dev( h );
+            auto vals = table2pair_vector<ispi::cmd_uint32_vector>( ls, 2 );
+            d->write_regs32( vals );
+        } catch( const std::exception &ex ) {
+            ls.push( );
+            ls.push( ex.what( ) );
+            return 2;
+        }
+        return 1;
+    }
+
+    int lcall_set_reg64 ( lua_State *L )
+    {
+        module *m = get_module( L );
+        lua::state ls(L);
+        utils::handle h = m->get_object_hdl( L, 1 );
+
+        try {
+            auto d    = m->get_dev( h );
+            auto vals = table2pair_vector<ispi::cmd_uint64_vector>( ls, 2 );
+            d->write_regs64( vals );
+        } catch( const std::exception &ex ) {
+            ls.push( );
+            ls.push( ex.what( ) );
+            return 2;
+        }
+        return 1;
+    }
+
+    int lcall_get_reg8  ( lua_State *L )
+    {
+        module *m = get_module( L );
+        lua::state ls(L);
+        utils::handle h = m->get_object_hdl( L, 1 );
+
+        try {
+            auto d    = m->get_dev( h );
+            auto regs = table2vector( ls, 2 );
+            auto res = d->read_regs8( regs );
+            vector2table( res )->push( L );
+
+        } catch( const std::exception &ex ) {
+            ls.push( );
+            ls.push( ex.what( ) );
+            return 2;
+        }
+        return 1;
+    }
+
+    int lcall_get_reg16 ( lua_State *L )
+    {
+        module *m = get_module( L );
+        lua::state ls(L);
+        utils::handle h = m->get_object_hdl( L, 1 );
+
+        try {
+            auto d    = m->get_dev( h );
+            auto regs = table2vector( ls, 2 );
+            auto res = d->read_regs16( regs );
+            vector2table( res )->push( L );
+
+        } catch( const std::exception &ex ) {
+            ls.push( );
+            ls.push( ex.what( ) );
+            return 2;
+        }
+        return 1;
+    }
+
+    int lcall_get_reg32 ( lua_State *L )
+    {
+        module *m = get_module( L );
+        lua::state ls(L);
+        utils::handle h = m->get_object_hdl( L, 1 );
+
+        try {
+            auto d    = m->get_dev( h );
+            auto regs = table2vector( ls, 2 );
+            auto res = d->read_regs32( regs );
+            vector2table( res )->push( L );
+
+        } catch( const std::exception &ex ) {
+            ls.push( );
+            ls.push( ex.what( ) );
+            return 2;
+        }
+        return 1;
+    }
+
+    int lcall_get_reg64 ( lua_State *L )
+    {
+        module *m = get_module( L );
+        lua::state ls(L);
+        utils::handle h = m->get_object_hdl( L, 1 );
+
+        try {
+            auto d    = m->get_dev( h );
+            auto regs = table2vector( ls, 2 );
+            auto res = d->read_regs64( regs );
+            vector2table( res )->push( L );
+        } catch( const std::exception &ex ) {
+            ls.push( );
+            ls.push( ex.what( ) );
+            return 2;
+        }
+        return 1;
     }
 
     int lcall_write ( lua_State *L )

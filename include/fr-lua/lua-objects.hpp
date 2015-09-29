@@ -123,6 +123,11 @@ namespace lua { namespace objects {
             return 0;
         }
 
+        virtual lua_Integer inum( ) const
+        {
+            return 0;
+        }
+
         bool none_or_nil( ) const
         {
             int ti = type_id( );
@@ -167,6 +172,11 @@ namespace lua { namespace objects {
         lua_Number num( ) const
         {
             return static_cast<lua_Number>(value_ ? 1 : 0);
+        }
+
+        virtual lua_Integer inum( ) const
+        {
+            return static_cast<lua_Integer>(value_ ? 1 : 0);
         }
 
     };
@@ -269,6 +279,11 @@ namespace lua { namespace objects {
             return num_;
         }
 
+        virtual lua_Integer inum( ) const
+        {
+            return static_cast<lua_Integer>(num_ ? 1 : 0);
+        }
+
     };
 
     class integer: public base {
@@ -306,6 +321,11 @@ namespace lua { namespace objects {
         lua_Number num( ) const
         {
             return static_cast<lua_Number>( num_ );
+        }
+
+        lua_Integer inum( ) const
+        {
+            return num_;
         }
 
     };
@@ -347,6 +367,12 @@ namespace lua { namespace objects {
         {
             return static_cast<lua_Number>( num_ );
         }
+
+        lua_Integer inum( ) const
+        {
+            return static_cast<lua_Integer>( num_ );
+        }
+
     };
 #endif
 
@@ -398,6 +424,10 @@ namespace lua { namespace objects {
             return atof(cont_.c_str( ));
         }
 
+       lua_Integer inum( ) const
+        {
+            return atoi(cont_.c_str( ));
+        }
     };
 
     typedef std::shared_ptr<string> string_sptr;

@@ -17,6 +17,9 @@ namespace fr { namespace lua {
 
     public:
 
+        event_caller( const event_caller & ) = delete;
+        event_caller &operator = ( const event_caller & ) = delete;
+
         event_caller( lua_State *L, boost::asio::io_service &ios );
         ~event_caller( );
 

@@ -49,7 +49,7 @@ namespace fr { namespace lua {
                          lua::objects::base_sptr call,
                          param_vector_sptr params )
     {
-        std::shared_ptr<event_caller> kl(k.lock( ));
+        auto kl(k.lock( ));
         if( !kl ) {
             return;
         }

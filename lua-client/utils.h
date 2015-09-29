@@ -10,9 +10,16 @@
 #include "boost/asio/posix/stream_descriptor.hpp"
 #endif
 
+#include "fr-lua.h"
+
 namespace boost { namespace asio {
     class io_service;
 }}
+
+namespace fr { namespace lua {
+    class state;
+}}
+
 
 namespace fr { namespace lua { namespace utils {
 
@@ -28,6 +35,88 @@ namespace fr { namespace lua { namespace utils {
     T from_handle( const handle value  )
     {
         return reinterpret_cast<T>(value);
+    }
+
+    inline bool is_number( const objects::base *o )
+    {
+        return o->type_id( ) == objects::base::TYPE_NUMBER;
+    }
+
+    inline bool is_string( const objects::base *o )
+    {
+        return o->type_id( ) == objects::base::TYPE_STRING;
+    }
+
+    inline bool is_table( const objects::base *o )
+    {
+        return o->type_id( ) == objects::base::TYPE_TABLE
+            ;
+    }
+
+    template <typename T>
+    T table2pair_vector( const objects::base *tobj )
+    {
+        T res;
+        using value_type = typename T::value_type;
+
+        for( size_t i=0; i<tobj->count( ); i++ ) {
+            auto p(tobj->at(i));
+            auto reg(p->at(0));
+            auto val(p->at(1));
+            if( is_number( reg ) ) {
+                if( is_number( val ) ) {
+                    res.push_back( value_type( reg->inum( ), val->inum( ) ) );
+                } else if( is_table( val ) ) {
+                    auto t = table2pair_vector<T>( val );
+                    res.insert( res.end( ), t.begin( ), t.end( ) );
+                }
+            }
+        }
+        return std::move(res);
+    }
+
+    template <typename T>
+    T table2pair_vector( lua::state &ls, int id )
+    {
+        auto t = ls.get_type( id );
+        if( t == objects::base::TYPE_TABLE ) {
+            auto tobj = ls.get_object( id );
+            return table2pair_vector<T>( tobj.get( ) );
+        }
+        return T( );
+    }
+
+    template <typename T>
+    T table2vector( const objects::base *tobj )
+    {
+        T res;
+        using value_type = typename T::value_type;
+
+        for( size_t i=0; i<tobj->count( ); i++ ) {
+            auto p(tobj->at(i));
+            auto reg(p->at(0));
+            auto val(p->at(1));
+            if( is_number( reg ) ) {
+                if( is_number( val ) ) {
+                    res.push_back( static_cast<value_type>(val->inum( )) );
+                } else if( is_table( val ) ) {
+                    auto t = table2vector<T>( val );
+                    res.insert( res.end( ), t.begin( ), t.end( ) );
+                }
+            }
+        }
+        return std::move(res);
+    }
+
+    template <typename T>
+    T table2vector( lua::state &ls, int id )
+    {
+        auto t = ls.get_type( id );
+        if( t == objects::base::TYPE_TABLE ) {
+            auto tobj = ls.get_object( id );
+            return table2vector<T>( tobj.get( ) );
+        }
+        return T( );
     }
 
     class console_handle {
