@@ -174,6 +174,7 @@ namespace fr { namespace client { namespace interfaces {
             {
                 return get_regs<16>( regs );
             }
+
             spi::cmd_uint32_vector
                 read_regs32( const spi::uint8_vector &regs ) const override
             {
