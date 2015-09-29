@@ -52,13 +52,13 @@ namespace fr { namespace agent {
         close( fd_ );
     }
 
-    void spi_helper::transfer(void *buf, size_t len )
+    void spi_helper::transfer( void *buf, size_t len )
     {
         auto res = transfer_nothrow( buf, len );
         errno_error::errno_assert( res != -1, "spi_transfer" );
     }
 
-    int spi_helper::transfer_nothrow(void *buf, size_t len )
+    int spi_helper::transfer_nothrow( void *buf, size_t len )
     {
         spi_ioc_transfer txrx = {0};
         txrx.len              = len;
