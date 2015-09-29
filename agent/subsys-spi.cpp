@@ -69,11 +69,11 @@ namespace fr { namespace agent { namespace subsys {
             return oss.str( );
         }
 
-        void setup_device( file_sptr f, vtrc::uint32_t speed,
-                                        vtrc::uint32_t mode )
-        {
-            f->setup( mode, speed );
-        }
+//        void setup_device( file_sptr f, vtrc::uint32_t speed,
+//                                        vtrc::uint32_t mode )
+//        {
+//            f->setup( mode, speed );
+//        }
 
         void call_setter( file_sptr dev, int reg_bits,
                           uint32_t addr, uint32_t reg, uint64_t value )
@@ -177,7 +177,7 @@ namespace fr { namespace agent { namespace subsys {
                        << "; speed: " << speed
                        << "; mode: " << mode
                            ;
-                setup_device( si.file_, speed, mode );
+                si.file_->setup( speed, mode );
 
                 /// all is success! hold the file
                 response->mutable_hdl( )->set_value( files_.set( si ) );
@@ -194,10 +194,8 @@ namespace fr { namespace agent { namespace subsys {
                 vtrc::uint32_t mode =  request->setup( ).mode( );
                 vtrc::uint32_t speed = request->setup( ).speed( );
 
-                setup_device( f.file_, speed, mode );
-                if( speed ) { // ok
-                    f.speed_ = request->setup( ).speed( );
-                }
+                f.file_->setup( speed, mode );
+                f.speed_ = f.file_->speed( );
 
             }
 

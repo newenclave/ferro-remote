@@ -52,6 +52,8 @@ namespace fr { namespace agent {
 
         void set_address( uint32_t val ) noexcept { address_ = val; }
         uint32_t address( ) const noexcept { return address_; }
+        uint32_t speed( ) const noexcept { return speed_; }
+
         int handle( ) const noexcept { return fd_; }
     };
 
