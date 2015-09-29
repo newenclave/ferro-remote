@@ -69,12 +69,6 @@ namespace fr { namespace agent { namespace subsys {
             return oss.str( );
         }
 
-//        void setup_device( file_sptr f, vtrc::uint32_t speed,
-//                                        vtrc::uint32_t mode )
-//        {
-//            f->setup( mode, speed );
-//        }
-
         void call_setter( file_sptr dev, int reg_bits,
                           uint32_t addr, uint32_t reg, uint64_t value )
         {
