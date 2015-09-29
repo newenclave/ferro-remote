@@ -128,6 +128,30 @@ message write_read_datas_res {
     optional code_data.list  response = 1;
 }
 
+message transfer_info {
+    optional bytes           data  = 1;
+    optional uint32          rxlen = 2;
+}
+
+message transfer_req {
+    optional handle          hdl     = 1;
+    optional transfer_info   info    = 2;
+    //optional bool            nothrow = 4;
+}
+
+message transfer_res {
+    optional bytes data = 2;
+}
+
+message transfer_list_req {
+    optional handle          hdl     = 1;
+    repeated transfer_info   infos   = 2;
+    //optional bool            nothrow = 4;
+}
+
+message transfer_list_res {
+    repeated bytes data = 2;
+}
 
 service instance {
 
@@ -165,6 +189,9 @@ service instance {
 
     rpc ioctl( ioctl_req ) returns ( ioctl_res );
     rpc func_mask( func_mask_req ) returns ( func_mask_res );
+
+    rpc transfer      (transfer_req)       returns (transfer_res);
+    rpc transfer_list (transfer_list_req)  returns (transfer_list_res);
 
     rpc close( handle ) returns ( empty );
 }

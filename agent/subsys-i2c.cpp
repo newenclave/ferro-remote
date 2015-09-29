@@ -367,6 +367,39 @@ namespace fr { namespace agent { namespace subsys {
                 }
             }
 
+            void transfer(::google::protobuf::RpcController* /*controller*/,
+                     const ::fr::proto::i2c::transfer_req* request,
+                     ::fr::proto::i2c::transfer_res* response,
+                     ::google::protobuf::Closure* done) override
+            {
+                vcomm::closure_holder holder( done );
+                i2c_sptr dev(i2c_by_index( request->hdl( ).value( ) ));
+
+                auto &data(request->info( ).data( ));
+                auto txlen = data.size( );
+                auto rxlen = request->info( ).rxlen( );
+
+                response->set_data(dev->transfer( data.c_str( ),
+                                                  txlen, rxlen ) );
+            }
+
+            void transfer_list(::google::protobuf::RpcController* /*control*/,
+                     const ::fr::proto::i2c::transfer_list_req* request,
+                     ::fr::proto::i2c::transfer_list_res* response,
+                     ::google::protobuf::Closure* done) override
+            {
+                vcomm::closure_holder holder( done );
+                i2c_sptr dev(i2c_by_index( request->hdl( ).value( ) ));
+
+                for( auto &i: request->infos( ) ) {
+                    auto &data(i.data( ));
+                    auto txlen = i.data( ).size( );
+                    auto rxlen = i.rxlen( );
+                    response->add_data( dev->transfer( data.c_str( ), txlen,
+                                                       rxlen ) );
+                }
+            }
+
             void close(::google::protobuf::RpcController* /*controller*/,
                          const ::fr::proto::handle*        request,
                          ::fr::proto::empty*              /*response*/,

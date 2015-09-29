@@ -68,7 +68,7 @@ namespace fr { namespace agent {
         }
 
         ssize_t transfer_impl( int fd,
-                               void *txbuf, size_t txlen,
+                               const void *txbuf, size_t txlen,
                                void *rxbuf, size_t rxlen )
         {
             auto res = ::write( fd, txbuf, txlen );
@@ -315,7 +315,8 @@ namespace fr { namespace agent {
         return static_cast<size_t>(res);
     }
 
-    std::string i2c_helper::transfer(void *txbuf, size_t txlen , size_t rxlen)
+    std::string i2c_helper::transfer( const void *txbuf, size_t txlen,
+                                      size_t rxlen )
     {
         std::string ret;
         ret.reserve( rxlen );
@@ -325,7 +326,7 @@ namespace fr { namespace agent {
         return ret;
     }
 
-    std::string i2c_helper::transfer_nothrow( void *txbuf, size_t txlen,
+    std::string i2c_helper::transfer_nothrow( const void *txbuf, size_t txlen,
                                               size_t rxlen )
     {
         std::string ret;
@@ -339,7 +340,7 @@ namespace fr { namespace agent {
         return ret;
     }
 
-    ssize_t i2c_helper::transfer_nothrow( void *txbuf, size_t txlen,
+    ssize_t i2c_helper::transfer_nothrow( const void *txbuf, size_t txlen,
                                           void *rxbuf, size_t rxlen )
     {
         return transfer_impl( fd_, txbuf, txlen, rxbuf, rxlen );
