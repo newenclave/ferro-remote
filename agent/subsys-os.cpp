@@ -60,9 +60,7 @@ namespace fr { namespace agent { namespace subsys {
                                       fr::agent::application *app,
                                       vtrc::common::connection_iface_wptr cl )
         {
-            vtrc::shared_ptr<os_proto_impl>
-                                    inst(vtrc::make_shared<os_proto_impl>( ));
-
+            auto inst(vtrc::make_shared<os_proto_impl>( ));
             return app->wrap_service( cl, inst );
         }
     }
