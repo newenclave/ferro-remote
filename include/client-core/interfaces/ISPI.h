@@ -16,27 +16,27 @@ namespace core {
 
 namespace interfaces { namespace spi {
 
-    enum reg_type {
-         REG_8BIT  = 0
-        ,REG_16BIT = 1
-        ,REG_32BIT = 2
-        ,REG_64BIT = 3
-    };
+//    enum reg_type {
+//         REG_8BIT  = 0
+//        ,REG_16BIT = 1
+//        ,REG_32BIT = 2
+//        ,REG_64BIT = 3
+//    };
 
-    static
-    inline reg_type reg_type_val2enum( unsigned val )
-    {
-        switch (val) {
-        case REG_16BIT:
-        case REG_32BIT:
-        case REG_64BIT:
-        case REG_8BIT:
-            return static_cast<reg_type>(val);
-        }
-        return REG_8BIT;
-    }
+//    static
+//    inline reg_type reg_type_val2enum( unsigned val )
+//    {
+//        switch (val) {
+//        case REG_16BIT:
+//        case REG_32BIT:
+//        case REG_64BIT:
+//        case REG_8BIT:
+//            return static_cast<reg_type>(val);
+//        }
+//        return REG_8BIT;
+//    }
 
-    typedef std::vector<uint8_t> uint8_vector; // registry for read
+    typedef std::vector<uint8_t> uint8_vector; /// registry for read
     typedef std::pair<uint8_t, uint8_t>  cmd_uint8;  /// command + val8
     typedef std::pair<uint8_t, uint16_t> cmd_uint16; /// command + val16
     typedef std::pair<uint8_t, uint32_t> cmd_uint32; /// command + val32
@@ -60,6 +60,11 @@ namespace interfaces { namespace spi {
                                     const uint8_vector &regs) const = 0;
         virtual cmd_uint64_vector read_regs64(
                                     const uint8_vector &regs) const = 0;
+
+        virtual void write_regs8 ( const cmd_uint8_vector  &data ) const = 0;
+        virtual void write_regs16( const cmd_uint16_vector &data ) const = 0;
+        virtual void write_regs32( const cmd_uint32_vector &data ) const = 0;
+        virtual void write_regs64( const cmd_uint64_vector &data ) const = 0;
 
         virtual void set_address( unsigned address ) = 0;
 

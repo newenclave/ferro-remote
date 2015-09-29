@@ -64,7 +64,7 @@ namespace fr { namespace agent {
             params.command      = cmd;
             params.data         = data;
             params.size         = len;
-            return ioctl( fd, I2C_SMBUS, &params );
+            return ::ioctl( fd, I2C_SMBUS, &params );
         }
 
         ssize_t transfer_impl( int fd,

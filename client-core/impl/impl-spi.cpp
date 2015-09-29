@@ -20,29 +20,33 @@ namespace fr { namespace client { namespace interfaces {
         typedef proto::spi::register_info register_info;
         typedef register_info::register_bits register_bits;
 
-        template <typename T>
+        template <int T>
         struct type_to_enum;
 
         template <>
-        struct type_to_enum<uint8_t> {
+        struct type_to_enum<8> {
+            typedef uint8_t type;
             typedef spi::cmd_uint8_vector res_type;
             static const register_bits value = register_info::REG_8BIT;
         };
 
         template <>
-        struct type_to_enum<uint16_t> {
+        struct type_to_enum<16> {
+            typedef uint16_t type;
             typedef spi::cmd_uint16_vector res_type;
             static const register_bits value = register_info::REG_16BIT;
         };
 
         template <>
-        struct type_to_enum<uint32_t> {
+        struct type_to_enum<32> {
+            typedef uint32_t type;
             typedef spi::cmd_uint32_vector res_type;
             static const register_bits value = register_info::REG_32BIT;
         };
 
         template <>
-        struct type_to_enum<uint64_t> {
+        struct type_to_enum<64> {
+            typedef uint64_t type;
             typedef spi::cmd_uint64_vector res_type;
             static const register_bits value = register_info::REG_64BIT;
         };
@@ -130,7 +134,7 @@ namespace fr { namespace client { namespace interfaces {
                 client_.call_request( &stub_type::setup, &req );
             }
 
-            template <typename T>
+            template <int T>
             typename type_to_enum<T>::res_type
                 get_regs( const spi::uint8_vector &regs ) const
             {
@@ -162,24 +166,61 @@ namespace fr { namespace client { namespace interfaces {
             spi::cmd_uint8_vector
                 read_regs8( const spi::uint8_vector &regs ) const override
             {
-                return get_regs<uint8_t>( regs );
+                return get_regs<8>( regs );
             }
 
             spi::cmd_uint16_vector
                 read_regs16( const spi::uint8_vector &regs ) const override
             {
-                return get_regs<uint16_t>( regs );
+                return get_regs<16>( regs );
             }
             spi::cmd_uint32_vector
                 read_regs32( const spi::uint8_vector &regs ) const override
             {
-                return get_regs<uint32_t>( regs );
+                return get_regs<32>( regs );
             }
 
             spi::cmd_uint64_vector
                 read_regs64( const spi::uint8_vector &regs ) const override
             {
-                return get_regs<uint64_t>( regs );
+                return get_regs<64>( regs );
+            }
+
+            template <int T>
+            void write_impl( const typename type_to_enum<T>::res_type &d ) const
+            {
+                typedef typename type_to_enum<T>::res_type::const_iterator citr;
+                proto::spi::set_register_list_req req;
+                proto::spi::set_register_list_res res;
+
+                for( citr b(d.begin( )), e(d.end( )); b!=e; ++b ) {
+                    proto::spi::register_info *ni = req.add_infos( );
+                    ni->set_address( addr_ );
+                    ni->set_bits( type_to_enum<T>::value );
+                    ni->set_reg( b->first );
+                    ni->set_value( b->second );
+                }
+                client_.call( &stub_type::set_register_list, &req, &res );
+            }
+
+            void write_regs8( const spi::cmd_uint8_vector &dat ) const override
+            {
+                write_impl<8>( dat );
+            }
+
+            void write_regs16( const spi::cmd_uint16_vector &dat) const override
+            {
+                write_impl<16>( dat );
+            }
+
+            void write_regs32( const spi::cmd_uint32_vector &dat) const override
+            {
+                write_impl<32>( dat );
+            }
+
+            void write_regs64( const spi::cmd_uint64_vector &dat) const override
+            {
+                write_impl<64>( dat );
             }
 
             std::string transfer( const unsigned char *data,
