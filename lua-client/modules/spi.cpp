@@ -464,8 +464,8 @@ namespace {
             auto d    = m->get_dev( h );
             auto regs = table2vector( ls, 2 );
             auto res = d->read_regs8( regs );
-            vector2table( res )->push( L );
-
+            auto tbl = vector2table( res );
+            tbl->push( L );
         } catch( const std::exception &ex ) {
             ls.push( );
             ls.push( ex.what( ) );

@@ -1,4 +1,5 @@
 i2c = fr.client.smbus
+spi = fr.client.spi
 eq  = fr.client.event_queue
 eqt = eq.timer 
 

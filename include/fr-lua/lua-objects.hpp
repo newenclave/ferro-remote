@@ -281,7 +281,7 @@ namespace lua { namespace objects {
 
         virtual lua_Integer inum( ) const
         {
-            return static_cast<lua_Integer>(num_ ? 1 : 0);
+            return static_cast<lua_Integer>(num_);
         }
 
     };

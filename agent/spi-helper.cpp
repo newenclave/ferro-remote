@@ -58,8 +58,19 @@ namespace fr { namespace agent {
         errno_error::errno_assert( res != -1, "spi_transfer" );
     }
 
+    void dump( void *buf, size_t len )
+    {
+        std::cout << "\n";
+        for( size_t i=0; i<len; ++i ) {
+            std::cout << std::hex << " "
+                      << (uint8_t)*(static_cast<char *>(buf) + i);
+        }
+        std::cout << "\n";
+    }
+
     int spi_helper::transfer_nothrow( void *buf, size_t len )
     {
+        dump( buf, len );
         spi_ioc_transfer txrx = {0};
         txrx.len              = len;
         txrx.tx_buf           = reinterpret_cast<uint64_t>(buf);
@@ -69,6 +80,7 @@ namespace fr { namespace agent {
         txrx.bits_per_word    = spi_BPW;
 
         return ioctl( fd_, SPI_IOC_MESSAGE(1), &txrx );
+        dump( buf, len );
     }
 
     void spi_helper::setup( uint32_t mode, uint32_t speed )

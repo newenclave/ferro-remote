@@ -151,6 +151,8 @@ namespace fr { namespace client { namespace interfaces {
                     ni->set_address( addr_ );
                     ni->set_bits( type_to_enum<T>::value );
                     ni->set_reg( *b );
+//                    std::cout << "Push: " << std::hex << addr_
+//                                 << ":" << ni->value( ) << "\n";
                 }
 
                 client_.call( &stub_type::get_register_list, &req, &res );
@@ -158,6 +160,8 @@ namespace fr { namespace client { namespace interfaces {
                 ret.reserve( res.infos_size( ) );
                 for( int i=0; i<res.infos_size( ); i++ ) {
                     const proto::spi::register_info &ni(res.infos(i));
+//                    std::cout << "Push: " << ni.reg( )
+//                                 << ":" << ni.value( ) << "\n";
                     ret.push_back( std::make_pair( ni.reg( ), ni.value( ) ) );
                 }
                 return ret;
@@ -193,6 +197,7 @@ namespace fr { namespace client { namespace interfaces {
                 typedef typename type_to_enum<T>::res_type::const_iterator citr;
                 proto::spi::set_register_list_req req;
                 proto::spi::set_register_list_res res;
+                req.mutable_hdl( )->set_value( hdl_ );
 
                 for( citr b(d.begin( )), e(d.end( )); b!=e; ++b ) {
                     proto::spi::register_info *ni = req.add_infos( );
