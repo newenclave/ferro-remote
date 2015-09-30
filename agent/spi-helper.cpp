@@ -80,8 +80,9 @@ namespace fr { namespace agent {
         txrx.delay_usecs      = spi_delay;
         txrx.bits_per_word    = spi_BPW;
 
-        return ioctl( fd_, SPI_IOC_MESSAGE(1), &txrx );
+        auto res =  ioctl( fd_, SPI_IOC_MESSAGE(1), &txrx );
         dump( buf, len );
+        return res;
     }
 
     void spi_helper::setup( uint32_t mode, uint32_t speed )
