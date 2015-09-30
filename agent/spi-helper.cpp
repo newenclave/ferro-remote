@@ -63,8 +63,8 @@ namespace fr { namespace agent {
     {
         std::cout << "\n";
         for( size_t i=0; i<len; ++i ) {
-            std::cout << std::hex << " "
-                      << (uint8_t)*(static_cast<char *>(buf) + i);
+            uint32_t n = (uint8_t)*(static_cast<char *>(buf) + i);
+            std::cout << std::hex << " " << (n & 0xFF);
         }
         std::cout << "\n";
     }
