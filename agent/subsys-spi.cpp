@@ -92,7 +92,6 @@ namespace fr { namespace agent { namespace subsys {
         uint64_t call_getter( file_sptr dev, int reg_bits,
                               uint32_t addr, uint32_t reg )
         {
-            std::cout << "Addr: " << addr << "\n";
             uint64_t res = 0;
             switch (reg_bits) {
             case spiproto::register_info::REG_16BIT:

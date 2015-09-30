@@ -64,7 +64,7 @@ namespace fr { namespace agent {
         std::cout << "\n";
         for( size_t i=0; i<len; ++i ) {
             uint32_t n = (uint8_t)*(static_cast<char *>(buf) + i);
-            std::cout << std::hex << " " << (n & 0xFF);
+            std::cout << std::hex << " " << n;
         }
         std::cout << "\n";
     }
@@ -117,8 +117,8 @@ namespace fr { namespace agent {
     {
         char buf[16];
 
-        buf[0] = addr && 0xFF;
-        buf[1] = reg  && 0xFF;
+        buf[0] = addr & 0xFF;
+        buf[1] = reg  & 0xFF;
         buf[2] = val;
 
         transfer( buf, 3 );
@@ -128,10 +128,10 @@ namespace fr { namespace agent {
     {
         char buf[16];
 
-        buf[0] = addr && 0xFF;
-        buf[1] = reg  && 0xFF;
-        buf[2] = val  && 0xFF;
-        buf[3] = (val  >> 8) && 0xFF;
+        buf[0] = addr & 0xFF;
+        buf[1] = reg  & 0xFF;
+        buf[2] = val  & 0xFF;
+        buf[3] = (val  >> 8) & 0xFF;
 
         transfer( buf, 4 );
     }
@@ -140,12 +140,12 @@ namespace fr { namespace agent {
     {
         char buf[16];
 
-        buf[0] = addr && 0xFF;
-        buf[1] = reg  && 0xFF;
-        buf[2] = val  && 0xFF;
-        buf[3] = (val >> 8 ) && 0xFF;
-        buf[4] = (val >> 16) && 0xFF;
-        buf[5] = (val >> 24) && 0xFF;
+        buf[0] = addr & 0xFF;
+        buf[1] = reg  & 0xFF;
+        buf[2] = val  & 0xFF;
+        buf[3] = (val >> 8 ) & 0xFF;
+        buf[4] = (val >> 16) & 0xFF;
+        buf[5] = (val >> 24) & 0xFF;
 
         transfer( buf, 6 );
     }
@@ -154,17 +154,17 @@ namespace fr { namespace agent {
     {
         char buf[16];
 
-        buf[0] = addr && 0xFF;
-        buf[1] = reg  && 0xFF;
-        buf[2] = val  && 0xFF;
+        buf[0] = addr & 0xFF;
+        buf[1] = reg  & 0xFF;
+        buf[2] = val  & 0xFF;
 
-        buf[3] = (val >> 8 ) && 0xFF;
-        buf[4] = (val >> 16) && 0xFF;
-        buf[5] = (val >> 24) && 0xFF;
-        buf[6] = (val >> 32) && 0xFF;
-        buf[7] = (val >> 40) && 0xFF;
-        buf[8] = (val >> 48) && 0xFF;
-        buf[9] = (val >> 56) && 0xFF;
+        buf[3] = (val >> 8 ) & 0xFF;
+        buf[4] = (val >> 16) & 0xFF;
+        buf[5] = (val >> 24) & 0xFF;
+        buf[6] = (val >> 32) & 0xFF;
+        buf[7] = (val >> 40) & 0xFF;
+        buf[8] = (val >> 48) & 0xFF;
+        buf[9] = (val >> 56) & 0xFF;
 
         transfer( buf, 10 );
     }
@@ -193,8 +193,8 @@ namespace fr { namespace agent {
     {
         char buf[16];
 
-        buf[0] = (addr && 0xFF ) | 1;
-        buf[1] = reg && 0xFF;
+        buf[0] = (addr & 0xFF ) /*| 1*/;
+        buf[1] = reg & 0xFF;
 
         transfer (buf, 3);
 
@@ -205,8 +205,8 @@ namespace fr { namespace agent {
     {
         char buf[16];
 
-        buf[0] = (addr && 0xFF ) | 1;
-        buf[1] = reg && 0xFF;
+        buf[0] = (addr & 0xFF ) /*| 1*/;
+        buf[1] = reg & 0xFF;
 
         transfer( buf, 4 );
 
@@ -217,8 +217,8 @@ namespace fr { namespace agent {
     {
         char buf[16];
 
-        buf[0] = (addr && 0xFF ) | 1;
-        buf[1] = reg && 0xFF;
+        buf[0] = (addr & 0xFF ) /*| 1*/;
+        buf[1] = reg & 0xFF;
 
         transfer( buf, 6 );
 
@@ -233,8 +233,8 @@ namespace fr { namespace agent {
     {
         char buf[16];
 
-        buf[0] = (addr && 0xFF ) | 1;
-        buf[1] = reg && 0xFF;
+        buf[0] = (addr & 0xFF ) /*| 1*/;
+        buf[1] = reg & 0xFF;
 
         transfer( buf, 10 );
 
