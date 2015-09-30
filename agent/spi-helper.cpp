@@ -24,7 +24,7 @@ namespace fr { namespace agent {
 
         namespace fs = boost::filesystem;
         const uint8_t   spi_BPW   = 8;
-        const uint16_t  spi_delay = 2;
+        const uint16_t  spi_delay = 20;
 
         std::string make_path( unsigned bus_id, unsigned channel )
         {
@@ -196,7 +196,7 @@ namespace fr { namespace agent {
         buf[0] = (addr & 0xFF ) /*| 1*/;
         buf[1] = reg & 0xFF;
 
-        transfer (buf, 3);
+        transfer( buf, 3 );
 
         return static_cast<uint8_t>(buf[2]);
     }
