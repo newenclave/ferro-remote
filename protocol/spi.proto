@@ -100,6 +100,15 @@ message get_register_list_res {
     repeated register_info infos = 2;
 }
 
+message write_req {
+    optional handle hdl  = 1;
+    repeated bytes  data = 2;
+}
+
+message write_res { }
+
+message read_req { }
+message read_res { }
 
 service instance {
 
