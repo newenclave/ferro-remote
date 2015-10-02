@@ -42,10 +42,11 @@ namespace interfaces { namespace spi {
     typedef std::pair<uint8_t, uint32_t> cmd_uint32; /// command + val32
     typedef std::pair<uint8_t, uint64_t> cmd_uint64; /// command + val64
 
-    typedef std::vector<cmd_uint8>  cmd_uint8_vector;
-    typedef std::vector<cmd_uint16> cmd_uint16_vector;
-    typedef std::vector<cmd_uint32> cmd_uint32_vector;
-    typedef std::vector<cmd_uint64> cmd_uint64_vector;
+    typedef std::vector<cmd_uint8>   cmd_uint8_vector;
+    typedef std::vector<cmd_uint16>  cmd_uint16_vector;
+    typedef std::vector<cmd_uint32>  cmd_uint32_vector;
+    typedef std::vector<cmd_uint64>  cmd_uint64_vector;
+    typedef std::vector<std::string> string_vector;
 
     struct iface: public interfaces::base {
         virtual ~iface( ) { }
@@ -70,6 +71,7 @@ namespace interfaces { namespace spi {
 
         virtual std::string transfer( const unsigned char *data,
                                       size_t len ) const = 0;
+        virtual string_vector transfer( const string_vector &data ) const = 0;
     };
 
     typedef iface* iface_ptr;

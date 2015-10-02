@@ -240,6 +240,23 @@ namespace fr { namespace client { namespace interfaces {
                 return res.data( );
             }
 
+            spi::string_vector
+                transfer( const spi::string_vector &data ) const override
+            {
+                typedef spi::string_vector::const_iterator citr;
+                sproto::transfer_list_req req;
+                sproto::transfer_list_res res;
+                req.mutable_hdl( )->set_value( hdl_ );
+                for( citr b(data.begin( )), e(data.end( )); b!=e; ++b ) {
+                    req.add_datas( *b );
+                }
+                client_.call( &stub_type::transfer_list, &req, &res );
+                return spi::string_vector( res.datas( ).begin( ),
+                                           res.datas( ).end( ) );
+
+            }
+
+
             void close( ) const override
             {
                 close_impl( );

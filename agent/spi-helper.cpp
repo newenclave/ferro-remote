@@ -79,6 +79,7 @@ namespace fr { namespace agent {
         txrx.speed_hz         = speed_;
         txrx.delay_usecs      = spi_delay;
         txrx.bits_per_word    = spi_BPW;
+        //txrx.cs_change        = true;
 
         auto res =  ioctl( fd_, SPI_IOC_MESSAGE(1), &txrx );
         //dump( buf, len );
@@ -97,25 +98,25 @@ namespace fr { namespace agent {
         /// set mode
         auto res = ioctl( fd_, SPI_IOC_WR_MODE, &mode );
         errno_error::errno_assert( res != -1, "spi_setup_mode" );
-        res = ioctl( fd_, SPI_IOC_RD_MODE,      &mode );
-        errno_error::errno_assert( res != -1, "spi_setup_mode" );
+//        res = ioctl( fd_, SPI_IOC_RD_MODE,      &mode );
+//        errno_error::errno_assert( res != -1, "spi_setup_mode" );
 
         /// set bits per words
         res = ioctl( fd_, SPI_IOC_WR_BITS_PER_WORD, &bits );
         errno_error::errno_assert( res != -1, "spi_setup_bpw" );
-        res = ioctl( fd_, SPI_IOC_RD_BITS_PER_WORD, &bits );
-        errno_error::errno_assert( res != -1, "spi_setup_bpw" );
+//        res = ioctl( fd_, SPI_IOC_RD_BITS_PER_WORD, &bits );
+//        errno_error::errno_assert( res != -1, "spi_setup_bpw" );
 
         /// set speed
         res = ioctl( fd_, SPI_IOC_WR_MAX_SPEED_HZ, &speed );
         errno_error::errno_assert( res != -1, "spi_setup_speed" );
-        res = ioctl( fd_, SPI_IOC_RD_MAX_SPEED_HZ, &speed );
-        errno_error::errno_assert( res != -1, "spi_setup_speed" );
+//        res = ioctl( fd_, SPI_IOC_RD_MAX_SPEED_HZ, &speed );
+//        errno_error::errno_assert( res != -1, "spi_setup_speed" );
     }
 
     void spi_helper::set_reg8( uint32_t addr, uint32_t reg, uint8_t val )
     {
-        char buf[16];
+        uint8_t buf[16];
 
         buf[0] = addr & 0xFF;
         buf[1] = reg  & 0xFF;
@@ -126,7 +127,7 @@ namespace fr { namespace agent {
 
     void spi_helper::set_reg16( uint32_t addr, uint32_t reg, uint16_t val )
     {
-        char buf[16];
+        uint8_t buf[16];
 
         buf[0] = addr & 0xFF;
         buf[1] = reg  & 0xFF;
@@ -138,7 +139,7 @@ namespace fr { namespace agent {
 
     void spi_helper::set_reg32( uint32_t addr, uint32_t reg, uint32_t val )
     {
-        char buf[16];
+        uint8_t buf[16];
 
         buf[0] = addr & 0xFF;
         buf[1] = reg  & 0xFF;
@@ -152,7 +153,7 @@ namespace fr { namespace agent {
 
     void spi_helper::set_reg64( uint32_t addr, uint32_t reg, uint64_t val )
     {
-        char buf[16];
+        uint8_t buf[16];
 
         buf[0] = addr & 0xFF;
         buf[1] = reg  & 0xFF;
@@ -191,7 +192,7 @@ namespace fr { namespace agent {
 
     uint8_t spi_helper::get_reg8( uint32_t addr, uint32_t reg )
     {
-        char buf[16];
+        uint8_t buf[16];
 
         buf[0] = (addr & 0xFF ) /*| 1*/;
         buf[1] = reg & 0xFF;
@@ -203,7 +204,7 @@ namespace fr { namespace agent {
 
     uint16_t spi_helper::get_reg16( uint32_t addr, uint32_t reg )
     {
-        char buf[16];
+        uint8_t buf[16];
 
         buf[0] = (addr & 0xFF ) /*| 1*/;
         buf[1] = reg & 0xFF;
@@ -215,7 +216,7 @@ namespace fr { namespace agent {
 
     uint32_t spi_helper::get_reg32( uint32_t addr, uint32_t reg )
     {
-        char buf[16];
+        uint8_t buf[16];
 
         buf[0] = (addr & 0xFF ) /*| 1*/;
         buf[1] = reg & 0xFF;
@@ -231,7 +232,7 @@ namespace fr { namespace agent {
 
     uint64_t spi_helper::get_reg64( uint32_t addr, uint32_t reg )
     {
-        char buf[16];
+        uint8_t buf[16];
 
         buf[0] = (addr & 0xFF ) /*| 1*/;
         buf[1] = reg & 0xFF;
