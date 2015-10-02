@@ -71,7 +71,7 @@ namespace fr { namespace agent {
 
     int spi_helper::transfer_nothrow( void *buf, size_t len )
     {
-        //dump( buf, len );
+        dump( buf, len );
         spi_ioc_transfer txrx = {0};
         txrx.len              = len;
         txrx.tx_buf           = reinterpret_cast<uint64_t>(buf);
@@ -82,7 +82,7 @@ namespace fr { namespace agent {
         //txrx.cs_change        = true;
 
         auto res =  ioctl( fd_, SPI_IOC_MESSAGE(1), &txrx );
-        //dump( buf, len );
+        dump( buf, len );
         return res;
     }
 
