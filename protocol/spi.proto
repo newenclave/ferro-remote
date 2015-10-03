@@ -107,8 +107,23 @@ message write_req {
 
 message write_res { }
 
-message read_req { }
-message read_res { }
+message read_req {
+    optional handle hdl     = 1;
+    repeated bytes  lengths = 2;
+}
+
+message read_res {
+    repeated bytes  data = 2;
+}
+
+message wr_req {
+    optional handle hdl  = 1;
+    repeated bytes  data = 2;
+}
+
+message wr_res {
+    repeated bytes  data = 2;
+}
 
 service instance {
 
@@ -118,6 +133,10 @@ service instance {
     rpc setup      (setup_req)       returns (setup_res);
     rpc close      (handle)          returns (empty);
 
+    rpc write      (write_req)       returns (write_res);
+    rpc read       (read_req)        returns (read_res);
+    rpc wr         (wr_req)          returns (wr_res);
+
     rpc transfer      (transfer_req)       returns (transfer_res);
     rpc transfer_list (transfer_list_req)  returns (transfer_list_res);
 
@@ -126,5 +145,6 @@ service instance {
 
     rpc get_register(get_register_req) returns(get_register_res);
     rpc get_register_list(get_register_list_req) returns(get_register_list_res);
+
 }
 
