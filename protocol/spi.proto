@@ -109,11 +109,11 @@ message write_res { }
 
 message read_req {
     optional handle hdl     = 1;
-    repeated bytes  lengths = 2;
+    optional bytes  lengths = 2;
 }
 
 message read_res {
-    repeated bytes  data = 2;
+    optional bytes  data = 2;
 }
 
 message wr_req {
