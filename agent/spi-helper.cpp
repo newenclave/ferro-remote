@@ -76,10 +76,10 @@ namespace fr { namespace agent {
         txrx.len              = len;
         txrx.tx_buf           = reinterpret_cast<uint64_t>(buf);
         txrx.rx_buf           = reinterpret_cast<uint64_t>(buf);
-        txrx.speed_hz         = speed_;
-        txrx.delay_usecs      = spi_delay;
-        txrx.bits_per_word    = spi_BPW;
-        //txrx.cs_change        = true;
+//        txrx.speed_hz         = speed_;
+//        txrx.delay_usecs      = spi_delay;
+//        txrx.bits_per_word    = spi_BPW;
+//        txrx.cs_change        = true;
 
         auto res =  ioctl( fd_, SPI_IOC_MESSAGE(1), &txrx );
         dump( buf, len );

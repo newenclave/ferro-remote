@@ -203,6 +203,32 @@ namespace fr { namespace agent { namespace subsys {
                 files_.del( request->value( ) );
             }
 
+            void write(::google::protobuf::RpcController* /*controller*/,
+                     const ::fr::proto::spi::write_req* request,
+                     ::fr::proto::spi::write_res* /*response*/,
+                     ::google::protobuf::Closure* done) override
+            {
+                vcomm::closure_holder holder(done);
+
+            }
+
+            void read(::google::protobuf::RpcController* /*controller*/,
+                     const ::fr::proto::spi::read_req* request,
+                     ::fr::proto::spi::read_res* response,
+                     ::google::protobuf::Closure* done) override
+            {
+                vcomm::closure_holder holder(done);
+            }
+
+            void wr(::google::protobuf::RpcController* /*controller*/,
+                     const ::fr::proto::spi::wr_req* request,
+                     ::fr::proto::spi::wr_res* response,
+                     ::google::protobuf::Closure* done) override
+           {
+               vcomm::closure_holder holder(done);
+           }
+
+
             void transfer(::google::protobuf::RpcController* /*controller*/,
                      const ::fr::proto::spi::transfer_req* request,
                      ::fr::proto::spi::transfer_res* response,
