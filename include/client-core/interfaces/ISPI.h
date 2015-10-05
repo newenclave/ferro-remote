@@ -55,6 +55,7 @@ namespace interfaces { namespace spi {
 
         virtual std::string read( size_t len ) const = 0;
         virtual void write( const void *data, size_t len ) const = 0;
+        virtual string_vector wr( const string_vector &data ) const = 0;
 
         virtual cmd_uint8_vector read_regs8(
                                     const uint8_vector &regs) const = 0;

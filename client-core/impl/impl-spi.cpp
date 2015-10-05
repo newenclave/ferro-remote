@@ -153,6 +153,22 @@ namespace fr { namespace client { namespace interfaces {
                 client_.call_request( &stub_type::write, &req );
             }
 
+            spi::string_vector wr( const spi::string_vector &d ) const override
+            {
+                typedef spi::string_vector::const_iterator citr;
+                proto::spi::wr_req req;
+                proto::spi::wr_res res;
+                req.mutable_hdl( )->set_value( hdl_ );
+
+                for( citr b(d.begin( )), e(d.end( )); b!=e; ++b ) {
+                    req.add_data( *b );
+                }
+
+                client_.call( &stub_type::wr, &req, &res );
+                return spi::string_vector( res.data( ).begin( ),
+                                           res.data( ).end( ) );
+            }
+
             template <int T>
             typename type_to_enum<T>::res_type
                 get_regs( const spi::uint8_vector &regs ) const
