@@ -53,6 +53,9 @@ namespace interfaces { namespace spi {
         virtual void close( ) const = 0;
         virtual void setup( unsigned speed, unsigned mode ) const = 0;
 
+        virtual std::string read( size_t len ) const = 0;
+        virtual void write( const void *data, size_t len ) const = 0;
+
         virtual cmd_uint8_vector read_regs8(
                                     const uint8_vector &regs) const = 0;
         virtual cmd_uint16_vector read_regs16(

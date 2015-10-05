@@ -134,6 +134,25 @@ namespace fr { namespace client { namespace interfaces {
                 client_.call_request( &stub_type::setup, &req );
             }
 
+            std::string read( size_t len ) const override
+            {
+                proto::spi::read_req req;
+                proto::spi::read_res res;
+                req.mutable_hdl( )->set_value( hdl_ );
+                req.set_len( len );
+                client_.call( &stub_type::read, &req, &res );
+                return res.data( );
+            }
+
+            void write( const void *data, size_t len ) const override
+            {
+                proto::spi::write_req req;
+                req.mutable_hdl( )->set_value( hdl_ );
+                req.mutable_data( )->assign( static_cast<const char *>(data),
+                                             len );
+                client_.call_request( &stub_type::write, &req );
+            }
+
             template <int T>
             typename type_to_enum<T>::res_type
                 get_regs( const spi::uint8_vector &regs ) const
