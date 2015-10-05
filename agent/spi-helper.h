@@ -24,6 +24,9 @@ namespace fr { namespace agent {
         spi_helper( unsigned bus_id, unsigned channel );
         ~spi_helper( );
 
+        void write( const void *buf, size_t len );
+        void read( void *buf, size_t len );
+
         void transfer( void *buf, size_t len );
         int  transfer_nothrow( void *buf, size_t len );
 

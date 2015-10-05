@@ -102,14 +102,14 @@ message get_register_list_res {
 
 message write_req {
     optional handle hdl  = 1;
-    repeated bytes  data = 2;
+    optional bytes  data = 2;
 }
 
 message write_res { }
 
 message read_req {
-    optional handle hdl     = 1;
-    optional bytes  lengths = 2;
+    optional handle hdl  = 1;
+    optional uint32 len  = 2;
 }
 
 message read_res {

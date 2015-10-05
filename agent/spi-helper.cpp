@@ -53,6 +53,18 @@ namespace fr { namespace agent {
         close( fd_ );
     }
 
+    void spi_helper::write( const void *buf, size_t len )
+    {
+        auto res = ::write( fd_, buf, len );
+        errno_error::errno_assert( res != -1, "spi_write" );
+    }
+
+    void spi_helper::read( void *buf, size_t len )
+    {
+        auto res = ::read( fd_, buf, len );
+        errno_error::errno_assert( res != -1, "spi_write" );
+    }
+
     void spi_helper::transfer( void *buf, size_t len )
     {
         auto res = transfer_nothrow( buf, len );

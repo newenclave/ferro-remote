@@ -199,7 +199,6 @@ namespace fr { namespace agent { namespace subsys {
                      ::google::protobuf::Closure* done) override
             {
                 vcomm::closure_holder holder(done);
-
                 files_.del( request->value( ) );
             }
 
@@ -209,7 +208,9 @@ namespace fr { namespace agent { namespace subsys {
                      ::google::protobuf::Closure* done) override
             {
                 vcomm::closure_holder holder(done);
-
+                spi_info &f(get_file(request->hdl( ).value( )));
+                f.file_->write( request->data( ).c_str( ),
+                                request->data( ).size( ) );
             }
 
             void read(::google::protobuf::RpcController* /*controller*/,
@@ -218,15 +219,31 @@ namespace fr { namespace agent { namespace subsys {
                      ::google::protobuf::Closure* done) override
             {
                 vcomm::closure_holder holder(done);
+                spi_info &f(get_file(request->hdl( ).value( )));
+                auto len = request->len( );
+                if( 0 != len ) {
+                    auto data = response->mutable_data( );
+                    data->resize( len );
+                    f.file_->read( &data[0], len );
+                }
             }
 
             void wr(::google::protobuf::RpcController* /*controller*/,
                      const ::fr::proto::spi::wr_req* request,
                      ::fr::proto::spi::wr_res* response,
                      ::google::protobuf::Closure* done) override
-           {
-               vcomm::closure_holder holder(done);
-           }
+            {
+                vcomm::closure_holder holder(done);
+                spi_info &f(get_file(request->hdl( ).value( )));
+                for( auto &d: request->data( ) ) {
+                    auto data = response->add_data( );
+                    if( d.size( ) > 0 ) {
+                        data->resize( d.size( ) );
+                        f.file_->write( d.c_str( ), d.size( ) );
+                        f.file_->read( &(*data)[0], data->size( ) );
+                    }
+                }
+            }
 
 
             void transfer(::google::protobuf::RpcController* /*controller*/,
