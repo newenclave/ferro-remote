@@ -165,13 +165,15 @@ namespace fr { namespace agent { namespace subsys {
 
                 LOGDBG << name << ": was success opened.";
 
-                vtrc::uint32_t mode =  request->setup( ).mode( );
-                vtrc::uint32_t speed = request->setup( ).speed( );
-                LOGDBG << "Try to configure " << name
-                       << "; speed: " << speed
-                       << "; mode: " << mode
-                           ;
-                si.file_->setup( speed, mode );
+                if( request->has_setup( ) ) {
+                    vtrc::uint32_t mode =  request->setup( ).mode( );
+                    vtrc::uint32_t speed = request->setup( ).speed( );
+                    LOGDBG << "Try to configure " << name
+                           << "; speed: " << speed
+                           << "; mode: " << mode
+                               ;
+                    si.file_->setup( speed, mode );
+                }
 
                 /// all is success! hold the file
                 response->mutable_hdl( )->set_value( files_.set( si ) );
