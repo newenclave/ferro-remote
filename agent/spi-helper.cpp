@@ -45,7 +45,7 @@ namespace fr { namespace agent {
     spi_helper::spi_helper( unsigned bus_id, unsigned channel )
         :fd_(open_bus( bus_id, channel ))
         ,address_(0)
-        ,speed_(450000)
+        ,speed_(0)
     { }
 
     spi_helper::~spi_helper( )
@@ -102,7 +102,7 @@ namespace fr { namespace agent {
     void spi_helper::setup( uint32_t mode, uint32_t speed )
     {
 //        mode_ = mode;
-        speed_ = (speed != 0 ? speed : 450000);
+        speed_ = speed;
         uint8_t bits = spi_BPW;
 
         /// mode SPI_MODE_0..SPI_MODE_3

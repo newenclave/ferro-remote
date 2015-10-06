@@ -13,7 +13,7 @@ namespace fr { namespace agent {
     class spi_helper {
 
         int      fd_;
-        uint32_t address_;
+        uint32_t address_; // for set_regX and get_regX only
         uint32_t speed_;
 
     public:
