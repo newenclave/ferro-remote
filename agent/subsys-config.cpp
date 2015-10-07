@@ -1,6 +1,7 @@
 
 #include "subsys-config.h"
 #include "subsys-lua.h"
+#include "subsys-log.h"
 
 #include "application.h"
 
@@ -52,6 +53,7 @@ namespace fr { namespace agent { namespace subsys {
         po::variables_map                   vm_;
         std::vector<std::string>            endpoints_;
         std::map<std::string, std::string>  keys_;
+        subsys::log                        *log_;
 #if FR_WITH_LUA
         subsys::lua                        *lua_;
 #endif
@@ -59,8 +61,9 @@ namespace fr { namespace agent { namespace subsys {
         impl( application *app, po::variables_map vm )
             :app_(app)
             ,vm_(vm)
+            ,log_(nullptr)
 #if FR_WITH_LUA
-            ,lua_(NULL)
+            ,lua_(nullptr)
 #endif
         {
             init_variables( );
@@ -155,6 +158,7 @@ namespace fr { namespace agent { namespace subsys {
 
     void config::init( )
     {
+        impl_->log_ = &impl_->app_->subsystem<subsys::log>( );
 #if FR_WITH_LUA
         impl_->lua_ = &impl_->app_->subsystem<subsys::lua>( );
 #endif
