@@ -187,9 +187,12 @@ message ioctl_req {
     optional handle hdl       = 1;
     optional int32  code      = 2;
     optional uint64 parameter = 3;
+    optional bytes  ptr_param = 4;
 }
 
-message ioctl_res { }
+message ioctl_res {
+    optional bytes  ptr_param = 1;
+}
 
 message register_req {
     optional handle  hdl = 1;
@@ -207,7 +210,9 @@ service file {
     rpc tell( handle)             returns ( file_position );
     rpc seek( file_set_position ) returns ( file_position );
 
-    rpc ioctl( ioctl_req )        returns ( ioctl_res );
+    rpc ioctl    ( ioctl_req )    returns ( ioctl_res );
+    rpc ioctl_ptr( ioctl_req )    returns ( ioctl_res ); // use ptr_param
+
     rpc read(  file_data_block )  returns ( file_data_block );
     rpc write( file_data_block )  returns ( file_data_block );
 

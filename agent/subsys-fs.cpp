@@ -709,6 +709,21 @@ namespace fr { namespace agent { namespace subsys {
 
             }
 
+            void ioctl_ptr(::google::protobuf::RpcController* controller,
+                         const ::fr::proto::fs::ioctl_req* request,
+                         ::fr::proto::fs::ioctl_res* response,
+                         ::google::protobuf::Closure* done) override
+            {
+                vcomm::closure_holder holder(done);
+                file_sptr f(get_file( request->hdl( ).value( ) ));
+
+                response->mutable_ptr_param( )->assign( request->ptr_param( ) );
+                auto data = request->ptr_param( ).empty( )
+                          ? nullptr
+                          : &(*response->mutable_ptr_param( ))[0];
+                f->ioctl( request->code( ), data );
+            }
+
             void read(::google::protobuf::RpcController* /*controller*/,
                          const ::fr::proto::fs::file_data_block* request,
                          ::fr::proto::fs::file_data_block* response,
