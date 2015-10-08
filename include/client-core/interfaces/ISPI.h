@@ -81,11 +81,11 @@ namespace interfaces { namespace spi {
     typedef iface* iface_ptr;
 
     iface_ptr open( core::client_core &cl,
-                      unsigned bus, unsigned channel,
-                      unsigned speed, unsigned mode );
+                    unsigned bus, unsigned channel,
+                    unsigned speed, unsigned mode );
 
     iface_ptr open( core::client_core &cl, unsigned channel,
-                      unsigned speed, unsigned mode );
+                    unsigned speed, unsigned mode );
 
 }}}}
 
