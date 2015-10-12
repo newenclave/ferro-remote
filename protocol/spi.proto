@@ -55,51 +55,6 @@ message transfer_list_res {
     repeated uint32 errors = 3;
 }
 
-message register_info {
-
-    enum register_bits {
-        REG_8BIT  = 0;
-        REG_16BIT = 1;
-        REG_32BIT = 2;
-        REG_64BIT = 3;
-    }
-
-    optional register_bits bits     = 1;
-    optional uint32        address  = 2;
-    optional uint32        reg      = 3;
-    optional uint64        value    = 4;
-}
-
-message set_register_req {
-    optional handle hdl         = 1;
-    optional register_info info = 2;
-}
-message set_register_res { }
-
-message get_register_req {
-    optional handle hdl         = 1;
-    optional register_info info = 2;
-}
-
-message get_register_res {
-    optional register_info info = 2;
-}
-
-message set_register_list_req {
-    optional handle hdl          = 1;
-    repeated register_info infos = 2;
-}
-message set_register_list_res { }
-
-message get_register_list_req {
-    optional handle hdl          = 1;
-    repeated register_info infos = 2;
-}
-
-message get_register_list_res {
-    repeated register_info infos = 2;
-}
-
 message write_req {
     optional handle hdl  = 1;
     optional bytes  data = 2;
@@ -139,12 +94,6 @@ service instance {
 
     rpc transfer      (transfer_req)       returns (transfer_res);
     rpc transfer_list (transfer_list_req)  returns (transfer_list_res);
-
-    rpc set_register(set_register_req) returns(set_register_res);
-    rpc set_register_list(set_register_list_req) returns(set_register_list_res);
-
-    rpc get_register(get_register_req) returns(get_register_res);
-    rpc get_register_list(get_register_list_req) returns(get_register_list_res);
 
 }
 

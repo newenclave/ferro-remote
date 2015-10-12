@@ -57,22 +57,6 @@ namespace interfaces { namespace spi {
         virtual void write( const void *data, size_t len ) const = 0;
         virtual string_vector wr( const string_vector &data ) const = 0;
 
-        virtual cmd_uint8_vector read_regs8(
-                                    const uint8_vector &regs) const = 0;
-        virtual cmd_uint16_vector read_regs16(
-                                    const uint8_vector &regs) const = 0;
-        virtual cmd_uint32_vector read_regs32(
-                                    const uint8_vector &regs) const = 0;
-        virtual cmd_uint64_vector read_regs64(
-                                    const uint8_vector &regs) const = 0;
-
-        virtual void write_regs8 ( const cmd_uint8_vector  &data ) const = 0;
-        virtual void write_regs16( const cmd_uint16_vector &data ) const = 0;
-        virtual void write_regs32( const cmd_uint32_vector &data ) const = 0;
-        virtual void write_regs64( const cmd_uint64_vector &data ) const = 0;
-
-        virtual void set_address( unsigned address ) = 0;
-
         virtual std::string transfer( const unsigned char *data,
                                       size_t len ) const = 0;
         virtual string_vector transfer( const string_vector &data ) const = 0;

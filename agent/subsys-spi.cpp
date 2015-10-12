@@ -69,48 +69,6 @@ namespace fr { namespace agent { namespace subsys {
             return oss.str( );
         }
 
-        void call_setter( file_sptr dev, int reg_bits,
-                          uint32_t addr, uint32_t reg, uint64_t value )
-        {
-            switch (reg_bits) {
-            case spiproto::register_info::REG_16BIT:
-                dev->set_reg16( addr, reg, static_cast<uint16_t>(value) );
-                break;
-            case spiproto::register_info::REG_32BIT:
-                dev->set_reg32( addr, reg, static_cast<uint32_t>(value) );
-                break;
-            case spiproto::register_info::REG_64BIT:
-                dev->set_reg64( addr, reg, value );
-                break;
-            case spiproto::register_info::REG_8BIT: // default
-            default:
-                dev->set_reg8( addr, reg, static_cast<uint8_t>(value) );
-                break;
-            }
-        }
-
-        uint64_t call_getter( file_sptr dev, int reg_bits,
-                              uint32_t addr, uint32_t reg )
-        {
-            uint64_t res = 0;
-            switch (reg_bits) {
-            case spiproto::register_info::REG_16BIT:
-                res = dev->get_reg16( addr, reg);
-                break;
-            case spiproto::register_info::REG_32BIT:
-                res = dev->get_reg32( addr, reg);
-                break;
-            case spiproto::register_info::REG_64BIT:
-                res = dev->get_reg64( addr, reg);
-                break;
-            case spiproto::register_info::REG_8BIT: // default
-            default:
-                res = dev->get_reg8( addr, reg);
-                break;
-            }
-            return res;
-        }
-
         class proto_impl: public proto_instance {
 
             application                  *app_;
@@ -303,67 +261,6 @@ namespace fr { namespace agent { namespace subsys {
                     }
                 }
 
-            }
-
-            void set_register(::google::protobuf::RpcController* /*controller*/,
-                     const ::fr::proto::spi::set_register_req* request,
-                     ::fr::proto::spi::set_register_res* /*response*/,
-                     ::google::protobuf::Closure* done) override
-            {
-                vcomm::closure_holder holder(done);
-                spi_info &si = get_file( request->hdl( ).value( ) );
-
-                const auto &inf(request->info( ));
-                call_setter( si.file_, inf.bits( ),
-                             inf.address( ), inf.reg( ), inf.value( ) );
-            }
-
-            void get_register(::google::protobuf::RpcController* /*controller*/,
-                     const ::fr::proto::spi::get_register_req* request,
-                     ::fr::proto::spi::get_register_res* response,
-                     ::google::protobuf::Closure* done) override
-            {
-                vcomm::closure_holder holder(done);
-                spi_info &si = get_file( request->hdl( ).value( ) );
-
-                const auto &inf(request->info( ));
-
-                response->mutable_info( )
-                        ->set_value( call_getter( si.file_,
-                                                  inf.bits( ),
-                                                  inf.address( ),
-                                                  inf.reg( ) ) );
-            }
-
-            void set_register_list(::google::protobuf::RpcController* /*cont*/,
-                     const ::fr::proto::spi::set_register_list_req* request,
-                     ::fr::proto::spi::set_register_list_res* response,
-                     ::google::protobuf::Closure* done) override
-            {
-                vcomm::closure_holder holder(done);
-                spi_info &si = get_file( request->hdl( ).value( ) );
-
-                for( auto &r: request->infos( ) ) {
-                    call_setter( si.file_, r.bits( ),
-                                 r.address( ), r.reg( ), r.value( ) );
-                }
-
-            }
-
-            void get_register_list(::google::protobuf::RpcController* /*cont*/,
-                     const ::fr::proto::spi::get_register_list_req* request,
-                     ::fr::proto::spi::get_register_list_res* response,
-                     ::google::protobuf::Closure* done)  override
-            {
-                vcomm::closure_holder holder(done);
-                spi_info &si = get_file( request->hdl( ).value( ) );
-
-                for( auto &r: request->infos( ) ) {
-                    auto nr = response->add_infos( );
-                    nr->CopyFrom( r );
-                    nr->set_value( call_getter( si.file_, r.bits( ),
-                                                r.address( ), r.reg( ) ) );
-                }
             }
 
             static const std::string &name( )

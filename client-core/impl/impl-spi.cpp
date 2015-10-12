@@ -17,52 +17,6 @@ namespace fr { namespace client { namespace interfaces {
         typedef vcomm::stub_wrapper<stub_type, channel_type> client_type;
         static const unsigned nw_flag = vcomm::rpc_channel::DISABLE_WAIT;
 
-        typedef proto::spi::register_info register_info;
-        typedef register_info::register_bits register_bits;
-
-        template <int T>
-        struct type_to_enum;
-
-        template <>
-        struct type_to_enum<8> {
-            typedef uint8_t type;
-            typedef spi::cmd_uint8_vector res_type;
-            static const register_bits value = register_info::REG_8BIT;
-        };
-
-        template <>
-        struct type_to_enum<16> {
-            typedef uint16_t type;
-            typedef spi::cmd_uint16_vector res_type;
-            static const register_bits value = register_info::REG_16BIT;
-        };
-
-        template <>
-        struct type_to_enum<32> {
-            typedef uint32_t type;
-            typedef spi::cmd_uint32_vector res_type;
-            static const register_bits value = register_info::REG_32BIT;
-        };
-
-        template <>
-        struct type_to_enum<64> {
-            typedef uint64_t type;
-            typedef spi::cmd_uint64_vector res_type;
-            static const register_bits value = register_info::REG_64BIT;
-        };
-
-//        register_bits bits_val2enum( unsigned val )
-//        {
-//            switch (val) {
-//            case register_info::REG_8BIT:
-//            case register_info::REG_16BIT:
-//            case register_info::REG_32BIT:
-//            case register_info::REG_64BIT:
-//                return static_cast<register_bits>(val);
-//            }
-//            return register_info::REG_8BIT;
-//        }
-
         vtrc::uint32_t open_instance( client_type &cl,
                                       unsigned bus, unsigned channel,
                                       unsigned speed, unsigned mode )
@@ -83,7 +37,6 @@ namespace fr { namespace client { namespace interfaces {
 
             mutable client_type client_;
             vtrc::uint32_t      hdl_;
-            vtrc::uint32_t      addr_;
 
         public:
 
@@ -92,7 +45,6 @@ namespace fr { namespace client { namespace interfaces {
                       unsigned speed, unsigned mode )
                 :client_(cl.create_channel( ), true)
                 ,hdl_(open_instance(client_, bus, channel, speed, mode))
-                ,addr_(0)
             { }
 
             ~spi_impl( )
@@ -118,11 +70,6 @@ namespace fr { namespace client { namespace interfaces {
                 proto::handle hdl;
                 hdl.set_value( hdl_ );
                 client_.call_request( &stub_type::close, &hdl );
-            }
-
-            void set_address( unsigned address ) override
-            {
-                addr_ = address;
             }
 
             void setup( unsigned speed, unsigned mode ) const override
@@ -169,101 +116,6 @@ namespace fr { namespace client { namespace interfaces {
                                            res.data( ).end( ) );
             }
 
-            template <int T>
-            typename type_to_enum<T>::res_type
-                get_regs( const spi::uint8_vector &regs ) const
-            {
-                typedef spi::uint8_vector::const_iterator citr;
-                typename type_to_enum<T>::res_type ret;
-
-                proto::spi::get_register_list_req req;
-                proto::spi::get_register_list_res res;
-
-                req.mutable_hdl( )->set_value( hdl_ );
-
-                for( citr b(regs.begin( )), e(regs.end( )); b!=e; ++b ) {
-                    proto::spi::register_info *ni = req.add_infos( );
-                    ni->set_address( addr_ );
-                    ni->set_bits( type_to_enum<T>::value );
-                    ni->set_reg( *b );
-//                    std::cout << "Push: " << std::hex << addr_
-//                                 << ":" << ni->value( ) << "\n";
-                }
-
-                client_.call( &stub_type::get_register_list, &req, &res );
-
-                ret.reserve( res.infos_size( ) );
-                for( int i=0; i<res.infos_size( ); i++ ) {
-                    const proto::spi::register_info &ni(res.infos(i));
-//                    std::cout << "Push: " << ni.reg( )
-//                                 << ":" << ni.value( ) << "\n";
-                    ret.push_back( std::make_pair( ni.reg( ), ni.value( ) ) );
-                }
-                return ret;
-            }
-
-            spi::cmd_uint8_vector
-                read_regs8( const spi::uint8_vector &regs ) const override
-            {
-                return get_regs<8>( regs );
-            }
-
-            spi::cmd_uint16_vector
-                read_regs16( const spi::uint8_vector &regs ) const override
-            {
-                return get_regs<16>( regs );
-            }
-
-            spi::cmd_uint32_vector
-                read_regs32( const spi::uint8_vector &regs ) const override
-            {
-                return get_regs<32>( regs );
-            }
-
-            spi::cmd_uint64_vector
-                read_regs64( const spi::uint8_vector &regs ) const override
-            {
-                return get_regs<64>( regs );
-            }
-
-            template <int T>
-            void write_impl( const typename type_to_enum<T>::res_type &d ) const
-            {
-                typedef typename type_to_enum<T>::res_type::const_iterator citr;
-                proto::spi::set_register_list_req req;
-                proto::spi::set_register_list_res res;
-                req.mutable_hdl( )->set_value( hdl_ );
-
-                for( citr b(d.begin( )), e(d.end( )); b!=e; ++b ) {
-                    proto::spi::register_info *ni = req.add_infos( );
-                    ni->set_address( addr_ );
-                    ni->set_bits( type_to_enum<T>::value );
-                    ni->set_reg( b->first );
-                    ni->set_value( b->second );
-                }
-                client_.call( &stub_type::set_register_list, &req, &res );
-            }
-
-            void write_regs8( const spi::cmd_uint8_vector &dat ) const override
-            {
-                write_impl<8>( dat );
-            }
-
-            void write_regs16( const spi::cmd_uint16_vector &dat) const override
-            {
-                write_impl<16>( dat );
-            }
-
-            void write_regs32( const spi::cmd_uint32_vector &dat) const override
-            {
-                write_impl<32>( dat );
-            }
-
-            void write_regs64( const spi::cmd_uint64_vector &dat) const override
-            {
-                write_impl<64>( dat );
-            }
-
             std::string transfer( const unsigned char *data,
                                   size_t len ) const override
             {
@@ -290,7 +142,6 @@ namespace fr { namespace client { namespace interfaces {
                                            res.datas( ).end( ) );
 
             }
-
 
             void close( ) const override
             {
