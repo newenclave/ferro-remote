@@ -16,36 +16,6 @@ namespace core {
 
 namespace interfaces { namespace spi {
 
-//    enum reg_type {
-//         REG_8BIT  = 0
-//        ,REG_16BIT = 1
-//        ,REG_32BIT = 2
-//        ,REG_64BIT = 3
-//    };
-
-//    static
-//    inline reg_type reg_type_val2enum( unsigned val )
-//    {
-//        switch (val) {
-//        case REG_16BIT:
-//        case REG_32BIT:
-//        case REG_64BIT:
-//        case REG_8BIT:
-//            return static_cast<reg_type>(val);
-//        }
-//        return REG_8BIT;
-//    }
-
-    typedef std::vector<uint8_t> uint8_vector; /// registry for read
-    typedef std::pair<uint8_t, uint8_t>  cmd_uint8;  /// command + val8
-    typedef std::pair<uint8_t, uint16_t> cmd_uint16; /// command + val16
-    typedef std::pair<uint8_t, uint32_t> cmd_uint32; /// command + val32
-    typedef std::pair<uint8_t, uint64_t> cmd_uint64; /// command + val64
-
-    typedef std::vector<cmd_uint8>   cmd_uint8_vector;
-    typedef std::vector<cmd_uint16>  cmd_uint16_vector;
-    typedef std::vector<cmd_uint32>  cmd_uint32_vector;
-    typedef std::vector<cmd_uint64>  cmd_uint64_vector;
     typedef std::vector<std::string> string_vector;
 
     struct iface: public interfaces::base {

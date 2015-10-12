@@ -65,7 +65,10 @@ namespace {
     }
 
     int lcall_open      ( lua_State *L );
+    int lcall_transfer  ( lua_State *L );
     int lcall_write     ( lua_State *L );
+    int lcall_wr        ( lua_State *L );
+    int lcall_read      ( lua_State *L );
     int lcall_setup     ( lua_State *L );
     int lcall_set_addr  ( lua_State *L );
 
@@ -74,7 +77,9 @@ namespace {
     const struct luaL_Reg spi_lib[ ] = {
          { "close",       &lcall_close       }
         ,{ "write",       &lcall_write       }
-        ,{ "transfer",    &lcall_write       }
+        ,{ "read",        &lcall_read        }
+        ,{ "wr",          &lcall_wr          }
+        ,{ "transfer",    &lcall_transfer    }
         ,{ "setup",       &lcall_setup       }
 
         ,{ "__gc",        &lcall_close       }
@@ -227,28 +232,6 @@ namespace {
         unsigned mode  = 0;
     };
 
-    template <typename T>
-    T table2pair_vector( lua::state &ls, int id )
-    {
-        return utils::table2pair_vector<T>( ls, id );
-    }
-
-    ispi::uint8_vector table2vector( lua::state &ls, int id )
-    {
-        return utils::table2vector<ispi::uint8_vector>( ls, id );
-    }
-
-    template <typename T>
-    table_sptr vector2table( const T &values )
-    {
-        table_sptr res( new_table( ) );
-
-        for( auto &v: values ) {
-            res->add( new_integer( v.first ), new_integer( v.second ) );
-        }
-        return res;
-    }
-
     setup_info get_si_from_lua_table( lua::state &ls, int id )
     {
         setup_info si;
@@ -337,7 +320,7 @@ namespace {
         return 0;
     }
 
-    int lcall_write ( lua_State *L )
+    int lcall_transfer ( lua_State *L )
     {
         module *m = get_module( L );
         lua::state ls(L);
@@ -350,6 +333,79 @@ namespace {
             ls.push( d->transfer( ptr, data.size( ) ));
         } catch( const std::exception &ex ) {
             ls.push( );
+            ls.push( ex.what( ) );
+            return 2;
+        }
+
+        return 1;
+    }
+
+    int lcall_read ( lua_State *L )
+    {
+        module *m = get_module( L );
+        lua::state ls(L);
+        utils::handle h = m->get_object_hdl( L, 1 );
+
+        try {
+            auto d    = m->get_dev( h );
+            auto len  = ls.get_opt<unsigned>( 2 );
+            ls.push( d->read( len ));
+        } catch( const std::exception &ex ) {
+            ls.push( );
+            ls.push( ex.what( ) );
+            return 2;
+        }
+        return 1;
+    }
+
+    int lcall_write( lua_State *L )
+    {
+        module *m = get_module( L );
+        lua::state ls(L);
+        utils::handle h = m->get_object_hdl( L, 1 );
+
+        try {
+            auto d    = m->get_dev( h );
+            auto data = ls.get_opt<std::string>( 2 );
+            auto ptr  = reinterpret_cast<const unsigned char *>(data.c_str( ));
+            d->write( ptr, data.size( ) );
+            ls.push( true );
+        } catch( const std::exception &ex ) {
+            ls.push( false );
+            ls.push( ex.what( ) );
+            return 2;
+        }
+
+        return 1;
+    }
+
+    int lcall_wr( lua_State *L )
+    {
+        module *m = get_module( L );
+        lua::state ls(L);
+        utils::handle h = m->get_object_hdl( L, 1 );
+
+        try {
+            auto d = m->get_dev( h );
+            auto t = ls.get_type( 2 );
+            if( t == base::TYPE_STRING ) {
+                auto data = ls.get_opt<std::string>( 2 );
+                ispi::string_vector all_data;
+                all_data.push_back( data );
+                auto res = d->wr( all_data );
+                ls.push( *res.begin( ) );
+            } else if( t == base::TYPE_TABLE ) {
+                auto tobj = ls.get_object( 2 );
+                ispi::string_vector all_data;
+                for( size_t i=0; i<tobj->count( ); i++ ) {
+                    auto p(tobj->at(i));
+                    auto f(p->at(0));
+                    auto s(p->at(1));
+                    all_data.push_back( s->str( ) );
+                }
+            }
+        } catch( const std::exception &ex ) {
+            ls.push( false );
             ls.push( ex.what( ) );
             return 2;
         }
