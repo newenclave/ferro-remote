@@ -397,11 +397,23 @@ namespace {
             } else if( t == base::TYPE_TABLE ) {
                 auto tobj = ls.get_object( 2 );
                 ispi::string_vector all_data;
+                std::vector<const base *> base_vector;
                 for( size_t i=0; i<tobj->count( ); i++ ) {
                     auto p(tobj->at(i));
                     auto f(p->at(0));
                     auto s(p->at(1));
-                    all_data.push_back( s->str( ) );
+                    if( utils::is_string( s ) ) {
+                        all_data.push_back( s->str( ) );
+                        base_vector.push_back( f );
+                    }
+                }
+                auto res = d->wr( all_data );
+                size_t counter = 0;
+                objects::table_sptr t(objects::new_table( ));
+                for( auto &d: res ) {
+                    t->add( base_vector[counter]->clone( ),
+                            objects::new_string( d ) );
+                    ++counter;
                 }
             }
         } catch( const std::exception &ex ) {

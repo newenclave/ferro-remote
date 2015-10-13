@@ -93,10 +93,10 @@ namespace lua { namespace objects {
             return false;
         }
 
-        virtual base * clone( ) const
-        {
-            return new base;
-        }
+        virtual base * clone( ) const = 0;
+//        {
+//            return new base;
+//        }
 
         virtual size_t count( ) const
         {
@@ -948,6 +948,11 @@ namespace lua { namespace objects {
     inline light_userdata * new_light_userdata( void *data )
     {
         return new light_userdata( data );
+    }
+
+    inline base * new_object( const std::string &s )
+    {
+        return new_string( s );
     }
 
 }}

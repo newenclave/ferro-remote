@@ -54,6 +54,18 @@ namespace fr { namespace lua { namespace utils {
     }
 
     template <typename T>
+    objects::base_sptr vector2table( const T &data )
+    {
+        auto t(std::make_shared<objects::table>( ));
+
+        for( auto &d: data ) {
+            t->add( objects::new_object( d ) );
+        }
+
+        return t;
+    }
+
+    template <typename T>
     T table2pair_vector( const objects::base *tobj )
     {
         T res;
