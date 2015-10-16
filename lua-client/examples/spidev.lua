@@ -5,7 +5,10 @@ spidev = {
 
 spidev.new = function( bus, channel )
     local spi = fr.client.spi
-    local dev = assert(spi.open( bus, channel ))
+    local dev, err = spi.open( bus, channel )
+    if not dev then
+       return dev, err
+    end
     intst = { }
     inst.bus     = bus
     inst.channel = channel
