@@ -12,10 +12,21 @@ message bus_available_res {
     optional bool value = 1;
 }
 
+message setup_info {
+    optional uint64 slave_id    = 1;
+    optional bool   force_slave = 2;
+}
+
+message setup_req {
+    optional handle     hdl    = 1;
+    optional setup_info setup  = 2;
+}
+
+message setup_res { }
+
 message open_req {
-    optional uint32 bus_id      = 1;
-    optional uint64 slave_id    = 2;
-    optional bool   force_slave = 3;
+    optional uint32     bus_id = 1;
+    optional setup_info setup  = 2;
 }
 
 message open_res {
@@ -159,22 +170,15 @@ service instance {
 
     rpc bus_available( bus_available_req ) returns ( bus_available_res );
 
-    rpc open( open_req ) returns ( open_res );
+    rpc open ( open_req )  returns ( open_res );
+    rpc setup( setup_req ) returns ( setup_res );
 
     rpc read(  data_block )  returns ( data_block );
     rpc write( data_block )  returns ( data_block );
 
-    //// byte
-    rpc read_byte( write_read_data_req ) returns ( write_read_data_res );
-    rpc write_byte( write_read_data_req ) returns ( write_read_data_res );
-
     //// { byte, byte, byte }
     rpc read_bytes( write_read_datas_req ) returns ( write_read_datas_res );
     rpc write_bytes( write_read_datas_req ) returns ( write_read_datas_res );
-
-    //// word
-    rpc read_word( write_read_data_req ) returns ( write_read_data_res );
-    rpc write_word( write_read_data_req ) returns ( write_read_data_res );
 
     //// { word, word, word }
     rpc read_words( write_read_datas_req ) returns ( write_read_datas_res );

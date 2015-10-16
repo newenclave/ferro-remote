@@ -30,8 +30,8 @@ namespace fr { namespace client { namespace interfaces { namespace i2c {
             i2cproto::open_res res;
             req.set_bus_id( bus_id );
             if( slave_addr != I2C_SLAVE_INVALID_ADDRESS ) {
-                req.set_slave_id( slave_addr );
-                req.set_force_slave( slave_force );
+                req.mutable_setup( )->set_slave_id( slave_addr );
+                req.mutable_setup( )->set_force_slave( slave_force );
             }
             cl.call( &stub_type::open, &req, &res );
             return res.hdl( ).value( );
@@ -90,7 +90,10 @@ namespace fr { namespace client { namespace interfaces { namespace i2c {
 
             void  set_address( uint16_t addr ) const override
             {
-                ioctl( i2cproto::CODE_I2C_SLAVE, addr );
+                i2cproto::setup_req req;
+                req.mutable_hdl( )->set_value( hdl_ );
+                req.mutable_setup( )->set_slave_id( addr );
+                client_.call_request( &stub_type::setup, &req );
             }
 
             void ioctl( unsigned code, uint64_t par ) const override
@@ -105,24 +108,27 @@ namespace fr { namespace client { namespace interfaces { namespace i2c {
             template <typename CallType>
             uint32_t read_impl( CallType call, uint8_t cmd ) const
             {
-                i2cproto::write_read_data_req req;
-                i2cproto::write_read_data_res res;
+                i2cproto::write_read_datas_req req;
+                i2cproto::write_read_datas_res res;
 
                 req.mutable_hdl( )->set_value( hdl_ );
-                req.mutable_request( )->set_code( cmd );
+                req.mutable_request( )->add_value( )->set_code( cmd );
 
                 client_.call( call, &req, &res );
-                return res.data( ).value( );
+
+                return res.response( ).value( 0 ).data( ).value( );
             }
 
             template <typename CallType>
             void write_impl( CallType call, uint8_t cmd, uint32_t val ) const
             {
-                i2cproto::write_read_data_req req;
+                i2cproto::write_read_datas_req req;
 
                 req.mutable_hdl( )->set_value( hdl_ );
-                req.mutable_request( )->set_code( cmd );
-                req.mutable_request( )->mutable_data( )->set_value( val );
+                auto new_val = req.mutable_request( )->add_value( );
+
+                new_val->set_code( cmd );
+                new_val->mutable_data( )->set_value( val );
 
                 client_.call_request( call, &req  );
             }
@@ -130,12 +136,12 @@ namespace fr { namespace client { namespace interfaces { namespace i2c {
             uint8_t read_byte( uint8_t cmd ) const override
             {
                 return static_cast<uint8_t>
-                        ( read_impl( &stub_type::read_byte, cmd ) );
+                        ( read_impl( &stub_type::read_bytes, cmd ) );
             }
 
             void write_byte( uint8_t cmd, uint8_t value ) const override
             {
-                write_impl( &stub_type::write_byte, cmd, value );
+                write_impl( &stub_type::write_bytes, cmd, value );
             }
 
             template <typename CallType, typename Res, typename Par>
@@ -202,12 +208,12 @@ namespace fr { namespace client { namespace interfaces { namespace i2c {
             uint16_t read_word( uint8_t cmd ) const override
             {
                 return static_cast<uint8_t>
-                        ( read_impl( &stub_type::read_word, cmd ) );
+                        ( read_impl( &stub_type::read_words, cmd ) );
             }
 
             void write_word( uint8_t cmd, uint16_t value ) const override
             {
-                write_impl( &stub_type::write_word, cmd, value );
+                write_impl( &stub_type::write_words, cmd, value );
             }
 
             cmd_uint16_vector

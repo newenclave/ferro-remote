@@ -103,15 +103,33 @@ namespace fr { namespace agent { namespace subsys {
                 i2c_sptr new_dev( vtrc::make_shared<i2c_helper>( bid ) );
                 response->mutable_hdl( )->set_value( next_hdl );
 
-                if( request->has_slave_id( ) ) {
-                    auto slv = static_cast<unsigned long>(request->slave_id( ));
-                    bool force = request->force_slave( );
+                if( request->has_setup( ) ) {
+                    auto slv = static_cast<
+                                    unsigned long
+                                >(request->setup( ).slave_id( ));
+                    bool force = request->setup( ).force_slave( );
                     new_dev->set_address( slv, force );
                 }
 
                 vtrc::unique_shared_lock lck(devices_lock_);
                 devices_.insert( std::make_pair( next_hdl, new_dev ) );
             }
+
+            void setup(::google::protobuf::RpcController*   /*controller*/,
+                         const ::fr::proto::i2c::setup_req* request,
+                         ::fr::proto::i2c::setup_res*       /*response*/,
+                         ::google::protobuf::Closure* done) override
+            {
+                vcomm::closure_holder holder( done );
+                i2c_sptr dev(i2c_by_index( request->hdl( ).value( ) ));
+                auto addr = static_cast<
+                                unsigned long
+                            >( request->setup( ).slave_id( ) );
+                auto force = request->setup( ).force_slave( );
+
+                dev->set_address( addr, force );
+            }
+
 
             void ioctl( ::google::protobuf::RpcController*   /*controller*/,
                          const ::fr::proto::i2c::ioctl_req* request,
@@ -175,29 +193,6 @@ namespace fr { namespace agent { namespace subsys {
                 response->set_length( res );
             }
 
-            void read_byte(::google::protobuf::RpcController* /*controller*/,
-                         const ::fr::proto::i2c::write_read_data_req* request,
-                         ::fr::proto::i2c::write_read_data_res* response,
-                         ::google::protobuf::Closure* done) override
-            {
-                vcomm::closure_holder holder( done );
-                i2c_sptr dev(i2c_by_index( request->hdl( ).value( ) ));
-                response->mutable_data( )
-                        ->set_value( dev->smbus_read_byte_data(
-                                     request->request( ).code( ) ) );
-            }
-
-            void write_byte(::google::protobuf::RpcController* /*controller*/,
-                         const ::fr::proto::i2c::write_read_data_req* request,
-                         ::fr::proto::i2c::write_read_data_res* /*response*/,
-                         ::google::protobuf::Closure* done) override
-            {
-                vcomm::closure_holder holder( done );
-                i2c_sptr dev(i2c_by_index( request->hdl( ).value( ) ));
-                dev->smbus_write_byte_data( request->request( ).code( ),
-                             request->request( ).data( ).value( ) & 0xFF );
-            }
-
             void read_bytes(::google::protobuf::RpcController* controller,
                          const ::fr::proto::i2c::write_read_datas_req* request,
                          ::fr::proto::i2c::write_read_datas_res* response,
@@ -233,30 +228,6 @@ namespace fr { namespace agent { namespace subsys {
                    dev->smbus_write_byte_data( next.code( ),
                                                next.data( ).value( ) & 0xFF );
                 }
-            }
-
-            void read_word(::google::protobuf::RpcController* /*controller*/,
-                         const ::fr::proto::i2c::write_read_data_req* request,
-                         ::fr::proto::i2c::write_read_data_res* response,
-                         ::google::protobuf::Closure* done) override
-            {
-                vcomm::closure_holder holder( done );
-                i2c_sptr dev(i2c_by_index( request->hdl( ).value( ) ));
-                response->mutable_data( )
-                        ->set_value( dev->smbus_read_word_data(
-                                     request->request( ).code( ) ) );
-            }
-
-            void write_word(::google::protobuf::RpcController* /*controller*/,
-                         const ::fr::proto::i2c::write_read_data_req* request,
-                         ::fr::proto::i2c::write_read_data_res* response,
-                         ::google::protobuf::Closure* done) override
-            {
-                vcomm::closure_holder holder( done );
-                i2c_sptr dev(i2c_by_index( request->hdl( ).value( ) ));
-
-                dev->smbus_write_word_data( request->request( ).code( ),
-                               request->request( ).data( ).value( ) & 0xFFFF );
             }
 
             void read_words(::google::protobuf::RpcController* /*controller*/,
