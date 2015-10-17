@@ -70,7 +70,6 @@ namespace {
     int lcall_wr        ( lua_State *L );
     int lcall_read      ( lua_State *L );
     int lcall_setup     ( lua_State *L );
-    int lcall_set_addr  ( lua_State *L );
 
     int lcall_close     ( lua_State *L );
 
