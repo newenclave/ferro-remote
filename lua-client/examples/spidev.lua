@@ -9,6 +9,7 @@ spidev.new = function( bus, channel )
     if not dev then
        return dev, err
     end
+ 
     intst = { }
     inst.bus     = bus
     inst.channel = channel
@@ -21,4 +22,17 @@ end
 spidev.transfer = function( self, data )
     return self.dev:transfer( data )
 end
+
+spidev.read = function( self, length )
+    retrn self.dev:read( length )
+end
+
+spidev.write = function( self, data )
+    retrn self.dev:write( data )
+end
+
+spidev.write_read = function( self, data )
+    retrn self.dev:wr( data )
+end
+
 
