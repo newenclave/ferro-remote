@@ -279,7 +279,7 @@ namespace {
         } else {
             si.bus   = ls.get_opt<unsigned>( id + 0, 0 );
             si.chan  = ls.get_opt<unsigned>( id + 1, 1 );
-            si.speed = ls.get_opt<unsigned>( id + 2, 500000 );
+            si.speed = ls.get_opt<unsigned>( id + 2, 0 );
             si.mode  = ls.get_opt<unsigned>( id + 3, 0 );
         }
         return si;

@@ -25,9 +25,10 @@ namespace fr { namespace client { namespace interfaces {
             sproto::open_res res;
             req.set_bus( bus );
             req.set_channel( channel );
-            req.mutable_setup( )->set_speed( speed );
-            req.mutable_setup( )->set_mode( mode );
-
+            if( speed ) {
+                req.mutable_setup( )->set_speed( speed );
+                req.mutable_setup( )->set_mode( mode );
+            }
             cl.call( &stub_type::open, &req, &res );
 
             return res.hdl( ).value( );
