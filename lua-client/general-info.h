@@ -37,6 +37,8 @@ namespace fr { namespace lua { namespace client {
         bool                                            connected_;
         boost::program_options::variables_map           cmd_opts_;
 
+        std::string                                     script_path_;
+
         general_info( )
             :exit_code_(0)
             ,connected_(false)

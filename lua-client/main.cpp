@@ -93,13 +93,6 @@ namespace {
         return t;
     }
 
-    int lcall_import( lua_State *L )
-    {
-        lua::state ls(L);
-        auto path = ls.get_opt<std::string>( 1 );
-        ls.check_call_error(ls.load_file( path.c_str( ) ));
-        return 0;
-    }
 }
 
 int main( int argc, const char *argv[] )
@@ -167,7 +160,7 @@ int main( int argc, const char *argv[] )
 
         ls.openlibs( );
         ls.openlib( "struct", luaopen_struct, 1 );
-        ls.register_call( "import", &lcall_import );
+        //ls.register_call( "import", &lcall_import );
 
         //luaopen_struct( ls.get_state( ) );
         ls.set( FR_CLIENT_GEN_INFO_PATH, &ci );
@@ -182,6 +175,7 @@ int main( int argc, const char *argv[] )
         try {
 
             if( fs::exists( script_path ) ) {
+                ci.script_path_ = script_path;
                 ls.check_call_error( ls.load_file( script_path.c_str( ) ) );
             } else {
                 ls.check_call_error( ls.load_buffer( script_path.c_str( ),

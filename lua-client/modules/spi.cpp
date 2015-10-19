@@ -327,9 +327,21 @@ namespace {
 
         try {
             auto d    = m->get_dev( h );
-            auto data = ls.get_opt<std::string>( 2 );
-            auto ptr  = reinterpret_cast<const unsigned char *>(data.c_str( ));
-            ls.push( d->transfer( ptr, data.size( ) ));
+            auto t = ls.get_type( 2 );
+            if( t == base::TYPE_TABLE ) {
+                auto data = utils::table2vector<std::string>( ls, 2 );
+                auto ptr  = reinterpret_cast<const uint8_t *>(data.c_str( ));
+                auto res  = d->transfer( ptr, data.size( ) );
+                table t;
+                for( auto &r: res ) {
+                    t.add( new_integer( static_cast<uint8_t>(r) ) );
+                }
+                t.push( L );
+            } else {
+                auto data = ls.get_opt<std::string>( 2 );
+                auto ptr  = reinterpret_cast<const uint8_t *>(data.c_str( ));
+                ls.push( d->transfer( ptr, data.size( ) ));
+            }
         } catch( const std::exception &ex ) {
             ls.push( );
             ls.push( ex.what( ) );

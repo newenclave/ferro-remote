@@ -1,5 +1,5 @@
 spidev = { 
-    bus	    = 0
+    bus	    = 0,
     channel = 0
 }
 
@@ -10,11 +10,11 @@ spidev.new = function( bus, channel )
        return dev, err
     end
  
-    intst = { }
+    inst = { }
     inst.bus     = bus
     inst.channel = channel
     inst.dev     = dev
-    for k, v in pairs(window) do inst[k] = v end
+    for k, v in pairs(spidev) do inst[k] = v end
     
     return inst
 end
@@ -38,4 +38,10 @@ end
 
 spidev.setup = function( self, speed, mode )
     return self.dev:setup( speed, mode )
+end
+
+function main( )
+    local s = assert(spidev.new(0, 1)) 
+    fr.print( "transfer res: ", assert(s:transfer( {0xFF, 0xFF} )), "\n" )
+    
 end

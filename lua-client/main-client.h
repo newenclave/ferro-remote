@@ -18,6 +18,8 @@ namespace fr { namespace lua { namespace client {
     int global_init( general_info *info, bool connect );
     int events_init( general_info *info );
 
+    int lcall_import( lua_State *L );
+
 }}}
 
 #endif // MAINCLIENT_H
