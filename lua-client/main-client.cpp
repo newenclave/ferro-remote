@@ -70,24 +70,6 @@ namespace fr { namespace lua { namespace client {
             return res;
         }
 
-        int lcall_import( lua_State *L )
-        {
-            lua::state ls(L);
-            general_info *g = get_gen_info( L );
-
-            auto path = ls.get_opt<std::string>( 1 );
-            if( fs::exists( path ) ) {
-                ls.check_call_error(ls.load_file( path.c_str( ) ));
-            } else {
-                fs::path scr(g->script_path_);
-                scr.remove_leaf( );
-                scr /= path;
-                ls.check_call_error(ls.load_file( scr.string( ).c_str( ) ));
-
-            }
-            return 0;
-        }
-
         int lcall_events( lua_State *L )
         {
             general_info *g = get_gen_info( L );
@@ -346,6 +328,24 @@ namespace fr { namespace lua { namespace client {
             }
         }
 
+        return 0;
+    }
+
+    int lcall_import( lua_State *L )
+    {
+        lua::state ls(L);
+        general_info *g = get_gen_info( L );
+
+        auto path = ls.get_opt<std::string>( 1 );
+        if( fs::exists( path ) ) {
+            ls.check_call_error(ls.load_file( path.c_str( ) ));
+        } else {
+            fs::path scr(g->script_path_);
+            scr.remove_leaf( );
+            scr /= path;
+            ls.check_call_error(ls.load_file( scr.string( ).c_str( ) ));
+
+        }
         return 0;
     }
 

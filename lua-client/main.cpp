@@ -160,7 +160,7 @@ int main( int argc, const char *argv[] )
 
         ls.openlibs( );
         ls.openlib( "struct", luaopen_struct, 1 );
-        //ls.register_call( "import", &lcall_import );
+        ls.register_call( "import", &::fr::lua::client::lcall_import );
 
         //luaopen_struct( ls.get_state( ) );
         ls.set( FR_CLIENT_GEN_INFO_PATH, &ci );
