@@ -23,16 +23,17 @@ spidev.transfer = function( self, data )
     return self.dev:transfer( data )
 end
 
+
 spidev.read = function( self, length )
-    retrn self.dev:read( length )
+    return self.dev:read( length )
 end
 
 spidev.write = function( self, data )
-    retrn self.dev:write( data )
+    return self.dev:write( data )
 end
 
 spidev.write_read = function( self, data )
-    retrn self.dev:wr( data )
+    return self.dev:wr( data )
 end
 
 
