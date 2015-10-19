@@ -444,8 +444,9 @@ namespace {
 
         try {
             auto d  = m->get_dev( h );
-            auto si = get_si_from_lua_table( ls, 2 );
-            d->setup( si.speed, si.mode );
+            auto speed = ls.get_opt<unsigned>( 2 );
+            auto mode  = ls.get_opt<unsigned>( 3 );
+            d->setup( speed, mode );
             return 1;
         } catch( const std::exception &ex ) {
             ls.push( );

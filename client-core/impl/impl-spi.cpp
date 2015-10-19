@@ -78,7 +78,7 @@ namespace fr { namespace client { namespace interfaces {
                 sproto::setup_req req;
                 req.mutable_hdl( )->set_value( hdl_ );
                 req.mutable_setup( )->set_speed( speed );
-                req.mutable_setup( )->set_speed( mode );
+                req.mutable_setup( )->set_mode( mode );
                 client_.call_request( &stub_type::setup, &req );
             }
 

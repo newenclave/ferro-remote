@@ -1,5 +1,5 @@
 import "spidev.lua"
-    
+
 function main( )
     local d = assert(spidev.new(0, 0) )
     d:setup(100000, 0)
@@ -10,3 +10,5 @@ function main( )
     end
     fr.print( res, "\n" )
 end
+
+        

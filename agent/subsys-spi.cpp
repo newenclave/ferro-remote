@@ -145,8 +145,8 @@ namespace fr { namespace agent { namespace subsys {
                 vcomm::closure_holder holder(done);
                 spi_info &f(get_file(request->hdl( ).value( )));
 
-                vtrc::uint32_t mode =  request->setup( ).mode( );
-                vtrc::uint32_t speed = request->setup( ).speed( );
+                auto mode  = request->setup( ).mode( );
+                auto speed = request->setup( ).speed( );
 
                 LOGDBG << "Try to setup device; speed: " << speed
                        << "; mode: " << mode
