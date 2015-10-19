@@ -148,9 +148,13 @@ namespace fr { namespace agent { namespace subsys {
                 vtrc::uint32_t mode =  request->setup( ).mode( );
                 vtrc::uint32_t speed = request->setup( ).speed( );
 
+                LOGDBG << "Try to setup device; speed: " << speed
+                       << "; mode: " << mode
+                          ;
+
                 f.file_->setup( speed, mode );
                 f.speed_ = f.file_->speed( );
-
+                LOGDBG << "Setup success.";
             }
 
             void close(::google::protobuf::RpcController* /*controller*/,
