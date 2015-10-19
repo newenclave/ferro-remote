@@ -70,7 +70,6 @@ namespace {
     int lcall_wr        ( lua_State *L );
     int lcall_read      ( lua_State *L );
     int lcall_setup     ( lua_State *L );
-    int lcall_set_addr  ( lua_State *L );
 
     int lcall_close     ( lua_State *L );
 
@@ -280,7 +279,7 @@ namespace {
         } else {
             si.bus   = ls.get_opt<unsigned>( id + 0, 0 );
             si.chan  = ls.get_opt<unsigned>( id + 1, 1 );
-            si.speed = ls.get_opt<unsigned>( id + 2, 500000 );
+            si.speed = ls.get_opt<unsigned>( id + 2, 0 );
             si.mode  = ls.get_opt<unsigned>( id + 3, 0 );
         }
         return si;
