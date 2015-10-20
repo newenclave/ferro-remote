@@ -33,7 +33,7 @@ spidev.write = function( self, data )
 end
 
 spidev.write_read = function( self, data )
-    return self.dev:wr( data l)
+    return self.dev:wr( data )
 end
 
 spidev.setup = function( self, speed, mode )
