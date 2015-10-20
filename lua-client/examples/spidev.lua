@@ -1,21 +1,23 @@
-spidev = { 
+spidev = {
     bus	    = 0,
     channel = 0
 }
 
 spidev.new = function( bus, channel )
+
     local spi = fr.client.spi
-    local dev, err = spi.open( bus, channel )
+    local dev, err = spi.open(bus, channel)
+
     if not dev then
        return dev, err
     end
- 
+
     inst = { }
     inst.bus     = bus
     inst.channel = channel
     inst.dev     = dev
     for k, v in pairs(spidev) do inst[k] = v end
-    
+
     return inst
 end
 
