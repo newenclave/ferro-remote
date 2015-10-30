@@ -5,16 +5,19 @@
 #include <atomic>
 #include <iostream>
 
+
 namespace fr { namespace lua {
+
+    namespace basio = boost::asio;
 
     struct event_caller::impl {
 
-        lua_State                       *state_;
-        boost::asio::io_service::strand  dispatcher_;
-        std::atomic<size_t>              index_;
-        bool                             enabled_;
+        lua_State                 *state_;
+        basio::io_service::strand  dispatcher_;
+        std::atomic<size_t>        index_;
+        bool                       enabled_;
 
-        impl(lua_State *L, boost::asio::io_service &ios)
+        impl(lua_State *L, basio::io_service &ios)
             :state_(L)
             ,dispatcher_(ios)
             ,index_(100)
@@ -23,7 +26,7 @@ namespace fr { namespace lua {
 
     };
 
-    event_caller::event_caller( lua_State *L, boost::asio::io_service &ios )
+    event_caller::event_caller( lua_State *L, basio::io_service &ios )
         :impl_(new impl(L, ios))
     { }
 
