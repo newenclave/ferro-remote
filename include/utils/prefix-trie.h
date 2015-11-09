@@ -3,6 +3,7 @@
 
 #include "bin-map.h"
 #include <algorithm>
+#include <map>
 
 namespace fr { namespace utils {
 
@@ -25,7 +26,7 @@ namespace fr { namespace utils {
         typedef prefix_trie const &const_ref_type;
         typedef prefix_trie const *const_ptr_type;
 
-        typedef fr::utils::bin_map<char_type, ptr_type>  prefix_list;
+        typedef std::map<char_type, ptr_type>  prefix_list;
         typedef std::pair<char_type, ptr_type>           prefix_pair;
 
     private:

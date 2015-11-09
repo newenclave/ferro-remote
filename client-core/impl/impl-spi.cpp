@@ -9,7 +9,6 @@
 namespace fr { namespace client { namespace interfaces {
 
     namespace {
-
         namespace sproto = fr::proto::spi;
         namespace vcomm = vtrc::common;
         typedef vcomm::rpc_channel                           channel_type;
