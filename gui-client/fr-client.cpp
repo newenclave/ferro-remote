@@ -36,6 +36,7 @@ namespace fr { namespace declarative {
 
         void connect_signals( )
         {
+            namespace ph = std::placeholders;
             client_.on_connect_connect( std::bind( &impl::on_connect, this ) );
 
             client_.on_disconnect_connect( std::bind(
@@ -44,7 +45,7 @@ namespace fr { namespace declarative {
             client_.on_ready_connect( std::bind( &impl::on_ready, this ) );
 
             client_.on_init_error_connect( std::bind( &impl::on_initerror, this,
-                                                      std::placeholders::_1 ) );
+                                                      ph::_1 ) );
 
         }
 
