@@ -33,7 +33,7 @@ namespace fr { namespace utils {
 
         typedef Container<char_type, ptr_type>  prefix_list;
         //typedef fr::utils::bin_map<char_type, ptr_type>  prefix_list;
-        typedef std::pair<char_type, ptr_type>           prefix_pair;
+        typedef std::pair<char_type, ptr_type>  prefix_pair;
 
     private:
 
