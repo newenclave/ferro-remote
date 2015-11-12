@@ -113,7 +113,7 @@ namespace fr { namespace agent {
         T &subsystem( )
         {
             subsystem_iface *subsys = subsystem( typeid(T) );
-            if( NULL == subsys ) {
+            if( nullptr == subsys ) {
                 throw std::runtime_error( "Invalid subsystem" );
             }
             return *(poly_downcast<T *>( subsys ));
@@ -123,7 +123,7 @@ namespace fr { namespace agent {
         const T &subsystem( ) const
         {
             const subsystem_iface *subsys = subsystem( typeid(T) );
-            if( NULL == subsys ) {
+            if( nullptr == subsys ) {
                 throw std::runtime_error( "Invalid subsystem" );
             }
             return *(poly_downcast<const T *>( subsys ));
