@@ -1,6 +1,6 @@
 
-#ifndef FR_SUBSYS_i2c_H
-#define FR_SUBSYS_i2c_H
+#ifndef FR_SUBSYS_I2C_H
+#define FR_SUBSYS_I2C_H
 
 #include "subsystem-iface.h"
 
