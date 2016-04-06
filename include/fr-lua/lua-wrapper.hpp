@@ -380,6 +380,16 @@ namespace lua {
             return base_sptr(new objects::nil);
         }
 
+        objects::base_sptr ref_to_object( const objects::base *o,
+                                          unsigned flags = 0)
+        {
+            objects::base_sptr res;
+            o->push( vm_ );
+            res = get_object( -1, flags );
+            pop( );
+            return res;
+        }
+
     private:
 
         void get_global( const char *val )
