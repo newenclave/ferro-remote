@@ -295,6 +295,33 @@ namespace lua {
             return p;
         }
 
+        objects::base_sptr get_table0( int idx = -1, unsigned flags = 0 )
+        {
+            lua_pushvalue( vm_, idx );
+            lua_pushnil( vm_ );
+
+            objects::table_sptr new_table( objects::new_table( ) );
+
+            while ( lua_next( vm_, -2 ) ) {
+                lua_pushvalue( vm_, -2 );
+                objects::base_sptr first = get_type( -1 ) == LUA_TTABLE
+                        ? objects::base_sptr(new objects::reference( vm_, -1 ))
+                        : get_object( -1, flags );
+
+                objects::base_sptr second = get_type( -2 ) == LUA_TTABLE
+                        ? objects::base_sptr(new objects::reference( vm_, -2 ))
+                        : get_object( -1, flags );
+
+                objects::pair_sptr next_pair
+                        ( objects::new_pair( first, second ) );
+                new_table->push_back( next_pair );
+                lua_pop( vm_, 2 );
+            }
+
+            lua_pop( vm_, 1 );
+            return new_table;
+        }
+
         objects::base_sptr get_table( int idx = -1, unsigned flags = 0 )
         {
             lua_pushvalue( vm_, idx );
