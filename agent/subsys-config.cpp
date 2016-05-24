@@ -23,8 +23,9 @@ namespace fr { namespace agent { namespace subsys {
 
         const std::string subsys_name( "config" );
 
+#if FR_WITH_LUA
         const char *endpoints_path = "config.endpoints";
-
+#endif
         namespace fs = boost::filesystem;
 
         typedef  std::pair<std::string, std::string> string_pair;
