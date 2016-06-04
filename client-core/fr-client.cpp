@@ -205,7 +205,7 @@ namespace fr {  namespace client { namespace core {
                 return;
             }
 
-            vtrc::unique_shared_lock lck( cbi->acb_lock_ );
+            vtrc::shared_lock lck( cbi->acb_lock_ );
             cb_map::iterator f(cbi->acb_.find( request->id( ) ));
 
             if( f != cbi->acb_.end( ) ) {

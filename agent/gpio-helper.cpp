@@ -30,14 +30,14 @@ namespace fr { namespace agent {
 
         namespace bfs = boost::filesystem;
 
-        const std::string gpio_sysfs_path   ( "/sys/class/gpio"          );
-        const std::string gpio_export_path  ( "/sys/class/gpio/export"   );
-        const std::string gpio_unexport_path( "/sys/class/gpio/unexport" );
+        const std::string gpio_sysfs_path    = "/sys/class/gpio";
+        const std::string gpio_export_path   = "/sys/class/gpio/export";
+        const std::string gpio_unexport_path = "/sys/class/gpio/unexport";
 
-        const std::string value_name(      "value" );
-        const std::string direction_name(  "direction" );
-        const std::string edge_name(       "edge" );
-        const std::string active_low_name( "active_low" );
+        const std::string edge_name          = "edge";
+        const std::string value_name         = "value";
+        const std::string direction_name     = "direction";
+        const std::string active_low_name    = "active_low";
 
         std::string id_to_string( unsigned id )
         {

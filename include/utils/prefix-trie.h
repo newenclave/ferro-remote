@@ -7,10 +7,15 @@
 
 namespace fr { namespace utils {
 
-    template <typename CharType, typename InfoType>
+    template <typename K, typename V>
+    using stdmap = std::map<K, V>;
+
+    template <typename CharType, typename InfoType,
+              template <typename, typename> class Container>
     class prefix_iterator_shifter;
 
-    template <typename CharType, typename InfoType>
+    template < typename CharType, typename InfoType,
+               template <typename, typename> class Container = stdmap>
     class prefix_trie {
 
     //    friend class prefix_iterator_shifteru<CharType, InfoType>;
@@ -26,8 +31,9 @@ namespace fr { namespace utils {
         typedef prefix_trie const &const_ref_type;
         typedef prefix_trie const *const_ptr_type;
 
-        typedef std::map<char_type, ptr_type>  prefix_list;
-        typedef std::pair<char_type, ptr_type>           prefix_pair;
+        typedef Container<char_type, ptr_type>  prefix_list;
+        //typedef fr::utils::bin_map<char_type, ptr_type>  prefix_list;
+        typedef std::pair<char_type, ptr_type>  prefix_pair;
 
     private:
 
@@ -70,7 +76,7 @@ namespace fr { namespace utils {
         bool              end( )   const { return end_; }
         bool              empty( ) const { return children_.empty( ); }
 
-        void swap( prefix_trie<char_type, value_type> &other )
+        void swap( prefix_trie<char_type, value_type, Container> &other )
         {
             children_.swap(   other.children_ );
             std::swap( info_, other.info_ );
@@ -122,11 +128,13 @@ namespace fr { namespace utils {
     };
 
 
-    template <typename CharType, typename InfoType>
-    class prefix_iterator_shifter: public prefix_trie<CharType, InfoType>
+    template <typename CharType, typename InfoType,
+              template <typename, typename> class Container = stdmap>
+    class prefix_iterator_shifter: public prefix_trie< CharType, InfoType,
+                                                       Container>
     {
-        typedef prefix_trie<CharType, InfoType>             parent_type;
-        typedef prefix_iterator_shifter<CharType, InfoType> this_type;
+        typedef prefix_trie<CharType, InfoType, Container>  parent_type;
+        typedef prefix_iterator_shifter<CharType, InfoType, Container> this_type;
 
     public:
 
