@@ -13,7 +13,7 @@ namespace fr { namespace utils {
     template <typename CharType, typename InfoType>
     class prefix_trie {
 
-    //    friend class prefix_iterator_shifter<CharType, InfoType>;
+    //    friend class prefix_iterator_shifteru<CharType, InfoType>;
 
     public:
 
