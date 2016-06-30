@@ -1,11 +1,18 @@
 #ifndef APPLICATION_H
 #define APPLICATION_H
 
+#include "interfaces/IFilesystem.h"
+#include "interfaces/IFile.h"
+
 namespace fr { namespace fuse {
 
-    struct application {
+    class application {
+        struct impl;
+        impl *impl_;
+    public:
         application( );
         ~application( );
+        void stopall( );
     };
 
     void *init_app( );
