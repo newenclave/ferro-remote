@@ -9,6 +9,10 @@ set( exe_name frfuse_client )
 
 add_executable(${exe_name} ${src_dir})
 
+include( ../cxx11_check.cmake )
+get_compiler_thread_local( THREAD_LOCAL_VALUE )
+add_definitions( -DTHREAD_LOCAL=${THREAD_LOCAL_VALUE} )
+
 ####################### FUSE ############################
 find_package(Fuse REQUIRED)
 

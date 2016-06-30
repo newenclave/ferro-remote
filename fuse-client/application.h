@@ -1,8 +1,11 @@
 #ifndef APPLICATION_H
 #define APPLICATION_H
 
-#include "interfaces/IFilesystem.h"
-#include "interfaces/IFile.h"
+#include <fuse.h>
+
+namespace boost { namespace program_options {
+    class variables_map;
+}}
 
 namespace fr { namespace fuse {
 
@@ -13,13 +16,15 @@ namespace fr { namespace fuse {
         application( );
         ~application( );
         void stopall( );
+
+    public:
+
+        static fuse_operations set_operations( );
+
     };
 
-    void *init_app( );
-    void  destroy_app( void *app );
-
     extern application *g_app;
-
+    extern boost::program_options::variables_map g_opts;
 }}
 
 #endif // APPLICATION_H
