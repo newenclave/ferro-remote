@@ -16,6 +16,8 @@
 #include "interfaces/IFile.h"
 
 #include "vtrc-common/vtrc-rpc-channel.h"
+#include "vtrc-common/vtrc-delayed-call.h"
+
 
 namespace fr { namespace fuse {
 
@@ -36,7 +38,7 @@ namespace fr { namespace fuse {
         vcomm::pool_pair                    pp_;
         client::core::client_core           client_;
         std::unique_ptr<fs_iface::iface>    fs_;
-
+        vcomm::delayed_call                 retry_timer_;
 
         std::string mount_point_;
         std::string server_;
@@ -44,6 +46,7 @@ namespace fr { namespace fuse {
         impl( )
             :pp_(1, 1)
             ,client_(pp_)
+            ,retry_timer_(pp_.get_io_service( ))
         {
             mount_point_ = g_opts["point"].as<std::string>( );
             server_      = g_opts["server"].as<std::string>( );
@@ -54,6 +57,13 @@ namespace fr { namespace fuse {
             try_connect( );
         }
 
+        void retry_handle( const VTRC_SYSTEM::error_code &err )
+        {
+            if( !err ) {
+                try_connect( );
+            }
+        }
+
         void try_connect( )
         {
             client_.async_connect( server_,
@@ -62,6 +72,15 @@ namespace fr { namespace fuse {
                     return;
                 }
             } );
+        }
+
+        void on_connect(  )
+        {
+            fs_.reset( fs_iface::create( client_, "/" ) );
+
+            /// avaoid exceptions
+            fs_->channel( )->set_proto_error_callback(   &impl::proto_error   );
+            fs_->channel( )->set_channel_error_callback( &impl::channel_error );
         }
 
         static impl *imp( )
@@ -86,14 +105,6 @@ namespace fr { namespace fuse {
             local_result = 1;
         }
 
-        void on_connect(  )
-        {
-            fs_.reset( fs_iface::create( client_, "/" ) );
-
-            /// avaoid exceptions
-            fs_->channel( )->set_proto_error_callback(   &impl::proto_error   );
-            fs_->channel( )->set_channel_error_callback( &impl::channel_error );
-        }
 
         static int getattr( const char *path, struct stat *st )
         {
