@@ -31,6 +31,7 @@ message( "static link: " ${VTRC_LINK_TYPE_STATIC} )
 
 project( ${INTERNAL_PROJECT_NAME} )
 
+#################### BOOST ###########################
 if( ${VTRC_LINK_TYPE} MATCHES ${VTRC_LINK_TYPE_STATIC} )
     set(Boost_USE_STATIC_LIBS     ON)
     set(Boost_USE_STATIC_RUNTIME  ON)
@@ -60,6 +61,9 @@ else( MSVC )
                     #context
                   REQUIRED)
 endif( MSVC )
+###############################################
+
+find_package(Fuse)
 
 get_cmd_cxx11( VTRC_CXX_CMD )
 set( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${VTRC_CXX_CMD}")
@@ -185,6 +189,10 @@ configure_file ("${PROJECT_SOURCE_DIR}/gui-client/ferro-remote.pri.in"
 if(LUA_FOUND)
     add_subdirectory( lua-client )
 endif(LUA_FOUND)
+
+if(FUSE_FOUND)
+    add_subdirectory( fuse-client )
+endif(FUSE_FOUND)
 
 if( NOT WIN32 )
     add_subdirectory( agent )
