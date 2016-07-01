@@ -26,6 +26,7 @@ const std::string log_path = "/home/data/fuselog/";
 
 static void log( const std::string &line )
 {
+    return;
     std::cerr << line << "\n";
     const size_t p = getpid( );
     std::ostringstream oss;

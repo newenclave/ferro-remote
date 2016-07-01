@@ -19,6 +19,10 @@ namespace {
 
             ("point,m", po::value<std::string>( ),
                     "mountpoint name for fuse directory")
+            ("opt,o", po::value<std::vector<std::string> >( ),
+                    "fuse: option for fuse client")
+            ("foreground,f", "fuse: run foreground")
+            ("debug,d", "fuse: show debug messages")
                 ;
     }
 
@@ -48,6 +52,9 @@ int main( int argc, char **argv )
     po::options_description description("Allowed options");
     all_options( description );
 
+    std::vector<std::string> fuse_opts_holder;
+    std::vector<char *> fuse_opts;
+
     try {
 
         fr::fuse::g_opts = ( create_cmd_params( argc, argv, description ) );
@@ -60,12 +67,14 @@ int main( int argc, char **argv )
 
     if( fr::fuse::g_opts.count( "help" ) ) {
         usage( description );
-        return 0;
-    }
+        char help[] = "--help";
 
-    if( !fr::fuse::g_opts.count( "point" ) ) {
-        usage( description );
-        return 1;
+        char *p[] = { argv[0], help };
+
+
+        fuse_main( 2, &p[0], (fuse_operations *)NULL );
+
+        return 0;
     }
 
     if( !fr::fuse::g_opts.count( "server" ) ) {
@@ -73,15 +82,38 @@ int main( int argc, char **argv )
         return 2;
     }
 
-    auto point = fr::fuse::g_opts["point"].as<std::string>( );
+    if( fr::fuse::g_opts.count( "foreground" ) ) {
+        fuse_opts_holder.push_back( "-f" );
+    }
 
-    std::string f = "-f";
-    std::string v = "-d";
+    if( fr::fuse::g_opts.count( "debug" ) ) {
+        fuse_opts_holder.push_back( "-d" );
+    }
 
-    char *params[] = { argv[0], &point[0], &f[0], &v[0] };
+    if( fr::fuse::g_opts.count( "opt" ) ) {
+        auto opts = fr::fuse::g_opts["opt"].as<std::vector<std::string > >( );
+        for( auto &o: opts ) {
+            fuse_opts_holder.push_back( "-o" );
+            fuse_opts_holder.push_back( o );
+        }
+    }
+
+    if( !fr::fuse::g_opts.count( "point" ) ) {
+        usage( description );
+        return 1;
+    } else {
+        auto p = fr::fuse::g_opts["point"].as<std::string>( );
+        fuse_opts_holder.push_back( p );
+    }
+
+    fuse_opts.push_back( argv[0] );
+
+    for( auto &a: fuse_opts_holder ) {
+        fuse_opts.push_back( &a[0] );
+    }
 
     fuse_operations op = fr::fuse::application::set_operations( );
-    fuse_main( 4, params, &op );
+    fuse_main( fuse_opts.size( ), &fuse_opts[0], &op );
 
     return 0;
 }
