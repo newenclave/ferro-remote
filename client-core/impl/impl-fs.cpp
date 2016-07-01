@@ -46,11 +46,10 @@ namespace fr { namespace client { namespace interfaces {
             filesystem::info_data       info_;
 
             dir_iter_impl( core::client_core &cl,
-                           const vtrc::shared_ptr<vcomm::rpc_channel> &c,
                            const fproto::iterator_info &info )
                 :core_(cl)
-                ,channel_(c)
-                ,client_(core_.create_channel( ))
+                ,channel_(core_.create_channel( ))
+                ,client_(channel_)
                 ,hdl_(info.hdl( ).value( ))
             {
                 copy_data( info );
@@ -92,7 +91,7 @@ namespace fr { namespace client { namespace interfaces {
             {
                 fproto::iterator_info req_res;
                 client_.call( &stub_type::iter_clone, &req_res, &req_res );
-                return new dir_iter_impl( core_, channel_, req_res );
+                return new dir_iter_impl( core_, req_res );
             }
 
             void next( )
@@ -377,7 +376,7 @@ namespace filesystem {
 
                 client_.call( &stub_type::iter_begin, &req, &res );
 
-                return new dir_iter_impl( core_, channel_, res );
+                return new dir_iter_impl( core_, res );
             }
 
 
@@ -389,7 +388,7 @@ namespace filesystem {
 
                 client_.call( &stub_type::iter_begin, &req, &res );
 
-                return new dir_iter_impl( core_, channel_, res );
+                return new dir_iter_impl( core_, res );
             }
 
             filesystem::directory_iterator begin( ) const override
