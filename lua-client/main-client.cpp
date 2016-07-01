@@ -297,9 +297,11 @@ namespace fr { namespace lua { namespace client {
             if( info->cmd_opts_.count( "server" ) ) {
                 server = info->cmd_opts_["server"].as<std::string>( );
             }
+
             if( info->cmd_opts_.count( "id" ) ) {
                 id = info->cmd_opts_["id"].as<std::string>( );
             }
+
             if( info->cmd_opts_.count( "key" ) ) {
                 key = info->cmd_opts_["key"].as<std::string>( );
             }

@@ -20,6 +20,7 @@
 #include "vtrc-common/vtrc-rpc-channel.h"
 #include "vtrc-common/vtrc-delayed-call.h"
 #include "vtrc-common/vtrc-exception.h"
+#include "vtrc-common/vtrc-hash-iface.h"
 
 
 const std::string log_path = "/home/data/fuselog/";
@@ -68,6 +69,14 @@ namespace fr { namespace fuse {
         return path;
     }
 
+    std::string hash_key( const std::string &id, const std::string &key )
+    {
+        std::string key_info( id + key );
+        vcomm::hash_iface_uptr s(vcomm::hash::sha2::create256( ));
+        std::string hs(s->get_data_hash( &key_info[0], key_info.size( ) ));
+        return hs;
+    }
+
     struct application::impl {
 
         vcomm::pool_pair                    pp_;
@@ -85,7 +94,29 @@ namespace fr { namespace fuse {
             ,client_(pp_)
             ,retry_timer_(pp_.get_rpc_service( ))
             ,index_(100)
-        { }
+        {
+            std::string id;
+            std::string key;
+
+            if( g_opts.count( "id" ) ) {
+                id = g_opts["id"].as<std::string>( );
+            }
+
+            if( g_opts.count( "key" ) ) {
+                key = g_opts["key"].as<std::string>( );
+            }
+
+            bool empty = key.empty( );
+            key = hash_key( id, key );
+
+            if( !id.empty( ) ) {
+                client_.set_id( id );
+            }
+
+            if( !empty ) {
+                client_.set_key( key );
+            }
+        }
 
         void start( )
         {
@@ -95,6 +126,11 @@ namespace fr { namespace fuse {
             client_.on_disconnect_connect( [this]( ) {
                 start_retry( );
             } );
+
+//            client_.on_ready_connect( [this]( ) {
+//                on_connect( );
+//            } );
+
             try_connect( );
         }
 
@@ -139,13 +175,15 @@ namespace fr { namespace fuse {
         static void proto_error( unsigned code, unsigned, const char *mess )
         {
             log( std::string(__func__) + "  " + mess);
-            errno = local_result = code;
+            errno = code;
+            local_result = -code;
         }
 
         static void channel_error( const char * )
         {
             log( std::string(__func__) );
-            errno = local_result = EIO;
+            errno = EIO;
+            local_result = -EIO;
         }
 
         uint64_t netx_id( )
@@ -167,7 +205,7 @@ namespace fr { namespace fuse {
         {
             local_result = 0;
             if( !S_ISREG(m) ) {
-                return EOPNOTSUPP;
+                return -EOPNOTSUPP;
             }
 
             log( std::string( "mknode " ) + path );
@@ -203,7 +241,7 @@ namespace fr { namespace fuse {
                 return -EIO;
             }
             fs( )->rename( path, newname );
-            return -local_result;
+            return local_result;
         }
 
         static int mkdir(const char *path, mode_t /*mode*/)
@@ -281,7 +319,7 @@ namespace fr { namespace fuse {
             } else {
                 return -1;
             }
-            return -local_result;
+            return local_result;
         }
 
         static int write( const char */*path*/, const char *buf, size_t len,
@@ -341,7 +379,7 @@ namespace fr { namespace fuse {
 
             log( std::string(__func__) + (local_result ? "1" : "0") );
 
-            return -local_result;
+            return local_result;
         }
 
         static int opendir(const char *path, struct fuse_file_info_compat *info)

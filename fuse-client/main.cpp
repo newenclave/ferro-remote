@@ -17,6 +17,12 @@ namespace {
             ("server,s", po::value<std::string>( ),
                     "endpoint name; <tcp address>:<port> or <file name>")
 
+            ("id", po::value<std::string>( ),
+                    "set client ID for the remote agent")
+
+            ("key", po::value<std::string>( ),
+                    "set client KEY for the remote agent")
+
             ("point,m", po::value<std::string>( ),
                     "mountpoint name for fuse directory")
             ("opt,o", po::value<std::vector<std::string> >( ),
@@ -54,6 +60,9 @@ int main( int argc, char **argv )
 
     std::vector<std::string> fuse_opts_holder;
     std::vector<char *> fuse_opts;
+
+    fuse_opts_holder.push_back( argv[0] );
+//    fuse_opts_holder.push_back( "-s" );
 
     try {
 
@@ -105,8 +114,6 @@ int main( int argc, char **argv )
         auto p = fr::fuse::g_opts["point"].as<std::string>( );
         fuse_opts_holder.push_back( p );
     }
-
-    fuse_opts.push_back( argv[0] );
 
     for( auto &a: fuse_opts_holder ) {
         fuse_opts.push_back( &a[0] );
