@@ -50,7 +50,7 @@ namespace fr { namespace client { namespace interfaces {
                            const fproto::iterator_info &info )
                 :core_(cl)
                 ,channel_(c)
-                ,client_(channel_)
+                ,client_(core_.create_channel( ))
                 ,hdl_(info.hdl( ).value( ))
             {
                 copy_data( info );

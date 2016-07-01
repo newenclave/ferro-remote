@@ -2,10 +2,7 @@
 #define APPLICATION_H
 
 #include <fuse.h>
-
-namespace boost { namespace program_options {
-    class variables_map;
-}}
+#include "boost/program_options.hpp"
 
 namespace fr { namespace fuse {
 
@@ -16,6 +13,7 @@ namespace fr { namespace fuse {
         application( );
         ~application( );
         void stopall( );
+        void start( );
 
     public:
 
