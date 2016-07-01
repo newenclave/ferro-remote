@@ -130,15 +130,13 @@ namespace fr { namespace fuse {
         static void proto_error( unsigned code, unsigned, const char *mess )
         {
             log( std::string(__func__) + "  " + mess);
-            errno = code;
-            local_result = 1;
+            errno = local_result = code;
         }
 
         static void channel_error( const char * )
         {
             log( std::string(__func__) );
-            errno = EIO;
-            local_result = 1;
+            errno = local_result = EIO;
         }
 
         uint64_t netx_id( )
@@ -156,12 +154,29 @@ namespace fr { namespace fuse {
             return g_app->impl_->fs_.get( );
         }
 
+        static int mknod(const char *path, mode_t m, dev_t d)
+        {
+            local_result = 0;
+            if( !S_ISREG(m) ) {
+                return EOPNOTSUPP;
+            }
+            log( std::string( "mknode " ) + path );
+            imp( )->fs_->write_file( path, "", 1 );
+            return local_result;
+        }
+
         static int open(const char *path, struct fuse_file_info_compat *inf)
         {
             local_result = 0;
             file_iface::iface_ptr ptr =
-                    file_iface::create( imp( )->client_, path, inf->flags, 0);
+                    file_iface::create( imp( )->client_, path, inf->flags, 0 );
+
+            std::ostringstream oss;
+            oss << "open file " << path << " " << inf->flags;
+            log(oss.str( ));
+
             inf->fh = reinterpret_cast<decltype(inf->fh)>(ptr);
+            log( std::string( "open file " ) + path );
             return local_result;
         }
 
@@ -175,18 +190,54 @@ namespace fr { namespace fuse {
             return local_result;
         }
 
-        static int read(const char *, char *, size_t, off_t,
-                    struct fuse_file_info_compat *)
+        static int read( const char */*path*/, char *buf, size_t len,
+                         off_t off,
+                         struct fuse_file_info_compat *inf )
         {
             local_result = 0;
-            return local_result;
+            size_t cur = 0;
+            auto ptr = reinterpret_cast<file_iface::iface_ptr>(inf->fh);
+            if( ptr ) {
+                ptr->seek( off, file_iface::POS_SEEK_SET );
+                while( cur < len ) {
+                    auto next = ptr->read( buf + cur, len - cur );
+                    if( 0 != local_result ) {
+                        return -1;
+                    }
+                    if( 0 == next ) {
+                        return cur;
+                    }
+                    cur += next;
+                }
+            } else {
+                return -1;
+            }
+            return (int)(cur);
         }
 
-        static int write(const char *, const char *, size_t, off_t,
-                  struct fuse_file_info_compat *)
+        static int write( const char */*path*/, const char *buf, size_t len,
+                          off_t off,
+                          struct fuse_file_info_compat *inf )
         {
             local_result = 0;
-            return local_result;
+            size_t cur = 0;
+            auto ptr = reinterpret_cast<file_iface::iface_ptr>(inf->fh);
+            if( ptr ) {
+                ptr->seek( off, file_iface::POS_SEEK_SET );
+                while( cur < len ) {
+                    auto next = ptr->write( buf + cur, len - cur );
+                    if( 0 != local_result ) {
+                        return -1;
+                    }
+                    if( 0 == next ) {
+                        return cur;
+                    }
+                    cur += next;
+                }
+            } else {
+                return -1;
+            }
+            return (int)(cur);
         }
 
 
@@ -298,6 +349,7 @@ namespace fr { namespace fuse {
     void application::stopall( )
     {
         impl_->retry_timer_.cancel( );
+        impl_->client_.disconnect( );
         impl_->pp_.stop_all( );
         impl_->pp_.join_all( );
     }
@@ -317,6 +369,7 @@ namespace fr { namespace fuse {
         res.releasedir      = &impl::releasedir;
         res.readdir         = &impl::readdir;
 
+        res.mknod           = &impl::mknod;
         res.open            = &impl::open;
         res.release         = &impl::release;
         res.read            = &impl::read;
