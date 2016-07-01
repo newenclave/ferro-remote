@@ -1,3 +1,4 @@
+#include <iostream>
 #include "application.h"
 
 #include <sys/types.h>
@@ -18,12 +19,14 @@
 
 #include "vtrc-common/vtrc-rpc-channel.h"
 #include "vtrc-common/vtrc-delayed-call.h"
+#include "vtrc-common/vtrc-exception.h"
 
 
 const std::string log_path = "/home/data/fuselog/";
 
 static void log( const std::string &line )
 {
+    std::cerr << line << "\n";
     const size_t p = getpid( );
     std::ostringstream oss;
     oss << log_path << p;
@@ -115,6 +118,12 @@ namespace fr { namespace fuse {
             }
         }
 
+        void config_channel( vcomm::rpc_channel *channel )
+        {
+            channel->set_proto_error_callback(   &impl::proto_error   );
+            channel->set_channel_error_callback( &impl::channel_error );
+        }
+
         void on_connect(  )
         {
             log( std::string(__func__) + (local_result ? "1" : "0") );
@@ -122,8 +131,7 @@ namespace fr { namespace fuse {
 
             /// avaoid exceptions
             log( std::string(__func__) + (local_result ? "-1" : "-0") );
-            fs_->channel( )->set_proto_error_callback(   &impl::proto_error   );
-            fs_->channel( )->set_channel_error_callback( &impl::channel_error );
+            config_channel( fs_->channel( ) );
         }
 
 
@@ -161,15 +169,53 @@ namespace fr { namespace fuse {
                 return EOPNOTSUPP;
             }
             log( std::string( "mknode " ) + path );
-            imp( )->fs_->write_file( path, "", 1 );
+            try {
+                std::unique_ptr<file_iface::iface> f(
+                    file_iface::create( imp( )->client_, path,
+                                        O_CREAT | O_EXCL | O_WRONLY, m ));
+            } catch( const vtrc::common::exception &ex) {
+                return - ex.code( );
+            } catch( const std::exception & ) {
+                return -1;
+            }
+            return local_result;
+        }
+
+        static int unlink(const char *path)
+        {
+            local_result = 0;
+            imp( )->fs_->del( path );
+            return local_result;
+        }
+
+        static int rmdir(const char *path)
+        {
+            local_result = 0;
+            imp( )->fs_->remove_all( path );
+            return local_result;
+        }
+
+        static int mkdir(const char *path, mode_t /*mode*/)
+        {
+            local_result = 0;
+            imp( )->fs_->mkdir( path );
             return local_result;
         }
 
         static int open(const char *path, struct fuse_file_info_compat *inf)
         {
             local_result = 0;
-            file_iface::iface_ptr ptr =
-                    file_iface::create( imp( )->client_, path, inf->flags, 0 );
+            file_iface::iface_ptr ptr = nullptr;
+            try {
+                ptr = file_iface::create(imp( )->client_, path, inf->flags, 0);
+                imp( )->config_channel( ptr->channel( ) );
+            } catch( const vtrc::common::exception &ex) {
+                ;;;
+                return ex.code( );
+            } catch( const std::exception & ) {
+                ;;;
+                return -1;
+            }
 
             std::ostringstream oss;
             oss << "open file " << path << " " << inf->flags;
@@ -243,39 +289,45 @@ namespace fr { namespace fuse {
 
         static int getattr( const char *path, struct stat *st )
         {
-            log( std::string(__func__) + (local_result ? " 1 " : " 0 ") + path );
-            if( st ) {
-                log("stat ok");
-            }
             local_result = 0;
+            errno = 0;
             fs_iface::stat_data sd = {0};
+
+            if( !fs( ) ) {
+                return -EIO;
+            }
 
             fs( )->stat( path, sd );
 
-            //stat( path, st );
-            st->st_dev     = sd.dev;
-            st->st_ino     = sd.ino;
-            st->st_mode    = sd.mode;
-            st->st_nlink   = sd.nlink;
-            st->st_uid     = sd.uid;
-            st->st_gid     = sd.gid;
-            st->st_rdev    = sd.rdev;
-            st->st_size    = sd.size;
-            st->st_blksize = sd.blksize;
-            st->st_blocks  = sd.blocks;
-            st->st_atime   = sd.atime;
-            st->st_mtime   = sd.mtime;
-            st->st_ctime   = sd.ctime;
+            if( !local_result ) {
+                //stat( path, st );
+                st->st_dev     = sd.dev;
+                st->st_ino     = sd.ino;
+                st->st_mode    = sd.mode;
+                st->st_nlink   = sd.nlink;
+                st->st_uid     = sd.uid;
+                st->st_gid     = sd.gid;
+                st->st_rdev    = sd.rdev;
+                st->st_size    = sd.size;
+                st->st_blksize = sd.blksize;
+                st->st_blocks  = sd.blocks;
+                st->st_atime   = sd.atime;
+                st->st_mtime   = sd.mtime;
+                st->st_ctime   = sd.ctime;
+            }
 
             log( std::string(__func__) + (local_result ? "1" : "0") );
 
-            return local_result;
+            return -local_result;
         }
 
         static int opendir(const char *path, struct fuse_file_info_compat *info)
         {
             local_result = 0;
             dir_iterator *ptr = fs( )->begin_iterate( path );
+            if( ptr ) {
+                imp( )->config_channel( ptr->channel( ) );
+            }
             info->fh = reinterpret_cast<decltype(info->fh)>(ptr);
             log( std::string(__func__) + (local_result ? "1" : "0") + path );
             return local_result;
@@ -369,6 +421,9 @@ namespace fr { namespace fuse {
         res.releasedir      = &impl::releasedir;
         res.readdir         = &impl::readdir;
 
+        res.mkdir           = &impl::mkdir;
+        res.rmdir           = &impl::rmdir;
+        res.unlink          = &impl::unlink;
         res.mknod           = &impl::mknod;
         res.open            = &impl::open;
         res.release         = &impl::release;

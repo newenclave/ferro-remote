@@ -75,10 +75,13 @@ int main( int argc, char **argv )
 
     auto point = fr::fuse::g_opts["point"].as<std::string>( );
 
-    char *params[] = { argv[0], &point[0] };
+    std::string f = "-f";
+    std::string v = "-d";
+
+    char *params[] = { argv[0], &point[0], &f[0], &v[0] };
 
     fuse_operations op = fr::fuse::application::set_operations( );
-    fuse_main( 2, params, &op );
+    fuse_main( 4, params, &op );
 
     return 0;
 }
