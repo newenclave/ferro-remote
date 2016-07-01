@@ -120,6 +120,7 @@ namespace fr { namespace fuse {
 
         void config_channel( vcomm::rpc_channel *channel )
         {
+            /// avoiding exceptions
             channel->set_proto_error_callback(   &impl::proto_error   );
             channel->set_channel_error_callback( &impl::channel_error );
         }
@@ -129,7 +130,6 @@ namespace fr { namespace fuse {
             log( std::string(__func__) + (local_result ? "1" : "0") );
             fs_.reset( fs_iface::create( client_, "" ) );
 
-            /// avaoid exceptions
             log( std::string(__func__) + (local_result ? "-1" : "-0") );
             config_channel( fs_->channel( ) );
         }
@@ -168,11 +168,11 @@ namespace fr { namespace fuse {
             if( !S_ISREG(m) ) {
                 return EOPNOTSUPP;
             }
+
             log( std::string( "mknode " ) + path );
             try {
                 std::unique_ptr<file_iface::iface> f(
-                    file_iface::create( imp( )->client_, path,
-                                        O_CREAT | O_EXCL | O_WRONLY, m ));
+                    file_iface::create( imp( )->client_, path, O_CREAT, 0 ));
             } catch( const vtrc::common::exception &ex) {
                 return - ex.code( );
             } catch( const std::exception & ) {
@@ -193,6 +193,16 @@ namespace fr { namespace fuse {
             local_result = 0;
             imp( )->fs_->remove_all( path );
             return local_result;
+        }
+
+        static int rename(const char *path, const char *newname )
+        {
+            local_result = 0;
+            if( !fs( ) ) {
+                return -EIO;
+            }
+            fs( )->rename( path, newname );
+            return -local_result;
         }
 
         static int mkdir(const char *path, mode_t /*mode*/)
@@ -259,6 +269,18 @@ namespace fr { namespace fuse {
                 return -1;
             }
             return (int)(cur);
+        }
+
+        int flush( const char */*path*/, struct fuse_file_info *inf )
+        {
+            local_result = 0;
+            auto ptr = reinterpret_cast<file_iface::iface_ptr>(inf->fh);
+            if( ptr ) {
+                ptr->flush( );
+            } else {
+                return -1;
+            }
+            return -local_result;
         }
 
         static int write( const char */*path*/, const char *buf, size_t len,
@@ -421,6 +443,7 @@ namespace fr { namespace fuse {
         res.releasedir      = &impl::releasedir;
         res.readdir         = &impl::readdir;
 
+        res.rename          = &impl::rename;
         res.mkdir           = &impl::mkdir;
         res.rmdir           = &impl::rmdir;
         res.unlink          = &impl::unlink;
