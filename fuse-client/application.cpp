@@ -346,6 +346,9 @@ namespace fr { namespace fuse {
         static int opendir(const char *path, struct fuse_file_info_compat *info)
         {
             local_result = 0;
+            if( !fs( ) ) {
+                return -EIO;
+            }
             dir_iterator *ptr = fs( )->begin_iterate( path );
             if( ptr ) {
                 imp( )->config_channel( ptr->channel( ) );
