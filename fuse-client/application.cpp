@@ -77,6 +77,20 @@ namespace fr { namespace fuse {
         return hs;
     }
 
+    struct file_wrapper {
+        file_iface::iface_ptr ptr_;
+        off_t                 offset_;
+
+        file_wrapper( )
+            :offset_(0)
+        { }
+
+        ~file_wrapper( )
+        {
+            if( ptr_ ) delete ptr_;
+        }
+    };
+
     struct application::impl {
 
         vcomm::pool_pair                    pp_;
@@ -254,10 +268,13 @@ namespace fr { namespace fuse {
         static int open(const char *path, struct fuse_file_info_compat *inf)
         {
             local_result = 0;
-            file_iface::iface_ptr ptr = nullptr;
+            file_wrapper *fw = nullptr;
             try {
-                ptr = file_iface::create(imp( )->client_, path, inf->flags, 0);
+                file_iface::iface_ptr ptr =
+                      file_iface::create(imp( )->client_, path, inf->flags, 0);
                 imp( )->config_channel( ptr->channel( ) );
+                fw = new file_wrapper;
+                fw->ptr_ = ptr;
             } catch( const vtrc::common::exception &ex) {
                 ;;;
                 return ex.code( );
@@ -270,7 +287,7 @@ namespace fr { namespace fuse {
             oss << "open file " << path << " " << inf->flags;
             log(oss.str( ));
 
-            inf->fh = reinterpret_cast<decltype(inf->fh)>(ptr);
+            inf->fh = reinterpret_cast<decltype(inf->fh)>(fw);
             log( std::string( "open file " ) + path );
             return local_result;
         }
@@ -278,7 +295,7 @@ namespace fr { namespace fuse {
         static int release(const char *, struct fuse_file_info *fi)
         {
             local_result = 0;
-            auto ptr = reinterpret_cast<file_iface::iface_ptr>(fi->fh);
+            auto ptr = reinterpret_cast<file_wrapper *>(fi->fh);
             if( ptr ) {
                 delete ptr;
             }
@@ -291,11 +308,13 @@ namespace fr { namespace fuse {
         {
             local_result = 0;
             size_t cur = 0;
-            auto ptr = reinterpret_cast<file_iface::iface_ptr>(inf->fh);
+            auto ptr = reinterpret_cast<file_wrapper *>(inf->fh);
             if( ptr ) {
-                ptr->seek( off, file_iface::POS_SEEK_SET );
+                if( ptr->offset_ != off ) {
+                    ptr->ptr_->seek( off, file_iface::POS_SEEK_SET );
+                }
                 while( cur < len ) {
-                    auto next = ptr->read( buf + cur, len - cur );
+                    auto next = ptr->ptr_->read( buf + cur, len - cur );
                     if( 0 != local_result ) {
                         return -1;
                     }
@@ -303,6 +322,7 @@ namespace fr { namespace fuse {
                         return cur;
                     }
                     cur += next;
+                    ptr->offset_ += next;
                 }
             } else {
                 return -1;
@@ -313,9 +333,9 @@ namespace fr { namespace fuse {
         int flush( const char */*path*/, struct fuse_file_info *inf )
         {
             local_result = 0;
-            auto ptr = reinterpret_cast<file_iface::iface_ptr>(inf->fh);
+            auto ptr = reinterpret_cast<file_wrapper *>(inf->fh);
             if( ptr ) {
-                ptr->flush( );
+                ptr->ptr_->flush( );
             } else {
                 return -1;
             }
@@ -328,11 +348,13 @@ namespace fr { namespace fuse {
         {
             local_result = 0;
             size_t cur = 0;
-            auto ptr = reinterpret_cast<file_iface::iface_ptr>(inf->fh);
+            auto ptr = reinterpret_cast<file_wrapper *>(inf->fh);
             if( ptr ) {
-                ptr->seek( off, file_iface::POS_SEEK_SET );
+                if( ptr->offset_ != off ) {
+                    ptr->ptr_->seek( off, file_iface::POS_SEEK_SET );
+                }
                 while( cur < len ) {
-                    auto next = ptr->write( buf + cur, len - cur );
+                    auto next = ptr->ptr_->write( buf + cur, len - cur );
                     if( 0 != local_result ) {
                         return -1;
                     }
@@ -340,6 +362,7 @@ namespace fr { namespace fuse {
                         return cur;
                     }
                     cur += next;
+                    ptr->offset_ += next;
                 }
             } else {
                 return -1;
