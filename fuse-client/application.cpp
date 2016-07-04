@@ -27,7 +27,7 @@ const std::string log_path = "/home/data/fuselog/";
 
 static void log( const std::string &line )
 {
-    return;
+    //return;
     std::cerr << line << "\n";
     const size_t p = getpid( );
     std::ostringstream oss;
@@ -330,7 +330,7 @@ namespace fr { namespace fuse {
             return (int)(cur);
         }
 
-        int flush( const char */*path*/, struct fuse_file_info *inf )
+        static int flush( const char */*path*/, struct fuse_file_info *inf )
         {
             local_result = 0;
             auto ptr = reinterpret_cast<file_wrapper *>(inf->fh);
@@ -517,6 +517,7 @@ namespace fr { namespace fuse {
         res.release         = &impl::release;
         res.read            = &impl::read;
         res.write           = &impl::write;
+        res.flush           = &impl::flush;
 
         return res;
     }
