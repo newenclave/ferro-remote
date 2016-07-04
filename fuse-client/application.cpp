@@ -420,7 +420,7 @@ namespace fr { namespace fuse {
             return local_result;
         }
 
-        static int releasedir( const char *path,
+        static int releasedir( const char */*path*/,
                                fuse_file_info_compat *info)
         {
             local_result = 0;
@@ -434,7 +434,7 @@ namespace fr { namespace fuse {
             return local_result;
         }
 
-        static int readdir( const char *path, void *buf,
+        static int readdir( const char */*path*/, void *buf,
                             fuse_fill_dir_t filer, off_t,
                             fuse_file_info_compat *info)
         {
@@ -445,7 +445,7 @@ namespace fr { namespace fuse {
             while( !ptr->end( ) ) {
                 auto path = leaf(ptr->get( ).path);
                 log( std::string(__func__) + " next " + path );
-                if(filer( buf, path.c_str( ), NULL, 0 ) != 0 ) {
+                if( filer( buf, path.c_str( ), NULL, 0 ) != 0 ) {
                     return -ENOMEM;
                 }
                 ptr->next( );
