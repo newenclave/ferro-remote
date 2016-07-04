@@ -22,6 +22,7 @@
 #include "vtrc-common/vtrc-exception.h"
 #include "vtrc-common/vtrc-hash-iface.h"
 
+#include "vtrc-common/protocol/vtrc-errors.pb.h"
 
 const std::string log_path = "/home/data/fuselog/";
 
@@ -217,6 +218,13 @@ namespace fr { namespace fuse {
             return g_app->impl_->fs_.get( );
         }
 
+        static bool cancel_error( unsigned code )
+        {
+            return  ( code == vtrc::rpc::errors::ERR_CANCELED )
+                 || ( code == vtrc::rpc::errors::ERR_TIMEOUT )
+                  ;
+        }
+
         static int mknod(const char *path, mode_t m, dev_t d)
         {
             local_result = 0;
@@ -316,10 +324,13 @@ namespace fr { namespace fuse {
                     ptr->ptr_->seek( off, file_iface::POS_SEEK_SET );
                 }
                 while( cur < len ) {
+                    local_result = 0;
                     auto next = ptr->ptr_->read( buf + cur, len - cur );
+
                     if( 0 != local_result ) {
-                        return -1;
+                        return local_result;
                     }
+
                     if( 0 == next ) {
                         return cur;
                     }
@@ -356,9 +367,10 @@ namespace fr { namespace fuse {
                     ptr->ptr_->seek( off, file_iface::POS_SEEK_SET );
                 }
                 while( cur < len ) {
+                    local_result = 0;
                     auto next = ptr->ptr_->write( buf + cur, len - cur );
                     if( 0 != local_result ) {
-                        return -1;
+                        return local_result;
                     }
                     if( 0 == next ) {
                         return cur;
@@ -445,12 +457,13 @@ namespace fr { namespace fuse {
             auto ptr = reinterpret_cast<dir_iterator *>(info->fh);
 
             while( !ptr->end( ) ) {
+                local_result = 0;
                 auto path = leaf(ptr->get( ).path);
                 log( std::string(__func__) + " next " + path );
                 if( filer( buf, path.c_str( ), NULL, 0 ) != 0 ) {
                     return -ENOMEM;
                 }
-                if( local_result ) {
+                if( cancel_error( -local_result ) ) {
                     return local_result;
                 }
                 ptr->next( );
