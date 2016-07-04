@@ -23,6 +23,8 @@ message( "FUSE_VERSION: " ${FUSE_VERSION})
 
 include_directories(${FUSE_INCLUDE_DIRS})
 target_link_libraries(${exe_name} ${FUSE_LIBRARIES})
+target_link_libraries(${exe_name} dl)
+
 #########################################################
 
 list( APPEND internal
