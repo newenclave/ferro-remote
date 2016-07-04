@@ -22,6 +22,7 @@
 #include "vtrc-common/vtrc-exception.h"
 #include "vtrc-common/vtrc-hash-iface.h"
 
+#include "vtrc-common/protocol/vtrc-errors.pb.h"
 
 const std::string log_path = "/home/data/fuselog/";
 
@@ -50,8 +51,6 @@ namespace fr { namespace fuse {
     namespace fs_iface    = interfaces::filesystem;
     namespace log_iface   = interfaces::logger;
 
-
-//    namespace vclient = vtrc::client;
     namespace vcomm   = vtrc::common;
 
     using dir_iterator  = fs_iface::directory_iterator_impl;
@@ -77,6 +76,20 @@ namespace fr { namespace fuse {
         return hs;
     }
 
+    struct file_wrapper {
+        file_iface::iface_ptr ptr_;
+        off_t                 offset_;
+
+        file_wrapper( )
+            :offset_(0)
+        { }
+
+        ~file_wrapper( )
+        {
+            if( ptr_ ) delete ptr_;
+        }
+    };
+
     struct application::impl {
 
         vcomm::pool_pair                    pp_;
@@ -87,13 +100,10 @@ namespace fr { namespace fuse {
         std::string mount_point_;
         std::string server_;
 
-        std::atomic<uint64_t>               index_;
-
         impl( )
             :pp_(1, 1)
             ,client_(pp_)
             ,retry_timer_(pp_.get_rpc_service( ))
-            ,index_(100)
         {
             std::string id;
             std::string key;
@@ -172,9 +182,11 @@ namespace fr { namespace fuse {
         }
 
 
-        static void proto_error( unsigned code, unsigned, const char *mess )
+        static void proto_error( unsigned code, unsigned cat, const char *mess )
         {
-            log( std::string(__func__) + "  " + mess);
+            std::ostringstream oss;
+            oss << __func__  << " " << mess << " " << code << " " << cat;
+            log( oss.str( ) );
             errno = code;
             local_result = -code;
         }
@@ -186,11 +198,6 @@ namespace fr { namespace fuse {
             local_result = -EIO;
         }
 
-        uint64_t netx_id( )
-        {
-            return index_++;
-        }
-
         static impl *imp( )
         {
             return g_app->impl_;
@@ -199,6 +206,13 @@ namespace fr { namespace fuse {
         static fs_iface::iface *fs( )
         {
             return g_app->impl_->fs_.get( );
+        }
+
+        static bool cancel_error( unsigned code )
+        {
+            return  ( code == vtrc::rpc::errors::ERR_CANCELED )
+                 || ( code == vtrc::rpc::errors::ERR_TIMEOUT )
+                  ;
         }
 
         static int mknod(const char *path, mode_t m, dev_t d)
@@ -254,10 +268,13 @@ namespace fr { namespace fuse {
         static int open(const char *path, struct fuse_file_info_compat *inf)
         {
             local_result = 0;
-            file_iface::iface_ptr ptr = nullptr;
+            file_wrapper *fw = nullptr;
             try {
-                ptr = file_iface::create(imp( )->client_, path, inf->flags, 0);
+                file_iface::iface_ptr ptr =
+                      file_iface::create(imp( )->client_, path, inf->flags, 0);
                 imp( )->config_channel( ptr->channel( ) );
+                fw = new file_wrapper;
+                fw->ptr_ = ptr;
             } catch( const vtrc::common::exception &ex) {
                 ;;;
                 return ex.code( );
@@ -270,7 +287,7 @@ namespace fr { namespace fuse {
             oss << "open file " << path << " " << inf->flags;
             log(oss.str( ));
 
-            inf->fh = reinterpret_cast<decltype(inf->fh)>(ptr);
+            inf->fh = reinterpret_cast<decltype(inf->fh)>(fw);
             log( std::string( "open file " ) + path );
             return local_result;
         }
@@ -278,7 +295,7 @@ namespace fr { namespace fuse {
         static int release(const char *, struct fuse_file_info *fi)
         {
             local_result = 0;
-            auto ptr = reinterpret_cast<file_iface::iface_ptr>(fi->fh);
+            auto ptr = reinterpret_cast<file_wrapper *>(fi->fh);
             if( ptr ) {
                 delete ptr;
             }
@@ -291,18 +308,24 @@ namespace fr { namespace fuse {
         {
             local_result = 0;
             size_t cur = 0;
-            auto ptr = reinterpret_cast<file_iface::iface_ptr>(inf->fh);
+            auto ptr = reinterpret_cast<file_wrapper *>(inf->fh);
             if( ptr ) {
-                ptr->seek( off, file_iface::POS_SEEK_SET );
+                if( ptr->offset_ != off ) {
+                    ptr->ptr_->seek( off, file_iface::POS_SEEK_SET );
+                }
                 while( cur < len ) {
-                    auto next = ptr->read( buf + cur, len - cur );
+                    local_result = 0;
+                    auto next = ptr->ptr_->read( buf + cur, len - cur );
+
                     if( 0 != local_result ) {
-                        return -1;
+                        return local_result;
                     }
+
                     if( 0 == next ) {
                         return cur;
                     }
                     cur += next;
+                    ptr->offset_ += next;
                 }
             } else {
                 return -1;
@@ -310,12 +333,12 @@ namespace fr { namespace fuse {
             return (int)(cur);
         }
 
-        int flush( const char */*path*/, struct fuse_file_info *inf )
+        static int flush( const char */*path*/, struct fuse_file_info *inf )
         {
             local_result = 0;
-            auto ptr = reinterpret_cast<file_iface::iface_ptr>(inf->fh);
+            auto ptr = reinterpret_cast<file_wrapper *>(inf->fh);
             if( ptr ) {
-                ptr->flush( );
+                ptr->ptr_->flush( );
             } else {
                 return -1;
             }
@@ -328,18 +351,22 @@ namespace fr { namespace fuse {
         {
             local_result = 0;
             size_t cur = 0;
-            auto ptr = reinterpret_cast<file_iface::iface_ptr>(inf->fh);
+            auto ptr = reinterpret_cast<file_wrapper *>(inf->fh);
             if( ptr ) {
-                ptr->seek( off, file_iface::POS_SEEK_SET );
+                if( ptr->offset_ != off ) {
+                    ptr->ptr_->seek( off, file_iface::POS_SEEK_SET );
+                }
                 while( cur < len ) {
-                    auto next = ptr->write( buf + cur, len - cur );
+                    local_result = 0;
+                    auto next = ptr->ptr_->write( buf + cur, len - cur );
                     if( 0 != local_result ) {
-                        return -1;
+                        return local_result;
                     }
                     if( 0 == next ) {
                         return cur;
                     }
                     cur += next;
+                    ptr->offset_ += next;
                 }
             } else {
                 return -1;
@@ -397,7 +424,7 @@ namespace fr { namespace fuse {
             return local_result;
         }
 
-        static int releasedir( const char *path,
+        static int releasedir( const char */*path*/,
                                fuse_file_info_compat *info)
         {
             local_result = 0;
@@ -411,7 +438,7 @@ namespace fr { namespace fuse {
             return local_result;
         }
 
-        static int readdir( const char *path, void *buf,
+        static int readdir( const char */*path*/, void *buf,
                             fuse_fill_dir_t filer, off_t,
                             fuse_file_info_compat *info)
         {
@@ -420,10 +447,14 @@ namespace fr { namespace fuse {
             auto ptr = reinterpret_cast<dir_iterator *>(info->fh);
 
             while( !ptr->end( ) ) {
+                local_result = 0;
                 auto path = leaf(ptr->get( ).path);
                 log( std::string(__func__) + " next " + path );
-                if(filer( buf, path.c_str( ), NULL, 0 ) != 0 ) {
+                if( filer( buf, path.c_str( ), NULL, 0 ) != 0 ) {
                     return -ENOMEM;
+                }
+                if( cancel_error( -local_result ) ) {
+                    return local_result;
                 }
                 ptr->next( );
             }
@@ -494,6 +525,7 @@ namespace fr { namespace fuse {
         res.release         = &impl::release;
         res.read            = &impl::read;
         res.write           = &impl::write;
+        res.flush           = &impl::flush;
 
         return res;
     }
