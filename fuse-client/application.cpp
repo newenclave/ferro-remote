@@ -100,13 +100,10 @@ namespace fr { namespace fuse {
         std::string mount_point_;
         std::string server_;
 
-        std::atomic<uint64_t>               index_;
-
         impl( )
             :pp_(1, 1)
             ,client_(pp_)
             ,retry_timer_(pp_.get_rpc_service( ))
-            ,index_(100)
         {
             std::string id;
             std::string key;
@@ -199,11 +196,6 @@ namespace fr { namespace fuse {
             log( std::string(__func__) );
             errno = EIO;
             local_result = -EIO;
-        }
-
-        uint64_t netx_id( )
-        {
-            return index_++;
         }
 
         static impl *imp( )
