@@ -186,9 +186,11 @@ namespace fr { namespace fuse {
         }
 
 
-        static void proto_error( unsigned code, unsigned, const char *mess )
+        static void proto_error( unsigned code, unsigned cat, const char *mess )
         {
-            log( std::string(__func__) + "  " + mess);
+            std::ostringstream oss;
+            oss << __func__  << " " << mess << " " << code << " " << cat;
+            log( oss.str( ) );
             errno = code;
             local_result = -code;
         }
@@ -447,6 +449,9 @@ namespace fr { namespace fuse {
                 log( std::string(__func__) + " next " + path );
                 if( filer( buf, path.c_str( ), NULL, 0 ) != 0 ) {
                     return -ENOMEM;
+                }
+                if( local_result ) {
+                    return local_result;
                 }
                 ptr->next( );
             }
