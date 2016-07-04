@@ -28,7 +28,7 @@ const std::string log_path = "/home/data/fuselog/";
 
 static void log( const std::string &line )
 {
-    //return;
+    return;
     std::cerr << line << "\n";
     const size_t p = getpid( );
     std::ostringstream oss;
@@ -51,8 +51,6 @@ namespace fr { namespace fuse {
     namespace fs_iface    = interfaces::filesystem;
     namespace log_iface   = interfaces::logger;
 
-
-//    namespace vclient = vtrc::client;
     namespace vcomm   = vtrc::common;
 
     using dir_iterator  = fs_iface::directory_iterator_impl;
