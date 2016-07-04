@@ -19,7 +19,7 @@ find_package(Fuse REQUIRED)
 add_definitions(${FUSE_DEFINITIONS})
 add_definitions( -DFUSE_USE_VERSION=22 )
 
-message(${FUSE_VERSION})
+message( "FUSE_VERSION: " ${FUSE_VERSION})
 
 include_directories(${FUSE_INCLUDE_DIRS})
 target_link_libraries(${exe_name} ${FUSE_LIBRARIES})
