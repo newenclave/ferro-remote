@@ -384,6 +384,19 @@ namespace fr { namespace fuse {
             if( !fs( ) ) {
                 return -EIO;
             }
+            st->st_dev     = 0;
+            st->st_ino     = 0;
+            st->st_mode    = 0;
+            st->st_nlink   = 0;
+            st->st_uid     = 0;
+            st->st_gid     = 0;
+            st->st_rdev    = 0;
+            st->st_size    = 0;
+            st->st_blksize = 0;
+            st->st_blocks  = 0;
+            st->st_atime   = 0;
+            st->st_mtime   = 0;
+            st->st_ctime   = 0;
 
             fs( )->stat( path, sd );
 
