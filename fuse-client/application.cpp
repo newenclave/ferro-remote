@@ -265,7 +265,7 @@ namespace fr { namespace fuse {
             return local_result;
         }
 
-        static int open(const char *path, struct fuse_file_info_compat *inf)
+        static int open(const char *path, struct fuse_file_info *inf)
         {
             local_result = 0;
             file_wrapper *fw = nullptr;
@@ -304,7 +304,7 @@ namespace fr { namespace fuse {
 
         static int read( const char */*path*/, char *buf, size_t len,
                          off_t off,
-                         struct fuse_file_info_compat *inf )
+                         struct fuse_file_info *inf )
         {
             local_result = 0;
             size_t cur = 0;
@@ -347,7 +347,7 @@ namespace fr { namespace fuse {
 
         static int write( const char */*path*/, const char *buf, size_t len,
                           off_t off,
-                          struct fuse_file_info_compat *inf )
+                          struct fuse_file_info *inf )
         {
             local_result = 0;
             size_t cur = 0;
@@ -409,7 +409,7 @@ namespace fr { namespace fuse {
             return local_result;
         }
 
-        static int opendir(const char *path, struct fuse_file_info_compat *info)
+        static int opendir(const char *path, struct fuse_file_info *info)
         {
             local_result = 0;
             if( !fs( ) ) {
@@ -425,7 +425,7 @@ namespace fr { namespace fuse {
         }
 
         static int releasedir( const char */*path*/,
-                               fuse_file_info_compat *info)
+                               fuse_file_info *info)
         {
             local_result = 0;
 
@@ -440,7 +440,7 @@ namespace fr { namespace fuse {
 
         static int readdir( const char */*path*/, void *buf,
                             fuse_fill_dir_t filer, off_t,
-                            fuse_file_info_compat *info)
+                            fuse_file_info *info)
         {
             local_result = 0;
 
@@ -459,6 +459,22 @@ namespace fr { namespace fuse {
                 ptr->next( );
             }
             return local_result;
+        }
+
+
+        static int chmod( const char *, mode_t )
+        {
+            return 0;
+        }
+
+        static int chown( const char *, uid_t, gid_t )
+        {
+            return 0;
+        }
+
+        static int utime( const char *, struct utimbuf * )
+        {
+            return 0;
         }
 
 
@@ -516,6 +532,7 @@ namespace fr { namespace fuse {
         res.releasedir      = &impl::releasedir;
         res.readdir         = &impl::readdir;
 
+        //res.setxattr
         res.rename          = &impl::rename;
         res.mkdir           = &impl::mkdir;
         res.rmdir           = &impl::rmdir;
@@ -526,6 +543,10 @@ namespace fr { namespace fuse {
         res.read            = &impl::read;
         res.write           = &impl::write;
         res.flush           = &impl::flush;
+
+        res.chown           = &impl::chown; /// fake
+        res.chmod           = &impl::chmod; /// fake
+        res.utime           = &impl::utime; /// fake
 
         return res;
     }

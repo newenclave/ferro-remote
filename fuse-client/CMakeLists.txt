@@ -17,7 +17,7 @@ add_definitions( -DTHREAD_LOCAL=${THREAD_LOCAL_VALUE} )
 find_package(Fuse REQUIRED)
 
 add_definitions(${FUSE_DEFINITIONS})
-add_definitions( -DFUSE_USE_VERSION=22 )
+add_definitions( -DFUSE_USE_VERSION=25 )
 
 message(${FUSE_VERSION})
 
