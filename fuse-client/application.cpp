@@ -339,8 +339,6 @@ namespace fr { namespace fuse {
             auto ptr = reinterpret_cast<file_wrapper *>(inf->fh);
             if( ptr ) {
                 ptr->ptr_->flush( );
-            } else {
-                return -1;
             }
             return local_result;
         }
