@@ -487,7 +487,7 @@ namespace fr { namespace fuse {
 
         static int truncate(const char *, off_t)
         {
-            return 0;
+            return -ENOTSUP;
         }
 
         static void *init_app( )
