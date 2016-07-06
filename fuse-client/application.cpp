@@ -181,7 +181,6 @@ namespace fr { namespace fuse {
             config_channel( fs_->channel( ) );
         }
 
-
         static void proto_error( unsigned code, unsigned cat, const char *mess )
         {
             std::ostringstream oss;
@@ -372,7 +371,6 @@ namespace fr { namespace fuse {
             return (int)(cur);
         }
 
-
         static int getattr( const char *path, struct stat *st )
         {
             local_result = 0;
@@ -471,7 +469,6 @@ namespace fr { namespace fuse {
             }
             return local_result;
         }
-
 
         static int chmod( const char *, mode_t )
         {
