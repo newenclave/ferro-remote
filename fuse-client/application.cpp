@@ -311,9 +311,9 @@ namespace fr { namespace fuse {
             if( ptr ) {
                 if( ptr->offset_ != off ) {
                     ptr->ptr_->seek( off, file_iface::POS_SEEK_SET );
-                }
-                if( local_result ) {
-                    return local_result;
+                    if( local_result ) {
+                        return local_result;
+                    }
                 }
                 while( cur < len ) {
                     local_result = 0;
@@ -355,9 +355,9 @@ namespace fr { namespace fuse {
             if( ptr ) {
                 if( ptr->offset_ != off ) {
                     ptr->ptr_->seek( off, file_iface::POS_SEEK_SET );
-                }
-                if( local_result ) {
-                    return local_result;
+                    if( local_result ) {
+                        return local_result;
+                    }
                 }
                 while( cur < len ) {
                     local_result = 0;
