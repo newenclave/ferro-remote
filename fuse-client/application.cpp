@@ -101,7 +101,7 @@ namespace fr { namespace fuse {
         std::string server_;
 
         impl( )
-            :pp_(1, 1)
+            :pp_(2, 1)
             ,client_(pp_)
             ,retry_timer_(pp_.get_rpc_service( ))
         {
@@ -269,7 +269,7 @@ namespace fr { namespace fuse {
             local_result = 0;
             file_wrapper *fw = nullptr;
             try {
-                file_iface::iface_ptr ptr =
+                file_iface::iface *ptr =
                       file_iface::create(imp( )->client_, path, inf->flags, 0);
                 imp( )->config_channel( ptr->channel( ) );
                 fw = new file_wrapper;
@@ -485,6 +485,10 @@ namespace fr { namespace fuse {
             return 0;
         }
 
+        static int truncate(const char *, off_t)
+        {
+            return 0;
+        }
 
         static void *init_app( )
         {
@@ -552,6 +556,7 @@ namespace fr { namespace fuse {
         res.write           = &impl::write;
         res.flush           = &impl::flush;
 
+        res.truncate        = &impl::truncate;
         res.chown           = &impl::chown; /// fake
         res.chmod           = &impl::chmod; /// fake
         res.utime           = &impl::utime; /// fake
