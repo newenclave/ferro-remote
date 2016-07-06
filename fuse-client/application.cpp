@@ -101,7 +101,7 @@ namespace fr { namespace fuse {
         std::string server_;
 
         impl( )
-            :pp_(2, 1)
+            :pp_(1, 1)
             ,client_(pp_)
             ,retry_timer_(pp_.get_rpc_service( ))
         {
@@ -314,6 +314,7 @@ namespace fr { namespace fuse {
                     if( local_result ) {
                         return local_result;
                     }
+                    ptr->offset_ = off;
                 }
                 while( cur < len ) {
                     local_result = 0;
@@ -358,6 +359,7 @@ namespace fr { namespace fuse {
                     if( local_result ) {
                         return local_result;
                     }
+                    ptr->offset_ = off;
                 }
                 while( cur < len ) {
                     local_result = 0;
