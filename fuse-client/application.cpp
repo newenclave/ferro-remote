@@ -92,10 +92,10 @@ namespace fr { namespace fuse {
 
     struct application::impl {
 
-        vcomm::pool_pair                    pp_;
-        client::core::client_core           client_;
-        std::unique_ptr<fs_iface::iface>    fs_;
-        vcomm::delayed_call                 retry_timer_;
+        vcomm::pool_pair                   pp_;
+        client::core::client_core          client_;
+        std::unique_ptr<fs_iface::iface>   fs_;
+        vcomm::delayed_call                retry_timer_;
 
         std::string mount_point_;
         std::string server_;
