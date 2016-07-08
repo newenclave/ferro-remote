@@ -342,7 +342,7 @@ namespace fr { namespace fuse {
             try {
                 nid = imp( )->create_file( path, inf->flags );
                 if( imp( )->logs_ ) {
-                    std::cout << " >>>> add file: " << path << std::endl;
+                    std::cout << " >>>> open file: " << path << std::endl;
                     std::cout << "\ttotal files: "
                               << imp( )->files_.size( ) << std::endl;
                 }
@@ -362,7 +362,7 @@ namespace fr { namespace fuse {
             if( fi->fh ) {
                 imp( )->files_.erase( fi->fh );
                 if( imp( )->logs_ ) {
-                    std::cout << " >>>> erase file: " << path << std::endl;
+                    std::cout << " >>>> release file: " << path << std::endl;
                     std::cout << "\ttotal files: "
                               << imp( )->files_.size( ) << std::endl;
                 }
@@ -500,7 +500,7 @@ namespace fr { namespace fuse {
             }
             info->fh = imp( )->create_dir( path );
             if( imp( )->logs_ ) {
-                std::cout << " >>>> add dir: " << path << std::endl;
+                std::cout << " >>>> open dir: " << path << std::endl;
                 std::cout << "\ttotal dirs: "
                           << imp( )->dirs_.size( ) << std::endl;
             }
@@ -514,7 +514,7 @@ namespace fr { namespace fuse {
             if( info->fh ) {
                 imp( )->dirs_.erase( info->fh );
                 if( imp( )->logs_ ) {
-                    std::cout << " >>>> erase dir: " << path << std::endl;
+                    std::cout << " >>>> release dir: " << path << std::endl;
                     std::cout << "\ttotal dirs: "
                               << imp( )->dirs_.size( ) << std::endl;
                 }
