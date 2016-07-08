@@ -46,13 +46,13 @@ namespace fr { namespace fuse {
 
     THREAD_LOCAL int local_result = 0;
 
-    std::string leaf( const std::string &path )
+    const char *leaf( const std::string &path )
     {
         auto pos = path.find_last_of( '/' );
         if( pos != std::string::npos ) {
-            return std::string( path.begin( ) + pos + 1, path.end( ) );
+            return path.c_str( ) + pos + 1;
         }
-        return path;
+        return path.c_str( );
     }
 
     std::string hash_key( const std::string &id, const std::string &key )
@@ -412,8 +412,7 @@ namespace fr { namespace fuse {
         }
 
         static int write( const char */*path*/, const char *buf, size_t len,
-                          off_t off,
-                          struct fuse_file_info *inf )
+                          off_t off, struct fuse_file_info *inf )
         {
             local_result = 0;
             size_t cur = 0;
@@ -534,7 +533,7 @@ namespace fr { namespace fuse {
             while( !ptr->end( ) ) {
                 local_result = 0;
                 auto path = leaf(ptr->get( ).path);
-                if( filer( buf, path.c_str( ), NULL, 0 ) != 0 ) {
+                if( filer( buf, path, NULL, 0 ) != 0 ) {
                     return -ENOMEM;
                 }
                 if( cancel_error( -local_result ) ) {
