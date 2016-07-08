@@ -1,6 +1,9 @@
 #include <iostream>
 #include "application.h"
 
+#include <mutex>
+#include <memory>
+
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <unistd.h>
@@ -24,22 +27,6 @@
 
 #include "vtrc-common/protocol/vtrc-errors.pb.h"
 
-const std::string log_path = "/home/data/fuselog/";
-
-static void log( const std::string &line )
-{
-    return;
-    std::cerr << line << "\n";
-    const size_t p = getpid( );
-    std::ostringstream oss;
-    oss << log_path << p;
-    FILE *f = fopen( oss.str( ).c_str( ), "a+" );
-    if( f ) {
-        fwrite( line.c_str( ), 1, line.size( ), f );
-        fwrite( "\n", 1, 1, f );
-        fclose( f );
-    }
-}
 
 namespace fr { namespace fuse {
 
@@ -77,18 +64,70 @@ namespace fr { namespace fuse {
     }
 
     struct file_wrapper {
-        file_iface::iface_ptr ptr_;
-        off_t                 offset_;
+        std::unique_ptr<file_iface::iface> ptr_;
+        off_t                              offset_;
 
-        file_wrapper( )
-            :offset_(0)
+        file_wrapper( file_iface::iface *ptr )
+            :ptr_(ptr)
+            ,offset_(0)
         { }
+    };
 
-        ~file_wrapper( )
+    struct directory_wrapper {
+        std::unique_ptr<dir_iterator> ptr_;
+        directory_wrapper( dir_iterator *ptr )
+            :ptr_(ptr)
+        { }
+    };
+
+    template <typename T>
+    class locked_map {
+        std::map<std::uint64_t, std::shared_ptr<T> > store_;
+        mutable std::mutex                           store_lock_;
+
+        using locker_type = std::lock_guard<std::mutex>;
+
+    public:
+        typedef std::shared_ptr<T> T_sptr;
+        typedef std::uint64_t index_type;
+        T_sptr get( index_type id )
         {
-            if( ptr_ ) delete ptr_;
+            locker_type lg(store_lock_);
+            auto f = store_.find( id );
+            if( f != store_.end( )) {
+                return f->second;
+            }
+            return T_sptr( );
+        }
+
+        void store( index_type id, T_sptr val )
+        {
+            locker_type lg(store_lock_);
+            store_[id] = val;
+        }
+
+        void store( index_type id, T *val )
+        {
+            locker_type lg(store_lock_);
+            store_[id] = T_sptr(val);
+        }
+
+        void erase( index_type id )
+        {
+            locker_type lg(store_lock_);
+            store_.erase( id );
+        }
+
+        size_t size( ) const
+        {
+            locker_type lg(store_lock_);
+            return store_.size( );
         }
     };
+
+    using directory_map = locked_map<directory_wrapper>;
+    using file_map      = locked_map<file_wrapper>;
+
 
     struct application::impl {
 
@@ -100,10 +139,19 @@ namespace fr { namespace fuse {
         std::string mount_point_;
         std::string server_;
 
+        std::atomic<std::uint64_t>  index_;
+
+        directory_map   dirs_;
+        file_map        files_;
+
+        bool            logs_;
+
         impl( )
             :pp_(1, 1)
             ,client_(pp_)
             ,retry_timer_(pp_.get_rpc_service( ))
+            ,index_(100)
+            ,logs_(false)
         {
             std::string id;
             std::string key;
@@ -116,6 +164,8 @@ namespace fr { namespace fuse {
                 key = g_opts["key"].as<std::string>( );
             }
 
+            logs_ = g_opts.count( "debug" ) > 0;
+
             bool empty = key.empty( );
             key = hash_key( id, key );
 
@@ -126,6 +176,11 @@ namespace fr { namespace fuse {
             if( !empty ) {
                 client_.set_key( key );
             }
+        }
+
+        std::uint64_t next_id( )
+        {
+            return ++index_;
         }
 
         void start( )
@@ -160,7 +215,6 @@ namespace fr { namespace fuse {
                 client_.connect( server_ );
                 on_connect( );
             } catch( const std::exception &ex ) {
-                log( std::string( "retry: " ) + ex.what( ) );
                 start_retry( );
             }
         }
@@ -174,25 +228,43 @@ namespace fr { namespace fuse {
 
         void on_connect(  )
         {
-            log( std::string(__func__) + (local_result ? "1" : "0") );
             fs_.reset( fs_iface::create( client_, "" ) );
-
-            log( std::string(__func__) + (local_result ? "-1" : "-0") );
             config_channel( fs_->channel( ) );
+        }
+
+        std::uint64_t create_file( const char *path, int flags )
+        {
+            auto nid = next_id( );
+            auto res = std::make_shared<file_wrapper>(
+                        file_iface::create( client_, path, flags, 0 ) );
+
+            config_channel( res->ptr_->channel( ) );
+            files_.store( nid, res );
+            return nid;
+        }
+
+        std::uint64_t create_dir( const char *path )
+        {
+            local_result = 0;
+            auto nid = next_id( );
+            auto res = std::make_shared<directory_wrapper>(
+                                                fs_->begin_iterate( path ) );
+            if( 0 == local_result ) {
+                config_channel( res->ptr_->channel( ) );
+                dirs_.store( nid, res );
+                return nid;
+            }
+            return 0;
         }
 
         static void proto_error( unsigned code, unsigned cat, const char *mess )
         {
-            std::ostringstream oss;
-            oss << __func__  << " " << mess << " " << code << " " << cat;
-            log( oss.str( ) );
             errno = code;
             local_result = -code;
         }
 
         static void channel_error( const char * )
         {
-            log( std::string(__func__) );
             errno = EIO;
             local_result = -EIO;
         }
@@ -221,7 +293,6 @@ namespace fr { namespace fuse {
                 return -EOPNOTSUPP;
             }
 
-            log( std::string( "mknode " ) + path );
             try {
                 std::unique_ptr<file_iface::iface> f(
                     file_iface::create( imp( )->client_, path, O_CREAT, 0 ));
@@ -267,36 +338,34 @@ namespace fr { namespace fuse {
         static int open(const char *path, struct fuse_file_info *inf)
         {
             local_result = 0;
-            file_wrapper *fw = nullptr;
+            auto nid = 0;
             try {
-                file_iface::iface *ptr =
-                      file_iface::create(imp( )->client_, path, inf->flags, 0);
-                imp( )->config_channel( ptr->channel( ) );
-                fw = new file_wrapper;
-                fw->ptr_ = ptr;
+                nid = imp( )->create_file( path, inf->flags );
+                if( imp( )->logs_ ) {
+                    std::cout << " >>>> add file: " << path << std::endl;
+                    std::cout << "\ttotal files: "
+                              << imp( )->files_.size( ) << std::endl;
+                }
             } catch( const vtrc::common::exception &ex) {
-                ;;;
-                return ex.code( );
+                return - ex.code( );
             } catch( const std::exception & ) {
-                ;;;
                 return -1;
             }
 
-            std::ostringstream oss;
-            oss << "open file " << path << " " << inf->flags;
-            log(oss.str( ));
-
-            inf->fh = reinterpret_cast<decltype(inf->fh)>(fw);
-            log( std::string( "open file " ) + path );
+            inf->fh = nid;
             return local_result;
         }
 
-        static int release(const char *, struct fuse_file_info *fi)
+        static int release(const char *path, struct fuse_file_info *fi)
         {
             local_result = 0;
-            auto ptr = reinterpret_cast<file_wrapper *>(fi->fh);
-            if( ptr ) {
-                delete ptr;
+            if( fi->fh ) {
+                imp( )->files_.erase( fi->fh );
+                if( imp( )->logs_ ) {
+                    std::cout << " >>>> erase file: " << path << std::endl;
+                    std::cout << "\ttotal files: "
+                              << imp( )->files_.size( ) << std::endl;
+                }
             }
             return local_result;
         }
@@ -307,7 +376,7 @@ namespace fr { namespace fuse {
         {
             local_result = 0;
             size_t cur = 0;
-            auto ptr = reinterpret_cast<file_wrapper *>(inf->fh);
+            auto ptr = imp( )->files_.get( inf->fh );
             if( ptr ) {
                 if( ptr->offset_ != off ) {
                     ptr->ptr_->seek( off, file_iface::POS_SEEK_SET );
@@ -339,7 +408,7 @@ namespace fr { namespace fuse {
         static int flush( const char */*path*/, struct fuse_file_info *inf )
         {
             local_result = 0;
-            auto ptr = reinterpret_cast<file_wrapper *>(inf->fh);
+            auto ptr = imp( )->files_.get( inf->fh );
             if( ptr ) {
                 ptr->ptr_->flush( );
             }
@@ -352,7 +421,7 @@ namespace fr { namespace fuse {
         {
             local_result = 0;
             size_t cur = 0;
-            auto ptr = reinterpret_cast<file_wrapper *>(inf->fh);
+            auto ptr = imp( )->files_.get( inf->fh );
             if( ptr ) {
                 if( ptr->offset_ != off ) {
                     ptr->ptr_->seek( off, file_iface::POS_SEEK_SET );
@@ -421,37 +490,35 @@ namespace fr { namespace fuse {
                 st->st_ctime   = sd.ctime;
             }
 
-            log( std::string(__func__) + (local_result ? "1" : "0") );
-
             return local_result;
         }
 
         static int opendir(const char *path, struct fuse_file_info *info)
         {
-            local_result = 0;
             if( !fs( ) ) {
                 return -EIO;
             }
-            dir_iterator *ptr = fs( )->begin_iterate( path );
-            if( ptr ) {
-                imp( )->config_channel( ptr->channel( ) );
+            info->fh = imp( )->create_dir( path );
+            if( imp( )->logs_ ) {
+                std::cout << " >>>> add dir: " << path << std::endl;
+                std::cout << "\ttotal dirs: "
+                          << imp( )->dirs_.size( ) << std::endl;
             }
-            info->fh = reinterpret_cast<decltype(info->fh)>(ptr);
-            log( std::string(__func__) + (local_result ? "1" : "0") + path );
             return local_result;
         }
 
-        static int releasedir( const char */*path*/,
+        static int releasedir( const char *path,
                                fuse_file_info *info)
         {
             local_result = 0;
-
-            auto ptr = reinterpret_cast<dir_iterator *>(info->fh);
-            if(ptr) {
-                delete ptr;
+            if( info->fh ) {
+                imp( )->dirs_.erase( info->fh );
+                if( imp( )->logs_ ) {
+                    std::cout << " >>>> erase dir: " << path << std::endl;
+                    std::cout << "\ttotal dirs: "
+                              << imp( )->dirs_.size( ) << std::endl;
+                }
             }
-            //info->fh = 0;
-            log( std::string(__func__) + (local_result ? "1" : "0") );
             return local_result;
         }
 
@@ -461,12 +528,16 @@ namespace fr { namespace fuse {
         {
             local_result = 0;
 
-            auto ptr = reinterpret_cast<dir_iterator *>(info->fh);
+            auto ptr_d = imp( )->dirs_.get( info->fh );
+            if( !ptr_d ) {
+                return -EBADF;
+            }
+
+            auto ptr = ptr_d->ptr_.get( );
 
             while( !ptr->end( ) ) {
                 local_result = 0;
                 auto path = leaf(ptr->get( ).path);
-                log( std::string(__func__) + " next " + path );
                 if( filer( buf, path.c_str( ), NULL, 0 ) != 0 ) {
                     return -ENOMEM;
                 }
@@ -501,7 +572,6 @@ namespace fr { namespace fuse {
         static void *init_app( )
         {
             g_app = new application( );
-            log( std::string(__func__) + (local_result ? " 1" : " 0") );
             g_app->start( );
             return static_cast<void *>(g_app);
         }
@@ -514,7 +584,6 @@ namespace fr { namespace fuse {
             } catch( const std::exception &ex ) {
                 ;;;;
             }
-            log( std::string(__func__) + (local_result ? "1" : "0") );
             delete static_cast<application *>(app);
         }
 
