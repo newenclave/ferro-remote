@@ -192,10 +192,6 @@ namespace fr { namespace fuse {
                 start_retry( );
             } );
 
-//            client_.on_ready_connect( [this]( ) {
-//                on_connect( );
-//            } );
-
             try_connect( );
         }
 
