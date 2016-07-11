@@ -252,7 +252,9 @@ namespace fr { namespace agent {
 
             void flush( ) override
             {
+#ifdef __USE_GNU
                 syncfs( fd_ );
+#endif
             }
 
             int handle( ) const override
@@ -319,7 +321,9 @@ namespace fr { namespace agent {
 
             void flush( ) override
             {
+#ifdef __USE_GNU
                 syncfs( fd_ );
+#endif
             }
 
             int handle( ) const override
