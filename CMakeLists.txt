@@ -194,7 +194,7 @@ if(FUSE_FOUND)
     add_subdirectory( fuse-client )
 endif(FUSE_FOUND)
 
-if( NOT WIN32 )
+if( ${CMAKE_SYSTEM_NAME} MATCHES "Linux" )
     add_subdirectory( agent )
 endif( )
 
