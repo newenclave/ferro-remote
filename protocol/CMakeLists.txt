@@ -80,6 +80,11 @@ foreach( dep ${dependencies} )
 
 endforeach(dep)
 
+if(  CMAKE_CXX_COMPILER_ID STREQUAL "Clang" )
+    # workaround for bug https://github.com/google/protobuf/pull/180
+    add_definitions( -DNULL=0UL )
+endif( )
+
 set_target_properties(${lib_name} PROPERTIES COMPILE_DEFINITIONS "STATIC")
 get_target_property(${lib_name}_LOCATION ${lib_name} LOCATION)
 
