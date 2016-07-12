@@ -80,8 +80,8 @@ foreach( dep ${dependencies} )
 
 endforeach(dep)
 
-if(  CMAKE_CXX_COMPILER_ID STREQUAL "Clang" )
-    # workaround for bug https://github.com/google/protobuf/pull/180
+if( CMAKE_CXX_COMPILER_ID STREQUAL "Clang" )
+    # protoc bug workaround: https://github.com/google/protobuf/pull/180
     add_definitions( -DNULL=0UL )
 endif( )
 
