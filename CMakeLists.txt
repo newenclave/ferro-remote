@@ -94,18 +94,15 @@ if( NOT DISABLE_LUA )
 
     else( )
 
-        find_package( Lua51 )
-
-        if( ${LUA51_FOUND} )
-
+        find_file( LUA_SM_PATH
+                    NAMES "lua.h"
+                    PATHS "${CMAKE_CURRENT_SOURCE_DIR}lua/src/" )
+        if( LUA_SM_PATH )
             set( LUA_FOUND 1 )
-        else( )
-            find_package( Lua50 )
-            if( ${LUA50_FOUND} )
-                set( LUA_FOUND 1 )
-            endif( )
-
-        endif( )
+            set( LUA_SRC "${CMAKE_CURRENT_SOURCE_DIR}/lua/src" )
+            add_subdirectory( lua-build )
+            message( "Lua SRC: "  ${LUA_SRC} )
+        endif( LUA_SM_PATH )
 
     endif( )
 endif( )
