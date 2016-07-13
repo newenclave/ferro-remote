@@ -7,6 +7,7 @@ option cc_generic_services = true;
 
 message file_position {
     optional uint64 position = 1;
+    optional uint32  whence  = 2;
 }
 
 // fs directory operations;
