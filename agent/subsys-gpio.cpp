@@ -332,11 +332,8 @@ namespace fr { namespace agent { namespace subsys {
                         return false;
                     }
 
-                    time_point this_event =
-                                         chrono::high_resolution_clock::now( );
-                    time_point::duration dur = this_event - event_last_time_;
-
-                    event_last_time_ = this_event;
+                    time_point event_tim = chrono::high_resolution_clock::now();
+                    time_point::duration dur = event_tim - event_last_time_;
 
                     gpio_sptr gpio( data.weak_gpio.lock( ) );
 
@@ -372,9 +369,9 @@ namespace fr { namespace agent { namespace subsys {
                     return success;
 
                 } catch( std::exception &ex ) {
-                    LOGERR << "Failed to send event: " << ex.what( );
+                    LOGERR << "Failed to send GPIO event: " << ex.what( );
                 } catch( ... ) {
-                    LOGERR << "Failed to send event: ...";
+                    LOGERR << "Failed to send GPIO event: ...";
                 }
                 return false;
             }
