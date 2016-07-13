@@ -12,6 +12,7 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <unistd.h>
+#include <utime.h>
 
 #include "vtrc-common/vtrc-closure-holder.h"
 #include "vtrc-common/vtrc-mutex-typedefs.h"
@@ -487,6 +488,51 @@ namespace fr { namespace agent { namespace subsys {
                     }
                 }
             }
+
+            void truncate( ::google::protobuf::RpcController* /*controller*/,
+                           const ::fr::proto::fs::truncate_req* request,
+                           ::fr::proto::empty* /*response*/,
+                           ::google::protobuf::Closure* done) override
+            {
+                vcomm::closure_holder holder(done);
+                vtrc::uint32_t dhdl;
+                bfs::path p( path_from_request( &request->src( ), dhdl ) );
+                bfs::resize_file( p, request->off( ) );
+            }
+
+            void update_time( ::google::protobuf::RpcController* /*controller*/,
+                              const ::fr::proto::fs::update_time_req* request,
+                              ::fr::proto::empty* /*response*/,
+                              ::google::protobuf::Closure* done) override
+            {
+                vcomm::closure_holder holder(done);
+                vtrc::uint32_t dhdl;
+                bfs::path p( path_from_request( &request->src( ), dhdl ) );
+
+                utimbuf times = { (__time_t)request->actime( ),
+                                  (__time_t)request->modtime( ) };
+
+                int res = ::utime( p.string( ).c_str( ), &times );
+                if( -1 == res ) {
+                    vcomm::throw_system_error( errno, "utime failed" );
+                }
+                //bfs::last_write_time(  )
+            }
+
+            void chmod( ::google::protobuf::RpcController* /*controller*/,
+                        const ::fr::proto::fs::chmod_req* request,
+                        ::fr::proto::empty* /*response*/,
+                        ::google::protobuf::Closure* done) override
+            {
+                vcomm::closure_holder holder(done);
+                vtrc::uint32_t dhdl;
+                bfs::path p( path_from_request( &request->src( ), dhdl ) );
+                int res = ::chmod( p.string( ).c_str( ), request->mode( ) );
+                if( -1 == res ) {
+                    vcomm::throw_system_error( errno, "utime failed" );
+                }
+            }
+
 
             void read_file(::google::protobuf::RpcController* /*controller*/,
                          const ::fr::proto::fs::read_file_req* request,

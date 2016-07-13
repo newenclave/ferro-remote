@@ -39,6 +39,11 @@ namespace interfaces { namespace filesystem {
         bool is_symlink;
     };
 
+    struct update_time_buf {
+        vtrc::uint64_t actime;
+        vtrc::uint64_t modtime;
+    };
+
     struct iterator_value {
         std::string path;
     };
@@ -114,6 +119,16 @@ namespace interfaces { namespace filesystem {
         virtual void mkdir( const std::string &path )       const = 0;
         virtual void del( const std::string &path )         const = 0;
         virtual void remove_all( const std::string &path )  const = 0;
+
+        virtual void truncate( const std::string &path,
+                               vtrc::uint64_t )  const = 0;
+
+        virtual void update_time( const std::string &path,
+                                  vtrc::uint64_t actime,
+                                  vtrc::uint64_t modtime )  const = 0;
+
+        virtual void chmod( const std::string &path,
+                            vtrc::uint32_t )  const = 0;
 
         virtual directory_iterator_impl *begin_iterate(
                                 const std::string &path ) const = 0;

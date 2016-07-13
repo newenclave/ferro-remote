@@ -359,11 +359,40 @@ namespace filesystem {
                 client_.call_request( &stub_type::del, &req );
             }
 
-            void remove_all( const std::string &path )  const
+            void remove_all( const std::string &path )  const override
             {
                 fproto::handle_path   req;
                 fill_request( req, path );
                 client_.call_request( &stub_type::remove_all, &req );
+            }
+
+            void truncate( const std::string &path,
+                           vtrc::uint64_t offset )  const override
+            {
+                fproto::truncate_req   req;
+                fill_request( *req.mutable_src( ), path );
+                req.set_off( offset );
+                client_.call_request( &stub_type::truncate, &req );
+            }
+
+            void update_time( const std::string &path,
+                              vtrc::uint64_t actime,
+                              vtrc::uint64_t modtime )  const override
+            {
+                fproto::update_time_req req;
+                fill_request( *req.mutable_src( ), path );
+                req.set_actime( actime );
+                req.set_modtime( modtime );
+                client_.call_request( &stub_type::update_time, &req );
+            }
+
+            void chmod( const std::string &path,
+                        vtrc::uint32_t mode ) const override
+            {
+                fproto::chmod_req req;
+                fill_request( *req.mutable_src( ), path );
+                req.set_mode( mode );
+                client_.call_request( &stub_type::chmod, &req );
             }
 
             filesystem::directory_iterator_impl *begin_iterate(

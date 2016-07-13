@@ -95,8 +95,9 @@ if( NOT DISABLE_LUA )
     else( )
 
         find_file( LUA_SM_PATH
-                    NAMES "lua.h"
-                    PATHS "${CMAKE_CURRENT_SOURCE_DIR}/lua/src/" )
+                   NAMES "lua.h"
+                   PATHS "${CMAKE_CURRENT_SOURCE_DIR}/lua/src/" )
+
         if( LUA_SM_PATH )
             set( LUA_FOUND 1 )
             set( LUA_SRC "${CMAKE_CURRENT_SOURCE_DIR}/lua/src" )

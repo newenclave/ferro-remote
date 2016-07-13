@@ -544,9 +544,15 @@ namespace fr { namespace fuse {
             return local_result;
         }
 
-        static int chmod( const char *, mode_t )
+        static int chmod( const char *path, mode_t mode )
         {
-            return 0;
+            if( !fs( ) ) {
+                return -EIO;
+            }
+            local_result = 0;
+            std::cout << "!!!! chmod " << mode << "\n";
+            fs( )->chmod( path, mode );
+            return local_result;
         }
 
         static int chown( const char *, uid_t, gid_t )
@@ -554,14 +560,24 @@ namespace fr { namespace fuse {
             return 0;
         }
 
-        static int utime( const char *, struct utimbuf * )
+        static int utime( const char *path, struct utimbuf *buf )
         {
-            return 0;
+            if( !fs( ) ) {
+                return -EIO;
+            }
+            local_result = 0;
+            fs( )->update_time( path, buf->actime, buf->modtime );
+            return local_result;
         }
 
-        static int truncate(const char *, off_t)
+        static int truncate( const char *path, off_t offset )
         {
-            return -ENOTSUP;
+            if( !fs( ) ) {
+                return -EIO;
+            }
+            local_result = 0;
+            fs( )->truncate( path, offset );
+            return local_result;
         }
 
         static void *init_app( )

@@ -51,6 +51,22 @@ message rename_req {
     optional handle_path  dst = 2;
 }
 
+message truncate_req {
+    optional handle_path  src = 1;
+    optional uint64       off = 2;
+}
+
+message update_time_req {
+    optional handle_path  src     = 1;
+    optional uint64       actime  = 2;
+    optional uint64       modtime = 3;
+}
+
+message chmod_req {
+    optional handle_path  src   = 1;
+    optional uint32       mode  = 2;
+}
+
 message read_file_req {
     optional handle_path  dst = 1;
     optional uint32       len = 2;
@@ -72,37 +88,46 @@ message write_file_res {
 service instance {
 
     // open instance
-    rpc open( handle_path )        returns ( handle_path );
+    rpc open( handle_path )             returns ( handle_path );
 
     // change instance path
-    rpc cd  ( handle_path )        returns ( handle_path );
+    rpc cd  ( handle_path )             returns ( handle_path );
 
     // get path by handle
-    rpc pwd ( handle_path )        returns ( handle_path );
+    rpc pwd ( handle_path )             returns ( handle_path );
 
     // check if path exists
-    rpc exists( handle_path )      returns ( element_info );
+    rpc exists( handle_path )           returns ( element_info );
 
     // get file size
-    rpc file_size( handle_path )   returns ( file_position );
+    rpc file_size( handle_path )        returns ( file_position );
 
     // get path info
-    rpc info( handle_path )        returns ( element_info );
+    rpc info( handle_path )             returns ( element_info );
 
     // get path stat
-    rpc get_stat( handle_path )    returns ( element_stat );
+    rpc get_stat( handle_path )         returns ( element_stat );
 
     // make directory
-    rpc mkdir( handle_path )       returns ( handle_path );
+    rpc mkdir( handle_path )            returns ( handle_path );
 
     // rename file element
-    rpc rename( rename_req )       returns ( handle_path );
+    rpc rename( rename_req )            returns ( handle_path );
 
     // del fs element
-    rpc del( handle_path )         returns ( handle_path );
+    rpc del( handle_path )              returns ( handle_path );
 
     // del fs element or fs tree
-    rpc remove_all( handle_path )  returns ( handle_path );
+    rpc remove_all( handle_path )       returns ( handle_path );
+
+    // truncate file
+    rpc truncate( truncate_req )        returns ( empty );
+
+    // utime file
+    rpc update_time( update_time_req )  returns ( empty );
+
+    // chmod
+    rpc chmod( chmod_req )              returns ( empty );
 
     // iterate directory
     rpc iter_begin(  handle_path  ) returns( iterator_info );
