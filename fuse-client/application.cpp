@@ -550,7 +550,6 @@ namespace fr { namespace fuse {
                 return -EIO;
             }
             local_result = 0;
-            std::cout << "!!!! chmod " << mode << "\n";
             fs( )->chmod( path, mode );
             return local_result;
         }
