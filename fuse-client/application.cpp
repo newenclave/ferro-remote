@@ -106,12 +106,6 @@ namespace fr { namespace fuse {
             store_[id] = val;
         }
 
-        void store( index_type id, T *val )
-        {
-            locker_type lg(store_lock_);
-            store_[id] = T_sptr(val);
-        }
-
         void erase( index_type id )
         {
             locker_type lg(store_lock_);
