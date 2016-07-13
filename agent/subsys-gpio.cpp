@@ -399,10 +399,10 @@ namespace fr { namespace agent { namespace subsys {
                 response->set_async_op_id( opid );
             }
 
-            void unregister(::google::protobuf::RpcController* /*controller*/,
-                         const ::fr::proto::gpio::register_req* request,
-                         ::fr::proto::empty*                   /*response*/,
-                         ::google::protobuf::Closure* done) override
+            void unregister( ::google::protobuf::RpcController* /*controller*/,
+                             const ::fr::proto::gpio::register_req* request,
+                             ::fr::proto::empty*                   /*response*/,
+                             ::google::protobuf::Closure* done) override
             {
 
                 vcomm::closure_holder holder(done);
