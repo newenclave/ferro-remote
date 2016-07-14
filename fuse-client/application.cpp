@@ -308,7 +308,7 @@ namespace fr { namespace fuse {
             return local_result;
         }
 
-        static int rename(const char *path, const char *newname )
+        static int rename( const char *path, const char *newname )
         {
             local_result = 0;
             if( !fs( ) ) {
