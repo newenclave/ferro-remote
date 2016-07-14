@@ -127,6 +127,17 @@ namespace fr { namespace agent { namespace subsys {
         typedef vtrc::weak_ptr<agent::file_iface>   file_wptr;
         typedef std::map<vtrc::uint32_t, file_sptr> file_map;
 
+        agent::file_iface::seek_whence value_to_enum( vtrc::uint32_t v )
+        {
+            switch ( v ) {
+            case proto::fs::POS_SEEK_CUR:
+            case proto::fs::POS_SEEK_SET:
+            case proto::fs::POS_SEEK_END:
+                return static_cast<agent::file_iface::seek_whence>(v);
+            }
+            return agent::file_iface::F_SEEK_SET;
+        }
+
         class proto_fs_impl: public fr::proto::fs::instance {
 
             path_map            path_;
@@ -552,6 +563,10 @@ namespace fr { namespace agent { namespace subsys {
 
                 std::unique_ptr<file_iface> f( file::create(
                                                    p.string( ), O_RDONLY ) );
+                if( request->has_from( ) ) {
+                    f->seek( request->from( ).position( ),
+                             value_to_enum(request->from( ).whence( )) );
+                }
                 size_t r = f->read( &data[0], len );
                 response->set_data( &data[0], r );
             }
@@ -569,9 +584,18 @@ namespace fr { namespace agent { namespace subsys {
                 vtrc::uint32_t dhdl;
                 bfs::path p( path_from_request( &request->dst( ), dhdl ) );
 
-                std::unique_ptr<file_iface> f( file::create( p.string( ),
-                                                 O_WRONLY | O_CREAT | O_TRUNC,
-                                                 S_IRUSR | S_IWUSR ) );
+
+                int flags = O_WRONLY | O_CREAT;
+                mode_t mode = S_IRUSR | S_IWUSR;
+
+                std::unique_ptr<file_iface> f ( file::create( p.string( ),
+                                                flags, mode ) );
+
+                if( request->has_from( ) ) {
+                    f->seek( request->from( ).position( ),
+                             value_to_enum(request->from( ).whence( )) );
+                }
+
                 response->set_len( f->write( request->data( ).c_str( ), len ) );
             }
 
@@ -717,18 +741,6 @@ namespace fr { namespace agent { namespace subsys {
                 vcomm::closure_holder holder(done);
                 file_sptr f(get_file( request->value( ) ));
                 response->set_position( f->tell( ) );
-            }
-
-            static
-            agent::file_iface::seek_whence value_to_enum( vtrc::uint32_t v )
-            {
-                switch ( v ) {
-                case proto::fs::POS_SEEK_CUR:
-                case proto::fs::POS_SEEK_SET:
-                case proto::fs::POS_SEEK_END:
-                    return static_cast<agent::file_iface::seek_whence>(v);
-                }
-                return agent::file_iface::F_SEEK_SET;
             }
 
             void seek(::google::protobuf::RpcController* /*controller*/,

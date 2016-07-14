@@ -69,8 +69,9 @@ message chmod_req {
 }
 
 message read_file_req {
-    optional handle_path  dst = 1;
-    optional uint32       len = 2;
+    optional handle_path    dst  = 1;
+    optional uint32         len  = 2;
+    optional file_position  from = 3;
 }
 
 message read_file_res {
@@ -78,8 +79,9 @@ message read_file_res {
 }
 
 message write_file_req {
-    optional handle_path  dst  = 1;
-    optional bytes        data = 2;
+    optional handle_path   dst  = 1;
+    optional bytes         data = 2;
+    optional file_position from = 3;
 }
 
 message write_file_res {
