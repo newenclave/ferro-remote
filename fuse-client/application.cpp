@@ -337,6 +337,10 @@ namespace fr { namespace fuse {
                               << imp( )->files_.size( ) << std::endl;
                 }
             } catch( const vtrc::common::exception &ex) {
+                if( imp( )->logs_ ) {
+                    std::cout << " >>>> open file: " << path << std::endl;
+                    std::cout << "\tFAILED: " << ex.what( )  << std::endl;
+                }
                 return - ex.code( );
             } catch( const std::exception & ) {
                 return -1;
