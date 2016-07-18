@@ -26,6 +26,14 @@ endif( )
 
 message( "VTRC import file path: " ${VTRC_IMPORT_CMAKE} )
 
+if( NOT VTRC_IMPORT_CMAKE )
+    execute_process( COMMAND "git" "submodule" "init"
+                     WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}")
+    execute_process( COMMAND "git" "submodule" "update" "vtrc"
+                     WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}")
+    add_subdirectory( vtrc )
+endif( NOT VTRC_IMPORT_CMAKE )
+
 include( ${VTRC_IMPORT_CMAKE} )
 include( cxx11_check.cmake )
 
