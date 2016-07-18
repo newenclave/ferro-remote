@@ -222,7 +222,7 @@ namespace fr { namespace fuse {
             config_channel( fs_->channel( ) );
         }
 
-        std::uint64_t create_file( const char *path, int flags )
+        std::uint64_t create_file_impl( const char *path, int flags )
         {
             auto nid = next_id( );
             auto res = std::make_shared<file_wrapper>(
@@ -233,7 +233,7 @@ namespace fr { namespace fuse {
             return nid;
         }
 
-        std::uint64_t create_dir( const char *path )
+        std::uint64_t create_dir_impl( const char *path )
         {
             local_result = 0;
             auto nid = next_id( );
@@ -253,7 +253,7 @@ namespace fr { namespace fuse {
             local_result = -code;
         }
 
-        static void channel_error( const char * )
+        static void channel_error( const char *mess )
         {
             errno = EIO;
             local_result = -EIO;
@@ -330,7 +330,7 @@ namespace fr { namespace fuse {
             local_result = 0;
             auto nid = 0;
             try {
-                nid = imp( )->create_file( path, inf->flags );
+                nid = imp( )->create_file_impl( path, inf->flags );
                 if( imp( )->logs_ ) {
                     std::cout << " >>>> open file: " << path << std::endl;
                     std::cout << "\ttotal files: "
@@ -364,9 +364,11 @@ namespace fr { namespace fuse {
             return local_result;
         }
 
-        static int read( const char */*path*/, char *buf, size_t len,
-                         off_t off,
-                         struct fuse_file_info *inf )
+        template <typename Func, typename BufType>
+        static int read_write_impl( Func call,
+                                    const char */*path*/, BufType buf,
+                                    size_t len, off_t off,
+                                    struct fuse_file_info *inf )
         {
             local_result = 0;
             size_t cur = 0;
@@ -381,7 +383,7 @@ namespace fr { namespace fuse {
                 }
                 while( cur < len ) {
                     local_result = 0;
-                    auto next = ptr->ptr_->read( buf + cur, len - cur );
+                    auto next = (*(ptr->ptr_).*call)( buf + cur, len - cur );
 
                     if( 0 != local_result ) {
                         return local_result;
@@ -397,6 +399,21 @@ namespace fr { namespace fuse {
                 return -1;
             }
             return (int)(cur);
+        }
+
+        static int read( const char *path, char *buf, size_t len,
+                         off_t off, struct fuse_file_info *inf )
+        {
+
+            return read_write_impl( &file_iface::iface::read, path,
+                                    buf, len, off, inf);
+        }
+
+        static int write( const char *path, const char *buf, size_t len,
+                          off_t off, struct fuse_file_info *inf )
+        {
+            return read_write_impl( &file_iface::iface::write, path,
+                                    buf, len, off, inf);
         }
 
         static int flush( const char */*path*/, struct fuse_file_info *inf )
@@ -409,37 +426,6 @@ namespace fr { namespace fuse {
             return local_result;
         }
 
-        static int write( const char */*path*/, const char *buf, size_t len,
-                          off_t off, struct fuse_file_info *inf )
-        {
-            local_result = 0;
-            size_t cur = 0;
-            auto ptr = imp( )->files_.get( inf->fh );
-            if( ptr ) {
-                if( ptr->offset_ != off ) {
-                    ptr->ptr_->seek( off, file_iface::POS_SEEK_SET );
-                    if( local_result ) {
-                        return local_result;
-                    }
-                    ptr->offset_ = off;
-                }
-                while( cur < len ) {
-                    local_result = 0;
-                    auto next = ptr->ptr_->write( buf + cur, len - cur );
-                    if( 0 != local_result ) {
-                        return local_result;
-                    }
-                    if( 0 == next ) {
-                        return cur;
-                    }
-                    cur += next;
-                    ptr->offset_ += next;
-                }
-            } else {
-                return -1;
-            }
-            return (int)(cur);
-        }
 
         static int getattr( const char *path, struct stat *st )
         {
@@ -491,7 +477,7 @@ namespace fr { namespace fuse {
             if( !fs( ) ) {
                 return -EIO;
             }
-            info->fh = imp( )->create_dir( path );
+            info->fh = imp( )->create_dir_impl( path );
             if( imp( )->logs_ ) {
                 std::cout << " >>>> open dir: " << path << std::endl;
                 std::cout << "\ttotal dirs: "
