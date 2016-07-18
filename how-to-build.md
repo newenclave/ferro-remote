@@ -1,5 +1,6 @@
 for Debian:
 
+```
 $ sudo apt-get install git
 $ sudo apt-get install cmake
 $ sudo apt-get install protobuf-compiler
@@ -24,6 +25,7 @@ $ mkdir build
 $ cd build
 $ cmake ../
 $ make
+```
 .....
 PROFIT
 
