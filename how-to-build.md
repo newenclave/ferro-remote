@@ -7,6 +7,10 @@ $ sudo apt-get install libprotoc-dev
 $ sudo apt-get install g++
 $ sudo apt-get install libboost-all-dev
 
+or
+
+$ sudo apt-get install git cmake protobuf-compiler libprotoc-dev g++ libboost-all-dev
+
 $ mkdir github
 $ cd github
 $ git clone https://github.com/newenclave/ferro-remote.git
