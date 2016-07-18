@@ -19,6 +19,7 @@ $ cd ../                    # for lua_client
 $ mkdir build
 $ cd build
 $ cmake ../
+$ make
 .....
 PROFIT
 
