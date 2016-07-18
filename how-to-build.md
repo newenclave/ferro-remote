@@ -19,7 +19,6 @@ $ cd ferro-remote
 
 $ git submodule init        # for lua_client
 $ git submodule update lua  # for lua_client
-$ cd ../                    # for lua_client
 
 $ mkdir build
 $ cd build
