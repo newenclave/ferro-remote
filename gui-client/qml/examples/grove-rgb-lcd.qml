@@ -92,9 +92,14 @@ Rectangle {
 
         function set_text( txt, txt2 )
         {
-            txtDev.writeBytes( [{ 0x80: 0x01 },
-                                { 0x80: 0x08 | 0x4 },
-                                { 0x80: 0x28 }] )
+            //txtDev.writeBytes( [{ 0x80: 0x01 },
+            //                    { 0x80: 0x08 | 0x4 },
+            //                    { 0x80: 0x28 }] )
+
+            txtDev.writeBytes( { 0x80: 0x01 } )
+            txtDev.writeBytes( { 0x80: 0x08 | 0x4 } )
+            txtDev.writeBytes( { 0x80: 0x28 } )
+
             var txt_value = []
 
             for( var i = 0; i < txt.length; i++ ) {
