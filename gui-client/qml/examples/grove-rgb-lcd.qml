@@ -62,7 +62,7 @@ Rectangle {
             if( ready ) {
                 clear( )
                 set_color( 0, 0, 0 )
-                //set_text( "Hola,", "raspberrypi.ru" )
+                set_text( "Hola,", "Virt2Real" )
             }
         }
 
