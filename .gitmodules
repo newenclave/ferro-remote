@@ -1,6 +1,3 @@
 [submodule "lua"]
 	path = lua
 	url = https://github.com/newenclave/lua
-[submodule "vtrc"]
-	path = vtrc
-	url = https://github.com/newenclave/vtrc
