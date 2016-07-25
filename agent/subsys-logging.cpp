@@ -282,12 +282,18 @@ namespace fr { namespace agent { namespace subsys {
                         LOGERR
                             << "failed to add log file " << path << ";"
                             ;
+                        std::cerr
+                            << "failed to add log file " << path << ";"
+                            << std::endl;
                     }
                 } catch( const std::exception &ex ) {
                     //std::cerr
                     LOGERR
                         << "failed to add log file " << path << "; "
                         << ex.what( );
+                    std::cerr
+                        << "failed to add log file " << path << "; "
+                        << ex.what( ) << std::endl;
                 }
 
             }
