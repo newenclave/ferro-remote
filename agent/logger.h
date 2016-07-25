@@ -43,6 +43,7 @@ namespace fr { namespace agent {
                 const char *split_string = "\n" );
         ~logger( );
 
+        boost::asio::io_service &get_io_service( );
         void dispatch( std::function<void ( )> call );
 
         static const char *level2str( level lvl, const char *def = "unk" )

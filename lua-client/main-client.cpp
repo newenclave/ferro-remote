@@ -152,6 +152,7 @@ namespace fr { namespace lua { namespace client {
             objects::table_sptr res(common_table(info, main));
             main.add( "connect",    new_function( &lua_call_connect ) );
             main.add( "ping",       new_function( &lua_call_ping ) );
+            main.add( "quit",       new_function( &lua_call_exit ) );
             main.add( "disconnect", new_function( &lua_call_disconnect ) );
             main.add( "connected",  new_boolean( true ) );
 
@@ -246,6 +247,25 @@ namespace fr { namespace lua { namespace client {
             ls.push( i->ping( ) );
         } catch( const std::exception &ex ) {
             ls.push( );
+            ls.push( ex.what( ) );
+            return 2;
+        }
+        return 1;
+    }
+
+    int lua_call_exit( lua_State *L )
+    {
+        general_info *info = get_gen_info( L );
+        lua::state ls(L);
+        namespace iproto = fr::client::interfaces::internal;
+        typedef iproto::iface iface_type;
+        vtrc::unique_ptr<iface_type> i;
+        try {
+            i.reset( iproto::create( *info->client_core_ ) );
+            i->exit_process( );
+            ls.push( true );
+        } catch( const std::exception &ex ) {
+            ls.push( false );
             ls.push( ex.what( ) );
             return 2;
         }

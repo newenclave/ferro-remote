@@ -14,8 +14,9 @@ namespace fr { namespace agent {
     namespace ba  = boost::asio;
 
     struct logger::impl {
-        ba::io_service::strand dispatcher_;
-        const char *split_string_;
+        ba::io_service::strand   dispatcher_;
+        const char              *split_string_;
+
         impl(ba::io_service &ios, const char *split_string)
             :dispatcher_(ios)
             ,split_string_(split_string)
@@ -32,6 +33,11 @@ namespace fr { namespace agent {
     {
         //while( impl_->dispatcher_.get_io_service( ).poll_one( ) );
         delete impl_;
+    }
+
+    boost::asio::io_service &logger::get_io_service()
+    {
+        return impl_->dispatcher_.get_io_service( );
     }
 
     void logger::dispatch( std::function<void ( )> call )

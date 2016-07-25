@@ -14,6 +14,7 @@ namespace fr { namespace lua { namespace client {
     int lua_call_connect( lua_State *L );
     int lua_call_disconnect( lua_State *L );
     int lua_call_ping( lua_State *L );
+    int lua_call_exit( lua_State *L );
 
     int global_init( general_info *info, bool connect );
     int events_init( general_info *info );

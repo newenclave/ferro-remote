@@ -14,7 +14,7 @@
 #include "boost/date_time/posix_time/posix_time.hpp"
 #include "boost/algorithm/string.hpp"
 
-#define LOG(lev) log_(lev, "logging")
+#define LOG(lev) log_(lev, "logging") << "[log] "
 #define LOGINF   LOG(logger::level::info)
 #define LOGDBG   LOG(logger::level::debug)
 #define LOGERR   LOG(logger::level::error)
@@ -196,6 +196,18 @@ namespace fr { namespace agent { namespace subsys {
             { }
         };
 
+        static std::ostream &output( std::ostream &o,
+                                     const log_record_info &loginf,
+                                     const std::string &s )
+        {
+            level lvl = static_cast<level>(loginf.level);
+            o << loginf.when
+              << " [" << agent::logger::level2str(lvl) << "]"
+              << " " << s
+                   ;
+            return o;
+        }
+
         /// works on dispatcher
         void console_log( console_info &inf, const log_record_info &loginf,
                           stringlist const &data )
@@ -204,12 +216,7 @@ namespace fr { namespace agent { namespace subsys {
             level_color _( *inf.o_, lvl );
             if( (lvl >= inf.minl_) && (lvl <= inf.maxl_) ) {
                 for( auto &s: data ) {
-                    *inf.o_ << loginf.when
-                            //<< " " << loginf.tprefix << thread_id( loginf.tid )
-                            << " [" << agent::logger::level2str(lvl) << "]"
-                           //<< " [" << loginf.name << "] "
-                            << " " << s << std::endl
-                               ;
+                    output( *inf.o_, loginf, s ) << std::endl;
                 }
             }
         }
@@ -223,12 +230,7 @@ namespace fr { namespace agent { namespace subsys {
             std::ostringstream oss;
             if( (lvl >= inf.min_) && (lvl <= inf.max_) ) {
                 for( auto &s: data ) {
-                    oss << loginf.when
-                        //<< " " << loginf.tprefix << thread_id( loginf.tid )
-                        << " [" << agent::logger::level2str(lvl) << "]"
-                        //<< " [" << loginf.name << "] "
-                        << " " << s << "\n"
-                           ;
+                    output( oss, loginf, s ) << "\n";
                 }
             }
             inf.length_    += oss.tellp( );
@@ -382,12 +384,12 @@ namespace fr { namespace agent { namespace subsys {
 
     void logging::start( )
     {
-//        impl_->LOGINF << "Started.";
+        impl_->LOGINF << "Started.";
     }
 
     void logging::stop( )
     {
-//        impl_->LOGINF << "Stopped.";
+        impl_->LOGINF << "Stopped.";
     }
 
 }}}

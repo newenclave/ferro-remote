@@ -10,6 +10,8 @@
 
 #include "ferro-remote-config.h"
 
+#include "boost/asio/io_service.hpp"
+
 namespace vserver = vtrc::server;
 namespace vcommon = vtrc::common;
 using namespace fr;
@@ -123,14 +125,20 @@ int main( int argc, const char **argv )
 
         init_subsystems( vm, app );
 
-        agent::logger &lgger( app.get_logger( ) );
+        agent::logger &lgr( app.get_logger( ) );
 
-        lgger(agent::logger::level::info) << "[main] Agent started.";
+        lgr(agent::logger::level::info) << "[main] Agent started.";
 
         pp->get_io_pool( ).attach( ); /// RUN!
         pp->join_all( );
 
-        lgger(agent::logger::level::info) << "[main] Agent stopped.";
+        lgr(agent::logger::level::info) << "[main] Agent stopped.";
+
+//        while( true ) {
+//            auto r = lgr.get_io_service( ).run_one( );
+//            std::cerr << "one: " << r << "\n";
+//            if( 0 == r ) break;
+//        }
 
     } catch( const std::exception &ex ) {
         std::cerr << "Application failed: " << ex.what( ) << "\n";

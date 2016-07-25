@@ -56,7 +56,7 @@ namespace fr { namespace agent {
         {
             vcomm::closure_holder holder(done);
             app_->get_logger( )( logger::level::info )
-                    << "Shutdown service ...\n";
+                    << "Shutdown service ...";
             app_->quit( );
         }
 

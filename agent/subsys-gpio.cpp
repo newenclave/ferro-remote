@@ -482,7 +482,7 @@ namespace fr { namespace agent { namespace subsys {
     {
         if( agent::gpio::available( ) ) {
             impl_->reg_creator( gpio_impl::name( ),  create_service );
-            impl_->LOGINF << "Started";
+            impl_->LOGINF << "Started.";
         } else {
             impl_->LOGDBG << "GPIO is not available";
         }
@@ -491,7 +491,7 @@ namespace fr { namespace agent { namespace subsys {
     void gpio::stop( )
     {
         impl_->unreg_creator( gpio_impl::name( ) );
-        impl_->LOGINF << "Stopped";
+        impl_->LOGINF << "Stopped.";
     }
 
 }}}
