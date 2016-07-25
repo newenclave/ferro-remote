@@ -5,6 +5,7 @@
 #include <sstream>
 #include <stdint.h>
 
+#if 0
 namespace fr { namespace agent {
 
     class logger {
@@ -111,5 +112,5 @@ namespace fr { namespace agent {
     };
 
 }}
-
+#endif
 #endif // FR_LOGGER_CXX

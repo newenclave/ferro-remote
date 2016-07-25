@@ -6,7 +6,7 @@
 
 #include "application.h"
 #include "subsys-spi.h"
-#include "subsys-log.h"
+#include "subsys-logging.h"
 #include "subsys-reactor.h"
 
 #include "files.h"
@@ -24,10 +24,10 @@
 #include "vtrc-atomic.h"
 
 #define LOG(lev) log_(lev) << "[spi] "
-#define LOGINF   LOG(logger::info)
-#define LOGDBG   LOG(logger::debug)
-#define LOGERR   LOG(logger::error)
-#define LOGWRN   LOG(logger::warning)
+#define LOGINF   LOG(logger::level::info)
+#define LOGDBG   LOG(logger::level::debug)
+#define LOGERR   LOG(logger::level::error)
+#define LOGWRN   LOG(logger::level::warning)
 
 namespace fr { namespace agent { namespace subsys {
 
@@ -85,7 +85,7 @@ namespace fr { namespace agent { namespace subsys {
                 :app_(app)
                 ,client_(client)
                 ,files_(100) // begin index
-                ,log_(app_->subsystem<subsys::log>( ).get_logger( ))
+                ,log_(app_->get_logger( ))
   //              ,reactor_(app_->subsystem<subsys::reactor>( ))
             { }
 
@@ -289,7 +289,7 @@ namespace fr { namespace agent { namespace subsys {
 
         impl( application *app )
             :app_(app)
-            ,log_(app_->subsystem<subsys::log>( ).get_logger( ))
+            ,log_(app_->get_logger( ))
         { }
 
         void reg_creator( const std::string &name,

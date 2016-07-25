@@ -8,15 +8,15 @@
 
 #include "agent-lua.h"
 #include "subsys-config.h"
-#include "subsys-log.h"
+#include "subsys-logging.h"
 
 //#include "vtrc-memory.h"
 
 #define LOG(lev) log_(lev) << "[lua] "
-#define LOGINF   LOG(logger::info)
-#define LOGDBG   LOG(logger::debug)
-#define LOGERR   LOG(logger::error)
-#define LOGWRN   LOG(logger::warning)
+#define LOGINF   LOG(logger::level::info)
+#define LOGDBG   LOG(logger::level::debug)
+#define LOGERR   LOG(logger::level::error)
+#define LOGWRN   LOG(logger::level::warning)
 
 namespace fr { namespace agent { namespace subsys {
 
@@ -39,7 +39,7 @@ namespace fr { namespace agent { namespace subsys {
 
         impl( application *app )
             :app_(app)
-            ,log_(app_->subsystem<subsys::log>( ).get_logger( ))
+            ,log_(app_->get_logger( ))
         { }
 
         void reg_creator( const std::string &name,

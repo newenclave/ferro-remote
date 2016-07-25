@@ -7,7 +7,7 @@
 #include "application.h"
 #include "subsys-gpio.h"
 #include "subsys-reactor.h"
-#include "subsys-log.h"
+#include "subsys-logging.h"
 
 #include "protocol/ferro.pb.h"
 #include "protocol/gpio.pb.h"
@@ -31,10 +31,10 @@
 #include "errno-check.h"
 
 #define LOG(lev) log_(lev) << "[gpio] "
-#define LOGINF   LOG(logger::info)
-#define LOGDBG   LOG(logger::debug)
-#define LOGERR   LOG(logger::error)
-#define LOGWRN   LOG(logger::warning)
+#define LOGINF   LOG(logger::level::info)
+#define LOGDBG   LOG(logger::level::debug)
+#define LOGERR   LOG(logger::level::error)
+#define LOGWRN   LOG(logger::level::warning)
 
 namespace fr { namespace agent { namespace subsys {
 
@@ -111,7 +111,7 @@ namespace fr { namespace agent { namespace subsys {
                 ,eventor_(event_channel_.get( ))
                 ,reactor_(app->subsystem<subsys::reactor>( ))
                 ,event_last_time_(chrono::high_resolution_clock::now( ))
-                ,log_(app->subsystem<subsys::log>( ).get_logger( ))
+                ,log_(app->get_logger( ))
             { }
 
             ~gpio_impl( )
@@ -436,7 +436,7 @@ namespace fr { namespace agent { namespace subsys {
 
         impl( application *app )
             :app_(app)
-            ,log_(app_->subsystem<subsys::log>( ).get_logger( ))
+            ,log_(app->get_logger( ))
         { }
 
         void reg_creator( const std::string &name,

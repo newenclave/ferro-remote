@@ -4,7 +4,7 @@
 
 #include "application.h"
 #include "subsys-reactor.h"
-#include "subsys-log.h"
+#include "subsys-logging.h"
 
 #include "vtrc-thread.h"
 #include "vtrc-bind.h"
@@ -15,10 +15,10 @@
 #include "vtrc-atomic.h"
 
 #define LOG(lev) log_(lev) << "[reactor] "
-#define LOGINF   LOG(logger::info)
-#define LOGDBG   LOG(logger::debug)
-#define LOGERR   LOG(logger::error)
-#define LOGWRN   LOG(logger::warning)
+#define LOGINF   LOG(logger::level::info)
+#define LOGDBG   LOG(logger::level::debug)
+#define LOGERR   LOG(logger::level::error)
+#define LOGWRN   LOG(logger::level::warning)
 
 namespace fr { namespace agent { namespace subsys {
 
@@ -57,7 +57,7 @@ namespace fr { namespace agent { namespace subsys {
             ,running_(false)
             ,count_(0)
             ,id_(100)
-            ,log_(app->subsystem<subsys::log>( ).get_logger( ))
+            ,log_(app->get_logger( ))
         { }
 
         void reg_creator( const std::string &name,

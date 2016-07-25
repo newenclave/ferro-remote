@@ -19,6 +19,7 @@ list( APPEND internal
     )
 
 include_directories( ${CMAKE_CURRENT_SOURCE_DIR} )
+include_directories( ${CMAKE_CURRENT_SOURCE_DIR}/include )
 include_directories( ${${INTERNAL_PROJECT_NAME}_protocol_INCLUDE_DIRS}  )
 
 if( LUA_FOUND )

@@ -11,7 +11,7 @@
 #include "vtrc-bind.h"
 
 #include "subsys-config.h"
-#include "subsys-log.h"
+#include "subsys-logging.h"
 
 #include "vtrc-common/vtrc-hash-iface.h"
 
@@ -55,8 +55,8 @@ namespace fr { namespace agent {
                            ::google::protobuf::Closure* done ) override
         {
             vcomm::closure_holder holder(done);
-            app_->subsystem<subsys::log>( ).get_logger( )( logger::info )
-                           << "Shutdown service ...\n";
+            app_->get_logger( )( logger::level::info )
+                    << "Shutdown service ...\n";
             app_->quit( );
         }
 
@@ -90,6 +90,7 @@ namespace fr { namespace agent {
         vtrc::common::pool_pair &pools_;
         application             *parent_;
         subsystem_comtrainer     subsystems_;
+        logger                   logger_;
 
         service_map              services_;
         vtrc::mutex              services_lock_;
@@ -99,6 +100,7 @@ namespace fr { namespace agent {
 
         impl( vtrc::common::pool_pair &pools )
             :pools_(pools)
+            ,logger_(pools_.get_io_service( ), logger::level::info)
         { }
 
         application::service_wrapper_sptr get_service( const std::string &name,
@@ -223,6 +225,16 @@ namespace fr { namespace agent {
         stop_all_clients( );
         get_clients( )->clear( );
 
+    }
+
+    agent::logger &application::get_logger( )
+    {
+        return impl_->logger_;
+    }
+
+    const agent::logger &application::get_logger( ) const
+    {
+        return impl_->logger_;
     }
 
     void application::add_subsystem( const std::type_info &info,

@@ -3,6 +3,7 @@
 
 #include <string>
 #include "vtrc-memory.h"
+#include "common/noexcept.hpp"
 
 namespace fr { namespace agent {
 

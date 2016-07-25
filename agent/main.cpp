@@ -41,8 +41,14 @@ namespace {
     {
         using namespace agent::subsys;
 
+        std::vector<std::string> loggers;
+
+        if( vm.count( "log" ) ) {
+            loggers = vm["log"].as<decltype(loggers)>( );
+        }
+
         app.add_subsystem<config>( vm );
-        app.add_subsystem<agent::subsys::log>( );
+        app.add_subsystem<logging>( loggers );
 
 #if FR_WITH_LUA
         app.add_subsystem<lua>( );
@@ -117,15 +123,14 @@ int main( int argc, const char **argv )
 
         init_subsystems( vm, app );
 
-        agent::logger &lgger( app.subsystem<agent::subsys::log>( )
-                                 .get_logger( ) );
+        agent::logger &lgger( app.get_logger( ) );
 
-        lgger(agent::logger::info) << "[main] Agent started.";
+        lgger(agent::logger::level::info) << "[main] Agent started.";
 
         pp->get_io_pool( ).attach( ); /// RUN!
         pp->join_all( );
 
-        lgger(agent::logger::info) << "[main] Agent stopped.";
+        lgger(agent::logger::level::info) << "[main] Agent stopped.";
 
     } catch( const std::exception &ex ) {
         std::cerr << "Application failed: " << ex.what( ) << "\n";

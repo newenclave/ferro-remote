@@ -10,6 +10,7 @@
 #include "subsystem-iface.h"
 
 #include "vtrc-function.h"
+#include "logger.h"
 
 #include <assert.h>
 
@@ -145,6 +146,9 @@ namespace fr { namespace agent {
 
         void start_all( );
         void stop_all( );
+
+        agent::logger       &get_logger( )      ;
+        const agent::logger &get_logger( ) const;
 
     private:
 

@@ -3,7 +3,7 @@
 #include "subsys-os.h"
 #include "subsys-i2c.h"
 #include "subsys-lua.h"
-#include "subsys-log.h"
+#include "subsys-logging.h"
 #include "subsys-spi.h"
 #include "subsys-gpio.h"
 #include "subsys-config.h"
