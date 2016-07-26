@@ -106,7 +106,11 @@ namespace fr { namespace agent {
                                   const std::string &data,
                                   bool split )
     {
+#if __cplusplus > 201103L
+        auto qi = std::make_unique<queue_element_info>( );
+#else
         queue_element_ptr qi(new queue_element_info);
+#endif
         fill_record_info( qi->info, lev, name );
         qi->split = split;
         qi->data  = data;
