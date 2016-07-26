@@ -112,15 +112,21 @@ namespace fr { namespace agent {
             return def;
         }
 
+        bool empty( ) const;
+        size_t drop_all( );
+
     private:
+
 
         void send_data( level lev, const std::string &name,
                                    const std::string &data ) override;
         void send_data_nosplit( level lev, const std::string &name,
                                 const std::string &data ) override;
 
-        void do_write( const log_record_info &info,
-                       std::string const &data, bool split ) NOEXCEPT;
+        void emplace_element( level lev, const std::string &name,
+                              const std::string &data, bool split );
+
+        void do_write(  ) NOEXCEPT;
 
     };
 }}

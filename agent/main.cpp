@@ -178,13 +178,9 @@ int main( int argc, const char **argv )
 
         pp->join_all( );
 
-        lgr(agent::logger::level::info) << "[main] Agent stopped.";
+        lgr(agent::logger::level::info) << "[main] Agent stopped. Goodbye.";
 
-//        while( true ) {
-//            auto r = lgr.get_io_service( ).run_one( );
-//            std::cerr << "one: " << r << "\n";
-//            if( 0 == r ) break;
-//        }
+        lgr.drop_all( );
 
     } catch( const std::exception &ex ) {
         std::cerr << "Application failed: " << ex.what( ) << "\n";

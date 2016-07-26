@@ -3,6 +3,8 @@
 #include <chrono>
 #include <iostream>
 #include <thread>
+#include <queue>
+#include <mutex>
 
 #include "boost/date_time/posix_time/posix_time.hpp"
 #include "boost/asio/strand.hpp"
@@ -15,9 +17,20 @@ namespace fr { namespace agent {
     namespace bpt = boost::posix_time;
     namespace ba  = boost::asio;
 
+    struct queue_element_info {
+        log_record_info info;
+        std::string data;
+        bool split;
+    };
+
+    typedef std::unique_ptr<queue_element_info> queue_element_ptr;
+    typedef std::queue<queue_element_ptr> queue_type;
+
     struct logger::impl {
         ba::io_service::strand   dispatcher_;
         const char              *split_string_;
+        queue_type               queue_;
+        std::mutex               queue_lock_;
 
         impl(ba::io_service &ios, const char *split_string)
             :dispatcher_(ios)
@@ -47,6 +60,22 @@ namespace fr { namespace agent {
         impl_->dispatcher_.post( call );
     }
 
+    bool logger::empty( ) const
+    {
+        std::lock_guard<std::mutex> l(impl_->queue_lock_);
+        return impl_->queue_.empty( );
+    }
+
+    size_t logger::drop_all( )
+    {
+        size_t res = 0;
+        while( !empty( ) ) {
+            do_write( );
+            ++res;
+        }
+        return res;
+    }
+
     void fill_record_info( log_record_info &info,
                            logger::level lvl, const std::string &name )
     {
@@ -61,32 +90,50 @@ namespace fr { namespace agent {
                                        const std::string &data )
     {
         //static const bpt::ptime epoch( bpt::ptime::date_type(1970, 1, 1) );
-        log_record_info info;
-        fill_record_info( info, lev, name );
-        impl_->dispatcher_.post( std::bind( &logger::do_write, this,
-                                            info, data, true ) );
+        emplace_element( lev, name, data, true );
+        impl_->dispatcher_.post( std::bind( &logger::do_write, this ) );
     }
 
     void logger::send_data_nosplit( level lev, const std::string &name,
                                     const std::string &data )
     {
-        log_record_info info;
-        fill_record_info( info, lev, name );
-        impl_->dispatcher_.post( std::bind( &logger::do_write, this,
-                                            info, data, false ) );
+        emplace_element( lev, name, data, false );
+        impl_->dispatcher_.post( std::bind( &logger::do_write, this ) );
     }
 
-
-    void logger::do_write( const log_record_info &info,
-                           std::string const &data , bool split) NOEXCEPT
+    void logger::emplace_element( logger::level lev,
+                                  const std::string &name,
+                                  const std::string &data,
+                                  bool split )
     {
-        logger_data_type all;
-        if(split) {
-            boost::split( all, data, boost::is_any_of(impl_->split_string_) );
-        } else {
-            all.push_back( data );
+        queue_element_ptr qi(new queue_element_info);
+        fill_record_info( qi->info, lev, name );
+        qi->split = split;
+        qi->data  = data;
+        {
+            std::lock_guard<std::mutex> l(impl_->queue_lock_);
+            impl_->queue_.emplace( std::move(qi) );
         }
-        on_write_( info, all );
+    }
+
+    void logger::do_write( ) NOEXCEPT
+    {
+
+        queue_element_ptr ptr;
+        {
+            std::lock_guard<std::mutex> l(impl_->queue_lock_);
+            ptr.reset(impl_->queue_.front( ).release( ));
+            impl_->queue_.pop( );
+        }
+
+        logger_data_type all;
+        if( ptr->split ) {
+            boost::split( all, ptr->data,
+                          boost::is_any_of(impl_->split_string_) );
+        } else {
+            all.push_back( ptr->data );
+        }
+        on_write_( ptr->info, all );
     }
 
 }}

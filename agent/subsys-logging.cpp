@@ -147,16 +147,16 @@ namespace fr { namespace agent { namespace subsys {
             return path;
         }
 
-        std::string thread_id( std::thread::id id )
-        {
-            std::ostringstream oss;
-#ifdef _WIN32
-            oss << id;
-#else
-            oss << std::hex << id;
-#endif
-            return oss.str( );
-        }
+//        std::string thread_id( std::thread::id id )
+//        {
+//            std::ostringstream oss;
+//#ifdef _WIN32
+//            oss << id;
+//#else
+//            oss << std::hex << id;
+//#endif
+//            return oss.str( );
+//        }
 
     }
 
