@@ -24,8 +24,9 @@ namespace fr { namespace agent { namespace subsys {
 
     namespace {
 
-        const std::string stdout_name = "stdout";
-        const std::string stderr_name = "stderr";
+        const std::string stdout_name  = "stdout";
+        const std::string stdout_name2 = "-";
+        const std::string stderr_name  = "stderr";
 
         using level      = agent::logger::level;
         using stringlist = std::vector<std::string>;
@@ -202,6 +203,7 @@ namespace fr { namespace agent { namespace subsys {
         {
             level lvl = static_cast<level>(loginf.level);
             o << loginf.when
+              << " " << loginf.tprefix
               << " [" << agent::logger::level2str(lvl) << "]"
               << " " << s
                    ;
@@ -243,7 +245,7 @@ namespace fr { namespace agent { namespace subsys {
         {
             namespace ph = std::placeholders;
 
-            if( path == stdout_name ) {         /// cout
+            if( path == stdout_name || path == stdout_name2 ) { /// cout
 
                 //stdout_connection_.conn_.disconnect( );
                 stdout_connection_.conn_ = log_.on_write_connect(

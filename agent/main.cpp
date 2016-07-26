@@ -74,10 +74,40 @@ namespace {
         std::cout << "Usage: ferro_remote_agent [options]\n"
                   << dsc << "\n";
     }
+
+    THREAD_LOCAL std::string s_thread_prefix;
+    vcommon::thread_pool::thread_decorator decorator( std::string p )
+    {
+        using dec_type = vcommon::thread_pool::call_decorator_type;
+        return [p]( dec_type dt ) {
+            switch ( dt ) {
+            case vcommon::thread_pool::CALL_PROLOGUE:
+                s_thread_prefix = p;
+                break;
+            case vcommon::thread_pool::CALL_EPILOGUE:
+                s_thread_prefix.clear( );
+                break;
+            }
+        };
+    }
 }
+
+namespace fr { namespace agent {
+
+    const std::string &get_thread_prefix( )
+    {
+        return s_thread_prefix;
+    }
+
+    void set_thread_prefix( const std::string &val )
+    {
+        s_thread_prefix = val;
+    }
+}}
 
 int main( int argc, const char **argv )
 {
+    s_thread_prefix = "M";
     po::options_description description("Allowed options");
     fill_options( description );
 
@@ -116,20 +146,34 @@ int main( int argc, const char **argv )
         vtrc::unique_ptr<vcommon::pool_pair> pp;
 
         if( use_only_pool ) {
-            pp.reset( new vcommon::pool_pair( io_size ) );
+            pp.reset( new vcommon::pool_pair( 0 ) );
+            pp->get_io_pool( ).assign_thread_decorator( decorator( "I" ) );
+            pp->get_io_pool( ).add_threads( io_size );
         } else {
-            pp.reset( new vcommon::pool_pair(io_size, rpc_size) );
+            pp.reset( new vcommon::pool_pair( 0, 0) );
+            pp->get_io_pool( ).assign_thread_decorator( decorator( "I" ) );
+            pp->get_rpc_pool( ).assign_thread_decorator( decorator( "R" ) );
+            pp->get_io_pool( ).add_threads( io_size );
+            pp->get_rpc_pool( ).add_threads( rpc_size );
         }
 
         agent::application app( *pp );
+        agent::logger &lgr( app.get_logger( ) );
 
         init_subsystems( vm, app );
 
-        agent::logger &lgr( app.get_logger( ) );
-
         lgr(agent::logger::level::info) << "[main] Agent started.";
 
-        pp->get_io_pool( ).attach( ); /// RUN!
+        lgr(agent::logger::level::info) << "[main] Agent started.";
+        lgr(agent::logger::level::warning) << "[main] Agent started.";
+        lgr(agent::logger::level::error) << "[main] Agent started.";
+        lgr(agent::logger::level::debug) << "[main] Agent started.";
+        lgr(agent::logger::level::zero) << "[main] Agent started.";
+
+        pp->get_io_pool( ).attach( decorator( "M" ) ); /// RUN!
+
+        s_thread_prefix = "M";
+
         pp->join_all( );
 
         lgr(agent::logger::level::info) << "[main] Agent stopped.";

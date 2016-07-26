@@ -150,6 +150,8 @@ namespace fr { namespace agent {
         agent::logger       &get_logger( )      ;
         const agent::logger &get_logger( ) const;
 
+        static const std::string &thread_prefix( );
+
     private:
 
         void add_subsystem( const std::type_info &info, subsystem_sptr inst );

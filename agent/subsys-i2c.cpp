@@ -394,6 +394,11 @@ namespace fr { namespace agent { namespace subsys {
                                       vtrc::common::connection_iface_wptr cl )
         {
             auto inst(vtrc::make_shared<i2c_inst_impl>( app, cl ));
+
+            auto &log_(app->get_logger( ));
+
+            LOGDBG << "Create i2c instance for " << cl.lock( )->name( );
+
             return app->wrap_service( cl, inst );
         }
     }

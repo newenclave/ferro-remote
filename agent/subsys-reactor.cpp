@@ -13,12 +13,14 @@
 #include <sys/epoll.h>
 
 #include "vtrc-atomic.h"
+#include "thread-prefix.h"
 
 #define LOG(lev) log_(lev) << "[reactor] "
 #define LOGINF   LOG(logger::level::info)
 #define LOGDBG   LOG(logger::level::debug)
 #define LOGERR   LOG(logger::level::error)
 #define LOGWRN   LOG(logger::level::warning)
+
 
 namespace fr { namespace agent { namespace subsys {
 
@@ -43,6 +45,7 @@ namespace fr { namespace agent { namespace subsys {
 
         void reactor_thread( )
         {
+            thread_prefix_keeper _( "!" );
             running_ = true;
             while( 1 ) try {
                 while( reactor_.run_one( ) ) { }

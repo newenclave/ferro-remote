@@ -12,6 +12,10 @@ set( exe_name ${INTERNAL_PROJECT_NAME}_agent )
 
 add_executable(${exe_name} ${src_dir})
 
+include( ../cxx11_check.cmake )
+get_compiler_thread_local( THREAD_LOCAL_VALUE )
+add_definitions( -DTHREAD_LOCAL=${THREAD_LOCAL_VALUE} )
+
 list( APPEND internal
     ${INTERNAL_PROJECT_NAME}_protocol
     VTRC_SERVER

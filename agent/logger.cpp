@@ -8,6 +8,8 @@
 #include "boost/asio/strand.hpp"
 #include "boost/algorithm/string.hpp"
 
+#include "application.h"
+
 namespace fr { namespace agent {
 
     namespace bpt = boost::posix_time;
@@ -52,7 +54,7 @@ namespace fr { namespace agent {
         info.name    = name;
         info.when    = bpt::microsec_clock::local_time( );
         info.tid     = std::this_thread::get_id( );
-        //info.tprefix = application::thread_ptrfix( );
+        info.tprefix = application::thread_prefix( );
     }
 
     void logger::send_data( level lev, const std::string &name,

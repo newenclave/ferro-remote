@@ -24,6 +24,8 @@
 #include "vtrc-common/vtrc-closure-holder.h"
 #include "vtrc-common/vtrc-connection-list.h"
 
+#include "thread-prefix.h"
+
 namespace fr { namespace agent {
 
     namespace vserv = vtrc::server;
@@ -55,8 +57,8 @@ namespace fr { namespace agent {
                            ::google::protobuf::Closure* done ) override
         {
             vcomm::closure_holder holder(done);
-            app_->get_logger( )( logger::level::info )
-                    << "Shutdown service ...";
+            app_->get_logger( )
+                    ( logger::level::info ) << "Shutdown service ...";
             app_->quit( );
         }
 
@@ -100,7 +102,7 @@ namespace fr { namespace agent {
 
         impl( vtrc::common::pool_pair &pools )
             :pools_(pools)
-            ,logger_(pools_.get_io_service( ), logger::level::info)
+            ,logger_(pools_.get_io_service( ), logger::level::debug)
         { }
 
         application::service_wrapper_sptr get_service( const std::string &name,
@@ -169,7 +171,7 @@ namespace fr { namespace agent {
         application::wrap_service( vcomm::connection_iface_wptr cl,
                                    service_wrapper_impl::service_sptr serv )
     {
-        return vtrc::make_shared<application::service_wrapper>(this, cl, serv);        
+        return vtrc::make_shared<application::service_wrapper>(this, cl, serv);
     }
 
     application::application( vtrc::common::pool_pair &pp )
@@ -235,6 +237,11 @@ namespace fr { namespace agent {
     const agent::logger &application::get_logger( ) const
     {
         return impl_->logger_;
+    }
+
+    const std::string &application::thread_prefix( )
+    {
+        return get_thread_prefix( );
     }
 
     void application::add_subsystem( const std::type_info &info,
