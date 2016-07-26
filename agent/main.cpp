@@ -164,11 +164,13 @@ int main( int argc, const char **argv )
 
         lgr(agent::logger::level::info) << "[main] Agent started.";
 
+#if 0 /// logger test
         lgr(agent::logger::level::info) << "[main] Agent started.";
         lgr(agent::logger::level::warning) << "[main] Agent started.";
         lgr(agent::logger::level::error) << "[main] Agent started.";
         lgr(agent::logger::level::debug) << "[main] Agent started.";
         lgr(agent::logger::level::zero) << "[main] Agent started.";
+#endif
 
         pp->get_io_pool( ).attach( decorator( "M" ) ); /// RUN!
 
