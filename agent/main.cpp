@@ -148,12 +148,12 @@ int main( int argc, const char **argv )
         if( use_only_pool ) {
             pp.reset( new vcommon::pool_pair( 0 ) );
             pp->get_io_pool( ).assign_thread_decorator( decorator( "I" ) );
-            pp->get_io_pool( ).add_threads( io_size );
+            pp->get_io_pool( ).add_threads( io_size - 1 );
         } else {
             pp.reset( new vcommon::pool_pair( 0, 0) );
             pp->get_io_pool( ).assign_thread_decorator( decorator( "I" ) );
             pp->get_rpc_pool( ).assign_thread_decorator( decorator( "R" ) );
-            pp->get_io_pool( ).add_threads( io_size );
+            pp->get_io_pool( ).add_threads( io_size - 1 );
             pp->get_rpc_pool( ).add_threads( rpc_size );
         }
 

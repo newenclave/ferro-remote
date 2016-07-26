@@ -629,8 +629,8 @@ namespace fr { namespace fuse {
 
         res.truncate        = &impl::truncate;
         res.chown           = &impl::chown; /// fake
-        res.chmod           = &impl::chmod; /// fake
-        res.utime           = &impl::utime; /// fake
+        res.chmod           = &impl::chmod;
+        res.utime           = &impl::utime;
 
         return res;
     }
