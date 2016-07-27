@@ -334,9 +334,9 @@ namespace fr { namespace agent {
     }
 
     bool application::session_key_required( vtrc::common::connection_iface* c,
-                                            const std::string &id )
+                                            const std::string & /*id*/ )
     {
-        return !impl_->keys_.empty( );
+        return !impl_->keys_.empty( ) || !impl_->empty_key_.empty( );
     }
 
 }}
