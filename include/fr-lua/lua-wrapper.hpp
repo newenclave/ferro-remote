@@ -2,6 +2,7 @@
 #define LUA_WRAPPER_HPP
 
 #include <stdexcept>
+#include <list>
 
 #include <stdlib.h>
 
@@ -239,6 +240,17 @@ namespace lua {
             lua_pushnumber( vm_, static_cast<T>( value ) );
         }
 
+        template <typename ErrT>
+        int push_nil_error( ErrT err, int def_params = 1 )
+        {
+            int res = def_params;
+            while ( def_params-- ) {
+                push( );
+            }
+            push( err );
+            return res + 1;
+        }
+
         int get_type( int id = -1 )
         {
             return lua_type( vm_, id );
@@ -253,7 +265,6 @@ namespace lua {
         {
             return lua_isnoneornil( vm_, id );
         }
-
         template<typename T>
         T get( int id = -1 )
         {
@@ -295,7 +306,7 @@ namespace lua {
             return p;
         }
 
-        objects::base_sptr get_table0( int idx = -1, unsigned flags = 0 )
+        objects::base_sptr get_table( int idx = -1, unsigned flags = 0 )
         {
             lua_pushvalue( vm_, idx );
             lua_pushnil( vm_ );
@@ -305,16 +316,16 @@ namespace lua {
             while ( lua_next( vm_, -2 ) ) {
                 lua_pushvalue( vm_, -2 );
                 objects::base_sptr first = get_type( -1 ) == LUA_TTABLE
-                        ? objects::base_sptr(new objects::reference( vm_, -1 ))
-                        : get_object( -1, flags );
+                    ? objects::base_sptr( new objects::reference( vm_, -1 ) )
+                    : get_object( -1, flags );
 
                 objects::base_sptr second = get_type( -2 ) == LUA_TTABLE
-                        ? objects::base_sptr(new objects::reference( vm_, -2 ))
-                        : get_object( -1, flags );
+                    ? objects::base_sptr( new objects::reference( vm_, -2 ) )
+                    : get_object( -2, flags );
 
-                objects::pair_sptr next_pair
-                        ( objects::new_pair( first, second ) );
-                new_table->push_back( next_pair );
+                objects::pair_sptr np( objects::new_pair( first, second ) );
+
+                new_table->push_back( np );
                 lua_pop( vm_, 2 );
             }
 
@@ -322,7 +333,8 @@ namespace lua {
             return new_table;
         }
 
-        objects::base_sptr get_table( int idx = -1, unsigned flags = 0 )
+        /// bad do not use this
+        objects::base_sptr get_table0( int idx = -1, unsigned flags = 0 )
         {
             lua_pushvalue( vm_, idx );
             lua_pushnil( vm_ );
@@ -390,6 +402,151 @@ namespace lua {
             return res;
         }
 
+        /*
+         * struc metatable_trait {
+         *      static const char *name( ); // metatable name
+         *      static const struct luaL_Reg *table( ) // table w.calls
+         * };
+         *
+         */
+        template <typename T>
+        static void register_metatable( lua_State *L )
+        {
+            static const luaL_Reg empty = { NULL, NULL };
+
+            bool tostr_found = false;
+            bool gc_found    = false;
+
+            std::vector<luaL_Reg> call_table;
+
+            const luaL_Reg *p = T::table( );
+
+            while( p && p->name ) {
+
+                const std::string name(p->name);
+
+                if( name == "__tostring" ) {
+                    tostr_found = true;
+                } else if( name == "__gc" ) {
+                    gc_found = true;
+                }
+
+                call_table.push_back( *p );
+                ++p;
+            }
+
+            if( !tostr_found ) {
+                luaL_Reg tostr = { "__tostring",
+                                   &state::lcall_default_tostring<T> };
+                call_table.push_back( tostr );
+            }
+
+            if( !gc_found ) {
+                luaL_Reg tostr = { "__gc", &state::lcall_default_gc<T> };
+                call_table.push_back( tostr );
+            }
+
+            call_table.push_back( empty );
+
+            objects::metatable mt( T::name( ), &call_table[0] );
+            mt.push( L );
+        }
+
+        template <typename T>
+        void register_metatable( )
+        {
+            register_metatable<T>( vm_ );
+        }
+
+        template <typename T>
+        static T *create_metatable( lua_State *L )
+        {
+            void *ud = lua_newuserdata( L, sizeof(T) );
+            if( ud ) {
+                T *inst = new (ud) T;
+                luaL_getmetatable( L, T::name( ) );
+                lua_setmetatable(L, -2);
+                return inst;
+            }
+            return NULL;
+        }
+
+        template <typename T>
+        static int create_metatable_call( lua_State *L )
+        {
+            void *ud = lua_newuserdata( L, sizeof(T) );
+            if( ud ) {
+                new (ud) T;
+                luaL_getmetatable( L, T::name( ) );
+                lua_setmetatable( L, -2 );
+                return 1;
+            }
+            return 0;
+        }
+
+        template <typename T>
+        T *create_metatable( )
+        {
+            return create_metatable<T>( vm_ );
+        }
+
+        /// get metatable. returns null if failed
+        template <typename T>
+        static T *test_metatable( lua_State *L, int id = -1 )
+        {
+            return lcall_get_instance<T>( L, id );
+        }
+
+        template <typename T>
+        T *test_metatable( int id = -1 )
+        {
+            return lcall_get_instance<T>( vm_, id );
+        }
+
+        /// check and get metatable.
+        /// raises error if failed
+        template <typename T>
+        static T *check_metatable( lua_State *L, int id = -1 )
+        {
+            void *ud = luaL_checkudata( L, id, T::name( ) );
+            return static_cast<T *>(ud);
+        }
+
+        template <typename T>
+        T *check_metatable( int id = -1 )
+        {
+            return check_metatable<T>( vm_, id );
+        }
+
+    private:
+
+        template <typename T>
+        static T *lcall_get_instance( lua_State *L, int id )
+        {
+            void *ud = luaL_testudata( L, id, T::name( ) );
+            return static_cast<T *>(ud);
+        }
+
+        template <typename T>
+        static int lcall_default_tostring( lua_State *L )
+        {
+            T *inst = lcall_get_instance<T>( L, 1 );
+            std::ostringstream oss;
+            oss << T::name( ) << "@" << std::hex << inst;
+            lua_pushstring( L, oss.str( ).c_str( ) );
+            return 1;
+        }
+
+        template <typename T>
+        static int lcall_default_gc( lua_State *L )
+        {
+            T *inst = lcall_get_instance<T>( L, 1 );
+            if( inst ) {
+                inst->~T( );
+            }
+            return 0;
+        }
+
     private:
 
         void get_global( const char *val )
@@ -437,7 +594,7 @@ namespace lua {
                 lua_newtable( vm_ );
                 push( p.c_str( ) );
                 create_or_push( !*tail ? "" : tail + 1, value );
-                set_table( );
+                set_table( -3 );
             } else {
                 push( value );
             }
@@ -457,7 +614,7 @@ namespace lua {
                     pop( 1 );
                     push( p.c_str( ) );
                     create_or_push( tail + 1, value );
-                    set_table( );
+                    set_table( -3 );
                 } else {
                     set_to_stack( tail + 1, value );
                     pop( 1 );
@@ -465,7 +622,7 @@ namespace lua {
             } else {
                 push( p.c_str( ) );
                 push( value );
-                set_table( );
+                set_table( -3 );
             }
         }
 
@@ -569,7 +726,7 @@ namespace lua {
             return T( );
         }
 
-        objects::base_sptr get_ref( int idx = -1) const
+        objects::base_sptr get_ref( int idx = -1 ) const
         {
             return std::make_shared<objects::reference>( vm_, idx );
         }
@@ -647,7 +804,7 @@ namespace lua {
                     pop( );             // old value
                     push( pl + 1 );     // name
                     push_value( idx );  // value by index
-                    set_table( );
+                    set_table( -3 );
                     pop( level );       // clean table level
                 }
 
@@ -740,6 +897,155 @@ namespace lua {
         }
     };
     typedef std::shared_ptr<state> state_sptr;
+
+    struct path_element_info{
+
+        std::string name_;
+        int         type_;
+        int         res_type_;
+
+        path_element_info( const std::string &name )
+            :name_(name)
+            ,type_(objects::base::TYPE_NONE)
+            ,res_type_(objects::base::TYPE_NONE)
+        { }
+
+        path_element_info( )
+            :type_(objects::base::TYPE_NONE)
+            ,res_type_(objects::base::TYPE_NONE)
+        { }
+
+        void push_back( std::string::value_type c )
+        {
+            name_.push_back( c );
+        }
+
+        void clear( )
+        {
+            name_.clear( );
+            type_ = objects::base::TYPE_NONE;
+        }
+
+        bool empty( ) const
+        {
+            return name_.empty( );
+        }
+
+        bool check( const std::string &n, int t ) const
+        {
+            return (name_ == n) &&
+                 ( (type_ == objects::base::TYPE_NONE)
+                           ? true
+                           : type_ == t );
+        }
+
+        bool check_res_type( int t ) const
+        {
+            return ( (res_type_ == objects::base::TYPE_NONE)
+                           ? true
+                           : type_ == t );
+        }
+    };
+
+    typedef std::list<path_element_info> path_element_info_list;
+
+    inline void split_path( const char *str, path_element_info_list &res )
+    {
+        path_element_info_list tmp;
+
+        path_element_info next;
+
+        next.name_.reserve( 16 );
+
+        for( ; *str; ++str ) {
+
+            switch( *str ) {
+            case '\'':
+                ++str;
+                next.type_ = objects::base::TYPE_STRING;
+                while( *str ) {
+                    if( *str == '\\' ) {
+                        ++str;
+                    } else if( *str == '\'' ) {
+                        break;
+                    }
+                    next.push_back( *str++ );
+                }
+                break;
+            case '.':
+                tmp.push_back( next );
+                next.clear( );
+                break;
+            case '\\':
+                ++str;
+                if( !*str ) {
+                    break;
+                }
+            default:
+                next.push_back( *str );
+                break;
+            }
+        }
+        if( !next.empty( ) ) {
+            tmp.push_back( next );
+        }
+        res.swap( tmp );
+    }
+
+    inline objects::base_sptr object_by_path( lua_State *L,
+                                              const objects::base *o,
+                                              const char *str )
+    {
+        typedef path_element_info_list::iterator iter;
+
+        objects::base_sptr result;
+
+        path_element_info_list res;
+        split_path( str, res );
+
+        size_t len = res.size( );
+
+        lua::state ls(L);
+        objects::base_sptr tmp;
+
+        for( iter b(res.begin( )), e(res.end( )); b != e; ++b ) {
+
+            if( objects::base::is_reference( o ) ) {
+                tmp = ls.ref_to_object( o );
+                o = tmp.get( );
+            }
+
+            if( o->type_id( ) != objects::base::TYPE_TABLE ) {
+                break;
+            }
+
+            bool found = false;
+
+            for( size_t i=0; i<o->count( ); ++i ) {
+                const objects::base *next = o->at( i );
+                const objects::base *name = next->at( 0 );
+                if( b->check( name->str( ), name->type_id( ) ) ) {
+                    o = next->at( 1 );
+                    found = true;
+                    break;
+                }
+            }
+
+            if( !found ) {
+                break;
+            }
+
+            if( 0 == --len ) {
+                if( objects::base::is_reference( o ) ) {
+                    result = ls.ref_to_object( o, 1 );
+                } else {
+                    result.reset( o->clone( ) );
+                }
+            }
+        }
+        return result;
+    }
+
 }
 
 #ifdef LUA_WRAPPER_TOP_NAMESPACE

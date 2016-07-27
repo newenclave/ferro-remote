@@ -39,18 +39,13 @@ namespace {
         return vm;
     }
 
-    void init_subsystems( po::variables_map &vm, agent::application &app )
+    void init_subsystems( po::variables_map &vm, agent::application &app,
+                          const agent::subsys::config_values &cfg )
     {
         using namespace agent::subsys;
 
-        std::vector<std::string> loggers;
-
-        if( vm.count( "log" ) ) {
-            loggers = vm["log"].as<decltype(loggers)>( );
-        }
-
-        app.add_subsystem<config>( vm );
-        app.add_subsystem<logging>( loggers );
+        app.add_subsystem<config>( cfg );
+        app.add_subsystem<logging>( cfg.loggers );
 
 #if FR_WITH_LUA
         app.add_subsystem<lua>( );
@@ -112,9 +107,12 @@ int main( int argc, const char **argv )
     fill_options( description );
 
     po::variables_map vm;
+    agent::subsys::config_values cfg;
+
     try {
 
         vm = ( create_cmd_params( argc, argv, description ) );
+        cfg = agent::subsys::config::load_config( vm );
 
     } catch( const std::exception &ex ) {
         std::cerr << "Command line error: " << ex.what( ) << "\n";
@@ -129,38 +127,24 @@ int main( int argc, const char **argv )
 
     try {
 
-        bool use_only_pool = !!vm.count( "only-pool" );
-
-        unsigned io_size = vm.count( "io-pool-size" )
-                ? vm["io-pool-size"].as<unsigned>( )
-                : 0;
-
-        unsigned rpc_size = vm.count( "rpc-pool-size" )
-                ? vm["rpc-pool-size"].as<unsigned>( )
-                : 1;
-
-        if( (rpc_size < 1) && !use_only_pool) {
-            throw std::runtime_error( "rpc-pool-size must be at least 1" );
-        }
-
         vtrc::unique_ptr<vcommon::pool_pair> pp;
 
-        if( use_only_pool ) {
+        if( cfg.only_pool ) {
             pp.reset( new vcommon::pool_pair( 0 ) );
             pp->get_io_pool( ).assign_thread_decorator( decorator( "I" ) );
-            pp->get_io_pool( ).add_threads( io_size - 1 );
+            pp->get_io_pool( ).add_threads( cfg.io_count - 1 );
         } else {
             pp.reset( new vcommon::pool_pair( 0, 0) );
             pp->get_io_pool( ).assign_thread_decorator( decorator( "I" ) );
             pp->get_rpc_pool( ).assign_thread_decorator( decorator( "R" ) );
-            pp->get_io_pool( ).add_threads( io_size - 1 );
-            pp->get_rpc_pool( ).add_threads( rpc_size );
+            pp->get_io_pool( ).add_threads( cfg.io_count - 1 );
+            pp->get_rpc_pool( ).add_threads( cfg.rpc_count );
         }
 
-        agent::application app( *pp );
+        agent::application app( *pp, cfg.key_map );
         agent::logger &lgr( app.get_logger( ) );
 
-        init_subsystems( vm, app );
+        init_subsystems( vm, app, cfg );
 
         lgr(agent::logger::level::info) << "[main] Agent started.";
 

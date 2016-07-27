@@ -72,7 +72,8 @@ namespace fr { namespace agent {
 
     public:
 
-        application( vtrc::common::pool_pair &pp );
+        application( vtrc::common::pool_pair &pp,
+                     const std::map<std::string, std::string> &keys );
 
         ~application( );
 

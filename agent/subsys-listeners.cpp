@@ -198,7 +198,7 @@ namespace fr { namespace agent { namespace subsys {
     {
         using slist = std::vector<std::string>;
 
-        const slist &servs( impl_->config_->endpoints( ) );
+        const slist &servs( impl_->config_->cfgs( ).endpoints );
         std::for_each( servs.begin( ), servs.end( ),
                        vtrc::bind( &impl::add_listener, impl_,
                                    vtrc::placeholders::_1 ));

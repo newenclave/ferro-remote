@@ -4,6 +4,7 @@
 #include "subsystem-iface.h"
 
 #include <vector>
+#include <string>
 #include <map>
 
 namespace boost { namespace program_options {
@@ -17,6 +18,18 @@ namespace fr { namespace agent {
 
 namespace subsys {
 
+    struct config_values {
+        std::vector<std::string>            endpoints;
+        std::vector<std::string>            loggers;
+        std::size_t                         io_count  = 1;
+        std::size_t                         rpc_count = 1;
+        bool                                only_pool = false;
+        std::map<std::string, std::string>  key_map;
+        void clear( );
+    };
+
+    std::ostream &operator << ( std::ostream &o, const config_values &c );
+
     class config: public subsystem_iface {
 
         struct  impl;
@@ -24,8 +37,7 @@ namespace subsys {
 
     protected:
 
-        config( application *app,
-                const boost::program_options::variables_map &vm );
+        config( application *app, const config_values &vm );
 
     public:
 
@@ -35,7 +47,7 @@ namespace subsys {
         ~config( );
 
         static vtrc::shared_ptr<config> create( application *app,
-                    const boost::program_options::variables_map &vm );
+                    const config_values &vm );
 
         const std::string &name( )  const;
 
@@ -43,11 +55,11 @@ namespace subsys {
         void start( ) ;
         void stop( )  ;
 
-        boost::program_options::variables_map const &variables( ) const;
+        static config_values load_config(
+                const boost::program_options::variables_map &vm );
 
-        const std::vector<std::string> &endpoints( ) const;
-        void  set_endpoints( std::vector<std::string> const &ep ) const;
-        const std::map<std::string, std::string> &id_keys( ) const;
+        config_values &cfgs( );
+        const config_values &cfgs( ) const;
 
         const std::string &script_path( ) const;
 

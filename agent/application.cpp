@@ -100,10 +100,12 @@ namespace fr { namespace agent {
         key_map_type             keys_;
         std::string              empty_key_;
 
-        impl( vtrc::common::pool_pair &pools )
+        impl( vtrc::common::pool_pair &pools, const key_map_type &keys )
             :pools_(pools)
             ,logger_(pools_.get_io_service( ), logger::level::debug)
-        { }
+        {
+            init_keys( keys );
+        }
 
         application::service_wrapper_sptr get_service( const std::string &name,
                             vcomm::connection_iface_wptr &connection )
@@ -118,9 +120,8 @@ namespace fr { namespace agent {
             }
         }
 
-        void init_keys( )
+        void init_keys( const key_map_type &km )
         {
-            key_map_type km( parent_->subsystem<subsys::config>( ).id_keys( ) );
             keys_.insert( km.begin( ), km.end( ) );
             key_map_type::const_iterator f(keys_.find( "" ));
             if( f != keys_.end( ) ) {
@@ -174,9 +175,10 @@ namespace fr { namespace agent {
         return vtrc::make_shared<application::service_wrapper>(this, cl, serv);
     }
 
-    application::application( vtrc::common::pool_pair &pp )
+    application::application( vtrc::common::pool_pair &pp,
+                              const std::map<std::string, std::string> &keys )
         :vserv::application( pp )
-        ,impl_(new impl(pp))
+        ,impl_(new impl(pp, keys))
     {
         impl_->parent_ = this;
         register_service_creator( internal_calls::name( ),
@@ -206,8 +208,6 @@ namespace fr { namespace agent {
         for( iter_type b(vec.begin( )), e(vec.end( )); b!=e; ++b ) {
             (*b)->start( );
         }
-
-        impl_->init_keys( );
     }
 
     void application::stop_all( )

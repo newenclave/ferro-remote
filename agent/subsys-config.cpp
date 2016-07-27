@@ -14,6 +14,8 @@
 
 #include <iostream>
 
+#include "agent-lua.h"
+
 #define LOG(lev) log_(lev) << "[cfg] "
 #define LOGINF   LOG(logger::level::info)
 #define LOGDBG   LOG(logger::level::debug)
@@ -29,13 +31,11 @@ namespace fr { namespace agent { namespace subsys {
 
         const std::string subsys_name( "config" );
 
-#if FR_WITH_LUA
-        const char *endpoints_path = "config.endpoints";
-#endif
         namespace fs = boost::filesystem;
 
         typedef  std::pair<std::string, std::string> string_pair;
 
+        THREAD_LOCAL config_values l_cfg;
         std::string l_script_path;
 
         static
@@ -52,77 +52,122 @@ namespace fr { namespace agent { namespace subsys {
                         std::string( key.begin( ) + pos + 1, key.end( ) ) );
         }
 
+        int lcall_ep_add( lua_State *L )
+        {
+            fr::lua::state st(L);
+            auto s = st.get_opt<std::string>( -1, "" );
+            if( !s.empty( ) ) {
+                l_cfg.endpoints.push_back( s );
+            } else {
+                std::cerr << "lua config. Bad endpoint value\n";
+            }
+            return 0;
+        }
+
+        int lcall_lgr_add( lua_State *L )
+        {
+            fr::lua::state st(L);
+            auto s = st.get_opt<std::string>( -1, "" );
+            if( !s.empty( ) ) {
+                l_cfg.loggers.push_back( s );
+            } else {
+                std::cerr << "lua config. Bad logger value\n";
+            }
+            return 0;
+        }
+
+        int lcall_thread_set( lua_State *L )
+        {
+            using namespace fr::lua;
+            fr::lua::state st(L);
+            auto param = st.get_object( -1 );
+
+            auto ios =  object_by_path( L, param.get( ),  "io" );
+            auto rpcs = object_by_path( L, param.get( ), "rpc" );
+            auto only = object_by_path( L, param.get( ), "only" );
+
+            if( ios ) {
+                l_cfg.io_count = ios->inum( );
+            }
+
+            if( rpcs ) {
+                l_cfg.rpc_count = rpcs->inum( );
+            }
+
+            if( only ) {
+                l_cfg.only_pool = !!only->inum( );
+            }
+
+            return 0;
+        }
+
+        void lua_config_( lua_State *L, const std::string &path )
+        {
+            using namespace fr::lua;
+            fr::lua::state st(L);
+
+            std::unique_ptr<objects::table> ep(new objects::table);
+            std::unique_ptr<objects::table> lgr(new objects::table);
+            std::unique_ptr<objects::table> pools(new objects::table);
+
+            ep->add( "add", objects::new_function( &lcall_ep_add ) );
+            lgr->add( "add", objects::new_function( &lcall_lgr_add ) );
+            pools->add( "set", objects::new_function( &lcall_thread_set ) );
+
+            st.set_object( "endpoint", ep.get( ) );
+            st.set_object( "logger", lgr.get( ) );
+            st.set_object( "pools", pools.get( ) );
+
+            if(0 != st.load_file( path.c_str( ) ) ) {
+                std::ostringstream oss;
+                oss << "failed to load file " << path << ": "
+                    << st.error( );
+                throw std::runtime_error( oss.str( ) );
+            }
+            //st.set
+        }
+
+        void lua_config_( const std::string &path )
+        {
+            using namespace fr::lua;
+            fr::lua::state st;
+            lua_config_( st.get_state( ), path );
+        }
+
     }
 
     struct config::impl {
 
         application                        *app_;
-        po::variables_map                   vm_;
-        std::vector<std::string>            endpoints_;
-        std::map<std::string, std::string>  keys_;
-
+        config_values                       configs_;
         subsys::logging                    *logger_;
         logger                             &log_;
-#if FR_WITH_LUA
         subsys::lua                        *lua_;
-#endif
 
-        impl( application *app, po::variables_map vm )
+        fr::lua::state                      state_;
+
+        impl( application *app, const config_values &configs )
             :app_(app)
-            ,vm_(vm)
+            ,configs_(configs)
             ,logger_(nullptr)
             ,log_(app_->get_logger( ))
-#if FR_WITH_LUA
             ,lua_(nullptr)
-#endif
-        {
-            init_variables( );
-        }
-
-        void init_variables( )
-        {
-            if( vm_.count( "server" ) ) {
-                typedef std::vector<std::string> slist;
-                endpoints_ = vm_["server"].as<slist>( );
-            }
-
-            if( vm_.count( "key" ) ) {
-                typedef std::vector<std::string>::const_iterator citr;
-
-                vtrc::unique_ptr<vcomm::hash_iface>
-                                     s2( vcomm::hash::sha2::create256( ) );
-
-                std::vector<std::string> keys =
-                        vm_["key"].as<std::vector<std::string> >( );
-
-                for( citr b(keys.begin( )), e(keys.end( )); b!=e; ++b ) {
-
-                    string_pair pair = split_string( *b );
-
-                    std::string key_info( pair.first + pair.second );
-
-                    std::string hash( s2->get_data_hash( key_info.c_str( ),
-                                                         key_info.size( )));
-
-                    keys_.insert( std::make_pair( pair.first, hash ) );
-                }
-            }
-
-        }
+        { }
     };
 
     void config::all_options( po::options_description &desc )
     {
+        using string_list = std::vector<std::string>;
         desc.add_options( )
             ("help,?",   "help message")
 
-            ("log,l", po::value<std::vector< std::string> >( ),
+            ("log,l", po::value<string_list>( ),
                     "files for log output; use '-' for stdout")
 
             ("log-level,L", po::value<std::string>( ),
                     "Loglevel: zero, error, warning, info[default], debug")
 
-            ("server,s", po::value< std::vector< std::string> >( ),
+            ("server,s", po::value<string_list>( ),
                     "endpoint name; <tcp address>:<port> or <file name>")
 
             ("io-pool-size,i",  po::value<unsigned>( ),
@@ -132,10 +177,8 @@ namespace fr { namespace agent { namespace subsys {
                     "threads for rpc calls; default = 1")
 
             ("only-pool,o", "use io pool for io operations and rpc calls")
-#if FR_WITH_LUA
             ("script,S",    po::value<std::string>(&l_script_path),
                             "lua script for configure server")
-#endif
             ("key,k", po::value< std::vector< std::string> >( ),
                      "format is: key=id:key; "
                      "key will use for client with this id; "
@@ -143,7 +186,7 @@ namespace fr { namespace agent { namespace subsys {
             ;
     }
 
-    config::config( application *app, const po::variables_map &vm )
+    config::config(application *app, const config_values &vm )
         :impl_(new impl(app, vm))
     { }
 
@@ -154,10 +197,9 @@ namespace fr { namespace agent { namespace subsys {
 
     /// static
     vtrc::shared_ptr<config> config::create( application *app,
-                                             const po::variables_map &vm )
+                                             const config_values &vm )
     {
         vtrc::shared_ptr<config> new_inst(new config(app, vm));
-
         return new_inst;
     }
 
@@ -169,40 +211,13 @@ namespace fr { namespace agent { namespace subsys {
     void config::init( )
     {
         impl_->logger_ = &impl_->app_->subsystem<subsys::logging>( );
-#if FR_WITH_LUA
         impl_->lua_ = &impl_->app_->subsystem<subsys::lua>( );
-#endif
     }
 
     void config::start( )
     {
-
-#if FR_WITH_LUA
-        const std::string &spath(l_script_path);
-        if( !spath.empty( ) ) {
-            try {
-                if( fs::exists(spath) && fs::is_regular_file( spath ) ) {
-
-                    impl_->lua_->load_file( spath );
-
-                    subsys::lua::lua_string_list_type l =
-                            impl_->lua_->get_table_list( endpoints_path );
-
-                    if( !l.empty( ) ) {
-                        impl_->endpoints_.swap( l );
-                    }
-
-                } else {
-                    std::cerr << "[config] invalid path " << spath
-                              << " for script \n";
-                }
-            } catch( const std::exception &ex ) {
-                std::cerr << "[config] load file " << spath
-                          << " failed: " << ex.what( ) << "\n";
-            }
-        }
-#endif
         impl_->LOGINF << "Started.";
+        impl_->LOGINF << impl_->configs_;
     }
 
     void config::stop( )
@@ -210,29 +225,110 @@ namespace fr { namespace agent { namespace subsys {
         impl_->LOGINF << "Stopped.";
     }
 
-    const po::variables_map &config::variables( ) const
+    config_values config::load_config( const po::variables_map &vm )
     {
-        return impl_->vm_;
+        config_values res;
+
+        if( !l_script_path.empty( ) ) {
+            lua_config_( l_script_path );
+            res = l_cfg;
+            l_cfg.clear( );
+        }
+
+        if( vm.count( "only-pool" ) ) {
+            res.only_pool = true;
+        }
+
+        if( vm.count( "io-pool-size" ) ) {
+            res.io_count = vm["io-pool-size"].as<unsigned>( );
+        }
+
+        if( vm.count( "rpc-pool-size" ) ) {
+            res.rpc_count = vm["rpc-pool-size"].as<unsigned>( );
+        }
+
+        res.io_count  = res.io_count  ? res.io_count  : 1;
+        res.rpc_count = res.rpc_count ? res.rpc_count : 1;
+
+        typedef std::vector<std::string> slist;
+
+        if( vm.count( "server" ) ) {
+            res.endpoints = vm["server"].as<slist>( );
+        }
+
+        if( vm.count( "log" ) ) {
+            res.loggers = vm["log"].as<slist>( );
+        }
+
+        if( vm.count( "key" ) ) {
+            typedef slist::const_iterator citr;
+            std::map<std::string, std::string> tmp;
+
+            vtrc::unique_ptr<vcomm::hash_iface>
+                                 s2( vcomm::hash::sha2::create256( ) );
+
+            auto keys = vm["key"].as<slist>( );
+
+            for( citr b(keys.begin( )), e(keys.end( )); b!=e; ++b ) {
+
+                string_pair pair = split_string( *b );
+
+                std::string key_info( pair.first + pair.second );
+
+                std::string hash( s2->get_data_hash( key_info.c_str( ),
+                                                     key_info.size( )));
+
+                tmp.insert( std::make_pair( pair.first, hash ) );
+            }
+            res.key_map.swap( tmp );
+        }
+        return res;
     }
 
-    const std::vector<std::string> &config::endpoints( ) const
+    config_values &config::cfgs( )
     {
-        return impl_->endpoints_;
+        return impl_->configs_;
     }
 
-    void  config::set_endpoints( std::vector<std::string> const &ep ) const
+    const config_values &config::cfgs( ) const
     {
-        impl_->endpoints_.assign( ep.begin( ), ep.end( ) );
-    }
-
-    const std::map<std::string, std::string> &config::id_keys( ) const
-    {
-        return impl_->keys_;
+        return impl_->configs_;
     }
 
     const std::string &config::script_path( ) const
     {
         return l_script_path;
+    }
+
+    void config_values::clear( )
+    {
+        endpoints.clear( );
+        loggers  .clear( );
+        key_map  .clear( );
+    }
+
+    std::ostream &operator << (std::ostream &o, const config_values &c )
+    {
+        o << "config: {\n";
+        o << "  endoints: {\n";
+        for( auto &e: c.endpoints ) {
+            o << "    " << e << "\n";
+        }
+        o << "  }\n";
+        o << "  io:  " << c.io_count << " threads\n";
+        if( !c.only_pool ) {
+            o << "  rpc: " << c.rpc_count << " threads\n";
+        }
+        if( !c.key_map.empty( ) ) {
+            o << "  ids: {\n";
+            for( auto &e: c.key_map ) {
+                o << "    " << e.first << " = "
+                  << (e.second.empty( ) ? "''" : "'********'" ) << "\n";
+            }
+            o << "  }\n";
+        }
+        o << "}";
+        return o;
     }
 
 }}}
