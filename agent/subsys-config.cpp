@@ -14,6 +14,12 @@
 
 #include <iostream>
 
+#define LOG(lev) log_(lev) << "[cfg] "
+#define LOGINF   LOG(logger::level::info)
+#define LOGDBG   LOG(logger::level::debug)
+#define LOGERR   LOG(logger::level::error)
+#define LOGWRN   LOG(logger::level::warning)
+
 namespace fr { namespace agent { namespace subsys {
 
     namespace po = boost::program_options;
@@ -54,7 +60,9 @@ namespace fr { namespace agent { namespace subsys {
         po::variables_map                   vm_;
         std::vector<std::string>            endpoints_;
         std::map<std::string, std::string>  keys_;
-        subsys::logging                    *log_;
+
+        subsys::logging                    *logger_;
+        logger                             &log_;
 #if FR_WITH_LUA
         subsys::lua                        *lua_;
 #endif
@@ -62,7 +70,8 @@ namespace fr { namespace agent { namespace subsys {
         impl( application *app, po::variables_map vm )
             :app_(app)
             ,vm_(vm)
-            ,log_(nullptr)
+            ,logger_(nullptr)
+            ,log_(app_->get_logger( ))
 #if FR_WITH_LUA
             ,lua_(nullptr)
 #endif
@@ -159,7 +168,7 @@ namespace fr { namespace agent { namespace subsys {
 
     void config::init( )
     {
-        impl_->log_ = &impl_->app_->subsystem<subsys::logging>( );
+        impl_->logger_ = &impl_->app_->subsystem<subsys::logging>( );
 #if FR_WITH_LUA
         impl_->lua_ = &impl_->app_->subsystem<subsys::lua>( );
 #endif
@@ -193,11 +202,12 @@ namespace fr { namespace agent { namespace subsys {
             }
         }
 #endif
+        impl_->LOGINF << "Started.";
     }
 
     void config::stop( )
     {
-
+        impl_->LOGINF << "Stopped.";
     }
 
     const po::variables_map &config::variables( ) const

@@ -112,6 +112,12 @@ if( NOT DISABLE_LUA )
 
     else( )
 
+        message( "INITING submodule LUA" )
+        execute_process( COMMAND "git" "submodule" "init"
+                         WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}")
+        execute_process( COMMAND "git" "submodule" "update" "lua"
+                         WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}")
+
         find_file( LUA_SM_PATH
                    NAMES "lua.h"
                    PATHS "${CMAKE_CURRENT_SOURCE_DIR}/lua/src/" )

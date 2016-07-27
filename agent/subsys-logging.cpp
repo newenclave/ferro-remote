@@ -209,8 +209,21 @@ namespace fr { namespace agent { namespace subsys {
             level lvl = static_cast<level>(loginf.level);
             o << loginf.when
               << " " << loginf.tprefix
-              << " [" << agent::logger::level2str(lvl) << "]"
-              << " " << s
+              << " [" << agent::logger::level2str(lvl) << "] "
+              << s
+                   ;
+            return o;
+        }
+
+        static std::ostream &output2( std::ostream &o,
+                                     const log_record_info &loginf,
+                                     const std::string &s )
+        {
+            level lvl = static_cast<level>(loginf.level);
+            o << loginf.when.time_of_day( )
+              << " " << loginf.tprefix
+              << " <" << agent::logger::level2str(lvl) << "> "
+              << s
                    ;
             return o;
         }
@@ -265,7 +278,7 @@ namespace fr { namespace agent { namespace subsys {
             if( (lvl >= inf.minl_) && (lvl <= inf.maxl_) ) {
                 for( auto &s: data ) {
                     std::ostringstream oss;
-                    output( oss, loginf, s );
+                    output2( oss, loginf, s );
                     syslog( level2syslog( loginf.level ),
                             "%s", oss.str( ).c_str( ) );
                 }
@@ -295,7 +308,7 @@ namespace fr { namespace agent { namespace subsys {
             } else if( path == syslog_name ) {
 
                 if( !syslog_ ) {
-                    openlog( "ferro_remote_agent", 0, LOG_USER );
+                    openlog( "ferro_remote", 0, LOG_USER );
                     syslog_connection_.conn_ = log_.on_write_connect(
                                 std::bind( &impl::syslog_out_log, this,
                                            console_info(nullptr, minl, maxl),
