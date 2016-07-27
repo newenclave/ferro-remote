@@ -2,6 +2,7 @@
 #include <chrono>
 #include <fstream>
 #include <map>
+#include <syslog.h>
 
 #include "subsys-logging.h"
 #include "application.h"
@@ -27,6 +28,7 @@ namespace fr { namespace agent { namespace subsys {
         const std::string stdout_name  = "stdout";
         const std::string stdout_name2 = "-";
         const std::string stderr_name  = "stderr";
+        const std::string syslog_name  = "syslog";
 
         using level      = agent::logger::level;
         using stringlist = std::vector<std::string>;
@@ -167,12 +169,15 @@ namespace fr { namespace agent { namespace subsys {
 
         connection_info  stdout_connection_;
         connection_info  stderr_connection_;
+        connection_info  syslog_connection_;
 
         stream_list      streams_;
+        bool             syslog_;
 
         impl( application *app )
             :app_(app)
             ,log_(app_->get_logger( ))
+            ,syslog_(false)
         { }
 
         void reg_creator( const std::string &name,
@@ -240,6 +245,33 @@ namespace fr { namespace agent { namespace subsys {
             //inf.stream_->flush( );
         }
 
+        int level2syslog( int /*logger::level*/ lvl )
+        {
+            switch( lvl ) {
+            case static_cast<int>( logger::level::zero    ): return LOG_EMERG;
+            case static_cast<int>( logger::level::error   ): return LOG_ERR;
+            case static_cast<int>( logger::level::warning ): return LOG_WARNING;
+            case static_cast<int>( logger::level::info    ): return LOG_INFO;
+            case static_cast<int>( logger::level::debug   ): return LOG_DEBUG;
+            }
+            return LOG_INFO;
+        }
+
+        void syslog_out_log( console_info &inf,
+                             const log_record_info &loginf,
+                             stringlist const &data )
+        {
+            level lvl = static_cast<level>(loginf.level);
+            if( (lvl >= inf.minl_) && (lvl <= inf.maxl_) ) {
+                for( auto &s: data ) {
+                    std::ostringstream oss;
+                    output( oss, loginf, s );
+                    syslog( level2syslog( loginf.level ),
+                            "%s", oss.str( ).c_str( ) );
+                }
+            }
+        }
+
         /// dispatcher!
         void add_logger( const std::string &path, level minl, level maxl )
         {
@@ -260,7 +292,16 @@ namespace fr { namespace agent { namespace subsys {
                             std::bind( &impl::console_log, this,
                                        console_info(&std::cerr, minl, maxl),
                                        ph::_1, ph::_2 ) );
+            } else if( path == syslog_name ) {
 
+                if( !syslog_ ) {
+                    openlog( "ferro_remote_agent", 0, LOG_USER );
+                    syslog_connection_.conn_ = log_.on_write_connect(
+                                std::bind( &impl::syslog_out_log, this,
+                                           console_info(nullptr, minl, maxl),
+                                           ph::_1, ph::_2 ) );
+                    syslog_ = true;
+                }
             } else {
 
                 try {
@@ -329,10 +370,15 @@ namespace fr { namespace agent { namespace subsys {
         /// dispatcher!
         void del_logger_output( const std::string &name )
         {
-            if( name == stdout_name ) {         /// cout
+            if( name == stdout_name || name == stdout_name2 ) { /// cout
                 stdout_connection_.conn_.disconnect( );
             } else if( name == stderr_name ) {  /// cerr
                 stderr_connection_.conn_.disconnect( );
+            } else if( name == syslog_name ) {  /// syslog
+                if( syslog_ ) {
+                    syslog_connection_.conn_.disconnect( );
+                    closelog( );
+                }
             } else {
                 for( auto b=streams_.begin( ), e=streams_.end( ); b!=e; ++b ) {
                     if( b->path_ == name ) {
