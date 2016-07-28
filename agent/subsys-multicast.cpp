@@ -22,9 +22,10 @@
 namespace fr { namespace agent { namespace subsys {
 
     namespace {
-        const std::string subsys_name( "multicast" );
-        static const std::string    MulticastAddress_v4 = "239.194.75.49";
-        static const unsigned short MulticastPort       =  18776;
+
+        const std::string subsys_name = "multicast";
+        const std::string any_ipv4    = "0.0.0.0";
+        const std::string any_ipv6    = "::";
 
         namespace ba   = boost::asio;
         namespace bip  = ba::ip;
@@ -44,6 +45,7 @@ namespace fr { namespace agent { namespace subsys {
         using point_sptr = std::shared_ptr<point_info>;
         using point_wptr = std::weak_ptr<point_info>;
         using point_map  = std::map<std::string, point_sptr>;
+
     }
 
     struct multicast::impl {
@@ -68,9 +70,6 @@ namespace fr { namespace agent { namespace subsys {
 
         void add_point( std::string const &name )
         {
-            static const std::string any_ipv4 = "0.0.0.0";
-            static const std::string any_ipv6 = "::";
-
             auto info = utilities::get_endpoint_info( name );
             if( !info.is_ip( ) ) {
                 LOGERR << "Endpoint format'" << name << "' is not valid";

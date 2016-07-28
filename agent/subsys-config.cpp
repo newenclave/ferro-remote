@@ -324,32 +324,40 @@ namespace fr { namespace agent { namespace subsys {
 
     std::ostream &operator << (std::ostream &o, const config_values &c )
     {
+        /// start config
         o << "config: {\n";
 
+        /// endpoints
         o << "  endoints: {\n";
         for( auto &e: c.endpoints ) {
             o << "    " << e << "\n";
         }
         o << "  }\n";
 
+        /// multicasts
         o << "  mcasts: {\n";
         for( auto &e: c.multicast ) {
             o << "    " << e << "\n";
         }
         o << "  }\n";
 
+        /// threads
         o << "  io:  " << c.io_count << " threads\n";
         if( !c.only_pool ) {
             o << "  rpc: " << c.rpc_count << " threads\n";
         }
+
+        /// keymap
         if( !c.key_map.empty( ) ) {
             o << "  ids: {\n";
             for( auto &e: c.key_map ) {
-                o << "    " << e.first << " = "
+                o << "    '" << e.first << "' = "
                   << (e.second.empty( ) ? "''" : "'********'" ) << "\n";
             }
             o << "  }\n";
         }
+
+        /// end config
         o << "}";
         return o;
     }
