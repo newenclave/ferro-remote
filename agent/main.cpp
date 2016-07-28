@@ -70,17 +70,18 @@ namespace {
                   << dsc << "\n";
     }
 
-    THREAD_LOCAL std::string s_thread_prefix;
+    THREAD_LOCAL std::string *s_thread_prefix = nullptr;
     vcommon::thread_pool::thread_decorator decorator( std::string p )
     {
         using dec_type = vcommon::thread_pool::call_decorator_type;
         return [p]( dec_type dt ) {
             switch ( dt ) {
             case vcommon::thread_pool::CALL_PROLOGUE:
-                s_thread_prefix = p;
+                s_thread_prefix = new std::string(p);
                 break;
             case vcommon::thread_pool::CALL_EPILOGUE:
-                s_thread_prefix.clear( );
+                delete s_thread_prefix;
+                s_thread_prefix = nullptr;
                 break;
             }
         };
@@ -91,18 +92,23 @@ namespace fr { namespace agent {
 
     const std::string &get_thread_prefix( )
     {
-        return s_thread_prefix;
+        static const std::string empty;
+        return s_thread_prefix ? *s_thread_prefix : empty;
     }
 
     void set_thread_prefix( const std::string &val )
     {
-        s_thread_prefix = val;
+        if( !s_thread_prefix ) {
+            s_thread_prefix = new std::string( val );
+        } else {
+            *s_thread_prefix = val;
+        }
     }
 }}
 
 int main( int argc, const char **argv )
 {
-    s_thread_prefix = "M";
+    fr::agent::set_thread_prefix( "M" );
     po::options_description description("Allowed options");
     fill_options( description );
 
@@ -158,7 +164,7 @@ int main( int argc, const char **argv )
 
         pp->get_io_pool( ).attach( decorator( "M" ) ); /// RUN!
 
-        s_thread_prefix = "M";
+        fr::agent::set_thread_prefix("M");
 
         pp->join_all( );
 
