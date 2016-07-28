@@ -35,8 +35,9 @@ namespace fr { namespace agent { namespace subsys {
 
         typedef  std::pair<std::string, std::string> string_pair;
 
-        THREAD_LOCAL config_values l_cfg;
+        config_values l_cfg;
         std::string l_script_path;
+        std::string l_name;
 
         static
         string_pair split_string( const std::string &key )
@@ -113,6 +114,18 @@ namespace fr { namespace agent { namespace subsys {
             return 0;
         }
 
+        int lcall_name_set( lua_State *L )
+        {
+            fr::lua::state st(L);
+            auto s = st.get_opt<std::string>( -1, "" );
+            if( !s.empty( ) ) {
+                l_cfg.name = s;
+            } else {
+                std::cerr << "lua config. Bad name\n";
+            }
+            return 0;
+        }
+
         void lua_config_( lua_State *L, const std::string &path )
         {
             using namespace fr::lua;
@@ -122,16 +135,19 @@ namespace fr { namespace agent { namespace subsys {
             std::unique_ptr<objects::table> lgr(new objects::table);
             std::unique_ptr<objects::table> pools(new objects::table);
             std::unique_ptr<objects::table> mcast(new objects::table);
+            std::unique_ptr<objects::table> agent(new objects::table);
 
             ep->add(    "add", objects::new_function( &lcall_ep_add ) );
             lgr->add(   "add", objects::new_function( &lcall_lgr_add ) );
             mcast->add( "add", objects::new_function( &lcall_mcast_add ) );
             pools->add( "set", objects::new_function( &lcall_thread_set ) );
+            agent->add( "set_name", objects::new_function( &lcall_name_set ) );
 
             st.set_object( "endpoint",  ep.get( ) );
             st.set_object( "logger",    lgr.get( ) );
             st.set_object( "pools",     pools.get( ) );
             st.set_object( "mcast",     mcast.get( ) );
+            st.set_object( "agent",     agent.get( ) );
 
             if(0 != st.load_file( path.c_str( ) ) ) {
                 std::ostringstream oss;
@@ -175,6 +191,9 @@ namespace fr { namespace agent { namespace subsys {
         using string_list = std::vector<std::string>;
         desc.add_options( )
             ("help,?",   "help message")
+
+            ("name,n", po::value<std::string>(&l_name),
+                    "agent name; whatever you want")
 
             ("log,l", po::value<string_list>( ),
                     "files for log output; use '-' for stdout")
@@ -283,6 +302,10 @@ namespace fr { namespace agent { namespace subsys {
             res.loggers = vm["log"].as<slist>( );
         }
 
+        if( vm.count( "name" ) ) {
+            res.name = vm["name"].as<std::string>( );
+        }
+
         if( vm.count( "key" ) ) {
             typedef slist::const_iterator citr;
             std::map<std::string, std::string> tmp;
@@ -328,12 +351,17 @@ namespace fr { namespace agent { namespace subsys {
         endpoints.clear( );
         loggers  .clear( );
         key_map  .clear( );
+        multicast.clear( );
+        name     .clear( );
     }
 
     std::ostream &operator << (std::ostream &o, const config_values &c )
     {
         /// start config
         o << "config: {\n";
+
+        /// name
+        o << "  name: '" << c.name << "'\n";
 
         /// endpoints
         o << "  endpoints: {\n";

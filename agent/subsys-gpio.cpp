@@ -8,6 +8,7 @@
 #include "subsys-gpio.h"
 #include "subsys-reactor.h"
 #include "subsys-logging.h"
+#include "subsys-multicast.h"
 
 #include "protocol/ferro.pb.h"
 #include "protocol/gpio.pb.h"
@@ -469,6 +470,12 @@ namespace fr { namespace agent { namespace subsys {
     void gpio::init( )
     {
         impl_->reactor_ = &impl_->app_->subsystem<subsys::reactor>( );
+        impl_->app_->subsystem<subsys::multicast>( ).on_request_connect(
+            [ ]( const subsys::multicast_request & /*req*/,
+                       subsys::multicast_response &res )
+            {
+                res.gpio_available = agent::gpio::available( );
+            });
     }
 
     void gpio::start( )

@@ -1,5 +1,7 @@
 --- test config for agent
 
+agent.set_name "Virt2Real Test Agent"
+
 -- io    - threads for io operations; default = 1
 -- rpc   - for rpc calls; default = 1
 -- only  - use only pool for all operations; default = false

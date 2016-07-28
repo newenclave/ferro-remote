@@ -2,14 +2,16 @@
 #include "subsys-multicast.h"
 #include "subsys-config.h"
 
-#include "boost/asio/ip/udp.hpp"
 #include "boost/asio/ip/multicast.hpp"
 #include "boost/asio/placeholders.hpp"
 #include "boost/asio/buffer.hpp"
+#include "boost/asio/strand.hpp"
 
 #include "utils.h"
 
 #include <functional>
+
+#include "protocol/multicast.pb.h"
 
 //#include "vtrc-memory.h"
 
@@ -51,16 +53,21 @@ namespace fr { namespace agent { namespace subsys {
     struct multicast::impl {
 
         application         *app_;
+        multicast           *parent_;
         subsys::config      *config_;
         agent::logger       &log_;
 
         point_map            points_;
         std::mutex           points_lock_;
 
+        ba::io_service::strand dispatcher_;
+
         impl( application *app )
             :app_(app)
+            ,parent_(NULL) /// avaid warnings
             ,config_(NULL)
             ,log_(app_->get_logger( ))
+            ,dispatcher_(app_->get_io_service( ))
         { }
 
         void init( )
@@ -111,8 +118,31 @@ namespace fr { namespace agent { namespace subsys {
             }
         }
 
+        void req_res( point_info &pinfo, size_t len )
+        {
+            multicast_request  req;
+            multicast_response res;
+
+            req.data    = &pinfo.buf[0];
+            req.from    = &pinfo.sock;
+            req.length  = len;
+
+            fr::proto::mcast_response resp;
+            resp.set_name( config_->cfgs( ).name );
+
+            try {
+                parent_->on_request_( req, res );
+                std::string serial = resp.SerializeAsString(  );
+                pinfo.sock.send_to( ba::buffer(serial), pinfo.sender );
+            } catch( const std::exception &ex ) {
+                LOGERR << "Exception while sending signal: " << ex.what( );
+            } catch( ... ) {
+                LOGERR << "Exception while sending signal: ...";
+            }
+        }
+
         void handle_receive( const boost::system::error_code& error,
-                             size_t /*bytes_recvd*/,
+                             size_t bytes_recvd,
                              point_wptr info )
         {
             if( error ) {
@@ -125,7 +155,9 @@ namespace fr { namespace agent { namespace subsys {
             if( lck ) {
                 LOGDBG << "Recv request from "
                        << lck->sender.address( ).to_string( );
-                ////
+                ///
+                req_res( *lck, bytes_recvd );
+                ///
                 start_recv( lck );
             }
         }
@@ -137,9 +169,10 @@ namespace fr { namespace agent { namespace subsys {
             try {
                 info->sock.async_receive_from( ba::buffer(info->buf),
                     info->sender,
-                    boost::bind( &impl::handle_receive, this,
-                                 ph::error, ph::bytes_transferred,
-                                 point_wptr(info) ) );
+                    dispatcher_.wrap(
+                        boost::bind( &impl::handle_receive, this,
+                                      ph::error, ph::bytes_transferred,
+                                      point_wptr(info) ) ) );
                 return true;
             } catch( const std::exception& ex ) {
                 LOGERR << "async_receive exception: " << ex.what( );
@@ -171,7 +204,9 @@ namespace fr { namespace agent { namespace subsys {
 
     multicast::multicast( application *app )
         :impl_(new impl(app))
-    { }
+    {
+        impl_->parent_ = this;
+    }
 
     multicast::~multicast( )
     {

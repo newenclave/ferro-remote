@@ -2,5 +2,10 @@
 package fr.proto;
 
 message mcast_request { }
-message mcast_response { }
+
+message mcast_response {
+    optional string name         = 1;
+    optional bool gpio_available = 2;
+}
+
 

@@ -2,6 +2,9 @@
 #define FR_SUBSYS_multicast_H
 
 #include "subsystem-iface.h"
+#include "vtrc-common/vtrc-signal-declaration.h"
+
+#include "boost/asio/ip/udp.hpp"
 
 namespace fr { namespace agent {
 
@@ -9,10 +12,24 @@ namespace fr { namespace agent {
 
 namespace subsys {
 
+    struct multicast_request {
+        boost::asio::ip::udp::socket *from   = nullptr;
+        const std::uint8_t           *data   = nullptr;
+        size_t                        length = 0;
+    };
+
+    struct multicast_response {
+        bool gpio_available = false;
+    };
+
     class multicast: public subsystem_iface {
 
         struct  impl;
         impl   *impl_;
+
+        VTRC_DECLARE_SIGNAL( on_request,
+                             void( const multicast_request &,
+                                   multicast_response & ) );
 
     protected:
 
