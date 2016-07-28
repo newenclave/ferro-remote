@@ -43,16 +43,16 @@ namespace fr { namespace common {
             string_accumulator( string_accumulator &other )
                 :parent_(other.parent_)
                 ,level_(other.level_)
-                ,name_(other.name_)
                 ,act_(true)
             {
+                name_.swap(other.name_);
                 other.act_ = false;
             }
 
             string_accumulator& operator = ( string_accumulator &other )
             {
+                name_.swap(other.name_);
                 level_     = other.level_;
-                name_      = other.name_;
                 other.act_ = false;
                 return *this;
             }

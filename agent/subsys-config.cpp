@@ -64,6 +64,18 @@ namespace fr { namespace agent { namespace subsys {
             return 0;
         }
 
+        int lcall_mcast_add( lua_State *L )
+        {
+            fr::lua::state st(L);
+            auto s = st.get_opt<std::string>( -1, "" );
+            if( !s.empty( ) ) {
+                l_cfg.multicast.push_back( s );
+            } else {
+                std::cerr << "lua config. Bad multicast value\n";
+            }
+            return 0;
+        }
+
         int lcall_lgr_add( lua_State *L )
         {
             fr::lua::state st(L);
@@ -109,14 +121,17 @@ namespace fr { namespace agent { namespace subsys {
             std::unique_ptr<objects::table> ep(new objects::table);
             std::unique_ptr<objects::table> lgr(new objects::table);
             std::unique_ptr<objects::table> pools(new objects::table);
+            std::unique_ptr<objects::table> mcast(new objects::table);
 
-            ep->add( "add", objects::new_function( &lcall_ep_add ) );
-            lgr->add( "add", objects::new_function( &lcall_lgr_add ) );
+            ep->add(    "add", objects::new_function( &lcall_ep_add ) );
+            lgr->add(   "add", objects::new_function( &lcall_lgr_add ) );
+            mcast->add( "add", objects::new_function( &lcall_mcast_add ) );
             pools->add( "set", objects::new_function( &lcall_thread_set ) );
 
-            st.set_object( "endpoint", ep.get( ) );
-            st.set_object( "logger", lgr.get( ) );
-            st.set_object( "pools", pools.get( ) );
+            st.set_object( "endpoint",  ep.get( ) );
+            st.set_object( "logger",    lgr.get( ) );
+            st.set_object( "pools",     pools.get( ) );
+            st.set_object( "mcast",     mcast.get( ) );
 
             if(0 != st.load_file( path.c_str( ) ) ) {
                 std::ostringstream oss;
@@ -310,11 +325,19 @@ namespace fr { namespace agent { namespace subsys {
     std::ostream &operator << (std::ostream &o, const config_values &c )
     {
         o << "config: {\n";
+
         o << "  endoints: {\n";
         for( auto &e: c.endpoints ) {
             o << "    " << e << "\n";
         }
         o << "  }\n";
+
+        o << "  mcasts: {\n";
+        for( auto &e: c.multicast ) {
+            o << "    " << e << "\n";
+        }
+        o << "  }\n";
+
         o << "  io:  " << c.io_count << " threads\n";
         if( !c.only_pool ) {
             o << "  rpc: " << c.rpc_count << " threads\n";

@@ -39,12 +39,16 @@ namespace fr { namespace utilities {
         enum ep_type {
              ENDPOINT_NONE   = 0
             ,ENDPOINT_LOCAL  = 1
-            ,ENDPOINT_TCP    = 2
+            ,ENDPOINT_IP     = 2
+            ,ENDPOINT_UDP    = 2 // hm
+            ,ENDPOINT_TCP    = 2 //
         };
+
         enum ep_flags {
              FLAG_SSL   = 0x01
             ,FLAG_DUMMY = 0x01 << 1
         };
+
         std::string    addpess;
         std::uint16_t  service = 0;
         unsigned       flags   = 0;
@@ -53,6 +57,11 @@ namespace fr { namespace utilities {
         bool is_local( ) const NOEXCEPT
         {
             return type == ENDPOINT_LOCAL;
+        }
+
+        bool is_ip( ) const NOEXCEPT
+        {
+            return type == ENDPOINT_IP;
         }
 
         bool is_none( ) const NOEXCEPT

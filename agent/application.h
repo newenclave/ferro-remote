@@ -4,15 +4,24 @@
 #include "vtrc-server/vtrc-application.h"
 #include "vtrc-common/vtrc-signal-declaration.h"
 #include "vtrc-common/vtrc-pool-pair.h"
-#include "vtrc-common/vtrc-rtti-wrapper.h"
 #include "vtrc-common/vtrc-connection-iface.h"
 
 #include "subsystem-iface.h"
 
 #include "vtrc-function.h"
 #include "logger.h"
+#include "utils.h"
 
 #include <assert.h>
+
+#define FR_RTTI_DISABLE
+
+#ifdef FR_RTTI_DISABLE
+#   define FR_TYPE_ID( T ) fr::utilities::type_uid<T>::uid( )
+#else
+#   include "vtrc-common/vtrc-rtti-wrapper.h"
+#   define FR_TYPE_ID( T ) typeid( T )
+#endif
 
 namespace fr { namespace agent {
 
@@ -88,10 +97,10 @@ namespace fr { namespace agent {
 
     public: // services
 
-        void register_service_creator( const std::string &name,
+        void register_service_factory( const std::string &name,
                                        service_getter_type func );
 
-        void unregister_service_creator( const std::string &name );
+        void unregister_service_factory( const std::string &name );
 
         void quit( );
 
@@ -101,20 +110,20 @@ namespace fr { namespace agent {
         void add_subsystem( )
         {
             subsystem_sptr subsys ( T::create( this ) );
-            add_subsystem( typeid( T ), subsys );
+            add_subsystem( FR_TYPE_ID( T ), subsys );
         }
 
         template <typename T, typename ... Args >
         void add_subsystem( const Args & ... pars )
         {
             subsystem_sptr subsys ( T::create( this, pars ... ) );
-            add_subsystem( typeid( T ), subsys );
+            add_subsystem( FR_TYPE_ID( T ), subsys );
         }
 
         template <typename T>
         T &subsystem( )
         {
-            subsystem_iface *subsys = subsystem( typeid(T) );
+            subsystem_iface *subsys = subsystem( FR_TYPE_ID(T) );
             if( nullptr == subsys ) {
                 throw std::runtime_error( "Invalid subsystem" );
             }
@@ -124,7 +133,7 @@ namespace fr { namespace agent {
         template <typename T>
         const T &subsystem( ) const
         {
-            const subsystem_iface *subsys = subsystem( typeid(T) );
+            const subsystem_iface *subsys = subsystem( FR_TYPE_ID(T) );
             if( nullptr == subsys ) {
                 throw std::runtime_error( "Invalid subsystem" );
             }
@@ -134,14 +143,14 @@ namespace fr { namespace agent {
         template <typename T>
         T *subsystem_safe( )
         {
-            subsystem_iface *subsys = subsystem( typeid(T) );
+            subsystem_iface *subsys = subsystem( FR_TYPE_ID(T) );
             return poly_downcast<const T *>( subsys );
         }
 
         template <typename T>
         const T *subsystem_safe( ) const
         {
-            const subsystem_iface *subsys = subsystem( typeid(T) );
+            const subsystem_iface *subsys = subsystem( FR_TYPE_ID(T) );
             return poly_downcast<const T *>( subsys );
         }
 
@@ -151,10 +160,25 @@ namespace fr { namespace agent {
         agent::logger       &get_logger( )      ;
         const agent::logger &get_logger( ) const;
 
+//        auto ilog( ) -> decltype(get_logger( ).operator ()( ))
+//        {
+//            return get_logger( )(logger::level::info );
+//        }
+
         static const std::string &thread_prefix( );
 
     private:
+#ifdef FR_RTTI_DISABLE
+        void add_subsystem( std::uintptr_t info, subsystem_sptr inst );
+        /* === nothrow === */
+        /*
+         * return nullptr if not found
+        */
+        subsystem_iface       *subsystem( std::uintptr_t info );
+        const subsystem_iface *subsystem( std::uintptr_t info) const;
 
+        /* =============== */
+#else
         void add_subsystem( const std::type_info &info, subsystem_sptr inst );
 
         /* === nothrow === */
@@ -164,7 +188,7 @@ namespace fr { namespace agent {
         subsystem_iface *subsystem( const std::type_info &info );
         const subsystem_iface *subsystem( const std::type_info &info ) const;
         /* =============== */
-
+#endif
         void configure_session( vtrc::common::connection_iface *connection,
                                 vtrc::rpc::session_options &opts );
 

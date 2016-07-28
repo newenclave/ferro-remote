@@ -183,12 +183,12 @@ namespace fr { namespace agent { namespace subsys {
         void reg_creator( const std::string &name,
                           application::service_getter_type func )
         {
-            app_->register_service_creator( name, func );
+            app_->register_service_factory( name, func );
         }
 
         void unreg_creator( const std::string &name )
         {
-            app_->unregister_service_creator( name );
+            app_->unregister_service_factory( name );
         }
 
         struct console_info {

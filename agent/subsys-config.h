@@ -21,6 +21,7 @@ namespace subsys {
     struct config_values {
         std::vector<std::string>            endpoints;
         std::vector<std::string>            loggers;
+        std::vector<std::string>            multicast;
         std::size_t                         io_count  = 1;
         std::size_t                         rpc_count = 1;
         bool                                only_pool = false;

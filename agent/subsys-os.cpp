@@ -105,14 +105,14 @@ namespace fr { namespace agent { namespace subsys {
 
     void os::start( )
     {
-        impl_->app_->register_service_creator(
+        impl_->app_->register_service_factory(
                     os_proto_impl::name( ), create_service );
         impl_->LOGINF << "Started.";
     }
 
     void os::stop( )
     {
-        impl_->app_->unregister_service_creator( os_proto_impl::name( ) );
+        impl_->app_->unregister_service_factory( os_proto_impl::name( ) );
         impl_->LOGINF << "Stopped.";
     }
 

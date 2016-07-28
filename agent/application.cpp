@@ -26,13 +26,24 @@
 
 #include "thread-prefix.h"
 
+
+#define LOG(lev) logger_(lev) << "[app] "
+#define LOGINF   LOG(logger::level::info)
+#define LOGDBG   LOG(logger::level::debug)
+#define LOGERR   LOG(logger::level::error)
+#define LOGWRN   LOG(logger::level::warning)
 namespace fr { namespace agent {
 
     namespace vserv = vtrc::server;
     namespace vcomm = vtrc::common;
     namespace gpb   = google::protobuf;
 
+#ifdef FR_RTTI_DISABLE
+    typedef std::map<std::uintptr_t, subsystem_sptr> subsys_map;
+#else
     typedef std::map<vcomm::rtti_wrapper, subsystem_sptr> subsys_map;
+#endif
+
     typedef std::vector<subsystem_sptr>                   subsys_vector;
 
     typedef std::map<std::string, application::service_getter_type> service_map;
@@ -181,7 +192,7 @@ namespace fr { namespace agent {
         ,impl_(new impl(pp, keys))
     {
         impl_->parent_ = this;
-        register_service_creator( internal_calls::name( ),
+        register_service_factory( internal_calls::name( ),
                                   internal_calls::create_call_inst );
     }
 
@@ -244,6 +255,39 @@ namespace fr { namespace agent {
         return get_thread_prefix( );
     }
 
+#ifdef FR_RTTI_DISABLE
+    void application::add_subsystem( std::uintptr_t info, subsystem_sptr inst )
+    {
+        impl_->LOGDBG << "Add subsystem '"<< inst->name( ) << "' as 0x"
+                      << std::hex << info;
+
+        impl_->subsystems_.subsys_[info] = inst;
+        impl_->subsystems_.subsys_order_.push_back( inst );
+    }
+
+    subsystem_iface *application::subsystem( std::uintptr_t info )
+    {
+        subsys_map::iterator f( impl_->subsystems_.subsys_.find( info ) );
+
+        if( f == impl_->subsystems_.subsys_.end( ) ) {
+            return NULL;
+        } else {
+            return f->second.get( );
+        }
+    }
+
+    const subsystem_iface *application::subsystem( std::uintptr_t info ) const
+    {
+        subsys_map::const_iterator f( impl_->subsystems_.subsys_.find( info ) );
+
+        if( f == impl_->subsystems_.subsys_.end( ) ) {
+            return NULL;
+        } else {
+            return f->second.get( );
+        }
+    }
+
+#else
     void application::add_subsystem( const std::type_info &info,
                                      subsystem_sptr inst )
     {
@@ -277,11 +321,11 @@ namespace fr { namespace agent {
             return f->second.get( );
         }
     }
-
+#endif
     ///
     /// services
     ///
-    void application::register_service_creator( const std::string &name,
+    void application::register_service_factory( const std::string &name,
                                                 service_getter_type func )
     {
         vtrc::lock_guard<vtrc::mutex> lck(impl_->services_lock_);
@@ -294,7 +338,7 @@ namespace fr { namespace agent {
         impl_->services_.insert( std::make_pair( name, func ) );
     }
 
-    void application::unregister_service_creator( const std::string &name )
+    void application::unregister_service_factory( const std::string &name )
     {
         vtrc::lock_guard<vtrc::mutex> lck(impl_->services_lock_);
         service_map::iterator f(impl_->services_.find( name ));
