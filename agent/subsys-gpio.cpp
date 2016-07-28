@@ -328,8 +328,9 @@ namespace fr { namespace agent { namespace subsys {
                     }
 
                     time_point event_tim = chrono::high_resolution_clock::now();
-                    time_point::duration dur = event_tim - time_point( );
-
+                    auto microsec =
+                            chrono::duration_cast<chrono::microseconds>
+                                            (event_tim.time_since_epoch( ));
                     gpio_sptr gpio( data.weak_gpio.lock( ) );
 
                     bool               success = true;
@@ -342,11 +343,9 @@ namespace fr { namespace agent { namespace subsys {
                     op_data.set_id( data.op_id );
 
                     try {
-
-                        vdat.set_timepoint( dur.count( ) );
+                        vdat.set_timepoint( microsec.count( ) );
                         vdat.set_new_value( gpio->value_by_fd( data.fd ) );
                         op_data.set_data( vdat.SerializeAsString( ) );
-
                     } catch( const std::exception &ex ) {
                         error_code = errno;
                         err.assign( ex.what( ) );
