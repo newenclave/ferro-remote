@@ -50,6 +50,12 @@ namespace fr { namespace agent {
 
     typedef std::map<std::string, std::string> key_map_type;
 
+    typedef std::chrono::high_resolution_clock::time_point hr_time_point;
+
+    namespace {
+        std::uint64_t s_time_point = 0;
+    }
+
     struct subsystem_comtrainer {
         subsys_map      subsys_;
         subsys_vector   subsys_order_;
@@ -82,13 +88,17 @@ namespace fr { namespace agent {
             vcomm::closure_holder holder(done);
         }
 
-        void info( ::google::protobuf::RpcController* controller,
-                   const ::fr::proto::info_req* request,
+        void info( ::google::protobuf::RpcController* /*controller*/,
+                   const ::fr::proto::info_req* /*request*/,
                    ::fr::proto::info_res* response,
                    ::google::protobuf::Closure* done) override
         {
             vcomm::closure_holder holder(done);
-            response->set_name( app_->subsystem<subsys::config>( ).name( ) );
+            response->set_name( app_->subsystem<subsys::config>( )
+                                     .cfgs( ).name );
+            response->set_tick_now( application::now( ) );
+            response->set_tick_count( response->tick_now( ) -
+                                      application::start_tick( ) );
         }
 
         static const std::string &name( )
@@ -124,6 +134,7 @@ namespace fr { namespace agent {
             :pools_(pools)
             ,logger_(pools_.get_io_service( ), logger::level::debug)
         {
+            s_time_point = application::now( );
             init_keys( keys );
         }
 
@@ -354,6 +365,24 @@ namespace fr { namespace agent {
         if( f != impl_->services_.end( ) ) {
             impl_->services_.erase( f );
         }
+    }
+
+    std::uint64_t application::now( )
+    {
+        using std::chrono::duration_cast;
+        using microsec = std::chrono::microseconds;
+        auto n = std::chrono::high_resolution_clock::now( );
+        return duration_cast<microsec>(n.time_since_epoch( )).count( );
+    }
+
+    std::uint64_t application::tick_count( )
+    {
+        return application::now( ) - s_time_point;
+    }
+
+    uint64_t application::start_tick( )
+    {
+        return s_time_point;
     }
 
     ///

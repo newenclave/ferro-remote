@@ -14,7 +14,9 @@ message ping_res { }
 message info_req { }
 
 message info_res {
-    optional string name = 1;
+    optional string name        = 1;
+    optional uint64 tick_now    = 2;
+    optional uint64 tick_count  = 3;
 }
 
 service internal {

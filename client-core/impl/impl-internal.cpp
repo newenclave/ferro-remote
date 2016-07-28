@@ -63,7 +63,10 @@ namespace fr { namespace client { namespace interfaces {
                 proto::info_res res;
                 client_.call_response( &stub_type::info, &res );
                 internal::agent_info result;
+
                 result.name.swap(*res.mutable_name( ));
+                result.now          = res.tick_now( );
+                result.tick_count   = res.tick_count( );
 
                 return result;
             }

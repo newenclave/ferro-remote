@@ -91,6 +91,7 @@ namespace fr { namespace agent { namespace subsys {
 
         class gpio_impl: public gproto::instance {
 
+            fr::agent::application              *app_;
             gpio_map                             gpio_;
             vtrc::shared_mutex                   gpio_lock_;
             vtrc::atomic<vtrc::uint32_t>         index_;
@@ -104,7 +105,8 @@ namespace fr { namespace agent { namespace subsys {
 
             gpio_impl( fr::agent::application *app,
                        vcomm::connection_iface_wptr cli )
-                :index_(100)
+                :app_(app)
+                ,index_(100)
                 ,client_(cli)
                 ,event_channel_(create_event_channel(client_.lock( )))
                 ,eventor_(event_channel_.get( ))
@@ -322,16 +324,13 @@ namespace fr { namespace agent { namespace subsys {
                                 value_data &data,
                                 vcomm::connection_iface_wptr cli )
             {
+                auto tick_count = app_->tick_count( );
                 try {
                     vcomm::connection_iface_sptr lck( cli.lock( ) );
                     if( !lck ) {
                         return false;
                     }
 
-                    time_point event_tim = chrono::high_resolution_clock::now();
-                    auto microsec =
-                            chrono::duration_cast<chrono::microseconds>
-                                            (event_tim.time_since_epoch( ));
                     gpio_sptr gpio( data.weak_gpio.lock( ) );
 
                     bool               success = true;
@@ -344,7 +343,7 @@ namespace fr { namespace agent { namespace subsys {
                     op_data.set_id( data.op_id );
 
                     try {
-                        vdat.set_timepoint( microsec.count( ) );
+                        vdat.set_timepoint( tick_count );
                         vdat.set_new_value( gpio->value_by_fd( data.fd ) );
                         op_data.set_data( vdat.SerializeAsString( ) );
                     } catch( const std::exception &ex ) {

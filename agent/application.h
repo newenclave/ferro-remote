@@ -104,6 +104,10 @@ namespace fr { namespace agent {
 
         void quit( );
 
+        static std::uint64_t now( );
+        static std::uint64_t tick_count( );
+        static std::uint64_t start_tick( );
+
     public: // subsystems
 
         template <typename T>
