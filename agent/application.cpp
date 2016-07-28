@@ -93,9 +93,9 @@ namespace fr { namespace agent {
                    ::fr::proto::info_res* response,
                    ::google::protobuf::Closure* done) override
         {
+            const auto &cfg(app_->subsystem<subsys::config>( ));
             vcomm::closure_holder holder(done);
-            response->set_name( app_->subsystem<subsys::config>( )
-                                     .cfgs( ).name );
+            response->set_name( cfg.cfgs( ).name );
             response->set_tick_now( application::now( ) );
             response->set_tick_count( response->tick_now( ) -
                                       application::start_tick( ) );
