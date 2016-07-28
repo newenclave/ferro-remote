@@ -183,7 +183,11 @@ namespace fr { namespace agent { namespace subsys {
                     "Loglevel: zero, error, warning, info[default], debug")
 
             ("server,s", po::value<string_list>( ),
-                    "endpoint name; <tcp address>:<port> or <file name>")
+                    "endpoint name; "
+                    "<ip address>:<port> or <file name>")
+
+            ("mcast,m", po::value<string_list>( ),
+                    "multicast receiver name; <ip address>:<port>")
 
             ("io-pool-size,i",  po::value<unsigned>( ),
                     "threads for io operations; default = 1")
@@ -269,6 +273,10 @@ namespace fr { namespace agent { namespace subsys {
 
         if( vm.count( "server" ) ) {
             res.endpoints = vm["server"].as<slist>( );
+        }
+
+        if( vm.count( "mcast" ) ) {
+            res.multicast = vm["mcast"].as<slist>( );
         }
 
         if( vm.count( "log" ) ) {
