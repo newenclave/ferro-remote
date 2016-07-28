@@ -336,7 +336,7 @@ namespace fr { namespace agent { namespace subsys {
         o << "config: {\n";
 
         /// endpoints
-        o << "  endoints: {\n";
+        o << "  endpoints: {\n";
         for( auto &e: c.endpoints ) {
             o << "    " << e << "\n";
         }
