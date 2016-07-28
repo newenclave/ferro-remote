@@ -11,10 +11,15 @@ namespace core {
 
 namespace interfaces { namespace internal {
 
+    struct agent_info {
+        std::string name;
+    };
+
     struct iface: public interfaces::base {
         virtual ~iface( ) { }
         virtual void exit_process( ) const = 0;
         virtual size_t ping( ) const = 0;
+        virtual agent_info info( ) const = 0;
     };
 
     typedef iface * iface_ptr;

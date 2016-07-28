@@ -11,9 +11,16 @@ message ping_req {
 
 message ping_res { }
 
+message info_req { }
+
+message info_res {
+    optional string name = 1;
+}
+
 service internal {
     rpc exit_process( empty ) returns ( empty );
     rpc ping( ping_req ) returns ( ping_res );
+    rpc info( info_req ) returns ( info_res );
 }
 
 message error_data {

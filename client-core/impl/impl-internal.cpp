@@ -58,6 +58,16 @@ namespace fr { namespace client { namespace interfaces {
                 client_.call( &stub_type::exit_process );
             }
 
+            internal::agent_info info( ) const override
+            {
+                proto::info_res res;
+                client_.call_response( &stub_type::info, &res );
+                internal::agent_info result;
+                result.name.swap(*res.mutable_name( ));
+
+                return result;
+            }
+
             size_t ping( ) const override
             {
                 time_point start = high_resolution_clock::now( );

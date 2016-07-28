@@ -82,6 +82,15 @@ namespace fr { namespace agent {
             vcomm::closure_holder holder(done);
         }
 
+        void info( ::google::protobuf::RpcController* controller,
+                   const ::fr::proto::info_req* request,
+                   ::fr::proto::info_res* response,
+                   ::google::protobuf::Closure* done) override
+        {
+            vcomm::closure_holder holder(done);
+            response->set_name( app_->subsystem<subsys::config>( ).name( ) );
+        }
+
         static const std::string &name( )
         {
             return fr::proto::internal::descriptor( )->full_name( );
