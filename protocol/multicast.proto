@@ -1,0 +1,6 @@
+
+package fr.proto;
+
+message mcast_request { }
+message mcast_response { }
+
