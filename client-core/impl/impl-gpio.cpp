@@ -305,7 +305,7 @@ namespace fr { namespace client { namespace interfaces {
             {
                 gproto::value_change_data vcd;
                 vcd.ParseFromString( data );
-                cb( err, vcd.new_value( ), vcd.interval( ) );
+                cb( err, vcd.new_value( ), vcd.timepoint( ) );
             }
 
             void register_for_change( gpio

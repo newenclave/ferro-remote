@@ -97,8 +97,6 @@ namespace fr { namespace agent { namespace subsys {
             rpc_channel_sptr                     event_channel_;
             events_stub_type                     eventor_;
             subsys::reactor                     &reactor_;
-
-            time_point                           event_last_time_;
             logger                              &log_;
 
         public:
@@ -110,7 +108,6 @@ namespace fr { namespace agent { namespace subsys {
                 ,event_channel_(create_event_channel(client_.lock( )))
                 ,eventor_(event_channel_.get( ))
                 ,reactor_(app->subsystem<subsys::reactor>( ))
-                ,event_last_time_(chrono::high_resolution_clock::now( ))
                 ,log_(app->get_logger( ))
             { }
 
@@ -279,8 +276,6 @@ namespace fr { namespace agent { namespace subsys {
 
                 g->set_value( b );
 
-                event_last_time_ = chrono::high_resolution_clock::now( );
-
                 int res = -1;
                 while( -1 == res ) {
                     res = ::nanosleep( &init, &init );
@@ -333,7 +328,7 @@ namespace fr { namespace agent { namespace subsys {
                     }
 
                     time_point event_tim = chrono::high_resolution_clock::now();
-                    time_point::duration dur = event_tim - event_last_time_;
+                    time_point::duration dur = event_tim - time_point( );
 
                     gpio_sptr gpio( data.weak_gpio.lock( ) );
 
@@ -346,10 +341,9 @@ namespace fr { namespace agent { namespace subsys {
 
                     op_data.set_id( data.op_id );
 
-
                     try {
 
-                        vdat.set_interval( dur.count( ) );
+                        vdat.set_timepoint( dur.count( ) );
                         vdat.set_new_value( gpio->value_by_fd( data.fd ) );
                         op_data.set_data( vdat.SerializeAsString( ) );
 
