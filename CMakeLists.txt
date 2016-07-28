@@ -9,6 +9,8 @@ endif(WIN32)
 cmake_minimum_required(VERSION 2.8)
 
 set( INTERNAL_PROJECT_NAME ferro_remote )
+set( CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} 
+     "${CMAKE_CURRENT_SOURCE_DIR}/cmake/Modules/" )
 
 #set( VTRC_IMPORT_CMAKE "${CMAKE_CURRENT_SOURCE_DIR}/../vtrc/vtrc-import.cmake")
 set( FR_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/include")
