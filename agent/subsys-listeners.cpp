@@ -22,6 +22,8 @@
 
 #include "subsys-logging.h"
 
+#include "utils.h"
+
 #define LOG(lev) log_(lev) << "[listener] "
 #define LOGINF   LOG(logger::level::info)
 #define LOGDBG   LOG(logger::level::debug)

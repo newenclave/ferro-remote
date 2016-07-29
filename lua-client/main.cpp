@@ -21,6 +21,8 @@
 
 #include "3rd/struct.h"
 
+#include "client-core/fr-discover.h"
+
 namespace vcomm     = vtrc::common;
 namespace vclient   = vtrc::client;
 namespace fs        = boost::filesystem;
@@ -97,6 +99,7 @@ namespace {
 
 int main( int argc, const char *argv[] )
 { try {
+
     po::options_description description("Allowed common options");
 
     fill_common_options( description );

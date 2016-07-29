@@ -98,15 +98,15 @@ namespace fr { namespace agent { namespace subsys {
                        << "; port: " << info.service;
 
                 auto pinfo = std::make_shared<point_info>
-                        ( app_->get_io_service( ), 256 );
+                                ( app_->get_io_service( ), 256 );
 
                 pinfo->sock.open( addr.is_v6( )
                                   ? bip::udp::v6( )
                                   : bip::udp::v4( ) );
 
                 pinfo->sock.set_option( mcast_socket::reuse_address(true) );
-                pinfo->sock.bind( listen_ep );
                 pinfo->sock.set_option( bip::multicast::join_group( addr ) );
+                pinfo->sock.bind( listen_ep );
                 {
                     std::lock_guard<std::mutex> l(points_lock_);
                     points_[name] = pinfo;
@@ -133,7 +133,8 @@ namespace fr { namespace agent { namespace subsys {
             try {
                 parent_->on_request_( req, res );
                 std::string serial = resp.SerializeAsString(  );
-                pinfo.sock.send_to( ba::buffer(serial), pinfo.sender );
+                pinfo.sock.send_to( ba::buffer(serial), pinfo.sender );                
+                LOGDBG << "Send response success.";
             } catch( const std::exception &ex ) {
                 LOGERR << "Exception while sending signal: " << ex.what( );
             } catch( ... ) {
@@ -154,7 +155,9 @@ namespace fr { namespace agent { namespace subsys {
             auto lck = info.lock( );
             if( lck ) {
                 LOGDBG << "Recv request from "
-                       << lck->sender.address( ).to_string( );
+                       << lck->sender.address( ).to_string( )
+                       << ":" << lck->sender.port( )
+                          ;
                 ///
                 req_res( *lck, bytes_recvd );
                 ///
@@ -235,6 +238,7 @@ namespace fr { namespace agent { namespace subsys {
         for( auto &a: impl_->config_->cfgs( ).multicast ) {
             impl_->add_point( a );
         }
+        impl_->start_all( );
     }
 
     void multicast::stop( )
