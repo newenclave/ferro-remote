@@ -42,4 +42,4 @@ namespace fr {  namespace client { namespace core {
 
 }}}
 
-#endif // FRDISCOVER_H
+#endif // FR_DISCOVER_H
