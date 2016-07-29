@@ -215,7 +215,7 @@ namespace fr { namespace agent { namespace subsys {
                     "threads for rpc calls; default = 1")
 
             ("only-pool,o", "use io pool for io operations and rpc calls")
-            ("script,S",    po::value<std::string>(&l_script_path),
+            ("config,c",    po::value<std::string>(&l_script_path),
                             "lua script for configure server")
             ("key,k", po::value< std::vector< std::string> >( ),
                      "format is: key=id:key; "
