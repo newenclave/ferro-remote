@@ -4,6 +4,8 @@
 #include "vtrc-function.h"
 #include "vtrc-memory.h"
 
+#include "boost/asio/ip/udp.hpp"
+
 namespace boost { namespace system {
     class error_code;
 }}
@@ -14,34 +16,28 @@ namespace boost { namespace asio {
 
 namespace fr {  namespace client { namespace core {
 
-    class discover {
-        struct impl;
-        impl  *impl_;
-    public:
-
-        typedef boost::system::error_code error_code;
-
-        typedef vtrc::function<bool( const error_code &,
-                                     const char *, size_t )> handler_type;
-
-        struct pinger: vtrc::enable_shared_from_this<pinger> {
-            virtual void stop( ) { }
-        };
-
-        typedef vtrc::shared_ptr<pinger> pinger_sptr;
-
-        discover( boost::asio::io_service &ios );
-        ~discover(  );
-
-        pinger_sptr add_ping( const std::string &addr, int timeout,
-                                  handler_type hdlr );
-        pinger_sptr add_mcast( const std::string &addr, int timeout,
-                                   handler_type hdlr );
-        pinger_sptr add_mcast( const std::string &addr, int timeout,
-                                   handler_type hdlr,
-                                   const std::string &local_bind );
-
+    struct udp_responce_info {
+        boost::asio::ip::udp::endpoint  *from;
+        const char                      *data;
+        size_t                           length;
+        udp_responce_info(  )
+            :data(NULL)
+            ,length(0)
+        { }
     };
+
+    struct udp_pinger: vtrc::enable_shared_from_this<udp_pinger> {
+        typedef vtrc::function<bool( const boost::system::error_code &,
+                                     const udp_responce_info * )> handler_type;
+        virtual void stop( ) { }
+        virtual void async_ping( const std::string &, int, handler_type) { }
+        virtual void async_ping( const std::string &, int, handler_type,
+                                 const std::string & ) { }
+    };
+
+    typedef vtrc::shared_ptr<udp_pinger> udp_pinger_sptr;
+
+    udp_pinger_sptr create_udp_pinger( boost::asio::io_service &ios );
 
 }}}
 

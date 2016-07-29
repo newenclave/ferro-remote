@@ -25,8 +25,7 @@ namespace fr {  namespace client { namespace core {
         typedef vtrc::common::delayed_call delayed_call;
         typedef delayed_call::milliseconds milliseconds;
 
-        bool handler_default( const bs::error_code &ec,
-                              const char *, size_t )
+        bool handler_default( const bs::error_code &ec, const udp_responce_info * )
         {
             if( !ec ) {
                 return false;
@@ -35,26 +34,28 @@ namespace fr {  namespace client { namespace core {
             }
         }
 
-        struct sender: public discover::pinger {
+        struct sender: public udp_pinger {
 
-            typedef discover::pinger_sptr shared_type;
+            typedef udp_pinger_sptr shared_type;
+            typedef vtrc::weak_ptr<udp_pinger> weak_type;
 
-            ba::io_service          &ios_;
-            ba::ip::udp::socket     socket_;
-            delayed_call            timeout_;
-            int                     to_;
-            ba::ip::udp::endpoint   from_;
-            std::vector<char>       data_;
-            std::string             mess_;
-            discover::handler_type  handler_;
+            ba::io_service            &ios_;
+            ba::ip::udp::socket       socket_;
+            delayed_call              timeout_;
+            int                       to_;
+            ba::ip::udp::endpoint     from_;
+            std::vector<char>         data_;
+            std::string               mess_;
+            udp_pinger::handler_type  handler_;
+            std::string               local_bind_;
 
-            sender( ba::io_service &ios, int to, discover::handler_type  h )
+            sender( ba::io_service &ios )
                 :ios_(ios)
                 ,socket_(ios_)
                 ,timeout_(ios_)
-                ,to_(to)
+                ,to_(0)
                 ,data_(4069)
-                ,handler_(h ? h : &handler_default)
+                ,handler_(handler_default)
             { }
 
             void ping( const std::string &addr, unsigned short port )
@@ -72,7 +73,8 @@ namespace fr {  namespace client { namespace core {
                 socket_.async_send_to(
                     ba::buffer(mess_), ep,
                     vtrc::bind( &sender::handle_send, this,
-                                 ph::error, shared_from_this( )));
+                                 ph::error,
+                                 weak_type( shared_from_this( ) ) ) );
             }
 
             void mcast( const std::string &addr, unsigned short port,
@@ -92,7 +94,7 @@ namespace fr {  namespace client { namespace core {
                     bs::error_code ecode;
                     socket_.bind( bep, ecode );
                     if( ecode ) {
-                        handler_( ecode, &data_[0], 0 );
+                        handler_( ecode, NULL );
                         return;
                     }
                 }
@@ -103,29 +105,50 @@ namespace fr {  namespace client { namespace core {
 
                 socket_.async_send_to( ba::buffer(mess_), ep,
                                        vtrc::bind( &sender::handle_send, this,
-                                                    ph::error,
-                                                    shared_from_this( ) ) );
+                                           ph::error,
+                                           weak_type(shared_from_this( ) ) ) );
             }
 
-            void handle_timeout( bs::error_code const &err, shared_type sdr )
+            void handle_timeout( bs::error_code const &err, weak_type sdr )
             {
-                socket_.close( );
+                if( !err ) {
+                    shared_type l = sdr.lock( );
+                    if( l ) {
+                        socket_.close( );
+                    }
+                }
+                //std::cerr << "Timeout!!! " << err.message( ) << "\n";
             }
 
             void handle_recv( bs::error_code const &err, size_t length,
-                              shared_type sdr )
+                              weak_type sdr )
             {
+                shared_type l = sdr.lock( );
+                if( !l ) {
+                    return;
+                }
+
                 if( err ) {
-                    handler_( err, &data_[0], 0 );
+                    handler_( err, NULL );
                 } else {
-                    if( handler_( err, &data_[0], length ) ) {
+                    udp_responce_info inf;
+                    inf.data    = &data_[0];
+                    inf.length  = length;
+                    inf.from    = &from_;
+
+                    if( handler_( err, &inf ) ) {
                         handle_send( err, sdr );
                     }
                 }
             }
 
-            void handle_send( bs::error_code const &err, shared_type sdr )
+            void handle_send( bs::error_code const &err, weak_type sdr )
             {
+                shared_type l = sdr.lock( );
+                if( !l ) {
+                    return;
+                }
+
                 if( !err ) {
                     from_ = ba::ip::udp::endpoint( );
 
@@ -140,7 +163,7 @@ namespace fr {  namespace client { namespace core {
                                      ph::error, sdr ),
                          milliseconds(to_) );
                 } else {
-                    handler_( err, &data_[0], 0 );
+                    handler_( err, NULL );
                 }
 
             }
@@ -149,6 +172,47 @@ namespace fr {  namespace client { namespace core {
             {
                 socket_.close( );
             }
+
+            void async_ping( const std::string &addr, int to, handler_type h )
+            {
+                if( socket_.is_open( ) ) {
+                    socket_.close( );
+                }
+
+                utilities::endpoint_info inf =
+                        utilities::get_endpoint_info( addr );
+
+                if( !inf.is_ip( ) ) {
+                    throw std::runtime_error( std::string("Invalid address ") +
+                                              addr );
+                }
+
+                handler_ = h ? h : &handler_default;
+                to_ = to;
+                ping( inf.addpess, inf.service );
+
+            }
+
+            void async_ping( const std::string &addr, int to, handler_type h,
+                             const std::string &local_bind )
+            {
+                if( socket_.is_open( ) ) {
+                    socket_.close( );
+                }
+
+                utilities::endpoint_info inf =
+                        utilities::get_endpoint_info( addr );
+
+                if( !inf.is_ip( ) ) {
+                    throw std::runtime_error( std::string("Invalid address ") +
+                                              addr );
+                }
+
+                handler_ = h ? h : &handler_default;
+                to_ = to;
+                mcast( inf.addpess, inf.service, local_bind );
+            }
+
         };
 
         typedef vtrc::shared_ptr<sender> sender_sptr;
@@ -180,68 +244,9 @@ namespace fr {  namespace client { namespace core {
 
     }
 
-    struct discover::impl {
-        ba::io_service &ios_;
-        impl(boost::asio::io_service &ios)
-            :ios_(ios)
-        { }
-
-        ~impl(  )
-        { }
-    };
-
-    discover::discover( boost::asio::io_service &ios )
-        :impl_(new impl(ios))
-    { }
-
-    discover::~discover(  )
+    udp_pinger_sptr create_udp_pinger( boost::asio::io_service &ios )
     {
-        delete impl_;
-    }
-
-    discover::pinger_sptr discover::add_ping( const std::string &addr,
-                                        int timeout,
-                                        handler_type hdlr )
-    {
-        utilities::endpoint_info inf = utilities::get_endpoint_info( addr );
-
-        if( !inf.is_ip( ) ) {
-            throw std::runtime_error( std::string("Invalid address ") +
-                                      addr );
-        }
-
-        sender_sptr s = vtrc::make_shared<sender>( vtrc::ref(impl_->ios_),
-                                                   timeout, hdlr );
-        s->ping( inf.addpess, inf.service  );
-
-        return s;
-    }
-
-    discover::pinger_sptr discover::add_mcast( const std::string &addr,
-                                               int timeout,
-                                               handler_type hdlr )
-    {
-        return add_mcast( addr, timeout, hdlr, "" );
-    }
-
-    discover::pinger_sptr discover::add_mcast( const std::string &addr,
-                                               int timeout,
-                                               handler_type hdlr,
-                                               const std::string &local_bind )
-    {
-        utilities::endpoint_info inf = utilities::get_endpoint_info( addr );
-
-        if( !inf.is_ip( ) ) {
-            throw std::runtime_error( std::string("Invalid address ") +
-                                      addr );
-        }
-
-        sender_sptr s = vtrc::make_shared<sender>( vtrc::ref(impl_->ios_),
-                                                   timeout, hdlr );
-
-        s->mcast( inf.addpess, inf.service, local_bind );
-
-        return s;
+        return vtrc::make_shared<sender>( vtrc::ref(ios) );
     }
 
 }}}
