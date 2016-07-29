@@ -33,7 +33,7 @@ namespace fr {  namespace client { namespace core {
         virtual void stop( ) = 0;
         virtual void async_ping( const std::string &, int, handler_type) = 0;
         virtual void async_ping( const std::string &, int, handler_type,
-                                 const std::string & ) = 0;
+                                 const std::string &local_bind ) = 0;
     };
 
     typedef vtrc::shared_ptr<udp_pinger> udp_pinger_sptr;
