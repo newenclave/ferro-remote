@@ -134,7 +134,7 @@ namespace fr { namespace agent { namespace subsys {
                 parent_->on_request_( req, res );
                 std::string serial = resp.SerializeAsString(  );
                 pinfo.sock.send_to( ba::buffer(serial), pinfo.sender );                
-                LOGDBG << "Send response success.";
+                //LOGDBG << "Send response success.";
             } catch( const std::exception &ex ) {
                 LOGERR << "Exception while sending signal: " << ex.what( );
             } catch( ... ) {
