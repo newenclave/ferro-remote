@@ -209,7 +209,7 @@ int main( int argc, const char *argv[] )
                         }
                         return true;
                     };
-                    pinger->async_ping( "239.194.1.3:18852", 2000, hdl );
+                    pinger->async_ping( "192.168.3.1:18852", 2000, hdl, "192.168.3.10" );
 #endif
                     et.attach( );
                 }

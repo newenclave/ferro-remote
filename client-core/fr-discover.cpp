@@ -218,27 +218,27 @@ namespace fr {  namespace client { namespace core {
         typedef vtrc::shared_ptr<sender> sender_sptr;
         typedef std::map<size_t, sender_sptr> sender_map;
 #if 0
-        void enum_local_addreses( std::vector<std::string> &out )
+        void enum_local_addreses( /*std::vector<std::string> &out*/ )
         {
-            try {
-                using boost::asio::ip::udp;
-                boost::asio::io_service io_service;
-                udp::resolver resolver(io_service);
+//            try {
+//                using boost::asio::ip::udp;
+//                boost::asio::io_service io_service;
+//                udp::resolver resolver(io_service);
 
-//                boost::asio::ip::address addr;
-//                udp::resolver::query query(addr.to_string(), "");
-                udp::resolver::query query( boost::asio::ip::host_name( ), "" );
+////                boost::asio::ip::address addr;
+////                udp::resolver::query query(addr.to_string(), "");
+//                udp::resolver::query query( boost::asio::ip::host_name( ), "" );
 
-                for( udp::resolver::iterator b(resolver.resolve(query)), e;
-                     b!=e; ++b )
-                {
-                    udp::endpoint ep = *b;
-                    out.push_back( ep.address().to_string() );
-                }
-            } catch ( const std::exception &ex ) {
-                std::cerr << "Error getting local addresses: "
-                    << ex.what();
-            }
+//                for( udp::resolver::iterator b(resolver.resolve(query)), e;
+//                     b!=e; ++b )
+//                {
+//                    udp::endpoint ep = *b;
+//                    out.push_back( ep.address().to_string() );
+//                }
+//            } catch ( const std::exception &ex ) {
+//                std::cerr << "Error getting local addresses: "
+//                    << ex.what();
+//            }
         }
 #endif
 
@@ -246,6 +246,7 @@ namespace fr {  namespace client { namespace core {
 
     udp_pinger_sptr create_udp_pinger( boost::asio::io_service &ios )
     {
+        //enum_local_addreses( );
         return vtrc::make_shared<sender>( vtrc::ref(ios) );
     }
 
