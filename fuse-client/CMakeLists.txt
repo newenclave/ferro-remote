@@ -23,7 +23,10 @@ message( "FUSE_VERSION: " ${FUSE_VERSION})
 
 include_directories(${FUSE_INCLUDE_DIRS})
 target_link_libraries(${exe_name} ${FUSE_LIBRARIES})
-target_link_libraries(${exe_name} dl)
+
+if(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
+	target_link_libraries(${exe_name} dl) # for fuse
+endif( )
 
 #########################################################
 
