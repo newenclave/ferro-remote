@@ -893,13 +893,13 @@ namespace fr { namespace agent { namespace subsys {
 
                 std::vector<char> buf(1024);
                 int res = ::read( data.fd, &buf[0], buf.size( ) );
+                req.set_tick_count( tick_count );
 
                 if( -1 == res ) {
                     req.mutable_error( )->set_code( errno );
                     req.mutable_error( )->set_text( strerror(errno) );
                 } else {
                     req.set_data( &buf[0], res );
-                    req.set_tick_count( tick_count );
                 }
 
                 events_.async_op( NULL, &req, NULL, NULL );
