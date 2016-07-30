@@ -1,3 +1,4 @@
+#include <iostream>
 
 #include "client-core/interfaces/IFile.h"
 #include "client-core/interfaces/IAsyncOperation.h"

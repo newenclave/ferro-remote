@@ -897,9 +897,9 @@ namespace fr { namespace agent { namespace subsys {
                 if( -1 == res ) {
                     req.mutable_error( )->set_code( errno );
                     req.mutable_error( )->set_text( strerror(errno) );
-                    req.set_tick_count( tick_count );
                 } else {
                     req.set_data( &buf[0], res );
+                    req.set_tick_count( tick_count );
                 }
 
                 events_.async_op( NULL, &req, NULL, NULL );

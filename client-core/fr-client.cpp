@@ -210,7 +210,8 @@ namespace fr {  namespace client { namespace core {
 
             if( f != cbi->acb_.end( ) ) {
                 f->second( request->error( ).code( ),
-                           request->data( ), request->tick_count( ) );
+                           request->data( ),
+                           request->tick_count( ) );
             } else {
                 ///std::cout << "not found\n";
             }
