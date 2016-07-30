@@ -341,12 +341,12 @@ namespace fr { namespace agent { namespace subsys {
                     gproto::value_change_data   vdat;
 
                     op_data.set_id( data.op_id );
+                    op_data.set_tick_count( tick_count );
 
                     try {
                         vdat.set_timepoint( tick_count );
                         vdat.set_new_value( gpio->value_by_fd( data.fd ) );
                         op_data.set_data( vdat.SerializeAsString( ) );
-                        op_data.set_tick_count( tick_count );
                     } catch( const std::exception &ex ) {
                         error_code = errno;
                         err.assign( ex.what( ) );
