@@ -256,4 +256,11 @@ namespace fr { namespace declarative {
         }
     }
 
+    void FrClientGpio::makePulse(quint32 value)
+    {
+        FR_QML_CALL_PROLOGUE
+        impl_->iface_->make_pulse( value, value ? 0 : 1 );
+        FR_QML_CALL_EPILOGUE( )
+    }
+
 }}

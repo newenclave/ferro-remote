@@ -89,6 +89,8 @@ namespace fr { namespace declarative {
         bool events( ) const;
         void setEvents( bool value );
 
+        void makePulse( quint32 value );
+
     signals:
 
         void directionChanged( DirectionType value ) const;
