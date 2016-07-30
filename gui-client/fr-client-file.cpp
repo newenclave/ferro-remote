@@ -24,7 +24,7 @@ namespace fr { namespace declarative {
         bool          events_;
         bool          device_;
 
-        fiface::file_event_callback event_cb_;
+        fiface::file_event_interval_callback event_cb_;
 
         impl( )
             :mode_("rb")
@@ -35,25 +35,28 @@ namespace fr { namespace declarative {
             event_cb_ = mkevent_cb( );
         }
 
-        fiface::file_event_callback mkevent_cb( )
+        fiface::file_event_interval_callback mkevent_cb( )
         {
             return std::bind( &impl::events_handler, this,
                               std::placeholders::_1,
-                              std::placeholders::_2 );
+                              std::placeholders::_2,
+                              std::placeholders::_3 );
         }
 
-        void events_handler( unsigned error, const std::string &data )
+        void events_handler( unsigned error, const std::string &data,
+                             quint64 interval )
         {
             emit parent_->fileEvent( error,
                                      QByteArray( data.c_str( ),
-                                                 data.size( ) ) );
+                                                 data.size( ) ),
+                                     interval );
         }
 
         void register_events( )
         {
             if( iface_ ) {
                 if( events_ ) {
-                    iface_->register_for_events( event_cb_ );
+                    iface_->register_for_events_int( event_cb_ );
                 } else {
                     iface_->unregister( );
                 }

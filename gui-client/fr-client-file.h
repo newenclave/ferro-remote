@@ -80,7 +80,7 @@ namespace fr { namespace declarative {
         void eventsChanged( bool value ) const;
         void deviceChanged( bool value ) const;
 
-        void fileEvent( unsigned error, QByteArray data ) const;
+        void fileEvent( unsigned error, QByteArray data, quint64 inter ) const;
 
     public slots:
 

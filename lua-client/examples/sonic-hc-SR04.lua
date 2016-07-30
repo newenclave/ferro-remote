@@ -26,6 +26,6 @@ function main( )
     E = assert(gpio.export(ECHO, "in",  1))
     assert(E:set( "edge", "both" ))
     assert(E:subscribe( "on_changed", handler, "E" ))
-    assert(T:pulse( 20 ))
+    assert(T:pulse( 50 ))
 end
 

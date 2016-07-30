@@ -210,6 +210,7 @@ namespace {
         }
 
         void file_event( unsigned err, const std::string &data,
+                         uint64_t interval,
                          eventor_wptr evtr )
         {
             eventor_sptr le(evtr.lock( ));
@@ -219,6 +220,7 @@ namespace {
                     result->add( "error", new_integer( err ) );
                 } else {
                     result->add( "data", new_string( data ) );
+                    result->add( "interval", new_integer( interval ) );
                 }
                 FR_LUA_EVENT_EPILOGUE;
             }
@@ -227,8 +229,9 @@ namespace {
         void register_file( file_sptr f, eventor_sptr e )
         {
             namespace ph = std::placeholders;
-            f->register_for_events( std::bind( &module::file_event, this,
-                                    ph::_1, ph::_2, eventor_wptr(e) ) );
+            f->register_for_events_int( std::bind( &module::file_event, this,
+                                        ph::_1, ph::_2, ph::_3,
+                                        eventor_wptr(e) ) );
         }
 
         void unregister_file( file_sptr f )
