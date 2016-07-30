@@ -101,6 +101,7 @@ namespace {
     int lcall_export   ( lua_State *L );
     int lcall_info     ( lua_State *L );
     int lcall_set      ( lua_State *L );
+    int lcall_pulse    ( lua_State *L );
     int lcall_get      ( lua_State *L );
     int lcall_close    ( lua_State *L );
     int lcall_unexport ( lua_State *L );
@@ -135,6 +136,7 @@ namespace {
          { "unexport",    &lcall_unexport       }
         ,{ "info",        &lcall_info           }
         ,{ "set",         &lcall_set            }
+        ,{ "pulse",       &lcall_pulse          }
         ,{ "get",         &lcall_get            }
         ,{ "close",       &lcall_close          }
         ,{ "__gc",        &lcall_close          }
@@ -488,6 +490,33 @@ namespace {
             return 2;
         }
 
+        return 1;
+    }
+
+    int lcall_pulse( lua_State *L )
+    {
+        module *m = get_module( L );
+        lua::state ls(L);
+        utils::handle h = m->get_object_hdl( L, 1 );
+
+        int n = ls.get_top( );
+
+        if( n < 2 ) {
+            ls.push( false );
+            ls.push( "Not enough actual parameters." );
+            return 2;
+        }
+        unsigned microsec  = ls.get_opt<unsigned>( 2 );
+        unsigned val       = ls.get_opt<unsigned>( 3, 1 );
+        try {
+            auto dev = m->get_dev_info( h );
+            dev.dev_->make_pulse( microsec, val, val ? 0 : 1 );
+            ls.push( true );
+        } catch( const std::exception &ex ) {
+            ls.push( false );
+            ls.push( ex.what( ) );
+            return 2;
+        }
         return 1;
     }
 
