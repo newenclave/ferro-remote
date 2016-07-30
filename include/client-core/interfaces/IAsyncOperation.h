@@ -9,7 +9,9 @@ namespace fr { namespace client {
     ///
     /// void call( error_code, data )
     ///
-    typedef void (async_op_callback_sign)( unsigned, const std::string & );
+    typedef void (async_op_callback_sign)( unsigned,
+                                           const std::string &,
+                                           uint64_t );
     typedef vtrc::function<async_op_callback_sign> async_op_callback_type;
 
 }}

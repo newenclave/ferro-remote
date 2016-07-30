@@ -5,6 +5,7 @@ local ECHO = 3
 local last_tick = 0 
 
 function handler( data )
+    -- fr.print( data )
     if last_tick ~= 0 then 
 	local val = data.value
 	if val == 1 then 

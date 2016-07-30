@@ -291,7 +291,7 @@ namespace fr { namespace client { namespace interfaces {
             }
 
             void event_handler( unsigned err,
-                                const std::string &data,
+                                const std::string &data, uint64_t,
                                 gpio::value_change_callback &cb ) const
             {
                 gproto::value_change_data vcd;
@@ -300,12 +300,12 @@ namespace fr { namespace client { namespace interfaces {
             }
 
             void event_handler2( unsigned err,
-                                 const std::string &data,
+                                 const std::string &data, uint64_t interval,
                                 gpio::value_change_interval_callback &cb ) const
             {
                 gproto::value_change_data vcd;
                 vcd.ParseFromString( data );
-                cb( err, vcd.new_value( ), vcd.timepoint( ) );
+                cb( err, vcd.new_value( ), interval );
             }
 
             void register_for_change( gpio
@@ -322,6 +322,7 @@ namespace fr { namespace client { namespace interfaces {
                             vtrc::bind( &gpio_impl::event_handler, this,
                                         vtrc::placeholders::_1,
                                         vtrc::placeholders::_2,
+                                        vtrc::placeholders::_3,
                                         cb ) );
 
                 core_.register_async_op( res.async_op_id( ), acb );
@@ -341,6 +342,7 @@ namespace fr { namespace client { namespace interfaces {
                             vtrc::bind( &gpio_impl::event_handler2, this,
                                         vtrc::placeholders::_1,
                                         vtrc::placeholders::_2,
+                                        vtrc::placeholders::_3,
                                         cb ) );
 
                 core_.register_async_op( res.async_op_id( ), acb );

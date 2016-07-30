@@ -233,10 +233,17 @@ namespace fr { namespace client { namespace interfaces {
             // unsigned, const std::string data
 
             void event_handler( unsigned err,
-                                const std::string &data,
+                                const std::string &data, uint64_t,
                                 file::file_event_callback &cb )
             {
                 cb( err, data );
+            }
+
+            void event_handler2( unsigned err,
+                                 const std::string &data, uint64_t interval,
+                                 file::file_event_interval_callback &cb )
+            {
+                cb( err, data, interval );
             }
 
             void register_for_events( file::file_event_callback cb )
@@ -253,6 +260,26 @@ namespace fr { namespace client { namespace interfaces {
                             vtrc::bind( &file_impl::event_handler, this,
                                         vtrc::placeholders::_1,
                                         vtrc::placeholders::_2,
+                                        vtrc::placeholders::_3,
+                                        cb ) );
+
+                core_.register_async_op( res.async_op_id( ), acb );
+            }
+
+            void register_for_events_int(file::file_event_interval_callback cb )
+            {
+                fproto::register_req req;
+                fproto::register_res res;
+
+                req.mutable_hdl( )->set_value( hdl_.value( ) );
+
+                client_.call( &stub_type::register_for_events, &req, &res );
+
+                async_op_callback_type acb(
+                            vtrc::bind( &file_impl::event_handler2, this,
+                                        vtrc::placeholders::_1,
+                                        vtrc::placeholders::_2,
+                                        vtrc::placeholders::_3,
                                         cb ) );
 
                 core_.register_async_op( res.async_op_id( ), acb );

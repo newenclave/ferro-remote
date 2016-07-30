@@ -31,9 +31,10 @@ message error_data {
 }
 
 message async_op_data {
-    optional uint32      id     = 1;
-    optional error_data  error  = 2;
-    optional bytes       data   = 3;
+    optional uint32      id             =  1;
+    optional error_data  error          =  2;
+    optional bytes       data           =  3;
+    optional uint64      tick_count     = 10;
 }
 
 service events {

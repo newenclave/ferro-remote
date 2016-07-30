@@ -880,6 +880,7 @@ namespace fr { namespace agent { namespace subsys {
                                 value_data &data,
                                 vcomm::connection_iface_wptr cli )
             { try {
+                auto tick_count = application::tick_count( );
                 vcomm::connection_iface_sptr lock(cli.lock( ));
 
                 if( !lock ) {
@@ -896,6 +897,7 @@ namespace fr { namespace agent { namespace subsys {
                 if( -1 == res ) {
                     req.mutable_error( )->set_code( errno );
                     req.mutable_error( )->set_text( strerror(errno) );
+                    req.set_tick_count( tick_count );
                 } else {
                     req.set_data( &buf[0], res );
                 }

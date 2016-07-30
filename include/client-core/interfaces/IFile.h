@@ -69,6 +69,10 @@ namespace interfaces { namespace file {
             void (unsigned, const std::string &) // error, data
     > file_event_callback;
 
+    typedef vtrc::function<
+            void (unsigned, const std::string &, uint64_t) // error, data, tick
+    > file_event_interval_callback;
+
     struct base_file_iface: public interfaces::base {
         virtual ~base_file_iface( ) { }
         virtual size_t  read( void *data,       size_t length  ) const = 0;
@@ -89,6 +93,8 @@ namespace interfaces { namespace file {
                                  bool seek_back = false ) const = 0;
 
         virtual void register_for_events( file_event_callback cb ) = 0;
+        virtual void register_for_events_int(
+                                file_event_interval_callback cb ) = 0;
         virtual void unregister( ) = 0;
 
     };
