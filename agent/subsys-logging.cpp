@@ -184,7 +184,7 @@ namespace fr { namespace agent { namespace subsys {
             //std::cerr << "logger channel error: " << mess << "\n";
         }
 
-        logger::level proto2level( unsigned proto_level )
+        logger::level proto2lvl( unsigned proto_level )
         {
             switch(proto_level) {
             case static_cast<unsigned>(logger::level::zero    ):
@@ -197,7 +197,7 @@ namespace fr { namespace agent { namespace subsys {
             return logger::level::info;
         }
 
-        fr::proto::logger::log_level level2proto( unsigned lvl )
+        fr::proto::logger::log_level lvl2proto( unsigned lvl )
         {
             switch( lvl ) {
             case fr::proto::logger::zero    :
@@ -252,7 +252,7 @@ namespace fr { namespace agent { namespace subsys {
             {
                 vcomm::closure_holder holder( done );
                 logger::level lvl = request->has_level( )
-                                  ? proto2level( request->level( ) )
+                                  ? proto2lvl( request->level( ) )
                                   : logger::level::info;
                 lgr_(lvl) << request->text( );
             }
@@ -264,7 +264,7 @@ namespace fr { namespace agent { namespace subsys {
             {
                 vcomm::closure_holder holder( done );
                 logger::level lvl = request->has_level( )
-                                  ? proto2level( request->level( ) )
+                                  ? proto2lvl( request->level( ) )
                                   : logger::level::info;
                 lgr_.set_level( lvl );
             }
@@ -275,7 +275,7 @@ namespace fr { namespace agent { namespace subsys {
                          ::google::protobuf::Closure* done) override
             {
                 vcomm::closure_holder holder( done );
-                response->set_level( level2proto(
+                response->set_level( lvl2proto(
                          static_cast<unsigned>(lgr_.get_level( )) ) );
             }
 
@@ -292,8 +292,7 @@ namespace fr { namespace agent { namespace subsys {
                            size_t opid )
             {
                 fr::proto::logger::write_data req;
-                req.set_level(
-                            level2proto(static_cast<unsigned>(info.level) ) );
+                req.set_level( lvl2proto( static_cast<unsigned>(info.level) ) );
                 std::ostringstream oss;
                 for( auto &d: data ) {
                     oss << d << "\n";
@@ -310,6 +309,7 @@ namespace fr { namespace agent { namespace subsys {
 
             }
 
+#if 0
             void on_write( logger::level lvl, uint64_t microsec,
                            const std::string &data,
                            const std::string &/*format*/,
@@ -326,6 +326,7 @@ namespace fr { namespace agent { namespace subsys {
                 eventor_.call_request( &events_stub_type::async_op, &areq );
 
             }
+#endif
 
             void subscribe(::google::protobuf::RpcController* /*controller*/,
                          const ::fr::proto::empty*            /*request*/,
