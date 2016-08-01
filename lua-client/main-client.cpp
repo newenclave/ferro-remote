@@ -153,9 +153,10 @@ namespace fr { namespace lua { namespace client {
             main.add( "connect",    new_function( &lua_call_connect ) );
             main.add( "ping",       new_function( &lua_call_ping ) );
             main.add( "info",       new_function( &lua_call_info ) );
-            main.add( "quit",       new_function( &lua_call_exit ) );
+            //main.add( "quit",       new_function( &lua_call_exit ) );
+            main.add( "shutdown",   new_function( &lua_call_exit ) );
             main.add( "disconnect", new_function( &lua_call_disconnect ) );
-            main.add( "connected",  new_boolean( true ) );
+            main.add( "connected",  new_boolean ( true ) );
 
             return res;
         }
