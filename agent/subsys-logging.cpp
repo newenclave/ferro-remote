@@ -339,8 +339,7 @@ namespace fr { namespace agent { namespace subsys {
 
                 connect_ = lgr_.on_write_connect(
                                 std::bind( &this_type::on_write2, this,
-                                           ph::_1, ph::_2,
-                                           op_id ) );
+                                           ph::_1, ph::_2, op_id ) );
 
                 response->set_async_op_id( op_id );
             }
@@ -356,9 +355,8 @@ namespace fr { namespace agent { namespace subsys {
 
         };
 
-        application::service_wrapper_sptr create_service(
-                                      fr::agent::application *app,
-                                      vtrc::common::connection_iface_wptr cl )
+        application::service_wrapper_sptr create_service( application *app,
+                                              vcomm::connection_iface_wptr cl )
         {
             auto inst(vtrc::make_shared<proto_looger_impl>( app, cl ));
             return app->wrap_service( cl, inst );
