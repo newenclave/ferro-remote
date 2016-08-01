@@ -255,6 +255,7 @@ namespace {
             res->add( "WRN", new_integer( 2 ) );
             res->add( "INF", new_integer( 3 ) );
             res->add( "DBG", new_integer( 4 ) );
+
             res->add( "add", new_function( &lcall_add_logger ) );
 
             res->add( "set_level", new_function( &lcall_set_level ) );

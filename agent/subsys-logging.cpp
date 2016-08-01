@@ -5,6 +5,7 @@
 #include <syslog.h>
 
 #include "subsys-logging.h"
+#include "subsys-reactor.h"
 #include "application.h"
 
 #include "logger.h"
@@ -14,6 +15,13 @@
 
 #include "boost/date_time/posix_time/posix_time.hpp"
 #include "boost/algorithm/string.hpp"
+
+#include "protocol/logger.pb.h"
+#include "protocol/ferro.pb.h"
+
+#include "vtrc-common/vtrc-stub-wrapper.h"
+#include "vtrc-common/vtrc-closure-holder.h"
+#include "vtrc-server/vtrc-channels.h"
 
 #define LOG(lev) log_(lev, "logging") << "[log] "
 #define LOGINF   LOG(logger::level::info)
@@ -36,6 +44,9 @@ namespace fr { namespace agent { namespace subsys {
         const std::string subsys_name( "logging" );
         namespace bsig = boost::signals2;
         namespace bpt  = boost::posix_time;
+        namespace signal = boost::signals2;
+        namespace vcomm  = vtrc::common;
+        namespace vserv  = vtrc::server;
 
         inline logger::level str2lvl( const char *str )
         {
@@ -115,6 +126,14 @@ namespace fr { namespace agent { namespace subsys {
         using ostream_wptr = std::weak_ptr<ostream_inf>;
         using stream_list  = std::list<ostream_inf>;
 
+        namespace sproto = fr::proto;
+        typedef   sproto::events::Stub events_stub_type;
+        typedef   vcomm::stub_wrapper<
+            events_stub_type, vcomm::rpc_channel
+        > event_client_type;
+
+        using vserv::channels::unicast::create_event_channel;
+
         std::string str2logger( const std::string &str,
                                 std::string &fromlvl, std::string &tolvl )
         {
@@ -160,6 +179,190 @@ namespace fr { namespace agent { namespace subsys {
 //            return oss.str( );
 //        }
 
+        void chan_err( const char * /*mess*/ )
+        {
+            //std::cerr << "logger channel error: " << mess << "\n";
+        }
+
+        logger::level proto2level( unsigned proto_level )
+        {
+            switch(proto_level) {
+            case static_cast<unsigned>(logger::level::zero    ):
+            case static_cast<unsigned>(logger::level::error   ):
+            case static_cast<unsigned>(logger::level::warning ):
+            case static_cast<unsigned>(logger::level::info    ):
+            case static_cast<unsigned>(logger::level::debug   ):
+                return static_cast<logger::level>(proto_level);
+            }
+            return logger::level::info;
+        }
+
+        fr::proto::logger::log_level level2proto( unsigned lvl )
+        {
+            switch( lvl ) {
+            case fr::proto::logger::zero    :
+            case fr::proto::logger::error   :
+            case fr::proto::logger::warning :
+            case fr::proto::logger::info    :
+            case fr::proto::logger::debug   :
+                return static_cast<fr::proto::logger::log_level>(lvl);
+            }
+            return fr::proto::logger::info;
+        }
+
+        class proto_looger_impl: public fr::proto::logger::instance {
+
+            typedef proto_looger_impl this_type;
+
+            fr::agent::logger     &lgr_;
+            signal::connection     connect_;
+            subsys::reactor       &reactor_;
+            event_client_type      eventor_;
+
+        public:
+
+            size_t next_op_id( )
+            {
+                return reactor_.next_op_id( );
+            }
+
+            static const std::string &name( )
+            {
+                return fr::proto::logger::instance::descriptor( )->full_name( );
+            }
+
+            ~proto_looger_impl( )
+            {
+                connect_.disconnect( );
+            }
+
+            proto_looger_impl( fr::agent::application *app,
+                               vcomm::connection_iface_wptr cli)
+                :lgr_(app->get_logger( ))
+                ,reactor_(app->subsystem<subsys::reactor>( ))
+                ,eventor_(create_event_channel(cli.lock( ), true), true)
+            {
+                eventor_.channel( )->set_channel_error_callback( chan_err );
+            }
+
+            void send_log( ::google::protobuf::RpcController*  /*controller*/,
+                           const ::fr::proto::logger::log_req* request,
+                           ::fr::proto::empty*                 /*response*/,
+                           ::google::protobuf::Closure* done ) override
+            {
+                vcomm::closure_holder holder( done );
+                logger::level lvl = request->has_level( )
+                                  ? proto2level( request->level( ) )
+                                  : logger::level::info;
+                lgr_(lvl) << request->text( );
+            }
+
+            void set_level(::google::protobuf::RpcController*   /*controller*/,
+                         const ::fr::proto::logger::set_level_req* request,
+                         ::fr::proto::empty*                    /*response*/,
+                         ::google::protobuf::Closure* done) override
+            {
+                vcomm::closure_holder holder( done );
+                logger::level lvl = request->has_level( )
+                                  ? proto2level( request->level( ) )
+                                  : logger::level::info;
+                lgr_.set_level( lvl );
+            }
+
+            void get_level(::google::protobuf::RpcController* /*controller*/,
+                         const ::fr::proto::empty*            /*request*/,
+                         ::fr::proto::logger::get_level_res*  response,
+                         ::google::protobuf::Closure* done) override
+            {
+                vcomm::closure_holder holder( done );
+                response->set_level( level2proto(
+                         static_cast<unsigned>(lgr_.get_level( )) ) );
+            }
+
+            static vtrc::uint64_t time2ticks( const boost::posix_time::ptime &t)
+            {
+                using namespace boost::posix_time;
+                static const ptime epoch( ptime::date_type( 1970, 1, 1 ) );
+                time_duration from_epoch = t - epoch;
+                return from_epoch.ticks( );
+            }
+
+            void on_write2( const log_record_info info,
+                           logger_data_type const &data,
+                           size_t opid )
+            {
+                fr::proto::logger::write_data req;
+                req.set_level(
+                            level2proto(static_cast<unsigned>(info.level) ) );
+                std::ostringstream oss;
+                for( auto &d: data ) {
+                    oss << d << "\n";
+                }
+                req.set_text( oss.str( ) );
+                req.set_microsec( time2ticks( info.when ) );
+
+                fr::proto::async_op_data areq;
+                areq.set_id( opid );
+                areq.set_data( req.SerializeAsString( ) );
+                areq.set_tick_count( application::tick_count( ) );
+
+                eventor_.call_request( &events_stub_type::async_op, &areq );
+
+            }
+
+            void on_write( logger::level lvl, uint64_t microsec,
+                           const std::string &data,
+                           const std::string &/*format*/,
+                           size_t opid )
+            {
+                fr::proto::logger::write_data req;
+                req.set_level( level2proto( static_cast<unsigned>(lvl) ) );
+                req.set_text( data );
+                req.set_microsec( microsec );
+
+                fr::proto::async_op_data areq;
+                areq.set_id( opid );
+                areq.set_data( req.SerializeAsString( ) );
+                eventor_.call_request( &events_stub_type::async_op, &areq );
+
+            }
+
+            void subscribe(::google::protobuf::RpcController* /*controller*/,
+                         const ::fr::proto::empty*            /*request*/,
+                         ::fr::proto::logger::subscribe_res* response,
+                         ::google::protobuf::Closure* done) override
+            {
+                vcomm::closure_holder holder( done );
+                size_t op_id = next_op_id( );
+
+                namespace ph = std::placeholders;
+
+                connect_ = lgr_.on_write_connect(
+                                std::bind( &this_type::on_write2, this,
+                                           ph::_1, ph::_2,
+                                           op_id ) );
+
+                response->set_async_op_id( op_id );
+            }
+
+            void unsubscribe(::google::protobuf::RpcController* /*controller*/,
+                         const ::fr::proto::empty*      /*request*/,
+                         ::fr::proto::empty*            /*response*/,
+                         ::google::protobuf::Closure* done) override
+            {
+                vcomm::closure_holder holder( done );
+                connect_.disconnect( );
+            }
+
+        };
+
+        application::service_wrapper_sptr create_service(
+                                      fr::agent::application *app,
+                                      vtrc::common::connection_iface_wptr cl )
+        {
+            auto inst(vtrc::make_shared<proto_looger_impl>( app, cl ));
+            return app->wrap_service( cl, inst );
+        }
     }
 
     struct logging::impl {
@@ -451,11 +654,13 @@ namespace fr { namespace agent { namespace subsys {
 
     void logging::start( )
     {
+        impl_->reg_creator( proto_looger_impl::name( ),  create_service );
         impl_->LOGINF << "Started.";
     }
 
     void logging::stop( )
     {
+        impl_->unreg_creator( proto_looger_impl::name( ) );
         impl_->LOGINF << "Stopped.";
     }
 
