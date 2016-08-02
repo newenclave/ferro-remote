@@ -47,7 +47,7 @@ namespace fr { namespace declarative {
 
     bool FrClientSPI::clientFailed( ) const
     {
-
+        return true;
     }
 
 }}
