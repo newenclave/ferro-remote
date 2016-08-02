@@ -36,14 +36,14 @@ foreach(next_proto ${protofiles})
     add_custom_command(
         COMMAND
                 ${PROTOBUF_PROTOC_EXECUTABLE}
-                        --proto_path=${PROTOBUF_INCLUDE_DIRS}
-                        --proto_path=${POTOBUF_IMPORT_DIRS}
-                        --proto_path=${in_PATH}
-                        --proto_path=${VTRC_PROTOCOL_INCLUDE_DIR}
-                        --cpp_out=${${lib_name}_PROTOBUF_FILES_OUTPUT}
-                        ${next_proto}
+                        --proto_path="${PROTOBUF_INCLUDE_DIRS}"
+                        --proto_path="${POTOBUF_IMPORT_DIRS}"
+                        --proto_path="${in_PATH}"
+                        --proto_path="${VTRC_PROTOCOL_INCLUDE_DIR}"
+                        --cpp_out="${${lib_name}_PROTOBUF_FILES_OUTPUT}"
+                        "${next_proto}"
         WORKING_DIRECTORY
-                ${GENERATED_FILES_OUTPUT}
+                "${GENERATED_FILES_OUTPUT}"
         OUTPUT
                 ${OUTPUT_FILES}
         DEPENDS
