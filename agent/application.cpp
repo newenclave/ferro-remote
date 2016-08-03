@@ -79,9 +79,9 @@ namespace fr { namespace agent {
             app_->quit( );
         }
 
-        void ping( ::google::protobuf::RpcController* controller,
-                   const ::fr::proto::ping_req* request,
-                   ::fr::proto::ping_res* response,
+        void ping( ::google::protobuf::RpcController* /*controller*/,
+                   const ::fr::proto::ping_req*       /*request*/,
+                   ::fr::proto::ping_res*             /*response*/,
                    ::google::protobuf::Closure* done) override
         {
             // do nothing!
@@ -89,7 +89,7 @@ namespace fr { namespace agent {
         }
 
         void info( ::google::protobuf::RpcController* /*controller*/,
-                   const ::fr::proto::info_req* /*request*/,
+                   const ::fr::proto::info_req*       /*request*/,
                    ::fr::proto::info_res* response,
                    ::google::protobuf::Closure* done) override
         {
