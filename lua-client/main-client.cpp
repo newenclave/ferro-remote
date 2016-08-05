@@ -181,7 +181,7 @@ namespace fr { namespace lua { namespace client {
         typedef fr::client::core::client_core client_core;
 
         auto ccl = std::make_shared<client_core>( std::ref(*info->pp_) );
-                                                  /// crunch for VS2013
+                                                  /// crutch for VS2013
         if( !id.empty( ) ) {
             ccl->set_id( id );
         }
