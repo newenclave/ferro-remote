@@ -184,14 +184,14 @@ int main( int argc, const char *argv[] )
         //luaopen_struct( ls.get_state( ) );
         ls.set( FR_CLIENT_GEN_INFO_PATH, &ci );
 
-        lua::client::events_init( &ci );
-        lua::client::global_init( &ci, ci.cmd_opts_.count( "server" ) > 0 );
-
-        for( auto &m: ci.modules_ ) {
-            m->init( );
-        }
-
         try {
+
+            lua::client::events_init( &ci );
+            lua::client::global_init( &ci, ci.cmd_opts_.count( "server" ) > 0 );
+
+            for( auto &m: ci.modules_ ) {
+                m->init( );
+            }
 
             if( fs::exists( script_path ) ) {
                 ci.script_path_ = script_path;
