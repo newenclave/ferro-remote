@@ -160,15 +160,12 @@ namespace fr { namespace fuse {
 
             logs_ = g_opts.count( "debug" ) > 0;
 
-            bool empty = key.empty( );
-            key = hash_key( id, key );
-
             if( !id.empty( ) ) {
                 client_.set_id( id );
             }
 
-            if( !empty ) {
-                client_.set_key( key );
+            if( !key.empty( ) ) {
+                client_.set_key( hash_key( id, key ) );
             }
         }
 
