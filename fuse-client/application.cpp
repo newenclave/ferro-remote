@@ -45,6 +45,7 @@ namespace fr { namespace fuse {
     using iterator_map  = std::map<std::uint64_t, iterator_sptr>;
 
     THREAD_LOCAL int local_result = 0;
+    THREAD_LOCAL const char *local_message = "";
 
     const char *leaf( const std::string &path )
     {
@@ -247,13 +248,15 @@ namespace fr { namespace fuse {
         static void proto_error( unsigned code, unsigned cat, const char *mess )
         {
             errno = code;
-            local_result = -code;
+            local_result  = -code;
+            local_message =  mess;
         }
 
         static void channel_error( const char *mess )
         {
             errno = EIO;
-            local_result = -EIO;
+            local_result  = -EIO;
+            local_message =  mess;
         }
 
         static impl *imp( )
