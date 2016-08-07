@@ -3,6 +3,10 @@
 #include <algorithm>
 #include <iostream>
 
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <unistd.h>
+
 #include "application.h"
 #include "subsys-listeners.h"
 
@@ -19,6 +23,7 @@
 #include "boost/lexical_cast.hpp"
 #include "boost/program_options.hpp"
 #include "boost/system/error_code.hpp"
+#include "boost/filesystem.hpp"
 
 #include "subsys-logging.h"
 
@@ -38,6 +43,7 @@ namespace fr { namespace agent { namespace subsys {
 
         namespace vserv = vtrc::server;
         namespace vcomm = vtrc::common;
+        namespace fs = boost::filesystem;
 
         typedef vtrc::server::listener_sptr listener_sptr;
         typedef std::vector<listener_sptr>  listener_vector;
@@ -50,16 +56,41 @@ namespace fr { namespace agent { namespace subsys {
             /// result endpoint
             listener_sptr result;
 
+            auto &log_(app.get_logger( ));
+
             std::vector<std::string> params;
 
             size_t delim_pos = name.find_last_of( ':' );
             if( delim_pos == std::string::npos ) {
 
+                /// check if path is SOCKET
                 /// local: <localname>
-                params.push_back( name );
-                ::unlink( name.c_str( ) ); /// unlink old file socket
-                result = vserv::listeners::local::create( app, name );
 
+                if( !fs::exists( name ) ) {
+                    return vserv::listeners::local::create( app, name );
+                }
+
+                struct stat st = {0};
+                int r = ::stat( name.c_str( ), &st );
+                if( -1 != r ) {
+                    if( S_ISSOCK( st.st_mode ) ) {
+                        LOGINF << "Socket '" << name
+                               << "' found. unlinking it...";
+                        params.push_back( name );
+                        ::unlink( name.c_str( ) ); /// unlink old file socket
+                        result = vserv::listeners::local::create( app, name );
+                    } else {
+                        LOGERR << "File " << name << " found. "
+                               << "But it is not a socket.";
+                        throw std::runtime_error( "Bad path." );
+                    }
+                } else {
+                    std::error_code ec( errno, std::system_category( ));
+                    LOGDBG << "::stat( ) for '"
+                           << name << "' failed. "
+                           << ec.message( );
+                    throw std::runtime_error( ec.message( ) );
+                }
             } else {
 
                 /// tcp: <addres>:<port>
@@ -112,7 +143,7 @@ namespace fr { namespace agent { namespace subsys {
                    << " Close connection: "
                    << c->name( )
                    << "; count: " << --counter_
-                      ;
+                   ;
         }
 
         void on_accept_failed( vserv::listener *l,
