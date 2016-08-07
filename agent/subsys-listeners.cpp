@@ -126,20 +126,20 @@ namespace fr { namespace agent { namespace subsys {
 
         void add_listener( const std::string &name )
         {
+            namespace ph = vtrc::placeholders;
             listener_sptr list(listener_from_string( name, *app_ ));
 
             list->on_new_connection_connect(
                    vtrc::bind( &impl::on_new_connection, this,
-                               list.get( ), vtrc::placeholders::_1 ));
+                               list.get( ), ph::_1 ));
 
             list->on_stop_connection_connect(
                    vtrc::bind( &impl::on_stop_connection, this,
-                               list.get( ), vtrc::placeholders::_1 ));
+                               list.get( ), ph::_1 ));
 
             list->on_accept_failed_connect(
                    vtrc::bind( &impl::on_accept_failed, this,
-                               list.get( ), 0,
-                               vtrc::placeholders::_1 ) );
+                               list.get( ), 0, ph::_1 ) );
 
             listenrs_.push_back(list);
         }
