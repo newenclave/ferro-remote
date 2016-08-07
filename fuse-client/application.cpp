@@ -325,7 +325,7 @@ namespace fr { namespace fuse {
             return local_result;
         }
 
-        static int open(const char *path, struct fuse_file_info *inf)
+        static int open( const char *path, struct fuse_file_info *inf )
         {
             local_result = 0;
             auto nid = 0;
