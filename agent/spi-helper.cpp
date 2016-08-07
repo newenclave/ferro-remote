@@ -145,7 +145,7 @@ namespace fr { namespace agent {
         buf[0] = addr & 0xFF;
         buf[1] = reg  & 0xFF;
         buf[2] = val  & 0xFF;
-        buf[3] = (val  >> 8) & 0xFF;
+        buf[3] = (val >> 8) & 0xFF;
 
         transfer( buf, 4 );
     }
