@@ -409,6 +409,10 @@ namespace fr { namespace agent { namespace subsys {
                 gpio_sptr g( gpio_by_index( request->hdl( ).value( ) ) );
                 int fd = g->value_fd( );
                 reactor_.del_fd( fd );
+                LOGDBG << "remove device from reactor; ID: "
+                       << request->hdl( ).value( )
+                       << " fd: " << fd
+                       ;
             }
 
         public:
