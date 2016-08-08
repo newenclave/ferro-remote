@@ -53,11 +53,10 @@ namespace fr { namespace agent {
         uint64_t get_reg64( uint32_t addr, uint32_t reg );
         uint64_t get_reg64(                uint32_t reg );
 
-        void set_address( uint32_t val ) noexcept { address_ = val; }
-        uint32_t address( ) const noexcept { return address_; }
-        uint32_t speed( ) const noexcept { return speed_; }
-
-        int handle( ) const noexcept { return fd_; }
+        void set_address( uint32_t val )       noexcept { address_ = val; }
+        uint32_t address( )              const noexcept { return address_; }
+        uint32_t speed( )                const noexcept { return speed_; }
+        int handle( )                    const noexcept { return fd_; }
     };
 
 }}
