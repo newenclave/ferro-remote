@@ -192,6 +192,9 @@ namespace fr { namespace agent { namespace subsys {
                 }
                 response->mutable_hdl( )->set_value( newid );
                 response->set_edge_supported( ng->edge_supported( ) );
+                LOGDBG << "Open device with ID: " << id
+                       << " fd: " << ng->value_fd( )
+                          ;
                 vtrc::unique_shared_lock lck( gpio_lock_ );
                 gpio_.insert( std::make_pair( newid, ng ) );
             }
@@ -283,6 +286,7 @@ namespace fr { namespace agent { namespace subsys {
                 while( -1 == res ) {
                     res = ::nanosleep( &init, &init );
                     if( ( -1 == res ) && ( errno != EINTR ) ) {
+                        LOGERR << "::nanosleep failed. errno = " << errno;
                         vcomm::throw_system_error( errno, "nanosleep failed." );
                     }
                 }
@@ -388,8 +392,10 @@ namespace fr { namespace agent { namespace subsys {
                                          vtrc::placeholders::_1,
                                          value_data( hdl, fd, g, opid ),
                                          client_) );
-
                 reactor_.add_fd( fd, EPOLLET | EPOLLPRI, cb );
+                LOGDBG << "Add device to reactor; ID: " << hdl
+                       << " fd: " << fd
+                       ;
                 response->set_async_op_id( opid );
             }
 
