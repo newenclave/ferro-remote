@@ -76,7 +76,7 @@ namespace fr { namespace agent {
         ssize_t transfer_nothrow( const void *txbuf, size_t txlen,
                                   void *rxbuf, size_t rxlen );
 
-        void set_address( unsigned long addr , bool force = false );
+        void set_address( unsigned long addr, bool force = false );
         /// read and write as file
         size_t write( const void *data, size_t length );
         size_t read(        void *data, size_t length );
