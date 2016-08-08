@@ -210,6 +210,18 @@ namespace fr { namespace agent { namespace subsys {
             return fr::proto::logger::info;
         }
 
+        int level2syslog( int /*logger::level*/ lvl )
+        {
+            switch( lvl ) {
+            case static_cast<int>( logger::level::zero    ): return LOG_EMERG;
+            case static_cast<int>( logger::level::error   ): return LOG_ERR;
+            case static_cast<int>( logger::level::warning ): return LOG_WARNING;
+            case static_cast<int>( logger::level::info    ): return LOG_INFO;
+            case static_cast<int>( logger::level::debug   ): return LOG_DEBUG;
+            }
+            return LOG_INFO;
+        }
+
         class proto_looger_impl: public fr::proto::logger::instance {
 
             typedef proto_looger_impl this_type;
@@ -362,6 +374,204 @@ namespace fr { namespace agent { namespace subsys {
             auto inst(vtrc::make_shared<proto_looger_impl>( app, cl ));
             return app->wrap_service( cl, inst );
         }
+
+        std::ostream &output( std::ostream &o,
+                              const log_record_info &loginf,
+                              const std::string &s )
+        {
+            level lvl = static_cast<level>(loginf.level);
+            o << loginf.when
+              << " " << loginf.tprefix
+              << " [" << agent::logger::level2str(lvl) << "] "
+              << s
+                   ;
+            return o;
+        }
+
+        std::ostream &output2( std::ostream &o,
+                               const log_record_info &loginf,
+                               const std::string &s )
+        {
+            level lvl = static_cast<level>(loginf.level);
+            o << loginf.when.time_of_day( )
+              << " " << loginf.tprefix
+              << " <" << agent::logger::level2str(lvl) << "> "
+              << s
+                   ;
+            return o;
+        }
+
+        struct log_output {
+            int min_;
+            int max_;
+            log_output( int min, int max )
+                :min_(min)
+                ,max_(max)
+            { }
+
+            int get_min( ) const
+            {
+                return min_;
+            }
+
+            int get_max( ) const
+            {
+                return max_;
+            }
+
+            void set_min( int val )
+            {
+                min_ = val;
+            }
+
+            void set_max( int val )
+            {
+                max_ = val;
+            }
+
+            virtual ~log_output( ) { }
+            virtual void write( const log_record_info &loginf,
+                                stringlist const &data ) = 0;
+            virtual size_t length( ) const = 0;
+        };
+
+        struct console_output: public log_output {
+            bsig::scoped_connection conn_;
+            std::ostream &stream_;
+            console_output( int min, int max, std::ostream &stream )
+                :log_output(min, max)
+                ,stream_(stream)
+            { }
+
+            void write( const log_record_info &loginf, stringlist const &data )
+            {
+                int lvl = loginf.level;
+                level_color _( stream_, static_cast<logger::level>(lvl) );
+                if( (lvl >= get_min( )) && (lvl <= get_max( )) ) {
+                    for( auto &s: data ) {
+                        output( stream_, loginf, s ) << std::endl;
+                    }
+                }
+            }
+
+            size_t length( ) const
+            {
+                return 0;
+            }
+        };
+
+        struct cerr_output: public console_output {
+            cerr_output( int min, int max )
+                :console_output(min, max, std::cerr)
+            { }
+        };
+
+        struct cout_output: public console_output {
+            cout_output( int min, int max )
+                :console_output(min, max, std::cout)
+            { }
+        };
+
+        struct syslog_output: public log_output {
+
+            syslog_output(int min, int max)
+                :log_output(min, max)
+            { }
+
+            void write( const log_record_info &loginf, stringlist const &data )
+            {
+                int lvl = loginf.level;
+                if( (lvl >= get_min( )) && (lvl <= get_max( ) ) ) {
+                    for( auto &s: data ) {
+                        std::ostringstream oss;
+                        output2( oss, loginf, s );
+                        syslog( level2syslog( loginf.level ),
+                                "%s", oss.str( ).c_str( ) );
+                    }
+                }
+            }
+
+            size_t length( ) const
+            {
+                return 0;
+            }
+        };
+
+        struct file_output: public log_output {
+            std::atomic<size_t> length_;
+            ostream_uptr        stream_;
+            file_output( int min, int max, const std::string &path )
+                :log_output(min, max)
+                ,length_(0)
+            {
+                size_t len = 0;
+                stream_ = open_file( path, &len );
+                length_ = len;
+            }
+
+            void write( const log_record_info &loginf, stringlist const &data )
+            {
+                int lvl = loginf.level;
+                std::ostringstream oss;
+                if( (lvl >= get_min( )) && (lvl <= get_max( )) ) {
+                    for( auto &s: data ) {
+                        output( oss, loginf, s ) << "\n";
+                    }
+                }
+                length_    += oss.tellp( );
+                (*stream_) << oss.str( );
+            }
+
+            size_t length( ) const
+            {
+                return length_;
+            }
+        };
+
+        struct output_connection {
+            bsig::scoped_connection connection_;
+            std::unique_ptr<log_output> output_;
+        };
+
+        using connection_map = std::map<std::string, output_connection>;
+
+        std::unique_ptr<log_output> create_by_name( const std::string &path,
+                                                    int minlvl, int maxlvl,
+                                                    agent::logger   &log_ )
+        {
+            std::unique_ptr<log_output> res;
+
+            if( path == stdout_name || path == stdout_name2 ) { /// cout
+                res.reset(new cout_output( minlvl, maxlvl ) );
+            } else if( path == stderr_name ) {                  /// cerr
+                res.reset(new cerr_output( minlvl, maxlvl ) );
+            } else if( path == syslog_name ) {                  /// syslog
+                res.reset(new syslog_output( minlvl, maxlvl ) );
+            } else {
+                try {
+                    res.reset(new file_output( minlvl, maxlvl, path ));
+                } catch( std::exception &ex ) {
+                    //std::cerr
+                    LOGERR
+                        << "failed to add log file " << path << "; "
+                        << ex.what( );
+                    std::cerr
+                        << "failed to add log file " << path << "; "
+                        << ex.what( ) << std::endl;
+                }
+            }
+            return std::move(res);
+        }
+
+        bool is_syslog( const std::string &path )
+        {
+            return path == syslog_name;
+        }
+
+        bool is_stdout( const std::string &path )
+        {
+            return path == stdout_name2;
+        }
     }
 
     struct logging::impl {
@@ -375,6 +585,9 @@ namespace fr { namespace agent { namespace subsys {
 
         stream_list      streams_;
         bool             syslog_;
+
+        connection_map           connections_;
+        //bsig ::scoped_connection slot_;
 
         impl( application *app )
             :app_(app)
@@ -404,157 +617,45 @@ namespace fr { namespace agent { namespace subsys {
             { }
         };
 
-        static std::ostream &output( std::ostream &o,
-                                     const log_record_info &loginf,
-                                     const std::string &s )
+        void log_output_slot( log_output *out, const log_record_info &loginf,
+                              stringlist const &data )
         {
-            level lvl = static_cast<level>(loginf.level);
-            o << loginf.when
-              << " " << loginf.tprefix
-              << " [" << agent::logger::level2str(lvl) << "] "
-              << s
-                   ;
-            return o;
-        }
-
-        static std::ostream &output2( std::ostream &o,
-                                     const log_record_info &loginf,
-                                     const std::string &s )
-        {
-            level lvl = static_cast<level>(loginf.level);
-            o << loginf.when.time_of_day( )
-              << " " << loginf.tprefix
-              << " <" << agent::logger::level2str(lvl) << "> "
-              << s
-                   ;
-            return o;
-        }
-
-        /// works on dispatcher
-        void console_log( console_info &inf, const log_record_info &loginf,
-                          stringlist const &data )
-        {
-            level lvl = static_cast<level>(loginf.level);
-            level_color _( *inf.o_, lvl );
-            if( (lvl >= inf.minl_) && (lvl <= inf.maxl_) ) {
-                for( auto &s: data ) {
-                    output( *inf.o_, loginf, s ) << std::endl;
-                }
-            }
-        }
-
-        /// works on dispatcher
-        void file_out_log( ostream_inf &inf, const log_record_info &loginf,
-                           stringlist const &data )
-        {
-            //console_log( *inf.stream_, inf.min_, inf.max_, lvl, tim, data );
-            level lvl = static_cast<level>(loginf.level);
-            std::ostringstream oss;
-            if( (lvl >= inf.min_) && (lvl <= inf.max_) ) {
-                for( auto &s: data ) {
-                    output( oss, loginf, s ) << "\n";
-                }
-            }
-            inf.length_    += oss.tellp( );
-            (*inf.stream_) << oss.str( );
-            //inf.stream_->flush( );
-        }
-
-        int level2syslog( int /*logger::level*/ lvl )
-        {
-            switch( lvl ) {
-            case static_cast<int>( logger::level::zero    ): return LOG_EMERG;
-            case static_cast<int>( logger::level::error   ): return LOG_ERR;
-            case static_cast<int>( logger::level::warning ): return LOG_WARNING;
-            case static_cast<int>( logger::level::info    ): return LOG_INFO;
-            case static_cast<int>( logger::level::debug   ): return LOG_DEBUG;
-            }
-            return LOG_INFO;
-        }
-
-        void syslog_out_log( console_info &inf,
-                             const log_record_info &loginf,
-                             stringlist const &data )
-        {
-            level lvl = static_cast<level>(loginf.level);
-            if( (lvl >= inf.minl_) && (lvl <= inf.maxl_) ) {
-                for( auto &s: data ) {
-                    std::ostringstream oss;
-                    output2( oss, loginf, s );
-                    syslog( level2syslog( loginf.level ),
-                            "%s", oss.str( ).c_str( ) );
-                }
-            }
+            out->write( loginf, data );
         }
 
         /// dispatcher!
         void add_logger( const std::string &path, level minl, level maxl )
         {
+
             namespace ph = std::placeholders;
 
-            if( path == stdout_name || path == stdout_name2 ) { /// cout
-
-                //stdout_connection_.conn_.disconnect( );
-                stdout_connection_.conn_ = log_.on_write_connect(
-                            std::bind( &impl::console_log, this,
-                                       console_info(&std::cout, minl, maxl),
-                                       ph::_1, ph::_2 ) );
-
-            } else if( path == stderr_name ) {  /// cerr
-
-                //stderr_connection_.conn_.disconnect( );
-                stderr_connection_.conn_ = log_.on_write_connect(
-                            std::bind( &impl::console_log, this,
-                                       console_info(&std::cerr, minl, maxl),
-                                       ph::_1, ph::_2 ) );
-            } else if( path == syslog_name ) {
-
-                if( !syslog_ ) {
-                    openlog( "ferro_remote", 0, LOG_USER );
-                    syslog_connection_.conn_ = log_.on_write_connect(
-                                std::bind( &impl::syslog_out_log, this,
-                                           console_info(nullptr, minl, maxl),
-                                           ph::_1, ph::_2 ) );
-                    syslog_ = true;
-                }
-            } else {
-
-                try {
-
-                    size_t len = 0;
-                    auto stream_impl = open_file( path, &len );
-
-                    if( stream_impl ) {
-                        streams_.emplace_back( path );
-                        auto l     = streams_.rbegin( );
-                        l->length_ = len;
-                        l->min_    = minl;
-                        l->max_    = maxl;
-                        l->conn_   = log_.on_write_connect(
-                                        std::bind( &impl::file_out_log, this,
-                                            std::ref(*l),
-                                            ph::_1, ph::_2 ) );
-                        l->stream_.swap( stream_impl );
-                    } else {
-                        //std::cerr
-                        LOGERR
-                            << "failed to add log file " << path << ";"
-                            ;
-                        std::cerr
-                            << "failed to add log file " << path << ";"
-                            << std::endl;
-                    }
-                } catch( const std::exception &ex ) {
-                    //std::cerr
-                    LOGERR
-                        << "failed to add log file " << path << "; "
-                        << ex.what( );
-                    std::cerr
-                        << "failed to add log file " << path << "; "
-                        << ex.what( ) << std::endl;
-                }
-
+            bool slog = is_syslog( path );
+            if( slog && syslog_ ) {
+                LOGDBG << "Syslog is already here!";
+                return;
             }
+
+            output_connection conn;
+            conn.output_ = create_by_name( path,
+                                           static_cast<int>(minl),
+                                           static_cast<int>(maxl), log_ );
+            if( slog ) {
+                openlog( "ferro_remote", 0, LOG_USER );
+                syslog_ = true;
+            }
+
+            conn.connection_ = log_.on_write_connect(
+                        std::bind( &impl::log_output_slot, this,
+                                   conn.output_.get( ),
+                                   ph::_1, ph::_2 ) );
+
+            if( is_stdout(path) ) {
+                connections_[stdout_name] = std::move(conn);
+            } else {
+                connections_[path] = std::move(conn);
+            }
+
+            return;
         }
 
         /// dispatcher!
@@ -585,23 +686,17 @@ namespace fr { namespace agent { namespace subsys {
         /// dispatcher!
         void del_logger_output( const std::string &name )
         {
-            if( name == stdout_name || name == stdout_name2 ) { /// cout
-                stdout_connection_.conn_.disconnect( );
-            } else if( name == stderr_name ) {  /// cerr
-                stderr_connection_.conn_.disconnect( );
-            } else if( name == syslog_name ) {  /// syslog
-                if( syslog_ ) {
-                    syslog_connection_.conn_.disconnect( );
-                    closelog( );
-                }
-            } else {
-                for( auto b=streams_.begin( ), e=streams_.end( ); b!=e; ++b ) {
-                    if( b->path_ == name ) {
-                        streams_.erase( b );
-                        break;
-                    }
-                }
+            bool slog = is_syslog( name );
+
+            connections_.erase( name );
+
+            LOGINF << "Erased: " << name;
+
+            if( slog && syslog_ ) {
+                syslog_ = false;
+                closelog( );
             }
+            return;
         }
     };
 
