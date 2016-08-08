@@ -655,6 +655,13 @@ namespace fr { namespace agent { namespace subsys {
                 connections_[path] = std::move(conn);
             }
 
+            LOGDBG << "New logger slot '" << path << "';"
+                   << "\n      minimum level = "
+                            << agent::logger::level2str( minl )
+                   << "\n      maximum level = "
+                            << agent::logger::level2str( maxl )
+                   ;
+
             return;
         }
 
