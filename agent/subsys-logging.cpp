@@ -107,25 +107,6 @@ namespace fr { namespace agent { namespace subsys {
             return std::move(res);
         }
 
-        struct ostream_inf {
-            ostream_uptr            stream_;
-            size_t                  length_;
-            level                   min_;
-            level                   max_;
-            std::string             path_;
-            bsig::scoped_connection conn_;
-            ostream_inf(const std::string &path)
-                :length_(0)
-                ,min_(level::zero)
-                ,max_(level::debug)
-                ,path_(path)
-            { }
-        };
-
-        using ostream_sptr = std::shared_ptr<ostream_inf>;
-        using ostream_wptr = std::weak_ptr<ostream_inf>;
-        using stream_list  = std::list<ostream_inf>;
-
         namespace sproto = fr::proto;
         typedef   sproto::events::Stub events_stub_type;
         typedef   vcomm::stub_wrapper<
@@ -167,17 +148,6 @@ namespace fr { namespace agent { namespace subsys {
             }
             return path;
         }
-
-//        std::string thread_id( std::thread::id id )
-//        {
-//            std::ostringstream oss;
-//#ifdef _WIN32
-//            oss << id;
-//#else
-//            oss << std::hex << id;
-//#endif
-//            return oss.str( );
-//        }
 
         void chan_err( const char * /*mess*/ )
         {
@@ -402,40 +372,28 @@ namespace fr { namespace agent { namespace subsys {
         }
 
         struct log_output {
+
             int min_;
             int max_;
+
             log_output( int min, int max )
                 :min_(min)
                 ,max_(max)
             { }
-
-            int get_min( ) const
-            {
-                return min_;
-            }
-
-            int get_max( ) const
-            {
-                return max_;
-            }
-
-            void set_min( int val )
-            {
-                min_ = val;
-            }
-
-            void set_max( int val )
-            {
-                max_ = val;
-            }
-
             virtual ~log_output( ) { }
+
+            /// level getter setter
+            int  get_min( ) const   { return min_; }
+            int  get_max( ) const   { return max_; }
+            void set_min( int val ) { min_ = val;  }
+            void set_max( int val ) { max_ = val;  }
+
             virtual void write( const log_record_info &loginf,
                                 stringlist const &data ) = 0;
             virtual size_t length( ) const = 0;
         };
 
-        struct console_output: public log_output {
+        struct console_output: log_output {
             bsig::scoped_connection conn_;
             std::ostream &stream_;
             console_output( int min, int max, std::ostream &stream )
@@ -447,10 +405,8 @@ namespace fr { namespace agent { namespace subsys {
             {
                 int lvl = loginf.level;
                 level_color _( stream_, static_cast<logger::level>(lvl) );
-                if( (lvl >= get_min( )) && (lvl <= get_max( )) ) {
-                    for( auto &s: data ) {
-                        output( stream_, loginf, s ) << std::endl;
-                    }
+                for( auto &s: data ) {
+                    output( stream_, loginf, s ) << std::endl;
                 }
             }
 
@@ -460,19 +416,19 @@ namespace fr { namespace agent { namespace subsys {
             }
         };
 
-        struct cerr_output: public console_output {
+        struct cerr_output: console_output {
             cerr_output( int min, int max )
                 :console_output(min, max, std::cerr)
             { }
         };
 
-        struct cout_output: public console_output {
+        struct cout_output: console_output {
             cout_output( int min, int max )
                 :console_output(min, max, std::cout)
             { }
         };
 
-        struct syslog_output: public log_output {
+        struct syslog_output: log_output {
 
             syslog_output(int min, int max)
                 :log_output(min, max)
@@ -480,14 +436,11 @@ namespace fr { namespace agent { namespace subsys {
 
             void write( const log_record_info &loginf, stringlist const &data )
             {
-                int lvl = loginf.level;
-                if( (lvl >= get_min( )) && (lvl <= get_max( ) ) ) {
-                    for( auto &s: data ) {
-                        std::ostringstream oss;
-                        output2( oss, loginf, s );
-                        syslog( level2syslog( loginf.level ),
-                                "%s", oss.str( ).c_str( ) );
-                    }
+                for( auto &s: data ) {
+                    std::ostringstream oss;
+                    output2( oss, loginf, s );
+                    syslog( level2syslog( loginf.level ),
+                            "%s", oss.str( ).c_str( ) );
                 }
             }
 
@@ -497,7 +450,7 @@ namespace fr { namespace agent { namespace subsys {
             }
         };
 
-        struct file_output: public log_output {
+        struct file_output: log_output {
             std::atomic<size_t> length_;
             ostream_uptr        stream_;
             file_output( int min, int max, const std::string &path )
@@ -511,15 +464,13 @@ namespace fr { namespace agent { namespace subsys {
 
             void write( const log_record_info &loginf, stringlist const &data )
             {
-                int lvl = loginf.level;
                 std::ostringstream oss;
-                if( (lvl >= get_min( )) && (lvl <= get_max( )) ) {
-                    for( auto &s: data ) {
-                        output( oss, loginf, s ) << "\n";
-                    }
+                for( auto &s: data ) {
+                    output( oss, loginf, s ) << "\n";
                 }
                 length_    += oss.tellp( );
                 (*stream_) << oss.str( );
+                //stream_->flush( );
             }
 
             size_t length( ) const
@@ -578,12 +529,6 @@ namespace fr { namespace agent { namespace subsys {
 
         application     *app_;
         agent::logger   &log_;
-
-        connection_info  stdout_connection_;
-        connection_info  stderr_connection_;
-        connection_info  syslog_connection_;
-
-        stream_list      streams_;
         bool             syslog_;
 
         connection_map           connections_;
@@ -606,21 +551,13 @@ namespace fr { namespace agent { namespace subsys {
             app_->unregister_service_factory( name );
         }
 
-        struct console_info {
-            std::ostream *o_;
-            level minl_;
-            level maxl_;
-            console_info( std::ostream *o, level minl, level maxl )
-                :o_(o)
-                ,minl_(minl)
-                ,maxl_(maxl)
-            { }
-        };
-
-        void log_output_slot( log_output *out, const log_record_info &loginf,
+        void log_output_slot( log_output *out, const log_record_info &inf,
                               stringlist const &data )
         {
-            out->write( loginf, data );
+            const auto lvl = inf.level;
+            if( (lvl >= out->get_min( )) && (lvl <= out->get_max( )) ) {
+                out->write( inf, data );
+            }
         }
 
         /// dispatcher!
@@ -695,9 +632,13 @@ namespace fr { namespace agent { namespace subsys {
         {
             bool slog = is_syslog( name );
 
-            connections_.erase( name );
+            auto count = connections_.erase( name );
 
-            LOGINF << "Erased: " << name;
+            if( count ) {
+                LOGINF << "Slot '" << name << "' erased";
+            } else {
+                LOGWRN << "Slot '" << name << "' was not found";
+            }
 
             if( slog && syslog_ ) {
                 syslog_ = false;
