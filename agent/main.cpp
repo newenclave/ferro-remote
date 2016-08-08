@@ -150,8 +150,8 @@ int main( int argc, const char **argv )
         agent::application app( *pp, cfg.key_map );
         agent::logger &lgr( app.get_logger( ) );
         lgr( agent::logger::level::info )
-             << "===================\n"
-             << "    Starting...\n"
+             << "==================="
+             << "\n    Starting...\n"
              << "==================="
              ;
 
