@@ -94,7 +94,7 @@ namespace fr { namespace agent {
 //        txrx.bits_per_word    = spi_BPW;
 //        txrx.cs_change        = true;
 
-        auto res =  ioctl( fd_, SPI_IOC_MESSAGE(1), &txrx );
+        auto res =  ::ioctl( fd_, SPI_IOC_MESSAGE(1), &txrx );
 //        dump( buf, len );
         return res;
     }
