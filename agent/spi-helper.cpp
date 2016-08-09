@@ -236,11 +236,10 @@ namespace fr { namespace agent {
 
         transfer( buf, 6 );
 
-        return static_cast<uint32_t>(
-                         buf[2]         |
-                       ( buf[3] << 8  ) |
-                       ( buf[4] << 16 ) |
-                       ( buf[5] << 24 ));
+        return static_cast<uint32_t>( buf[2]         |
+                                    ( buf[3] << 8  ) |
+                                    ( buf[4] << 16 ) |
+                                    ( buf[5] << 24 ) );
     }
 
     uint64_t spi_helper::get_reg64( uint32_t addr, uint32_t reg )
