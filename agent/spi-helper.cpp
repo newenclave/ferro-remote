@@ -144,8 +144,9 @@ namespace fr { namespace agent {
 
         buf[0] = addr & 0xFF;
         buf[1] = reg  & 0xFF;
-        buf[2] = val  & 0xFF;
-        buf[3] = (val >> 8) & 0xFF;
+
+        buf[2] = ( val >> 0x00 ) & 0xFF; //  0
+        buf[3] = ( val >> 0x08 ) & 0xFF; //  8
 
         transfer( buf, 4 );
     }
@@ -156,10 +157,11 @@ namespace fr { namespace agent {
 
         buf[0] = addr & 0xFF;
         buf[1] = reg  & 0xFF;
-        buf[2] = val  & 0xFF;
-        buf[3] = (val >> 8 ) & 0xFF;
-        buf[4] = (val >> 16) & 0xFF;
-        buf[5] = (val >> 24) & 0xFF;
+
+        buf[2] = ( val >> 0x00 ) & 0xFF; //  0
+        buf[3] = ( val >> 0x08 ) & 0xFF; //  8
+        buf[4] = ( val >> 0x10 ) & 0xFF; // 16
+        buf[5] = ( val >> 0x18 ) & 0xFF; // 24
 
         transfer( buf, 6 );
     }
@@ -170,15 +172,15 @@ namespace fr { namespace agent {
 
         buf[0] = addr & 0xFF;
         buf[1] = reg  & 0xFF;
-        buf[2] = val  & 0xFF;
 
-        buf[3] = (val >> 8 ) & 0xFF;
-        buf[4] = (val >> 16) & 0xFF;
-        buf[5] = (val >> 24) & 0xFF;
-        buf[6] = (val >> 32) & 0xFF;
-        buf[7] = (val >> 40) & 0xFF;
-        buf[8] = (val >> 48) & 0xFF;
-        buf[9] = (val >> 56) & 0xFF;
+        buf[2] = ( val >> 0x00 ) & 0xFF; //  0
+        buf[3] = ( val >> 0x08 ) & 0xFF; //  8
+        buf[4] = ( val >> 0x10 ) & 0xFF; // 16
+        buf[5] = ( val >> 0x18 ) & 0xFF; // 24
+        buf[6] = ( val >> 0x20 ) & 0xFF; // 32
+        buf[7] = ( val >> 0x28 ) & 0xFF; // 40
+        buf[8] = ( val >> 0x30 ) & 0xFF; // 48
+        buf[9] = ( val >> 0x38 ) & 0xFF; // 56
 
         transfer( buf, 10 );
     }
