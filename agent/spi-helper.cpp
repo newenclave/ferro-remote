@@ -110,21 +110,21 @@ namespace fr { namespace agent {
 
         /// set mode
         auto res = ::ioctl( fd_, SPI_IOC_WR_MODE, &mode );
-        errno_error::errno_assert( res != -1, "spi_setup_mode" );
-//        res = ioctl( fd_, SPI_IOC_RD_MODE,      &mode );
-//        errno_error::errno_assert( res != -1, "spi_setup_mode" );
+        errno_error::errno_assert( res != -1, "spi_setup_mode_wr" );
+        res = ioctl( fd_, SPI_IOC_RD_MODE,      &mode );
+        errno_error::errno_assert( res != -1, "spi_setup_mode_rd" );
 
         /// set bits per words
         res = ::ioctl( fd_, SPI_IOC_WR_BITS_PER_WORD, &bits );
-        errno_error::errno_assert( res != -1, "spi_setup_bpw" );
-//        res = ioctl( fd_, SPI_IOC_RD_BITS_PER_WORD, &bits );
-//        errno_error::errno_assert( res != -1, "spi_setup_bpw" );
+        errno_error::errno_assert( res != -1, "spi_setup_bpw_wr" );
+        res = ioctl( fd_, SPI_IOC_RD_BITS_PER_WORD, &bits );
+        errno_error::errno_assert( res != -1, "spi_setup_bpw_rd" );
 
         /// set speed
         res = ::ioctl( fd_, SPI_IOC_WR_MAX_SPEED_HZ, &speed );
-        errno_error::errno_assert( res != -1, "spi_setup_speed" );
-//        res = ioctl( fd_, SPI_IOC_RD_MAX_SPEED_HZ, &speed );
-//        errno_error::errno_assert( res != -1, "spi_setup_speed" );
+        errno_error::errno_assert( res != -1, "spi_setup_speed_wr" );
+        res = ioctl( fd_, SPI_IOC_RD_MAX_SPEED_HZ, &speed );
+        errno_error::errno_assert( res != -1, "spi_setup_speed_rd" );
     }
 
     void spi_helper::set_reg8( uint32_t addr, uint32_t reg, uint8_t val )
