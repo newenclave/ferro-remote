@@ -371,7 +371,7 @@ namespace fr { namespace agent { namespace subsys {
             return o;
         }
 
-        struct log_output {
+        struct log_output { /// shared_from_this?
 
             int min_;
             int max_;
