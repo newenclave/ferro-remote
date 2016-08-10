@@ -572,8 +572,10 @@ namespace fr { namespace agent { namespace subsys {
                 return;
             }
 
-            output_connection &conn(is_stdout(path) ? connections_[stdout_name]
-                                                    : connections_[path] );
+            output_connection &conn(   is_stdout(path)
+                                     ? connections_[stdout_name]
+                                     : connections_[path] );
+
             conn.output_ = create_by_name( path,
                                            static_cast<int>(minl),
                                            static_cast<int>(maxl), log_ );
