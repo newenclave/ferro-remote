@@ -42,8 +42,8 @@ namespace fr { namespace agent { namespace subsys {
         using stringlist = std::vector<std::string>;
 
         const std::string subsys_name( "logging" );
-        namespace bsig = boost::signals2;
-        namespace bpt  = boost::posix_time;
+        namespace bsig   = boost::signals2;
+        namespace bpt    = boost::posix_time;
         namespace signal = boost::signals2;
         namespace vcomm  = vtrc::common;
         namespace vserv  = vtrc::server;
