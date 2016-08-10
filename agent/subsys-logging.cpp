@@ -44,7 +44,6 @@ namespace fr { namespace agent { namespace subsys {
         const std::string subsys_name( "logging" );
         namespace bsig   = boost::signals2;
         namespace bpt    = boost::posix_time;
-        namespace signal = boost::signals2;
         namespace vcomm  = vtrc::common;
         namespace vserv  = vtrc::server;
 
@@ -197,7 +196,7 @@ namespace fr { namespace agent { namespace subsys {
             typedef proto_looger_impl this_type;
 
             fr::agent::logger     &lgr_;
-            signal::connection     connect_;
+            bsig::connection       connect_;
             subsys::reactor       &reactor_;
             event_client_type      eventor_;
 
