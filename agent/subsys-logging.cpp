@@ -486,17 +486,32 @@ namespace fr { namespace agent { namespace subsys {
 
         using connection_map = std::map<std::string, output_connection>;
 
+        bool is_syslog( const std::string &path )
+        {
+            return path == syslog_name;
+        }
+
+        bool is_stdout( const std::string &path )
+        {
+            return path == stdout_name || path == stdout_name2;
+        }
+
+        bool is_stderr( const std::string &path )
+        {
+            return path == stderr_name;
+        }
+
         std::unique_ptr<log_output> create_by_name( const std::string &path,
                                                     int minlvl, int maxlvl,
                                                     agent::logger   &log_ )
         {
             std::unique_ptr<log_output> res;
 
-            if( path == stdout_name || path == stdout_name2 ) { /// cout
+            if( is_stdout( path ) ) {                           /// cout
                 res.reset(new cout_output( minlvl, maxlvl ) );
-            } else if( path == stderr_name ) {                  /// cerr
+            } else if( is_stderr( path ) ) {                    /// cerr
                 res.reset(new cerr_output( minlvl, maxlvl ) );
-            } else if( path == syslog_name ) {                  /// syslog
+            } else if( is_syslog( path ) ) {                    /// syslog
                 res.reset(new syslog_output( minlvl, maxlvl ) );
             } else {
                 try {
@@ -514,15 +529,6 @@ namespace fr { namespace agent { namespace subsys {
             return std::move(res);
         }
 
-        bool is_syslog( const std::string &path )
-        {
-            return path == syslog_name;
-        }
-
-        bool is_stdout( const std::string &path )
-        {
-            return path == stdout_name2;
-        }
     }
 
     struct logging::impl {
