@@ -572,7 +572,8 @@ namespace fr { namespace agent { namespace subsys {
                 return;
             }
 
-            output_connection conn;
+            output_connection &conn(is_stdout(path) ? connections_[stdout_name]
+                                                    : connections_[path] );
             conn.output_ = create_by_name( path,
                                            static_cast<int>(minl),
                                            static_cast<int>(maxl), log_ );
@@ -585,12 +586,6 @@ namespace fr { namespace agent { namespace subsys {
                         std::bind( &impl::log_output_slot, this,
                                    conn.output_.get( ),
                                    ph::_1, ph::_2 ) );
-
-            if( is_stdout(path) ) {
-                connections_[stdout_name] = std::move(conn);
-            } else {
-                connections_[path] = std::move(conn);
-            }
 
             LOGDBG << "New logger slot '" << path << "';"
                    << "\n      minimum level = "
