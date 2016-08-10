@@ -538,7 +538,7 @@ namespace fr { namespace agent { namespace subsys {
         bool             syslog_;
 
         connection_map           connections_;
-        //bsig ::scoped_connection slot_;
+        //bsig::scoped_connection  slot_;
 
         impl( application *app )
             :app_(app)
