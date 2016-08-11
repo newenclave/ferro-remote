@@ -56,6 +56,7 @@ namespace {
         app.add_subsystem<spi>( );
         app.add_subsystem<gpio>( );
         app.add_subsystem<reactor>( );
+        app.add_subsystem<netifaces>( );
         app.add_subsystem<multicast>( );
 
         app.add_subsystem<listeners>( );

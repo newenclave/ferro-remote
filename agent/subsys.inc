@@ -10,3 +10,4 @@
 #include "subsys-reactor.h"
 #include "subsys-multicast.h"
 #include "subsys-listeners.h"
+#include "subsys-netifaces.h"
