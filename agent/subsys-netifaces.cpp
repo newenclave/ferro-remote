@@ -7,7 +7,7 @@
 
 //#include "vtrc-memory.h"
 
-#include "boost/asio/ip/address.hpp"
+
 #include "boost/system/error_code.hpp"
 #include "boost/system/system_error.hpp"
 
@@ -22,8 +22,28 @@ namespace fr { namespace agent { namespace subsys {
     namespace {
 
         namespace bsys = boost::system;
+        namespace ba   = boost::asio;
+        namespace bai  = boost::asio::ip;
+
 
         const std::string subsys_name( "netifaces" );
+
+
+        bai::address from_sock_addr4( const sockaddr *sa )
+        {
+            auto si = reinterpret_cast<const sockaddr_in *>(sa);
+            return bai::address_v4( ntohl(si->sin_addr.s_addr) );
+        }
+
+        bai::address from_sock_addr6( const sockaddr *sa )
+        {
+            auto si = reinterpret_cast<const sockaddr_in6 *>(sa);
+            bai::address_v6::bytes_type bytes;
+            std::copy( &si->sin6_addr.s6_addr[0],
+                       &si->sin6_addr.s6_addr[bytes.max_size( )],
+                       bytes.begin( ) );
+            return bai::address_v6( bytes );
+        }
 
         application::service_wrapper_sptr create_service(
                                       fr::agent::application * /*app*/,
@@ -217,19 +237,53 @@ namespace fr { namespace agent { namespace subsys {
     netifaces::iface_info::iface_info( const ifaddrs *ifa )
     {
         name_.assign( ifa->ifa_name );
-        switch (ifa->ifa_addr->sa_family) {
+        switch( ifa->ifa_addr->sa_family ) {
         case AF_INET:
-            memcpy(&sockaddr_, ifa->ifa_addr, sizeof(sockaddr_in));
-            memcpy(&mask_, ifa->ifa_netmask,  sizeof(sockaddr_in));
+            sockaddr_ = from_sock_addr4( ifa->ifa_addr );
+            mask_     = from_sock_addr4( ifa->ifa_netmask );
             break;
         case AF_INET6:
-            memcpy(&sockaddr_, ifa->ifa_addr, sizeof(sockaddr_in6));
-            memcpy(&mask_, ifa->ifa_netmask,  sizeof(sockaddr_in6));
-            break;
-        default:
-            memset(&sockaddr_, 0, sizeof(sockaddr_));
+            sockaddr_ = from_sock_addr6( ifa->ifa_addr );
+            mask_     = from_sock_addr6( ifa->ifa_netmask );
             break;
         }
+    }
+
+    bool netifaces::iface_info::check( const address_type &test ) const
+    {
+        if( sockaddr_.is_v4( ) && test.is_v4( ) ) {
+            auto sa = sockaddr_.to_v4( ).to_ulong( );
+            auto ma = mask_.to_v4( ).to_ulong( );
+            auto ta = test.to_v4( ).to_ulong( );
+            return (sa & ma) == (ta & ma);
+        } else if( sockaddr_.is_v6( ) && test.is_v6( ) ) {
+            auto sa = sockaddr_.to_v6( ).to_bytes( );
+            auto ma = mask_.to_v6( ).to_bytes( );
+            auto ta = test.to_v6( ).to_bytes( );
+
+            /// something wrong!
+            static_assert( sa.max_size( ) == 16,
+                           "bytes_type::max_size( ) != 16" );
+
+            return ( sa[0x0] & ma[0x0]) == (ta[0x0] & ma[0x0] )
+                && ( sa[0x1] & ma[0x1]) == (ta[0x1] & ma[0x1] )
+                && ( sa[0x2] & ma[0x2]) == (ta[0x2] & ma[0x2] )
+                && ( sa[0x3] & ma[0x3]) == (ta[0x3] & ma[0x3] )
+                && ( sa[0x4] & ma[0x4]) == (ta[0x4] & ma[0x4] )
+                && ( sa[0x5] & ma[0x5]) == (ta[0x5] & ma[0x5] )
+                && ( sa[0x6] & ma[0x6]) == (ta[0x6] & ma[0x6] )
+                && ( sa[0x7] & ma[0x7]) == (ta[0x7] & ma[0x7] )
+                && ( sa[0x8] & ma[0x8]) == (ta[0x8] & ma[0x8] )
+                && ( sa[0x9] & ma[0x9]) == (ta[0x9] & ma[0x9] )
+                && ( sa[0xA] & ma[0xA]) == (ta[0xA] & ma[0xA] )
+                && ( sa[0xB] & ma[0xB]) == (ta[0xB] & ma[0xB] )
+                && ( sa[0xC] & ma[0xC]) == (ta[0xC] & ma[0xC] )
+                && ( sa[0xD] & ma[0xD]) == (ta[0xD] & ma[0xD] )
+                && ( sa[0xE] & ma[0xE]) == (ta[0xE] & ma[0xE] )
+                && ( sa[0xF] & ma[0xF]) == (ta[0xF] & ma[0xF] )
+                   ;
+        }
+        return false;
     }
 
 }}}

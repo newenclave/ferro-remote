@@ -10,6 +10,8 @@
 #include <vector>
 #include <memory>
 
+#include "boost/asio/ip/address.hpp"
+
 struct ifaddrs;
 
 namespace fr { namespace agent {
@@ -31,9 +33,10 @@ namespace subsys {
 
         class iface_info {
 
-            sockaddr_storage sockaddr_;
-            sockaddr_storage mask_;
-            std::string      name_;
+            using address_type = boost::asio::ip::address;
+            address_type    sockaddr_;
+            address_type    mask_;
+            std::string     name_;
 
         public:
 
@@ -44,28 +47,13 @@ namespace subsys {
                 return name_;
             }
 
-            const sockaddr_in *in4( ) const
-            {
-                return reinterpret_cast<const sockaddr_in *>(&sockaddr_);
-            }
+            const address_type &addr( ) { return sockaddr_; }
+            const address_type &mask( ) { return mask_;     }
 
-            const sockaddr_in6 *in6( ) const
-            {
-                return reinterpret_cast<const sockaddr_in6 *>(&sockaddr_);
-            }
+            bool is_v4( ) const { return sockaddr_.is_v4( ); }
+            bool is_v6( ) const { return sockaddr_.is_v6( ); }
 
-            const sockaddr_in *mask4( ) const
-            {
-                return reinterpret_cast<const sockaddr_in *>(&mask_);
-            }
-
-            const sockaddr_in6 *mask6( ) const
-            {
-                return reinterpret_cast<const sockaddr_in6 *>(&mask_);
-            }
-
-            bool is4( ) const { return sockaddr_.ss_family == AF_INET; }
-            bool is6( ) const { return sockaddr_.ss_family == AF_INET6; }
+            bool check( const address_type &test ) const;
 
         };
 

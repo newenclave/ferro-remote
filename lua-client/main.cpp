@@ -96,25 +96,8 @@ namespace {
     }
 }
 
-template <typename T>
-class test
-{
-    //using this_type = test<T>;
-    std::map<T, test *> container_;
-};
-
-template <typename T>
-using t1 = test<std::vector<T> >;
-
-template <typename T>
-using t2 = test<std::map<size_t, T> >;
-
 int main( int argc, const char *argv[] )
 { try {
-
-    t1<char> t1_;
-    t2<int> t2_;
-
 
     po::options_description description("Allowed common options");
 
