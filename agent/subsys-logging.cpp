@@ -438,8 +438,8 @@ namespace fr { namespace agent { namespace subsys {
                 for( auto &s: data ) {
                     std::ostringstream oss;
                     output2( oss, loginf, s );
-                    syslog( level2syslog( loginf.level ),
-                            "%s", oss.str( ).c_str( ) );
+                    ::syslog( level2syslog( loginf.level ),
+                              "%s", oss.str( ).c_str( ) );
                 }
             }
 
