@@ -37,7 +37,7 @@ namespace fr { namespace agent { namespace subsys {
         struct point_info {
             mcast_socket         sock;
             buffer_type          buf;
-            bip::udp::endpoint   sender;
+            bip::udp::endpoint   from;
             point_info( ba::io_service &ios, size_t bufsize )
                 :sock(ios)
                 ,buf(bufsize)
@@ -124,8 +124,10 @@ namespace fr { namespace agent { namespace subsys {
             multicast_response res;
 
             req.data    = &pinfo.buf[0];
-            req.from    = &pinfo.sock;
             req.length  = len;
+
+            req.from    = &pinfo.from;
+            req.sender  = &pinfo.sock;
 
             fr::proto::mcast_response resp;
             resp.set_name( config_->cfgs( ).name );
@@ -133,7 +135,7 @@ namespace fr { namespace agent { namespace subsys {
             try {
                 parent_->on_request_( req, res );
                 std::string serial = resp.SerializeAsString(  );
-                pinfo.sock.send_to( ba::buffer(serial), pinfo.sender );                
+                pinfo.sock.send_to( ba::buffer(serial), pinfo.from );
                 //LOGDBG << "Send response success.";
             } catch( const std::exception &ex ) {
                 LOGERR << "Exception while sending signal: " << ex.what( );
@@ -155,8 +157,8 @@ namespace fr { namespace agent { namespace subsys {
             auto lck = info.lock( );
             if( lck ) {
                 LOGDBG << "Recv request from "
-                       << lck->sender.address( ).to_string( )
-                       << ":" << lck->sender.port( )
+                       << lck->from.address( ).to_string( )
+                       << ":" << lck->from.port( )
                           ;
                 ///
                 req_res( *lck, bytes_recvd );
@@ -168,10 +170,10 @@ namespace fr { namespace agent { namespace subsys {
         bool start_recv( point_sptr info )
         {
             namespace ph = ba::placeholders;
-            info->sender = ba::ip::udp::endpoint( );
+            info->from = ba::ip::udp::endpoint( );
             try {
                 info->sock.async_receive_from( ba::buffer(info->buf),
-                    info->sender,
+                    info->from,
                     dispatcher_.wrap(
                         boost::bind( &impl::handle_receive, this,
                                       ph::error, ph::bytes_transferred,

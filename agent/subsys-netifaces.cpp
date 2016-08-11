@@ -220,11 +220,11 @@ namespace fr { namespace agent { namespace subsys {
         switch (ifa->ifa_addr->sa_family) {
         case AF_INET:
             memcpy(&sockaddr_, ifa->ifa_addr, sizeof(sockaddr_in));
-            memcpy(&mask_, ifa->ifa_netmask, sizeof(sockaddr_in));
+            memcpy(&mask_, ifa->ifa_netmask,  sizeof(sockaddr_in));
             break;
         case AF_INET6:
             memcpy(&sockaddr_, ifa->ifa_addr, sizeof(sockaddr_in6));
-            memcpy(&mask_, ifa->ifa_netmask, sizeof(sockaddr_in6));
+            memcpy(&mask_, ifa->ifa_netmask,  sizeof(sockaddr_in6));
             break;
         default:
             memset(&sockaddr_, 0, sizeof(sockaddr_));
@@ -234,4 +234,4 @@ namespace fr { namespace agent { namespace subsys {
 
 }}}
 
-    
+

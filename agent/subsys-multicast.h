@@ -13,13 +13,15 @@ namespace fr { namespace agent {
 namespace subsys {
 
     struct multicast_request {
-        boost::asio::ip::udp::socket *from   = nullptr;
-        const std::uint8_t           *data   = nullptr;
-        size_t                        length = 0;
+        boost::asio::ip::udp::socket   *sender = nullptr;
+        boost::asio::ip::udp::endpoint *from   = nullptr;
+        const std::uint8_t             *data   = nullptr;
+        size_t                          length = 0;
     };
 
     struct multicast_response {
         bool gpio_available = false;
+        std::vector<std::string> endpoints;
     };
 
     class multicast: public subsystem_iface {

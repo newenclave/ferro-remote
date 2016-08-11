@@ -9,6 +9,8 @@
 
 #include "application.h"
 #include "subsys-listeners.h"
+#include "subsys-netifaces.h"
+#include "subsys-multicast.h"
 
 #include "subsys-config.h"
 
@@ -24,6 +26,7 @@
 #include "boost/program_options.hpp"
 #include "boost/system/error_code.hpp"
 #include "boost/filesystem.hpp"
+#include "boost/asio/ip/address.hpp"
 
 #include "subsys-logging.h"
 
@@ -44,41 +47,47 @@ namespace fr { namespace agent { namespace subsys {
         namespace vserv = vtrc::server;
         namespace vcomm = vtrc::common;
         namespace fs = boost::filesystem;
+        namespace ba = boost::asio;
 
         typedef vtrc::server::listener_sptr listener_sptr;
-        typedef std::vector<listener_sptr>  listener_vector;
+        struct listener_info {
+            listener_sptr            ptr;
+            utilities::endpoint_info info;
+            ba::ip::address          addr;
+        };
+
+        typedef std::vector<listener_info>  listener_vector;
+        //typedef std::vector<listener_sptr>  listener_vector;
 
         const std::string subsys_name( "listeners" );
 
-        listener_sptr listener_from_string( const std::string &name,
+        listener_info listener_from_string( const std::string &name,
                                             application &app )
         {
             /// result endpoint
-            listener_sptr result;
+            listener_info result;
 
+            using namespace vserv::listeners;
             auto &log_(app.get_logger( ));
 
-            std::vector<std::string> params;
+            auto ep = result.info = utilities::get_endpoint_info( name );
 
-            size_t delim_pos = name.find_last_of( ':' );
-            if( delim_pos == std::string::npos ) {
+            LOGDBG << ep;
 
-                /// check if path is SOCKET
-                /// local: <localname>
-
-                if( !fs::exists( name ) ) {
-                    return vserv::listeners::local::create( app, name );
+            if( ep.is_local( ) ) {
+                if( !fs::exists( ep.addpess ) ) {
+                    result.ptr = local::create( app, ep.addpess );
+                    return result;
                 }
 
                 struct stat st = {0};
-                int r = ::stat( name.c_str( ), &st );
+                int r = ::stat( ep.addpess.c_str( ), &st );
                 if( -1 != r ) {
                     if( S_ISSOCK( st.st_mode ) ) {
-                        LOGINF << "Socket '" << name
+                        LOGINF << "Socket '" << ep.addpess
                                << "' found. unlinking it...";
-                        params.push_back( name );
                         ::unlink( name.c_str( ) ); /// unlink old file socket
-                        result = vserv::listeners::local::create( app, name );
+                        result.ptr = local::create( app, ep.addpess );
                     } else {
                         LOGERR << "File " << name << " found. "
                                << "But it is not a socket.";
@@ -91,20 +100,12 @@ namespace fr { namespace agent { namespace subsys {
                            << ec.message( );
                     throw std::runtime_error( ec.message( ) );
                 }
-            } else {
-
-                /// tcp: <addres>:<port>
-                std::string addr( std::string( name.begin( ),
-                                               name.begin( ) + delim_pos ) );
-
-                std::string port( std::string( name.begin( ) + delim_pos + 1,
-                                               name.end( ) ) );
-
-                result = vserv::listeners::tcp::create( app, addr,
-                                boost::lexical_cast<unsigned short>(port),
-                                true );
+            } else if( ep.is_ip( ) ) {
+                result.addr.from_string( ep.addpess );
+                result.ptr = tcp::create( app, ep.addpess, ep.service, true );
             }
-            return result;
+
+            return std::move(result);
         }
 
     }
@@ -158,19 +159,19 @@ namespace fr { namespace agent { namespace subsys {
         void add_listener( const std::string &name )
         {
             namespace ph = vtrc::placeholders;
-            listener_sptr list(listener_from_string( name, *app_ ));
+            auto list = listener_from_string( name, *app_ );
 
-            list->on_new_connection_connect(
-                   vtrc::bind( &impl::on_new_connection, this,
-                               list.get( ), ph::_1 ));
+            list.ptr->on_new_connection_connect(
+                    vtrc::bind( &impl::on_new_connection, this,
+                                list.ptr.get( ), ph::_1 ));
 
-            list->on_stop_connection_connect(
-                   vtrc::bind( &impl::on_stop_connection, this,
-                               list.get( ), ph::_1 ));
+            list.ptr->on_stop_connection_connect(
+                    vtrc::bind( &impl::on_stop_connection, this,
+                                list.ptr.get( ), ph::_1 ));
 
-            list->on_accept_failed_connect(
-                   vtrc::bind( &impl::on_accept_failed, this,
-                               list.get( ), 0, ph::_1 ) );
+            list.ptr->on_accept_failed_connect(
+                    vtrc::bind( &impl::on_accept_failed, this,
+                                list.ptr.get( ), 0, ph::_1 ) );
 
             listenrs_.push_back(list);
         }
@@ -179,10 +180,10 @@ namespace fr { namespace agent { namespace subsys {
         {
             for( auto &l: listenrs_ ) {
                 try {
-                    l->start( );
-                    LOGINF << l->name( ) << " started";
+                    l.ptr->start( );
+                    LOGINF << l.ptr->name( ) << " started";
                 } catch( const std::exception &ex ) {
-                    LOGERR << l->name( )
+                    LOGERR << l.ptr->name( )
                            << " failed to start; "
                            << ex.what( );
                 }
@@ -194,11 +195,19 @@ namespace fr { namespace agent { namespace subsys {
             for( listener_vector::iterator b(listenrs_.begin( )),
                  e(listenrs_.end( )); b!=e; ++b )
             {
-                (*b)->stop( );
-                LOGINF << (*b)->name( )
+                (*b).ptr->stop( );
+                LOGINF << (*b).ptr->name( )
                        << " stopped";
             }
         }
+
+        void mcast_res( const subsys::multicast_request &req,
+                              subsys::multicast_response &res )
+        {
+            auto ep = req.from;
+            // LOGWRN << ep->address( ).to_v4( ).to_ulong( );
+        }
+
     };
 
     listeners::listeners( application *app )
@@ -225,6 +234,13 @@ namespace fr { namespace agent { namespace subsys {
     void listeners::init( )
     {
         impl_->config_ = &impl_->app_->subsystem<subsys::config>( );
+        impl_->app_->subsystem<subsys::multicast>( ).on_request_connect(
+            [this]( const subsys::multicast_request &req,
+                          subsys::multicast_response &res )
+            {
+                impl_->mcast_res( req, res );
+            });
+
     }
 
     void listeners::start( )

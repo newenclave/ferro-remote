@@ -207,7 +207,7 @@ int main( int argc, const char *argv[] )
                 ls.check_call_error( res );
 
                 if( ci.eventor_->get_enable( ) ) {
-#if 0 //// test
+#if 1 //// test
                     auto pinger = client::core::create_udp_pinger( et.get_io_service( ) );
                     auto hdl = [&et]( const boost::system::error_code &e,
                                   const client::core::udp_responce_info *inf )
@@ -225,7 +225,7 @@ int main( int argc, const char *argv[] )
                         }
                         return true;
                     };
-                    pinger->async_ping( "192.168.3.1:18852", 2000, hdl, "192.168.3.10" );
+                    pinger->async_ping( "239.194.1.3:18852", 2000, hdl );
 #endif
                     et.attach( );
                 }
