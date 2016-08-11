@@ -131,11 +131,18 @@ namespace fr { namespace agent { namespace subsys {
 
             fr::proto::mcast_response resp;
             resp.set_name( config_->cfgs( ).name );
-
             try {
                 parent_->on_request_( req, res );
+
+                resp.set_gpio_available( res.gpio_available );
+                for( auto &ep: res.endpoints ) {
+                    resp.add_endpoints( ep );
+                }
+
                 std::string serial = resp.SerializeAsString(  );
                 pinfo.sock.send_to( ba::buffer(serial), pinfo.from );
+                LOGDBG << "Response to " << pinfo.from.address( ).to_string( )
+                       << "\n{\n" << resp.DebugString( ) << "}";
                 //LOGDBG << "Send response success.";
             } catch( const std::exception &ex ) {
                 LOGERR << "Exception while sending signal: " << ex.what( );

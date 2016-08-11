@@ -351,7 +351,7 @@ namespace fr { namespace agent { namespace subsys {
             level lvl = static_cast<level>(loginf.level);
             o << loginf.when
               << " " << loginf.tprefix
-              << " [" << agent::logger::level2str(lvl) << "] "
+              << " (" << agent::logger::level2str(lvl) << ") "
               << s
                    ;
             return o;
@@ -463,13 +463,17 @@ namespace fr { namespace agent { namespace subsys {
 
             void write( const log_record_info &loginf, stringlist const &data )
             {
-                std::ostringstream oss;
+//                std::ostringstream oss;
+//                for( auto &s: data ) {
+//                    output( oss, loginf, s ) << "\n";
+//                }
+//                length_    += oss.tellp( );
+//                (*stream_) << oss.str( );
                 for( auto &s: data ) {
-                    output( oss, loginf, s ) << "\n";
+                    output( *stream_, loginf, s ) << "\n";
                 }
-                length_    += oss.tellp( );
-                (*stream_) << oss.str( );
-                //stream_->flush( );
+                length_ = stream_->tellp( );
+                // stream_->flush( );
             }
 
             size_t length( ) const
@@ -595,9 +599,9 @@ namespace fr { namespace agent { namespace subsys {
                                    ph::_1, ph::_2 ) );
 
             LOGDBG << "New logger slot '" << path << "';"
-                   << "\n      minimum level = "
+                   << "\n  minimum level = "
                             << agent::logger::level2str( minl )
-                   << "\n      maximum level = "
+                   << "\n  maximum level = "
                             << agent::logger::level2str( maxl )
                    ;
 

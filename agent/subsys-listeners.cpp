@@ -72,7 +72,7 @@ namespace fr { namespace agent { namespace subsys {
 
             auto ep = result.info = utilities::get_endpoint_info( name );
 
-            LOGDBG << ep;
+            LOGDBG << "Got: " << ep;
 
             if( ep.is_local( ) ) {
                 if( !fs::exists( ep.addpess ) ) {
@@ -101,7 +101,7 @@ namespace fr { namespace agent { namespace subsys {
                     throw std::runtime_error( ec.message( ) );
                 }
             } else if( ep.is_ip( ) ) {
-                result.addr.from_string( ep.addpess );
+                result.addr = result.addr.from_string( ep.addpess );
                 result.ptr = tcp::create( app, ep.addpess, ep.service, true );
             }
 
@@ -173,7 +173,7 @@ namespace fr { namespace agent { namespace subsys {
                     vtrc::bind( &impl::on_accept_failed, this,
                                 list.ptr.get( ), 0, ph::_1 ) );
 
-            listenrs_.push_back(list);
+            listenrs_.emplace_back( std::move(list) );
         }
 
         void start_all(  )
@@ -201,13 +201,38 @@ namespace fr { namespace agent { namespace subsys {
             }
         }
 
+        static bool check_listener( const netifaces::iface_info &inf,
+                                    const listener_info &lst )
+        {
+            return lst.info.is_ip( ) &&
+                 ( lst.addr.is_v4( ) == inf.is_v4( ) ) &&
+                 ( lst.addr.is_unspecified( ) || inf.check( lst.addr ) );
+        }
+
         void mcast_res( const subsys::multicast_request &req,
                               subsys::multicast_response &res )
         {
             auto ep = req.from;
-            // LOGWRN << ep->address( ).to_v4( ).to_ulong( );
+            auto ifaces = app_->subsystem<netifaces>( ).ifaces( );
+            for( auto &i: *ifaces ) {
+                if( i.check( ep->address( ) ) ) {
+//                    LOGDBG << "Found network interface '" << i
+//                           << "' for client " << ep->address( );
+                    for( auto &lst: listenrs_ ) {
+                        if( check_listener( i, lst ) ) {
+                            std::ostringstream oss;
+                            oss << i.addr( ) << ":" << lst.info.service;
+                            LOGDBG << "Found endpoint '" << lst.info
+                                   << "' for client " << ep->address( )
+                                   << ". Adding response: '"
+                                   << oss.str( ) << "'";
+                            res.endpoints.insert( oss.str( ) );
+                        }
+                    }
+                }
+            }
+            LOGDBG << "Response size: " << res.endpoints.size( );
         }
-
     };
 
     listeners::listeners( application *app )

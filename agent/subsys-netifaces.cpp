@@ -106,6 +106,16 @@ namespace fr { namespace agent { namespace subsys {
             if( enum_ifaces_( *ifaces_, log_ ) ) {
                 last_enum_ = application::tick_count( );
             }
+            std::ostringstream oss;
+            oss << "Obtained " << ifaces_->size( ) << " iface"
+                << (ifaces_->size( ) > 1 ? "s" : "");
+            for( auto &i: *ifaces_ ) {
+                oss << "\n  " << i.name( ) << " "
+                    << " " << i.addr( ).to_string( )
+                    << "/" << i.mask( ).to_string( )
+                    ;
+            }
+            LOGDBG << oss.str( );
         }
 
         bool enum_ifaces( netifaces::iface_info_list &out )
@@ -117,49 +127,6 @@ namespace fr { namespace agent { namespace subsys {
         {
             std::lock_guard<std::mutex> lck(ifaces_lock_);
             ifaces_.swap( newif );
-        }
-
-        void test_addr( )
-        {
-            ifaddrs *addrs = nullptr;
-            ::getifaddrs( &addrs );
-            ifaddrs *p = addrs;
-            using namespace boost::asio::ip;
-
-            while( p ) {
-
-                address addr;
-                address mask;
-
-                if( p->ifa_addr->sa_family == AF_INET ) {
-                    auto si = reinterpret_cast<sockaddr_in *>(p->ifa_addr);
-                    auto sm = reinterpret_cast<sockaddr_in *>(p->ifa_netmask);
-                    addr = address_v4( ntohl(si->sin_addr.s_addr) );
-                    mask = address_v4( ntohl(sm->sin_addr.s_addr) );
-                } else if( p->ifa_addr->sa_family == AF_INET6 ) {
-                    auto si = reinterpret_cast<sockaddr_in6 *>(p->ifa_addr);
-                    auto sm = reinterpret_cast<sockaddr_in6 *>(p->ifa_netmask);
-                    address_v6::bytes_type bytes;
-                    std::copy( &si->sin6_addr.s6_addr[0],
-                               &si->sin6_addr.s6_addr[bytes.size( )],
-                               bytes.begin( ) );
-                    address_v6::bytes_type bytesm;
-                    std::copy( &sm->sin6_addr.s6_addr[0],
-                               &sm->sin6_addr.s6_addr[bytesm.size( )],
-                               bytesm.begin( ) );
-                    addr = address_v6( bytes );
-                    mask = address_v6( bytesm );
-                } else {
-                    std::cout << "unkn family "
-                              << p->ifa_addr->sa_family << "...";
-                }
-                std::cout << addr.to_string( ) << "/" << mask << "\n";
-
-                p = p->ifa_next;
-            }
-
-            ::freeifaddrs( addrs );
-
         }
 
         void reg_creator( const std::string &name,
@@ -204,15 +171,6 @@ namespace fr { namespace agent { namespace subsys {
 
     void netifaces::start( )
     {
-//        impl_->test_addr( );
-//        netifaces::iface_info_list res;
-//        impl_->enum_ifaces( res );
-
-//        for( auto &a: res ) {
-//            std::cout << a.in4( )->sin_family << "\n";
-//        }
-
-//        std::terminate( );
         impl_->LOGINF << "Started.";
     }
 
@@ -251,11 +209,12 @@ namespace fr { namespace agent { namespace subsys {
 
     bool netifaces::iface_info::check( const address_type &test ) const
     {
+        bool res = false;
         if( sockaddr_.is_v4( ) && test.is_v4( ) ) {
             auto sa = sockaddr_.to_v4( ).to_ulong( );
             auto ma = mask_.to_v4( ).to_ulong( );
             auto ta = test.to_v4( ).to_ulong( );
-            return (sa & ma) == (ta & ma);
+            res = ((sa & ma) == (ta & ma));
         } else if( sockaddr_.is_v6( ) && test.is_v6( ) ) {
             auto sa = sockaddr_.to_v6( ).to_bytes( );
             auto ma = mask_.to_v6( ).to_bytes( );
@@ -265,7 +224,7 @@ namespace fr { namespace agent { namespace subsys {
             static_assert( sa.max_size( ) == 16,
                            "bytes_type::max_size( ) != 16" );
 
-            return ( sa[0x0] & ma[0x0]) == (ta[0x0] & ma[0x0] )
+            res  = ( sa[0x0] & ma[0x0]) == (ta[0x0] & ma[0x0] )
                 && ( sa[0x1] & ma[0x1]) == (ta[0x1] & ma[0x1] )
                 && ( sa[0x2] & ma[0x2]) == (ta[0x2] & ma[0x2] )
                 && ( sa[0x3] & ma[0x3]) == (ta[0x3] & ma[0x3] )
@@ -283,7 +242,14 @@ namespace fr { namespace agent { namespace subsys {
                 && ( sa[0xF] & ma[0xF]) == (ta[0xF] & ma[0xF] )
                    ;
         }
-        return false;
+        return res;
+    }
+
+    std::ostream &operator <<( std::ostream &o,
+                               const netifaces::iface_info &info )
+    {
+        o << info.name( )  << " " << info.addr( ) << "/" << info.mask( );
+        return o;
     }
 
 }}}

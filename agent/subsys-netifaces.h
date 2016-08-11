@@ -47,8 +47,8 @@ namespace subsys {
                 return name_;
             }
 
-            const address_type &addr( ) { return sockaddr_; }
-            const address_type &mask( ) { return mask_;     }
+            const address_type &addr( ) const { return sockaddr_; }
+            const address_type &mask( ) const { return mask_;     }
 
             bool is_v4( ) const { return sockaddr_.is_v4( ); }
             bool is_v6( ) const { return sockaddr_.is_v6( ); }
@@ -73,6 +73,9 @@ namespace subsys {
         iface_info_list_ptr ifaces( ) const;
         iface_info_list enum_ifaces( );
     };
+
+    std::ostream & operator << ( std::ostream &o,
+                                 const netifaces::iface_info &info );
 
 }}}
 

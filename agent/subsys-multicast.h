@@ -1,6 +1,8 @@
 #ifndef FR_SUBSYS_multicast_H
 #define FR_SUBSYS_multicast_H
 
+#include <set>
+
 #include "subsystem-iface.h"
 #include "vtrc-common/vtrc-signal-declaration.h"
 
@@ -21,7 +23,7 @@ namespace subsys {
 
     struct multicast_response {
         bool gpio_available = false;
-        std::vector<std::string> endpoints;
+        std::set<std::string> endpoints;
     };
 
     class multicast: public subsystem_iface {
