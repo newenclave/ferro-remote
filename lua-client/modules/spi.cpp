@@ -332,11 +332,11 @@ namespace {
                 auto data = utils::table2vector<std::string>( ls, 2 );
                 auto ptr  = reinterpret_cast<const uint8_t *>(data.c_str( ));
                 auto res  = d->transfer( ptr, data.size( ) );
-                table t;
+                table tbl;
                 for( auto &r: res ) {
-                    t.add( new_integer( static_cast<uint8_t>(r) ) );
+                    tbl.add( new_integer( static_cast<uint8_t>(r) ) );
                 }
-                t.push( L );
+                tbl.push( L );
             } else {
                 auto data = ls.get_opt<std::string>( 2 );
                 auto ptr  = reinterpret_cast<const uint8_t *>(data.c_str( ));
@@ -420,12 +420,13 @@ namespace {
                 }
                 auto res = d->wr( all_data );
                 size_t counter = 0;
-                objects::table_sptr t(objects::new_table( ));
-                for( auto &d: res ) {
-                    t->add( base_vector[counter]->clone( ),
-                            objects::new_string( d ) );
+                objects::table_sptr tbl(objects::new_table( ));
+                for( auto &dres: res ) {
+                    tbl->add( base_vector[counter]->clone( ),
+                              objects::new_string( dres ) );
                     ++counter;
                 }
+                tbl->push( L );
             }
         } catch( const std::exception &ex ) {
             ls.push( false );
