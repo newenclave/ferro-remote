@@ -56,6 +56,8 @@ namespace utilities {
 
     typedef std::vector<iface_info> iface_info_list;
     iface_info_list get_system_ifaces( );
+    std::ostream & operator << ( std::ostream &o, const iface_info &info );
+
 }
 
 

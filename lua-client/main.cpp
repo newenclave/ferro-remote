@@ -192,12 +192,10 @@ int main( int argc, const char *argv[] )
                 ls.check_call_error( res );
 
                 if( ci.eventor_->get_enable( ) ) {
-#if 1 //// test
+#if 0 //// test
                     auto ni = utilities::get_system_ifaces( );
                     for( auto &n: ni ) {
-                        std::cout << n.name( )  << " "
-                                  << n.addr( ).to_string( ) << "/"
-                                  << n.mask( ).to_string( ) << "\n";
+                        std::cout << n << "\n";
                     }
                     auto pinger = client::core::create_udp_pinger( et.get_io_service( ) );
                     auto hdl = [&et]( const boost::system::error_code &e,

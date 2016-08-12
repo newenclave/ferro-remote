@@ -248,5 +248,12 @@ namespace {
     {
         return std::move(get_all( ));
     }
+
+    std::ostream &operator <<(std::ostream &o, const iface_info &info)
+    {
+        o << info.name( )  << " " << info.addr( ) << "/" << info.mask( );
+        return o;
+    }
+
 }
 
