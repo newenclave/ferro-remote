@@ -7,7 +7,6 @@
 
 //#include "vtrc-memory.h"
 
-
 #include "boost/system/error_code.hpp"
 #include "boost/system/system_error.hpp"
 

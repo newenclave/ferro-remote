@@ -6,6 +6,7 @@
 #include <iphlpapi.h>
 #include <ws2tcpip.h>
 #else
+#include <ifaddrs.h>
 #include <sys/types.h>
 #include <arpa/inet.h>
 #endif
@@ -155,7 +156,8 @@ namespace {
         if( 0 != res ) {
             return false;
         }
-        netifaces::iface_info_list tmp;
+
+        iface_info_list tmp;
         ifaddrs *p = addrs;
         size_t id = 0;
 
@@ -163,8 +165,8 @@ namespace {
             switch (p->ifa_addr->sa_family) {
             case AF_INET:
             case AF_INET6:
-                tmp.emplace_back( p->ifa_addr, p->ifa_addr,
-                                  p->name, id++ );
+                tmp.emplace_back( p->ifa_addr, p->ifa_netmask,
+                                  p->ifa_name, id++ );
                 break;
             }
             p = p->ifa_next;

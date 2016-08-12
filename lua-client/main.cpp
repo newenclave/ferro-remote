@@ -23,6 +23,8 @@
 
 #include "client-core/fr-discover.h"
 
+#include "net-ifaces.h"
+
 namespace vcomm     = vtrc::common;
 namespace vclient   = vtrc::client;
 namespace fs        = boost::filesystem;
@@ -191,6 +193,12 @@ int main( int argc, const char *argv[] )
 
                 if( ci.eventor_->get_enable( ) ) {
 #if 1 //// test
+                    auto ni = utilities::get_system_ifaces( );
+                    for( auto &n: ni ) {
+                        std::cout << n.name( )  << " "
+                                  << n.addr( ).to_string( ) << "/"
+                                  << n.mask( ).to_string( ) << "\n";
+                    }
                     auto pinger = client::core::create_udp_pinger( et.get_io_service( ) );
                     auto hdl = [&et]( const boost::system::error_code &e,
                                   const client::core::udp_responce_info *inf )
