@@ -131,7 +131,7 @@ namespace {
                     tmp.emplace_back( reinterpret_cast<const sockaddr *>(&addr),
                                       reinterpret_cast<const sockaddr *>(&mask),
                                       anames[ptable->table[b].dwIndex],
-                            ptable->table[b].dwIndex );
+                                      ptable->table[b].dwIndex );
                 }
                 out.swap( tmp );
             }
