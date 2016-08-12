@@ -19,6 +19,8 @@
 #include "interfaces/IInternal.h"
 #include "vtrc-memory.h"
 
+#include "net-ifaces.h"
+
 namespace fr { namespace lua { namespace client {
 
     namespace {
@@ -121,6 +123,23 @@ namespace fr { namespace lua { namespace client {
             }
             std::cout.flush( );
             return 0;
+        }
+
+        int lcall_global_netifaces( lua_State *L )
+        {
+            lua::state ls( L );
+            objects::table t;
+            auto ifaces = utilities::get_system_ifaces( );
+            using objects::new_string;
+            for( auto &i: ifaces ) {
+                t.add( objects::new_table( )
+                       ->add( "name",    new_string( i.name( ) ) )
+                       ->add( "address", new_string( i.addr( ).to_string( ) ) )
+                       ->add( "mask",    new_string( i.mask( ).to_string( ) ) )
+                 );
+            }
+            t.push( L );
+            return 1;
         }
 
         objects::table_sptr common_table( general_info   *info,
@@ -366,6 +385,7 @@ namespace fr { namespace lua { namespace client {
 
         fr_table->add( "client", ct );
         fr_table->add( "print", new_function( &lcall_global_print ) );
+        fr_table->add( "netifaces", new_function( &lcall_global_netifaces ) );
 
         ls.set_object( FR_CLIENT_LUA_MAIN_TABLE, fr_table.get( ) );
 
