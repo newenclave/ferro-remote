@@ -131,11 +131,17 @@ namespace fr { namespace lua { namespace client {
             objects::table t;
             auto ifaces = utilities::get_system_ifaces( );
             using objects::new_string;
+            using objects::new_boolean;
             for( auto &i: ifaces ) {
+                auto &addr(i.addr( ));
+                auto &mask(i.addr( ));
                 t.add( objects::new_table( )
-                       ->add( "name",    new_string( i.name( ) ) )
-                       ->add( "address", new_string( i.addr( ).to_string( ) ) )
-                       ->add( "mask",    new_string( i.mask( ).to_string( ) ) )
+                   ->add( "name",        new_string( i.name( ) ) )
+                   ->add( "address",     new_string( addr.to_string( ) ) )
+                   ->add( "mask",        new_string( mask.to_string( ) ) )
+                   ->add( "is_loopback", new_boolean( addr.is_loopback( ) ) )
+                   ->add( "is_v4",       new_boolean( addr.is_v4( ) ) )
+                   ->add( "is_v6",       new_boolean( addr.is_v4( ) ) )
                  );
             }
             t.push( L );
