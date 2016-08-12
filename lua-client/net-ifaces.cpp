@@ -5,6 +5,10 @@
 #include <windows.h>
 #include <iphlpapi.h>
 #include <ws2tcpip.h>
+
+#pragma comment(lib, "iphlpapi.lib")
+#pragma comment(lib, "ws2_32.lib")
+
 #else
 #include <ifaddrs.h>
 #include <sys/types.h>
@@ -51,7 +55,7 @@ namespace {
             data.resize( cch + 1 );
             cch = WideCharToMultiByte( CodePage, 0,
                                        src, -1, &data[0],
-                    (DWORD)data.size( ), 0, 0 );
+                                       (DWORD)data.size( ), 0, 0 );
 
             return cch ? &data.front( ) : "";
         }
@@ -74,10 +78,9 @@ namespace {
 
         while( res == ERROR_BUFFER_OVERFLOW ) {
             tmp_data.resize( size + 1 );
-            auto buf = reinterpret_cast<PIP_ADAPTER_ADDRESSES>(&tmp_data[0]);
-            res = GetAdaptersAddresses( family, flags, NULL, buf, &size );
+            auto p = reinterpret_cast<PIP_ADAPTER_ADDRESSES>(&tmp_data[0]);
+            res = GetAdaptersAddresses( family, flags, NULL, p, &size );
             if( res == ERROR_SUCCESS ) {
-                auto p = reinterpret_cast<PIP_ADAPTER_ADDRESSES>(&tmp_data[0]);
                 while( p ) {
                     tmp.emplace_back(
                                 p->FirstUnicastAddress->Address.lpSockaddr,
