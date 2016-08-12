@@ -223,8 +223,8 @@ namespace {
             auto ta = test.to_v6( ).to_bytes( );
 
             /// something wrong!
-            static_assert(sa.max_size( ) == 16,
-                          "bytes_type::max_size( ) != 16");
+            static_assert( sa.max_size( ) == 16,
+                           "bytes_type::max_size( ) != 16" );
             res = (sa[0x0] & ma[0x0]) == (ta[0x0] & ma[0x0])
                     && (sa[0x1] & ma[0x1]) == (ta[0x1] & ma[0x1])
                     && (sa[0x2] & ma[0x2]) == (ta[0x2] & ma[0x2])
