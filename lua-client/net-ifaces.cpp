@@ -216,7 +216,7 @@ namespace {
             res = ((sa & ma) == (ta & ma));
         } else if( sockaddr_.is_v6( ) && test.is_v6( ) ) {
 #ifdef _WIN32
-        return true; // always valid.
+            return true; // always valid.
 #else
             auto sa = sockaddr_.to_v6( ).to_bytes( );
             auto ma = mask_.to_v6( ).to_bytes( );
