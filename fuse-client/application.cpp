@@ -381,7 +381,7 @@ namespace fr { namespace fuse {
 
         template <typename Func, typename BufType>
         static int read_write_impl( Func call,
-                                    const char */*path*/, BufType buf,
+                                    const char *path, BufType buf,
                                     size_t len, off_t off,
                                     struct fuse_file_info *inf )
         {
@@ -411,6 +411,10 @@ namespace fr { namespace fuse {
                     ptr->offset_ += next;
                 }
             } else {
+                if( g_log ) {
+                    std::cout << " >>>> bad handle for file: "
+                              << path << std::endl;
+                }
                 return -1;
             }
             return (int)(cur);
