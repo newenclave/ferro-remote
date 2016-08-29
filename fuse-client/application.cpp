@@ -125,7 +125,6 @@ namespace fr { namespace fuse {
     using directory_map = locked_map<directory_wrapper>;
     using file_map      = locked_map<file_wrapper>;
 
-
     struct application::impl {
 
         vcomm::pool_pair                   pp_;
