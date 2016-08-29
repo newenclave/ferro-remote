@@ -47,6 +47,8 @@ namespace fr { namespace fuse {
     THREAD_LOCAL int local_result = 0;
     THREAD_LOCAL const char *local_message = "";
 
+    bool g_log = false;
+
     const char *leaf( const std::string &path )
     {
         auto pos = path.find_last_of( '/' );
@@ -139,14 +141,11 @@ namespace fr { namespace fuse {
         directory_map   dirs_;
         file_map        files_;
 
-        bool            logs_;
-
         impl( )
             :pp_(1, 1)
             ,client_(pp_)
             ,retry_timer_(pp_.get_rpc_service( ))
             ,index_(100)
-            ,logs_(false)
         {
             std::string id;
             std::string key;
@@ -159,7 +158,7 @@ namespace fr { namespace fuse {
                 key = g_opts["key"].as<std::string>( );
             }
 
-            logs_ = g_opts.count( "debug" ) > 0;
+            g_log = g_opts.count( "debug" ) > 0;
 
             if( !id.empty( ) ) {
                 client_.set_id( id );
@@ -203,6 +202,10 @@ namespace fr { namespace fuse {
                 client_.connect( server_ );
                 on_connect( );
             } catch( const std::exception &ex ) {
+                if( g_log ) {
+                    std::cout << " >>>> try_connect exception: "
+                              << ex.what( ) << std::endl;
+                }
                 start_retry( );
             }
         }
@@ -287,8 +290,16 @@ namespace fr { namespace fuse {
                 std::unique_ptr<file_iface::iface> f(
                     file_iface::create( imp( )->client_, path, O_CREAT, 0 ));
             } catch( const vtrc::common::exception &ex) {
+                if( g_log ) {
+                    std::cout << " >>>> mknod vtrc exception: "
+                              << ex.what( ) << std::endl;
+                }
                 return - ex.code( );
-            } catch( const std::exception & ) {
+            } catch( const std::exception &ex ) {
+                if( g_log ) {
+                    std::cout << " >>>> mknod exception: "
+                              << ex.what( ) << std::endl;
+                }
                 return -1;
             }
             return local_result;
@@ -331,19 +342,19 @@ namespace fr { namespace fuse {
             auto nid = 0;
             try {
                 nid = imp( )->create_file_impl( path, inf->flags );
-                if( imp( )->logs_ ) {
+                if( g_log ) {
                     std::cout << " >>>> open file: " << path << std::endl;
                     std::cout << "\ttotal files: "
                               << imp( )->files_.size( ) << std::endl;
                 }
             } catch( const vtrc::common::exception &ex) {
-                if( imp( )->logs_ ) {
+                if( g_log ) {
                     std::cout << " >>>> open file: " << path << std::endl;
                     std::cout << "\tFAILED: " << ex.what( )  << std::endl;
                 }
                 return - ex.code( );
             } catch( const std::exception &ex ) {
-                if( imp( )->logs_ ) {
+                if( g_log ) {
                     std::cout << " >>>> open file exception: "
                               << ex.what( ) << std::endl;
                 }
@@ -359,7 +370,7 @@ namespace fr { namespace fuse {
             local_result = 0;
             if( fi->fh ) {
                 imp( )->files_.erase( fi->fh );
-                if( imp( )->logs_ ) {
+                if( g_log ) {
                     std::cout << " >>>> release file: " << path << std::endl;
                     std::cout << "\ttotal files: "
                               << imp( )->files_.size( ) << std::endl;
@@ -482,7 +493,7 @@ namespace fr { namespace fuse {
                 return -EIO;
             }
             info->fh = imp( )->create_dir_impl( path );
-            if( imp( )->logs_ ) {
+            if( g_log ) {
                 std::cout << " >>>> open dir: " << path << std::endl;
                 std::cout << "\ttotal dirs: "
                           << imp( )->dirs_.size( ) << std::endl;
@@ -496,7 +507,7 @@ namespace fr { namespace fuse {
             local_result = 0;
             if( info->fh ) {
                 imp( )->dirs_.erase( info->fh );
-                if( imp( )->logs_ ) {
+                if( g_log ) {
                     std::cout << " >>>> release dir: " << path << std::endl;
                     std::cout << "\ttotal dirs: "
                               << imp( )->dirs_.size( ) << std::endl;
@@ -580,8 +591,8 @@ namespace fr { namespace fuse {
                 auto a = static_cast<application *>(app);
                 a->stopall( );
             } catch( const std::exception &ex ) {
-                if( imp( )->logs_ ) {
-                    std::cout << " >>>> stop all exception: "
+                if( g_log ) {
+                    std::cout << " >>>> destroy_app exception: "
                               << ex.what( ) << std::endl;
                 }
             }
