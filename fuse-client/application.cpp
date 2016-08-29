@@ -342,7 +342,11 @@ namespace fr { namespace fuse {
                     std::cout << "\tFAILED: " << ex.what( )  << std::endl;
                 }
                 return - ex.code( );
-            } catch( const std::exception & ) {
+            } catch( const std::exception &ex ) {
+                if( imp( )->logs_ ) {
+                    std::cout << " >>>> open file exception: "
+                              << ex.what( ) << std::endl;
+                }
                 return -1;
             }
 
@@ -576,7 +580,10 @@ namespace fr { namespace fuse {
                 auto a = static_cast<application *>(app);
                 a->stopall( );
             } catch( const std::exception &ex ) {
-                ;;;;
+                if( imp( )->logs_ ) {
+                    std::cout << " >>>> stop all exception: "
+                              << ex.what( ) << std::endl;
+                }
             }
             delete static_cast<application *>(app);
         }
