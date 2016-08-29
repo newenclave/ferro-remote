@@ -381,7 +381,8 @@ namespace fr { namespace fuse {
 
         template <typename Func, typename BufType>
         static int read_write_impl( Func call,
-                                    const char *path, BufType buf,
+                                    const char *path, const char *func_name,
+                                    BufType buf,
                                     size_t len, off_t off,
                                     struct fuse_file_info *inf )
         {
@@ -412,8 +413,8 @@ namespace fr { namespace fuse {
                 }
             } else {
                 if( g_log ) {
-                    std::cout << " >>>> bad handle for file: "
-                              << path << std::endl;
+                    std::cout << " >>>> bad handle for file ("
+                              << func_name << "): " << path << std::endl;
                 }
                 return -1;
             }
@@ -424,14 +425,14 @@ namespace fr { namespace fuse {
                          off_t off, struct fuse_file_info *inf )
         {
 
-            return read_write_impl( &file_iface::iface::read, path,
+            return read_write_impl( &file_iface::iface::read, path, "read",
                                     buf, len, off, inf);
         }
 
         static int write( const char *path, const char *buf, size_t len,
                           off_t off, struct fuse_file_info *inf )
         {
-            return read_write_impl( &file_iface::iface::write, path,
+            return read_write_impl( &file_iface::iface::write, path, "write",
                                     buf, len, off, inf);
         }
 
