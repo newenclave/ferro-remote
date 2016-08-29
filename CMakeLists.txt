@@ -9,42 +9,45 @@ endif(WIN32)
 cmake_minimum_required(VERSION 2.8)
 
 set( INTERNAL_PROJECT_NAME ferro_remote )
+
 set( CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} 
      "${CMAKE_CURRENT_SOURCE_DIR}/cmake/Modules/" )
 
-#set( VTRC_IMPORT_CMAKE "${CMAKE_CURRENT_SOURCE_DIR}/../vtrc/vtrc-import.cmake")
 set( FR_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/include")
 
+############################ VTRC library ############################
 find_file( VTRC_IMPORT_CMAKE
            NAMES
                "vtrc-import.cmake"
            PATHS
-               "${CMAKE_CURRENT_SOURCE_DIR}/../vtrc/"
+              #"${CMAKE_CURRENT_SOURCE_DIR}/../vtrc/"
                "${CMAKE_CURRENT_SOURCE_DIR}/vtrc/" )
 
 if( VTRC_IMPORT )
     set( VTRC_IMPORT_CMAKE ${VTRC_IMPORT} )
 endif( )
 
-message( "VTRC import file path: " ${VTRC_IMPORT_CMAKE} )
-
 if( NOT VTRC_IMPORT_CMAKE )
     message( "INITING submodule VTRC" )
     execute_process( COMMAND "git" "submodule" "init"
                      WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}")
     execute_process( COMMAND "git" "submodule" "update" "vtrc"
+                     WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/vtrc")
+    execute_process( COMMAND "git" "pull"
                      WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}")
-    add_subdirectory( vtrc )
-    set( VTRC_IMPORT_CMAKE "${CMAKE_CURRENT_SOURCE_DIR}/vtrc/vtrc-import.cmake")
-
 endif( NOT VTRC_IMPORT_CMAKE )
 
+add_subdirectory( vtrc )
+set( VTRC_IMPORT_CMAKE "${CMAKE_CURRENT_SOURCE_DIR}/vtrc/vtrc-import.cmake")
+
 include( ${VTRC_IMPORT_CMAKE} )
+######################################################################
+
 include( cxx11_check.cmake )
 
 check_cxx11( FR_CXX11_ENABLED )
 if( NOT FR_CXX11_ENABLED )
-    message( FATAL_ERROR "Compiler has no C++11 support" )
+    message( FATAL_ERROR "Compiler has no support for  C++11" )
 endif( )
 
 message( "static link: " ${VTRC_LINK_TYPE_STATIC} )
