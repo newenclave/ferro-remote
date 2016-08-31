@@ -243,12 +243,7 @@ namespace fr { namespace utilities {
 
             std::string svc_tmp( ep.begin( ) + delim_pos + 1, ep.end( ) );
             int port = atoi( svc_tmp.c_str( ) );
-            if( port > 0 ) {
-                res.service = port;
-            } else {
-                res.type = endpoint_info::ENDPOINT_NONE;
-                return res;
-            }
+            res.service = port;
         }
 
         if( tmp_addr.size( ) > 0 && tmp_addr[0] == '@' ) {
