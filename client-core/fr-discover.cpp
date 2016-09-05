@@ -25,7 +25,8 @@ namespace fr {  namespace client { namespace core {
         typedef vtrc::common::delayed_call delayed_call;
         typedef delayed_call::milliseconds milliseconds;
 
-        bool handler_default( const bs::error_code &ec, const udp_responce_info * )
+        bool handler_default( const bs::error_code &ec,
+                              const udp_responce_info * )
         {
             if( !ec ) {
                 return false;

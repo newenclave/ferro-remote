@@ -1,5 +1,6 @@
 #include <sstream>
 #include <stdexcept>
+#include <limits.h>
 
 #include "utils.h"
 
@@ -242,11 +243,12 @@ namespace fr { namespace utilities {
             tmp_addr.assign( ep.begin( ), ep.begin( ) + delim_pos );
 
             std::string svc_tmp( ep.begin( ) + delim_pos + 1, ep.end( ) );
-            int port = atoi( svc_tmp.c_str( ) );
-            if( port > 0 ) {
-                res.service = port;
-            } else {
+            char *end = nullptr;
+            auto str_res = strtoul( svc_tmp.c_str( ), &end, 10 );
+            if( str_res == ULONG_MAX && errno == EINVAL ) {
                 res.type = endpoint_info::ENDPOINT_NONE;
+            } else {
+                res.service = static_cast<uint16_t>(str_res); // can be 0 =)
                 return res;
             }
         }
