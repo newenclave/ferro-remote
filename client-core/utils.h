@@ -90,8 +90,8 @@ namespace fr { namespace utilities {
 
     ///  0.0.0.0:12345             - tcp  endpoint (address:port)
     ///  0.0.0.0:12345             - tcp6 endpoint (address:port)
-    /// @0.0.0.0:12345             - tcp  + ssl endpoint( !address:port )
-    /// @:::12345                  - tcp6 + ssl endpoint( !address:port )
+    /// @0.0.0.0:12345             - tcp  + ssl endpoint( @address:port )
+    /// @:::12345                  - tcp6 + ssl endpoint( @address:port )
     ///  /home/data/fr.sock - local endpoint
     ///                     (/local/socket or \\.\pipe\name )
     endpoint_info get_endpoint_info( const std::string &ep );
