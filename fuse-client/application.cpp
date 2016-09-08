@@ -27,6 +27,8 @@
 
 #include "vtrc-common/protocol/vtrc-errors.pb.h"
 
+#define FUSE_CALL_INIT \
+    local_result = 0
 
 namespace fr { namespace fuse {
 
@@ -235,7 +237,7 @@ namespace fr { namespace fuse {
 
         std::uint64_t create_dir_impl( const char *path )
         {
-            local_result = 0;
+            FUSE_CALL_INIT;
             auto nid = next_id( );
             auto res = std::make_shared<directory_wrapper>(
                                                 fs_->begin_iterate( path ) );
@@ -280,7 +282,7 @@ namespace fr { namespace fuse {
 
         static int mknod(const char *path, mode_t m, dev_t d)
         {
-            local_result = 0;
+            FUSE_CALL_INIT;
             if( !S_ISREG(m) ) {
                 return -EOPNOTSUPP;
             }
@@ -306,21 +308,21 @@ namespace fr { namespace fuse {
 
         static int unlink(const char *path)
         {
-            local_result = 0;
+            FUSE_CALL_INIT;
             imp( )->fs_->del( path );
             return local_result;
         }
 
         static int rmdir(const char *path)
         {
-            local_result = 0;
+            FUSE_CALL_INIT;
             imp( )->fs_->remove_all( path );
             return local_result;
         }
 
         static int rename( const char *path, const char *newname )
         {
-            local_result = 0;
+            FUSE_CALL_INIT;
             if( !fs( ) ) {
                 return -EIO;
             }
@@ -330,15 +332,15 @@ namespace fr { namespace fuse {
 
         static int mkdir(const char *path, mode_t /*mode*/)
         {
-            local_result = 0;
+            FUSE_CALL_INIT;
             imp( )->fs_->mkdir( path );
             return local_result;
         }
 
         static int open( const char *path, struct fuse_file_info *inf )
         {
-            local_result = 0;
-            auto nid = 0;
+            FUSE_CALL_INIT;
+            std::uint64_t nid = 0;
             try {
                 nid = imp( )->create_file_impl( path, inf->flags );
                 if( g_log ) {
@@ -366,7 +368,7 @@ namespace fr { namespace fuse {
 
         static int release(const char *path, struct fuse_file_info *fi)
         {
-            local_result = 0;
+            FUSE_CALL_INIT;
             if( fi->fh ) {
                 imp( )->files_.erase( fi->fh );
                 if( g_log ) {
@@ -385,7 +387,7 @@ namespace fr { namespace fuse {
                                     size_t len, off_t off,
                                     struct fuse_file_info *inf )
         {
-            local_result = 0;
+            FUSE_CALL_INIT;
             size_t cur = 0;
             auto ptr = imp( )->files_.get( inf->fh );
             if( ptr ) {
@@ -437,7 +439,7 @@ namespace fr { namespace fuse {
 
         static int flush( const char */*path*/, struct fuse_file_info *inf )
         {
-            local_result = 0;
+            FUSE_CALL_INIT;
             auto ptr = imp( )->files_.get( inf->fh );
             if( ptr ) {
                 ptr->ptr_->flush( );
@@ -448,7 +450,7 @@ namespace fr { namespace fuse {
 
         static int getattr( const char *path, struct stat *st )
         {
-            local_result = 0;
+            FUSE_CALL_INIT;
             errno = 0;
             fs_iface::stat_data sd = {0};
 
@@ -493,6 +495,7 @@ namespace fr { namespace fuse {
 
         static int opendir(const char *path, struct fuse_file_info *info)
         {
+            FUSE_CALL_INIT;
             if( !fs( ) ) {
                 return -EIO;
             }
@@ -508,7 +511,7 @@ namespace fr { namespace fuse {
         static int releasedir( const char *path,
                                fuse_file_info *info)
         {
-            local_result = 0;
+            FUSE_CALL_INIT;
             if( info->fh ) {
                 imp( )->dirs_.erase( info->fh );
                 if( g_log ) {
@@ -524,8 +527,7 @@ namespace fr { namespace fuse {
                             fuse_fill_dir_t filer, off_t,
                             fuse_file_info *info)
         {
-            local_result = 0;
-
+            FUSE_CALL_INIT;
             auto ptr_d = imp( )->dirs_.get( info->fh );
             if( !ptr_d ) {
                 return -EBADF;
@@ -549,10 +551,10 @@ namespace fr { namespace fuse {
 
         static int chmod( const char *path, mode_t mode )
         {
+            FUSE_CALL_INIT;
             if( !fs( ) ) {
                 return -EIO;
             }
-            local_result = 0;
             fs( )->chmod( path, mode );
             return local_result;
         }
@@ -564,20 +566,20 @@ namespace fr { namespace fuse {
 
         static int utime( const char *path, struct utimbuf *buf )
         {
+            FUSE_CALL_INIT;
             if( !fs( ) ) {
                 return -EIO;
             }
-            local_result = 0;
             fs( )->update_time( path, buf->actime, buf->modtime );
             return local_result;
         }
 
         static int truncate( const char *path, off_t offset )
         {
+            FUSE_CALL_INIT;
             if( !fs( ) ) {
                 return -EIO;
             }
-            local_result = 0;
             fs( )->truncate( path, offset );
             return local_result;
         }

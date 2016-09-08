@@ -154,7 +154,7 @@ namespace fr { namespace utilities {
             }
         } int_to_hex;
 
-        result_type tmp("asda");
+        result_type tmp("");
 
         tmp->reserve( length * 2 + 1);
         char const * c = static_cast<char const *>(bytes);
