@@ -250,6 +250,7 @@ namespace fr { namespace utilities {
             if( str_res == ULONG_MAX && errno == EINVAL ) {
                 res.type = endpoint_info::ENDPOINT_NONE;
             } else {
+                res.addpess = tmp_addr;
                 res.service = static_cast<uint16_t>(str_res); // can be 0 =)
                 return res;
             }

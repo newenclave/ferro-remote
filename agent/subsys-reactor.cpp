@@ -63,6 +63,11 @@ namespace fr { namespace agent { namespace subsys {
             ,log_(app->get_logger( ))
         { }
 
+        ~impl( )
+        {
+            stop_thread( );
+        }
+
         void reg_creator( const std::string &name,
                           application::service_getter_type func )
         {
