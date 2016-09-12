@@ -191,7 +191,8 @@ namespace fr { namespace agent { namespace subsys {
         using string_list = std::vector<std::string>;
         desc.add_options( )
             ("help,?",   "help message")
-            ("daemon,D", "make process daemon")
+
+            ("daemon,D", "run process as daemon")
 
             ("name,n", po::value<std::string>(&l_name),
                     "agent name; whatever you want")
