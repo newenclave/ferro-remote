@@ -27,7 +27,8 @@ namespace subsys {
 
         typedef std::shared_ptr<logging> shared_type;
         static shared_type create( application *app,
-                                   const std::vector<std::string> &def );
+                                   const std::vector<std::string> &def,
+                                   std::int32_t flush_timeout );
 
         void add_logger_output( const std::string &params );
         void del_logger_output( const std::string &name );

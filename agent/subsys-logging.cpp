@@ -2,10 +2,13 @@
 #include <chrono>
 #include <fstream>
 #include <map>
+#include <functional>
+
 #include <syslog.h>
 
 #include "subsys-logging.h"
 #include "subsys-reactor.h"
+//#include "subsys-config.h"
 #include "application.h"
 
 #include "logger.h"
@@ -23,6 +26,8 @@
 #include "vtrc-common/vtrc-closure-holder.h"
 #include "vtrc-server/vtrc-channels.h"
 
+#include "vtrc-common/vtrc-delayed-call.h"
+
 #define LOG(lev) log_(lev, "logging") << "[log] "
 #define LOGINF   LOG(logger::level::info)
 #define LOGDBG   LOG(logger::level::debug)
@@ -38,8 +43,10 @@ namespace fr { namespace agent { namespace subsys {
         const std::string stderr_name  = "stderr";
         const std::string syslog_name  = "syslog";
 
-        using level      = agent::logger::level;
-        using stringlist = std::vector<std::string>;
+        using level        = agent::logger::level;
+        using stringlist   = std::vector<std::string>;
+        using delayed_call = vtrc::common::delayed_call;
+        using void_call    = std::function<void(void)>;
 
         const std::string subsys_name( "logging" );
         namespace bsig   = boost::signals2;
@@ -51,10 +58,6 @@ namespace fr { namespace agent { namespace subsys {
         {
             return logger::str2level( str );
         }
-
-        struct connection_info {
-            bsig::scoped_connection conn_;
-        };
 
         struct level_color {
             std::ostream &o_;
@@ -387,6 +390,9 @@ namespace fr { namespace agent { namespace subsys {
             void set_min( int val ) { min_ = val;  }
             void set_max( int val ) { max_ = val;  }
 
+            virtual const char *name( ) const = 0;
+            virtual void flush( ) { ;;; }
+
             virtual void write( const log_record_info &loginf,
                                 stringlist const &data ) = 0;
             virtual size_t length( ) const = 0;
@@ -409,6 +415,11 @@ namespace fr { namespace agent { namespace subsys {
                 }
             }
 
+            void flush( )
+            {
+                stream_.flush( );
+            }
+
             size_t length( ) const
             {
                 return 0;
@@ -419,12 +430,24 @@ namespace fr { namespace agent { namespace subsys {
             cerr_output( int min, int max )
                 :console_output(min, max, std::cerr)
             { }
+
+            const char *name( ) const
+            {
+                return "stderr";
+            }
+
         };
 
         struct cout_output: console_output {
             cout_output( int min, int max )
                 :console_output(min, max, std::cout)
             { }
+
+            const char *name( ) const
+            {
+                return "stdout";
+            }
+
         };
 
         struct syslog_output: log_output {
@@ -443,6 +466,11 @@ namespace fr { namespace agent { namespace subsys {
                 }
             }
 
+            const char *name( ) const
+            {
+                return "syslog";
+            }
+
             size_t length( ) const
             {
                 return 0;
@@ -452,28 +480,33 @@ namespace fr { namespace agent { namespace subsys {
         struct file_output: log_output {
             std::atomic<size_t> length_;
             ostream_uptr        stream_;
+            const std::string   path_;
             file_output( int min, int max, const std::string &path )
                 :log_output(min, max)
                 ,length_(0)
+                ,path_(path)
             {
                 size_t len = 0;
                 stream_ = open_file( path, &len );
                 length_ = len;
             }
 
+            void flush( )
+            {
+                stream_->flush( );
+            }
+
             void write( const log_record_info &loginf, stringlist const &data )
             {
-//                std::ostringstream oss;
-//                for( auto &s: data ) {
-//                    output( oss, loginf, s ) << "\n";
-//                }
-//                length_    += oss.tellp( );
-//                (*stream_) << oss.str( );
                 for( auto &s: data ) {
                     output( *stream_, loginf, s ) << "\n";
                 }
                 length_ = stream_->tellp( );
-                // stream_->flush( );
+            }
+
+            const char *name( ) const
+            {
+                return path_.c_str( );
             }
 
             size_t length( ) const
@@ -539,15 +572,54 @@ namespace fr { namespace agent { namespace subsys {
         application     *app_;
         agent::logger   &log_;
         bool             syslog_;
-
-        connection_map           connections_;
-        //bsig::scoped_connection  slot_;
+        connection_map   connections_;
+        delayed_call     flusher_;
+        void_call        flush_worker_;
+        std::int32_t     timeout_;
 
         impl( application *app )
             :app_(app)
             ,log_(app_->get_logger( ))
             ,syslog_(false)
-        { }
+            ,flusher_(log_.get_io_service( ))
+        {
+            flush_worker_ = [this]( ) {
+                flush_all( );
+                start_flusher( );
+            };
+            start_flusher( );
+        }
+
+        void init_flush( )
+        {
+
+        }
+
+        void stop( )
+        {
+            flusher_.cancel( );
+        }
+
+        void flush_all( )
+        {
+            for( auto &l: connections_ ) {
+//                std::cerr << l.second.output_->name( )
+//                          << ": " << l.second.output_->length( )
+//                          << "\n";
+                l.second.output_->flush( );
+            }
+        }
+
+        void start_flusher( )
+        {
+            auto runner = [this]( const VTRC_SYSTEM::error_code &e ) {
+                if( !e ) {
+                    log_.dispatch( flush_worker_ );
+                }
+            };
+
+            flusher_.call_from_now( runner, delayed_call::seconds(3) );
+        }
 
         void reg_creator( const std::string &name,
                           application::service_getter_type func )
@@ -665,9 +737,12 @@ namespace fr { namespace agent { namespace subsys {
 
     /// static
     logging::shared_type logging::create( application *app,
-                                          const std::vector<std::string> &def )
+                                          const std::vector<std::string> &def,
+                                          std::int32_t flush_timeout )
     {
         shared_type new_inst(new logging(app));
+
+        new_inst->impl_->timeout_ = flush_timeout;
 
         for( auto &d: def ) {
             new_inst->impl_->add_logger_output( d );
@@ -708,6 +783,7 @@ namespace fr { namespace agent { namespace subsys {
 
     void logging::stop( )
     {
+        impl_->stop( );
         impl_->unreg_creator( proto_looger_impl::name( ) );
         impl_->LOGINF << "Stopped.";
     }

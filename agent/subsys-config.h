@@ -23,9 +23,10 @@ namespace subsys {
         std::vector<std::string>            loggers;
         std::vector<std::string>            multicast;
         std::string                         name;
-        std::size_t                         io_count  = 1;
-        std::size_t                         rpc_count = 1;
-        bool                                only_pool = false;
+        std::size_t                         io_count  =  1;
+        std::size_t                         rpc_count =  1;
+        std::int32_t                        log_flush = -1;
+        bool                                only_pool =  false;
         std::map<std::string, std::string>  key_map;
         void clear( );
     };
@@ -49,7 +50,7 @@ namespace subsys {
         ~config( );
 
         static vtrc::shared_ptr<config> create( application *app,
-                    const config_values &vm );
+                                                const config_values &vm );
 
         const std::string &name( )  const;
 

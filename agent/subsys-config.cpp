@@ -191,12 +191,15 @@ namespace fr { namespace agent { namespace subsys {
         using string_list = std::vector<std::string>;
         desc.add_options( )
             ("help,?",   "help message")
+            ("daemon,D", "make process daemon")
 
             ("name,n", po::value<std::string>(&l_name),
                     "agent name; whatever you want")
 
             ("log,l", po::value<string_list>( ),
                     "files for log output; use '-' for stdout")
+
+//            ("log-flush,f", po::value<std::int32_t>( ), "log flush seconds")
 
             ("log-level,L", po::value<std::string>( ),
                     "Loglevel: zero, error, warning, info[default], debug")
@@ -296,6 +299,10 @@ namespace fr { namespace agent { namespace subsys {
 
         if( vm.count( "mcast" ) ) {
             res.multicast = vm["mcast"].as<slist>( );
+        }
+
+        if( vm.count( "log-flush" ) ) {
+            res.log_flush = vm["log-flush"].as<std::int32_t>( );
         }
 
         if( vm.count( "log" ) ) {

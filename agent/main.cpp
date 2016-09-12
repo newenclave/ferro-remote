@@ -45,7 +45,7 @@ namespace {
         using namespace agent::subsys;
 
         app.add_subsystem<config>( cfg );
-        app.add_subsystem<logging>( cfg.loggers );
+        app.add_subsystem<logging>( cfg.loggers, cfg.log_flush );
 
 #if FR_WITH_LUA
         app.add_subsystem<lua>( );
@@ -130,6 +130,15 @@ int main( int argc, const char **argv )
     if( vm.count( "help" ) ) {
         usage( description );
         return 0;
+    }
+
+    if( vm.count("daemon") ) {
+        int res = ::daemon( 1, 0 );
+        if( -1 == res ) {
+            std::cerr << "::daemon call failed: errno = " << errno << "\n";
+        } else if( res != 0 ) {
+            return 0;
+        }
     }
 
     try {
