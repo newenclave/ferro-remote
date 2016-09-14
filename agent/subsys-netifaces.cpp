@@ -43,7 +43,7 @@ namespace fr { namespace agent { namespace subsys {
                        bytes.begin( ) );
             return bai::address_v6( bytes );
         }
-
+#if 0
         application::service_wrapper_sptr create_service(
                                       fr::agent::application * /*app*/,
                                       vtrc::common::connection_iface_wptr cl )
@@ -54,7 +54,7 @@ namespace fr { namespace agent { namespace subsys {
 
             return application::service_wrapper_sptr( );
         }
-
+#endif
         bool enum_ifaces_( netifaces::iface_info_list &out, logger &log_ )
         {
             ifaddrs *addrs = nullptr;

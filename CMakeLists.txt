@@ -194,7 +194,6 @@ foreach( gui_lib ${GUI_LIBRARIES} ) # Qt :(
         (NOT ${gui_lib} STREQUAL "debug") )
 
         list(FIND ALL_GUI_LIBS ${gui_lib} index)
-        message( "LIB! " ${index} )
 
         if (${index} EQUAL -1)
             set( GUI_LIBS_RES "${GUI_LIBS_RES} \\\n\t${gui_lib}" )
