@@ -186,13 +186,20 @@ set( GUI_LIBRARIES ${${INTERNAL_PROJECT_NAME}_client_core_LIBRARIES}
                    ${Boost_LIBRARIES} ${PROTOBUF_LIBRARY} )
 
 set( GUI_LIBS_RES "" )
+set( ALL_GUI_LIBS )
 
 foreach( gui_lib ${GUI_LIBRARIES} ) # Qt :(
-    message( "LIB! " ${gui_lib} )
+
     if( (NOT ${gui_lib} STREQUAL "optimized") AND
         (NOT ${gui_lib} STREQUAL "debug") )
 
-        set( GUI_LIBS_RES "${GUI_LIBS_RES} \\\n\t${gui_lib}" )
+        list(FIND ALL_GUI_LIBS ${gui_lib} index)
+        message( "LIB! " ${index} )
+
+        if (${index} EQUAL -1)
+            set( GUI_LIBS_RES "${GUI_LIBS_RES} \\\n\t${gui_lib}" )
+            list( APPEND ALL_GUI_LIBS ${gui_lib} )
+        endif()
 
     endif( )
 endforeach( )
