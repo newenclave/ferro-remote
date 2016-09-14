@@ -188,7 +188,13 @@ set( GUI_LIBRARIES ${${INTERNAL_PROJECT_NAME}_client_core_LIBRARIES}
 set( GUI_LIBS_RES "" )
 
 foreach( gui_lib ${GUI_LIBRARIES} ) # Qt :(
-    set( GUI_LIBS_RES "${GUI_LIBS_RES} \\\n\t${gui_lib}" )
+    message( "LIB! " ${gui_lib} )
+    if( (NOT ${gui_lib} STREQUAL "optimized") AND
+        (NOT ${gui_lib} STREQUAL "debug") )
+
+        set( GUI_LIBS_RES "${GUI_LIBS_RES} \\\n\t${gui_lib}" )
+
+    endif( )
 endforeach( )
 
 set( GUI_LIBRARIES ${GUI_LIBS_RES} )
