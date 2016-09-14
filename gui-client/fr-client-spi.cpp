@@ -40,7 +40,7 @@ namespace fr { namespace declarative {
 
     }
 
-    void FrClientSPI::on_ready( bool value )
+    void FrClientSPI::on_ready( bool /*value*/ )
     {
 
     }
