@@ -132,7 +132,8 @@ int main( int argc, const char **argv )
         return 0;
     }
 
-    if( vm.count("daemon") ) {
+
+    if( cfg.go_daemon ) {
         int res = ::daemon( 1, 0 );
         if( -1 == res ) {
             std::cerr << "::daemon call failed: errno = " << errno << "\n";

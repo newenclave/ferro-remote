@@ -27,6 +27,7 @@ namespace subsys {
         std::size_t                         rpc_count =  1;
         std::int32_t                        log_flush = -1;
         bool                                only_pool =  false;
+        bool                                go_daemon =  false;
         std::map<std::string, std::string>  key_map;
         void clear( );
     };

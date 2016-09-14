@@ -126,6 +126,14 @@ namespace fr { namespace agent { namespace subsys {
             return 0;
         }
 
+        int lcall_daemon( lua_State *L )
+        {
+            fr::lua::state st(L);
+            auto s = st.get_opt<std::uint32_t>( -1, 0 );
+            l_cfg.go_daemon = (s != 0);
+            return 0;
+        }
+
         void lua_config_( lua_State *L, const std::string &path )
         {
             using namespace fr::lua;
@@ -141,7 +149,9 @@ namespace fr { namespace agent { namespace subsys {
             lgr->add(   "add", objects::new_function( &lcall_lgr_add ) );
             mcast->add( "add", objects::new_function( &lcall_mcast_add ) );
             pools->add( "set", objects::new_function( &lcall_thread_set ) );
+
             agent->add( "set_name", objects::new_function( &lcall_name_set ) );
+            agent->add( "daemon",   objects::new_function( &lcall_daemon ) );
 
             st.set_object( "endpoint",  ep.get( ) );
             st.set_object( "logger",    lgr.get( ) );
@@ -155,7 +165,6 @@ namespace fr { namespace agent { namespace subsys {
                     << st.error( );
                 throw std::runtime_error( oss.str( ) );
             }
-            //st.set
         }
 
         void lua_config_( const std::string &path )
@@ -314,6 +323,10 @@ namespace fr { namespace agent { namespace subsys {
             res.name = vm["name"].as<std::string>( );
         }
 
+        if( vm.count("daemon") ) {
+            res.go_daemon = true;
+        }
+
         if( vm.count( "key" ) ) {
             typedef slist::const_iterator citr;
             std::map<std::string, std::string> tmp;
@@ -356,11 +369,7 @@ namespace fr { namespace agent { namespace subsys {
 
     void config_values::clear( )
     {
-        endpoints.clear( );
-        loggers  .clear( );
-        key_map  .clear( );
-        multicast.clear( );
-        name     .clear( );
+        *this = config_values { };
     }
 
     std::ostream &operator << (std::ostream &o, const config_values &c )
