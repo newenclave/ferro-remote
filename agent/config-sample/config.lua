@@ -2,6 +2,8 @@
 
 agent.set_name "Virt2Real Test Agent"
 
+-- agent.daemon( true )
+
 -- io    - threads for io operations; default = 1
 -- rpc   - for rpc calls; default = 1
 -- only  - use only pool for all operations; default = false
