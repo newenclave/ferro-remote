@@ -51,8 +51,15 @@ Rectangle {
 
                 Connections {
                     target: generalClient
+                    onConnecting: {
+                        connectBtn.enabled = false
+                    }
+                    onInitError: {
+                        connectBtn.enabled = true
+                    }
                     onReadyChanged: {
                         connectBtn.connected = value
+                        connectBtn.enabled = true
                         if( value ) {
                             connectBtn.text = qsTr("Disconnect")
                         } else {
@@ -71,6 +78,10 @@ Rectangle {
                    onChannelReady: {
                        status.text = qsTr("ready")
                        status.color = "green"
+                   }
+                   onConnecting: {
+                       status.text = qsTr("connecting...")
+                       status.color = "gray"
                    }
                    onConnected: {
                        status.text = qsTr("connected")

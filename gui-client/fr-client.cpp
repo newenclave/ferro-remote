@@ -99,6 +99,7 @@ namespace fr { namespace declarative {
             impl_->client_.async_connect( server.toLocal8Bit( ).constData( ),
                                           async_connect_handler );
             impl_->state_ = impl::state_connect;
+            emit connecting( );
         }
         FR_QML_CALL_EPILOGUE(  )
     }

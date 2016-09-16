@@ -47,6 +47,7 @@ namespace declarative {
 
     signals:
 
+        void connecting( );
         void connected( );
         void disconnected( );
         void channelReady( );
