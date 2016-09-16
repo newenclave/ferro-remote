@@ -26,6 +26,10 @@ namespace declarative {
                     READ sessionKey WRITE setSessionKey
                     NOTIFY sessionKeyChanged )
 
+        Q_PROPERTY( bool connecting
+                    READ connecting
+                    NOTIFY connectingChanged )
+
         struct impl;
         impl  *impl_;
 
@@ -44,10 +48,13 @@ namespace declarative {
         QString sessionKey( ) const;
         void setSessionKey( const QString &key );
 
+        bool connecting( ) const;
 
     signals:
 
-        void connecting( );
+        void connectingChanged( bool value );
+
+        void tryConnect( );
         void connected( );
         void disconnected( );
         void channelReady( );

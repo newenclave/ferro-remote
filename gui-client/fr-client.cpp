@@ -29,9 +29,11 @@ namespace fr { namespace declarative {
         client::core::client_core client_;
         FrClient *parent_;
         unsigned state_;
+        bool     connecting_;
         impl( )
             :client_(global_app_data.pools( ))
             ,state_(state_none)
+            ,connecting_(false)
         { }
 
         void connect_signals( )
@@ -52,6 +54,7 @@ namespace fr { namespace declarative {
         void on_connect( )
         {
             state_ = state_connected;
+            emit parent_->connectingChanged( false );
             emit parent_->connected( );
         }
 
@@ -59,12 +62,14 @@ namespace fr { namespace declarative {
         {
             state_ = state_none;
             parent_->setReady( false );
+            emit parent_->connectingChanged( false );
             emit parent_->disconnected( );
         }
 
         void on_ready( )
         {
             state_ = state_ready;
+            emit parent_->connectingChanged( false );
             emit parent_->channelReady( );
             parent_->setReady( true );
         }
@@ -73,6 +78,7 @@ namespace fr { namespace declarative {
         {
             state_ = state_none;
             parent_->setReady( false );
+            emit parent_->connectingChanged( false );
             emit parent_->initError( message );
         }
 
@@ -99,7 +105,8 @@ namespace fr { namespace declarative {
             impl_->client_.async_connect( server.toLocal8Bit( ).constData( ),
                                           async_connect_handler );
             impl_->state_ = impl::state_connect;
-            emit connecting( );
+            emit connectingChanged( true );
+            emit tryConnect( );
         }
         FR_QML_CALL_EPILOGUE(  )
     }
@@ -140,6 +147,11 @@ namespace fr { namespace declarative {
         std::string n(sk.toUtf8( ).constData( ));
         impl_->client_.set_key( n );
         emit sessionKeyChanged( sk.size( ) == 0 ? "" : "********" );
+    }
+
+    bool FrClient::connecting( ) const
+    {
+        return impl_->state_ == impl::state_connect;
     }
 
 }}

@@ -51,7 +51,7 @@ Rectangle {
 
                 Connections {
                     target: generalClient
-                    onConnecting: {
+                    onTryConnect: {
                         connectBtn.enabled = false
                     }
                     onInitError: {
@@ -79,7 +79,7 @@ Rectangle {
                        status.text = qsTr("ready")
                        status.color = "green"
                    }
-                   onConnecting: {
+                   onTryConnect: {
                        status.text = qsTr("connecting...")
                        status.color = "gray"
                    }
