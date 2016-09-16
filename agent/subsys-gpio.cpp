@@ -401,7 +401,7 @@ namespace fr { namespace agent { namespace subsys {
 
             void unregister( ::google::protobuf::RpcController* /*controller*/,
                              const ::fr::proto::gpio::register_req* request,
-                             ::fr::proto::empty*                   /*response*/,
+                             ::fr::proto::empty*                /*response*/,
                              ::google::protobuf::Closure* done) override
             {
 
