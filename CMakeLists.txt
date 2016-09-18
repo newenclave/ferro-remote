@@ -33,8 +33,8 @@ if( NOT VTRC_IMPORT_CMAKE )
                      WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}")
     execute_process( COMMAND "git" "submodule" "update" "vtrc"
                      WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}")
-#    execute_process( COMMAND "git" "pull"
-#                     WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/vtrc")
+    execute_process( COMMAND "git" "pull" "origin" "master"
+                     WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/vtrc")
 endif( NOT VTRC_IMPORT_CMAKE )
 
 add_subdirectory( vtrc )
