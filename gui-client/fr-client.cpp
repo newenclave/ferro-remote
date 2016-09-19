@@ -10,6 +10,8 @@
 
 #include "fr-qml-call-wrappers.h"
 
+#include "vtrc-common/vtrc-hash-iface.h"
+
 namespace fr { namespace declarative {
 
     void async_connect_handler( const boost::system::error_code & /*err*/ )
@@ -30,6 +32,8 @@ namespace fr { namespace declarative {
         FrClient *parent_;
         unsigned state_;
         bool     connecting_;
+        std::string id_;
+        std::string key_;
         impl( )
             :client_(global_app_data.pools( ))
             ,state_(state_none)
@@ -82,6 +86,17 @@ namespace fr { namespace declarative {
             emit parent_->initError( message );
         }
 
+        void reset_key( )
+        {
+            namespace vhash = vtrc::common;
+            std::unique_ptr<vhash::hash_iface> hash(
+                        vhash::hash::sha2::create256( ));
+            auto key_pair = id_ + key_;
+            auto res = hash->get_data_hash( key_pair.c_str( ),
+                                            key_pair.size( ) );
+            client_.set_id_key( id_, res );
+        }
+
     };
 
     FrClient::FrClient( QObject *parent )
@@ -129,10 +144,9 @@ namespace fr { namespace declarative {
     void FrClient::setSessionId( const QString &sid )
     {
         std::string old( impl_->client_.get_id( ) );
-        std::string n(sid.toUtf8( ).constData( ));
-
-        if( n != old ) {
-            impl_->client_.set_id( n );
+        impl_->id_ = sid.toUtf8( ).constData( );
+        if( impl_->id_ != old ) {
+            impl_->reset_key( );
             emit sessionIdChanged( sid );
         }
     }
@@ -144,8 +158,8 @@ namespace fr { namespace declarative {
 
     void FrClient::setSessionKey( const QString &sk )
     {
-        std::string n(sk.toUtf8( ).constData( ));
-        impl_->client_.set_key( n );
+        impl_->key_ = sk.toUtf8( ).constData( );
+        impl_->reset_key( );
         emit sessionKeyChanged( sk.size( ) == 0 ? "" : "********" );
     }
 
