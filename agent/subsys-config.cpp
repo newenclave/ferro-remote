@@ -211,8 +211,8 @@ namespace fr { namespace agent { namespace subsys {
 
 //            ("log-flush,f", po::value<std::int32_t>( ), "log flush seconds")
 
-            ("log-level,L", po::value<std::string>( ),
-                    "Loglevel: zero, error, warning, info[default], debug")
+//            ("log-level,L", po::value<std::string>( ),
+//                    "Loglevel: zero, error, warning, info[default], debug")
 
             ("server,s", po::value<string_list>( ),
                     "endpoint name; "
