@@ -17,6 +17,16 @@ namespace fr { namespace declarative {
 
     const unsigned invalid_gpio = FrClientGpio::IndexInvalid;
 
+    FrClientGpio::DirectionType value2dir( unsigned val )
+    {
+        switch(val) {
+        case FrClientGpio::DirectIn:
+        case FrClientGpio::DirectOut:
+            return static_cast<FrClientGpio::DirectionType>(val);
+        }
+        return FrClientGpio::DirectOut;
+    }
+
     struct FrClientGpio::impl {
         gpio_qsptr iface_;
         FrClientGpio::DirectionType dir_;
@@ -55,6 +65,10 @@ namespace fr { namespace declarative {
                 iface_->set_active_low( active_low_ );
             }
 
+            if( inf.direction != dir_ ) {
+                reset_dir( inf.direction );
+            }
+
             if( iface_->edge_supported( ) ) {
                 if( inf.edge != gpio_ns::edge_val2enum( edge_ ) ) {
                     iface_->set_edge( gpio_ns::edge_val2enum( edge_ ) );
@@ -62,6 +76,15 @@ namespace fr { namespace declarative {
                 if( events_ ) {
                     register_events( events_ );
                 }
+            }
+        }
+
+        void reset_dir( unsigned value )
+        {
+            if( iface_.data( ) != nullptr ) {
+                iface_->set_direction( gpio_ns::direction_val2enum(value) );
+                dir_ = value2dir(value);
+                emit parent_->directionChanged( dir_ );
             }
         }
 
