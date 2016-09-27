@@ -327,7 +327,9 @@ namespace fr { namespace agent { namespace subsys {
             };
 
 
-            bool value_changed2( unsigned value,
+
+#if 1
+            bool value_changed( unsigned value,
                                 std::uint64_t tick_count,
                                 value_data &data,
                                 vcomm::connection_iface_wptr cli )
@@ -371,6 +373,50 @@ namespace fr { namespace agent { namespace subsys {
                 return false;
             }
 
+            void register_for_change(::google::protobuf::RpcController* ,
+                         const ::fr::proto::gpio::register_req* request,
+                         ::fr::proto::gpio::register_res* response,
+                         ::google::protobuf::Closure* done) override
+            {
+                namespace ph = vtrc::placeholders;
+
+                vcomm::closure_holder holder(done);
+                vtrc::uint32_t hdl(request->hdl( ).value( ));
+                gpio_sptr g( gpio_by_index( hdl ) );
+
+                agent::reaction_callback
+                        cb( vtrc::bind( &gpio_impl::value_changed, this,
+                                         ph::_1, ph::_2,
+                                         value_data( hdl, g->value_fd( ),
+                                                     g, hdl ),
+                                         client_ ) );
+
+                g->add_reactor_action( reactor_.get( ), hdl, cb );
+                LOGDBG << "Add device to reactor; ID: " << hdl
+                       << " fd: " << g->value_fd( )
+                       ;
+                response->set_async_op_id( hdl );
+            }
+
+            void unregister( ::google::protobuf::RpcController* /*controller*/,
+                             const ::fr::proto::gpio::register_req* request,
+                             ::fr::proto::empty*                /*response*/,
+                             ::google::protobuf::Closure* done) override
+            {
+
+                vcomm::closure_holder holder(done);
+
+                gpio_sptr g( gpio_by_index( request->hdl( ).value( ) ) );
+                g->del_reactor_action( reactor_.get( ),
+                                       request->hdl( ).value( ) );
+
+                LOGDBG << "remove device from reactor; ID: "
+                       << request->hdl( ).value( )
+                       << " fd: " << g->value_fd( )
+                       ;
+            }
+
+#else
             bool value_changed( unsigned /*events*/,
                                 std::uint64_t tick_count,
                                 value_data &data,
@@ -421,51 +467,6 @@ namespace fr { namespace agent { namespace subsys {
                 return false;
             }
 
-#if 1
-            void register_for_change(::google::protobuf::RpcController* ,
-                         const ::fr::proto::gpio::register_req* request,
-                         ::fr::proto::gpio::register_res* response,
-                         ::google::protobuf::Closure* done) override
-            {
-                namespace ph = vtrc::placeholders;
-
-                vcomm::closure_holder holder(done);
-                vtrc::uint32_t hdl(request->hdl( ).value( ));
-                gpio_sptr g( gpio_by_index( hdl ) );
-
-                agent::reaction_callback
-                        cb( vtrc::bind( &gpio_impl::value_changed2, this,
-                                         ph::_1, ph::_2,
-                                         value_data( hdl, g->value_fd( ),
-                                                     g, hdl ),
-                                         client_ ) );
-
-                g->add_reactor_action( reactor_.get( ), hdl, cb );
-                LOGDBG << "Add device to reactor; ID: " << hdl
-                       << " fd: " << g->value_fd( )
-                       ;
-                response->set_async_op_id( hdl );
-            }
-
-            void unregister( ::google::protobuf::RpcController* /*controller*/,
-                             const ::fr::proto::gpio::register_req* request,
-                             ::fr::proto::empty*                /*response*/,
-                             ::google::protobuf::Closure* done) override
-            {
-
-                vcomm::closure_holder holder(done);
-
-                gpio_sptr g( gpio_by_index( request->hdl( ).value( ) ) );
-                g->del_reactor_action( reactor_.get( ),
-                                       request->hdl( ).value( ) );
-
-                LOGDBG << "remove device from reactor; ID: "
-                       << request->hdl( ).value( )
-                       << " fd: " << g->value_fd( )
-                       ;
-            }
-
-#else
             void register_for_change(::google::protobuf::RpcController* ,
                          const ::fr::proto::gpio::register_req* request,
                          ::fr::proto::gpio::register_res* response,
