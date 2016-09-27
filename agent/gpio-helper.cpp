@@ -200,9 +200,9 @@ namespace fr { namespace agent {
                     return false;
                 } else {
                     lseek( value_fd_, 0, SEEK_SET );
-                    value = (buf[0] != '0');
-                    std::cout << res << " = " << value
-                              << " fd " << value_fd_  << "\n";
+                    value = ( buf[0] == '1' );
+//                    std::cout << res << " = " << value
+//                              << " fd " << value_fd_  << "\n";
                 }
             }
 
@@ -212,13 +212,13 @@ namespace fr { namespace agent {
             auto e = connections_.end( );
 
             while( b != e ) {
+                std::cout << b->first << " -> " << value << "\n";
                 if( false == (*b->second)( value, tick_count ) ) {
                     b = connections_.erase( b );
                 } else {
                     ++b;
                 }
             }
-            std::cout << "connections_ = " << connections_.size( ) << "\n";
             return !connections_.empty( );
         }
 
