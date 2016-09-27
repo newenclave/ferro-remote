@@ -236,7 +236,6 @@ namespace fr { namespace agent {
             auto e = connections_.end( );
 
             while( b != e ) {
-                std::cout << b->first << " -> " << value << "\n";
                 if( false == (*b->second)( value, tick_count ) ) {
                     b = connections_.erase( b );
                 } else {
