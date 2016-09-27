@@ -181,6 +181,8 @@ namespace fr { namespace agent {
                     vtrc::upgrade_to_unique utu(slck);
                     del_fd_unsafe( fd );
                 }
+            } else {
+                del_fd_from_epoll( poll_fd_.hdl( ), fd );
             }
         }
 
