@@ -326,8 +326,6 @@ namespace fr { namespace agent { namespace subsys {
                 { }
             };
 
-
-
 #if 1
             bool value_changed( unsigned value,
                                 std::uint64_t tick_count,
