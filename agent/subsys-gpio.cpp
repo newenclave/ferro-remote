@@ -336,6 +336,8 @@ namespace fr { namespace agent { namespace subsys {
                         return false;
                     }
 
+                    LOGDBG << "Value " << value << " for " << data.hdl;
+
                     gpio_sptr gpio( data.weak_gpio.lock( ) );
 
                     bool               success = true;
