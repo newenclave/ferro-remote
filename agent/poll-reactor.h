@@ -18,7 +18,7 @@ namespace fr { namespace agent {
         poll_reactor( const poll_reactor & ) = delete;
         poll_reactor &operator = ( const poll_reactor & ) = delete;
 
-        poll_reactor( std::uint64_t app_start );
+        explicit poll_reactor( std::uint64_t app_start );
         ~poll_reactor( );
 
         void add_fd( int fd, unsigned events, reaction_callback cb );

@@ -10,7 +10,7 @@ namespace fr { namespace agent {
 
         int id_;
 
-        file_keeper( int fd )
+        explicit file_keeper( int fd )
             :id_(fd)
         { }
 
