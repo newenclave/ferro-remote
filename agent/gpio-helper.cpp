@@ -136,6 +136,8 @@ namespace fr { namespace agent {
         int                 value_fd_;
         connection_map      connections_;
         std::mutex          connections_lock_;
+        unsigned            edge_;
+        unsigned            value_;
 
         impl( unsigned id )
             :id_(id)
@@ -143,6 +145,7 @@ namespace fr { namespace agent {
             ,value_path_(value_path_string(id_))
             ,own_export_(false)
             ,value_fd_(-1)
+            ,edge_(0)
         { }
 
         void exp( ) const
@@ -188,24 +191,36 @@ namespace fr { namespace agent {
         /// TODO: think about read/write mutex
         bool reactor_handler( unsigned, std::uint64_t tick_count )
         {
-            unsigned value = -1;
-
-            if( -1 == value_fd_ ) {
-                return false;
-            } else {
-                char buf[4];
-
-                lseek( value_fd_, 0, SEEK_SET );
-                int res = ::read( value_fd_, buf, sizeof(buf) );
-
-                if( -1 == res ) {
-                    return false;
-                } else {
-                    value = ( buf[0] == '1' );
-//                    std::cout << res << " = " << value
-//                              << " fd " << value_fd_  << "\n";
-                }
+            unsigned value = 0;
+            switch (edge_) {
+            case gpio::EDGE_FALLING:
+                value = 0;
+                break;
+            case gpio::EDGE_RISING:
+                value = 1;
+            default:
+                value_ = value_ ? 0 : 1;
+                value = value_;
+                break;
             }
+
+
+//            if( -1 == value_fd_ ) {
+//                return false;
+//            } else {
+//                char buf[4];
+
+//                lseek( value_fd_, 0, SEEK_SET );
+//                int res = ::read( value_fd_, buf, sizeof(buf) );
+
+//                if( -1 == res ) {
+//                    return false;
+//                } else {
+//                    value = ( buf[0] == '1' );
+////                    std::cout << res << " = " << value
+////                              << " fd " << value_fd_  << "\n";
+//                }
+//            }
 
             std::lock_guard<std::mutex> lck(connections_lock_);
 
@@ -350,10 +365,14 @@ namespace fr { namespace agent {
         write_to_file( oss.str( ),
                        edge_index[val].c_str( ),
                        edge_index[val].size( ) + 1 );
+        impl_->edge_ = val;
     }
 
     unsigned gpio_helper::value( ) const
     {
+        if( impl_->edge_ == gpio::EDGE_BOTH ) {
+            return impl_->value_;
+        }
         std::string pos = read_from_file( impl_->value_path_ );
         assert( pos[0] == '0' || pos[0] == '1' );
         return pos[0] - '0';
@@ -381,6 +400,7 @@ namespace fr { namespace agent {
         char data[2] = {0};
         data[0] = char(val + '0');
         write_to_file( impl_->value_path_, data, 2 );
+        impl_->value_ = val;
     }
 
     void gpio_helper::set_active_low( unsigned val ) const

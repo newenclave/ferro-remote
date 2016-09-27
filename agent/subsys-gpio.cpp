@@ -312,7 +312,7 @@ namespace fr { namespace agent { namespace subsys {
                 }
             }
 
-#if 0
+#if 1
             struct value_data {
                 vtrc::uint32_t  hdl;
                 int             fd;
