@@ -1,9 +1,11 @@
 
 #include <sstream>
 #include <iostream>
+#include <atomic>
 
 #include <stdlib.h>
 #include <fcntl.h>
+#include <sys/epoll.h>
 
 #include "gpio-helper.h"
 
@@ -11,6 +13,9 @@
 #include "boost/system/error_code.hpp"
 
 #include "errno-check.h"
+#include "vtrc-common/vtrc-mutex-typedefs.h"
+#include "vtrc-common/vtrc-signal-declaration.h"
+#include "vtrc-bind.h"
 
 namespace fr { namespace agent {
 
@@ -18,6 +23,10 @@ namespace fr { namespace agent {
 
         namespace vcomm = vtrc::common;
         namespace bsys  = boost::system;
+        namespace bsig = boost::signals2;
+
+        using connection_sptr = std::shared_ptr<agent::gpio_reaction>;
+        using connection_map  = std::map<std::uint32_t, connection_sptr>;
 
         const std::string direct_index[ ] = {
             std::string( "in\n" ), std::string( "out\n" )
@@ -118,11 +127,15 @@ namespace fr { namespace agent {
 
     struct gpio_helper::impl {
 
-        unsigned     id_;
-        std::string  path_;
-        std::string  value_path_;
-        mutable bool own_export_;
-        int          value_fd_;
+    public:
+        gpio_helper        *parent_ = nullptr;
+        unsigned            id_;
+        std::string         path_;
+        std::string         value_path_;
+        mutable bool        own_export_;
+        int                 value_fd_;
+        connection_map      connections_;
+        std::mutex          connections_lock_;
 
         impl( unsigned id )
             :id_(id)
@@ -149,6 +162,16 @@ namespace fr { namespace agent {
             own_export_ = false;
         }
 
+        void add_connection( std::uint32_t id, connection_sptr connection )
+        {
+            connections_[id] = connection;
+        }
+
+        void del_connection( std::uint32_t id )
+        {
+            connections_.erase( id );
+        }
+
         ~impl( )
         {
             try {
@@ -160,11 +183,74 @@ namespace fr { namespace agent {
             }
         }
 
+        /// reactor runs handler
+        /// handler runs user's callback
+        /// TODO: think about read/write mutex
+        bool reactor_handler( unsigned, std::uint64_t tick_count )
+        {
+            unsigned value = -1;
+
+            if( -1 == value_fd_ ) {
+                return false;
+            } else {
+                char buf[4];
+                if( -1 == ::read( value_fd_, buf, sizeof(buf) ) ) {
+                    return false;
+                } else {
+                    value = (buf[0] != 0);
+                }
+            }
+
+            std::lock_guard<std::mutex> lck(connections_lock_);
+
+            auto b = connections_.begin( );
+            auto e = connections_.end( );
+
+            while( b != e ) {
+                if( false == (*b->second)( value, tick_count ) ) {
+                    b = connections_.erase( b );
+                } else {
+                    ++b;
+                }
+            }
+            return !connections_.empty( );
+        }
+
+        std::uint32_t add_reactor_action( poll_reactor &react, std::uint32_t id,
+                                          gpio_reaction cb )
+        {
+            namespace ph = vtrc::placeholders;
+
+            std::lock_guard<std::mutex> lck(connections_lock_);
+
+            if( connections_.empty( ) ) {
+
+                auto cp = vtrc::bind( &impl::reactor_handler, this,
+                                      ph::_1, ph::_2 );
+
+                react.add_fd( parent_->value_fd( ), EPOLLET | EPOLLPRI, cp );
+
+            }
+            add_connection( id, std::make_shared<gpio_reaction>(cb) );
+            return id;
+        }
+
+        void del_reactor_action( poll_reactor &react, std::uint32_t id )
+        {
+            std::lock_guard<std::mutex> lck(connections_lock_);
+
+            del_connection( id );
+            if( connections_.empty( ) ) {
+                react.del_fd( parent_->value_fd( ) );
+            }
+        }
     };
 
     gpio_helper::gpio_helper( unsigned id )
         :impl_(new impl(id))
-    { }
+    {
+        impl_->parent_ = this;
+    }
 
     gpio_helper::~gpio_helper( )
     {
@@ -319,6 +405,19 @@ namespace fr { namespace agent {
     bool gpio_helper::value_opened( ) const
     {
         return impl_->value_fd_ != -1;
+    }
+
+    std::uint32_t gpio_helper::add_reactor_action( poll_reactor &react,
+                                            std::uint32_t id,
+                                            gpio_reaction cb )
+    {
+        return impl_->add_reactor_action( react, id, cb );
+    }
+
+    void gpio_helper::del_reactor_action( poll_reactor &react,
+                                          std::uint32_t id )
+    {
+        impl_->del_reactor_action( react, id );
     }
 
 }}

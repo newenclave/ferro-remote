@@ -57,6 +57,7 @@ namespace fr { namespace agent { namespace subsys {
 
         impl( application *app )
             :app_(app)
+            ,reactor_(app->start_tick( ))
             ,running_(false)
             ,count_(0)
             ,id_(100)
@@ -155,6 +156,17 @@ namespace fr { namespace agent { namespace subsys {
     {
         return ++impl_->id_;
     }
+
+    poll_reactor &reactor::get( )
+    {
+        return impl_->reactor_;
+    }
+
+    const poll_reactor &reactor::get( ) const
+    {
+        return impl_->reactor_;
+    }
+
 
 }}}
 

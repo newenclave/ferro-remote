@@ -1,6 +1,7 @@
 #include "poll-reactor.h"
 
 #include <map>
+#include <chrono>
 #include <iostream>
 #include <sys/epoll.h>
 #include <sys/eventfd.h>
@@ -92,16 +93,31 @@ namespace fr { namespace agent {
         file_keeper    stop_event_;
         file_keeper    poll_fd_;
         reaction_map   react_;
+        std::uint64_t  app_start_;
 
         mutable vtrc::shared_mutex  react_lock_;
 
-        impl( )
+        impl( std::uint64_t app_start )
             :stop_event_(create_event( ))
             ,poll_fd_(create_epoll(stop_event_.hdl( )))
+            ,app_start_(app_start)
         { }
 
         ~impl( )
         { }
+
+        std::uint64_t now( ) const
+        {
+            using std::chrono::duration_cast;
+            using microsec = std::chrono::microseconds;
+            auto n = std::chrono::high_resolution_clock::now( );
+            return duration_cast<microsec>(n.time_since_epoch( )).count( );
+        }
+
+        std::uint64_t tick_count( ) const
+        {
+            return now( ) - app_start_;
+        }
 
         void stop( )
         {
@@ -153,14 +169,14 @@ namespace fr { namespace agent {
             return react_.size( );
         }
 
-        void make_callback( int fd, unsigned events )
+        void make_callback( int fd, unsigned events, std::uint64_t ticks )
         {
             vtrc::upgradable_lock slck(react_lock_);
 
             auto f( react_.find( fd ) );
 
             if( f != react_.end( ) ) {
-                bool res = f->second->call_( events );
+                bool res = f->second->call_( events, ticks );
                 if( !res ) {
                     vtrc::upgrade_to_unique utu(slck);
                     del_fd_unsafe( fd );
@@ -179,7 +195,7 @@ namespace fr { namespace agent {
             if( rcvd.data.fd == stop_event_.hdl( ) ) {
                 return 0;
             } else {
-                make_callback( rcvd.data.fd, rcvd.events );
+                make_callback( rcvd.data.fd, rcvd.events, tick_count( ) );
                 return 1;
             }
         }
@@ -196,8 +212,8 @@ namespace fr { namespace agent {
 
     };
 
-    poll_reactor::poll_reactor( )
-        :impl_(new impl)
+    poll_reactor::poll_reactor(std::uint64_t app_start)
+        :impl_(new impl(app_start))
     {
 
     }

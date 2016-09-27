@@ -6,9 +6,10 @@
 
 namespace fr { namespace agent {
 
-    using reaction_callback = vtrc::function<bool (unsigned)>;
+    using reaction_callback = vtrc::function<bool (unsigned, std::uint64_t)>;
 
     class poll_reactor {
+
         struct   impl;
         impl    *impl_;
 
@@ -17,7 +18,7 @@ namespace fr { namespace agent {
         poll_reactor( const poll_reactor & ) = delete;
         poll_reactor &operator = ( const poll_reactor & ) = delete;
 
-        poll_reactor( );
+        poll_reactor( std::uint64_t app_start );
         ~poll_reactor( );
 
         void add_fd( int fd, unsigned events, reaction_callback cb );

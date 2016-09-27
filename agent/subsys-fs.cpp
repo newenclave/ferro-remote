@@ -877,10 +877,11 @@ namespace fr { namespace agent { namespace subsys {
             };
 
             bool event_handler( unsigned /*events*/,
+                                std::uint64_t tick_count,
                                 value_data &data,
                                 vcomm::connection_iface_wptr cli )
             { try {
-                auto tick_count = application::tick_count( );
+
                 vcomm::connection_iface_sptr lock(cli.lock( ));
 
                 if( !lock ) {
@@ -914,6 +915,8 @@ namespace fr { namespace agent { namespace subsys {
                          ::fr::proto::fs::register_res* response,
                          ::google::protobuf::Closure* done) override
             {
+                namespace ph = vtrc::placeholders;
+
                 vcomm::closure_holder holder(done);
                 file_sptr f(get_file( request->hdl( ).value( ) ));
 
@@ -921,9 +924,9 @@ namespace fr { namespace agent { namespace subsys {
 
                 agent::reaction_callback
                         cb( vtrc::bind( &proto_file_impl::event_handler, this,
-                                         vtrc::placeholders::_1,
+                                         ph::_1, ph::_2,
                                          value_data( f, &reactor_, op_id),
-                                        client_) );
+                                         client_) );
                 reactor_.add_fd( f->handle( ),
                                  EPOLLIN | EPOLLET | EPOLLPRI, cb );
 

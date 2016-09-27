@@ -2,7 +2,10 @@
 #define FR_GPIO_HELPER_H
 
 #include <string>
+#include <memory>
+#include <functional>
 #include "file-keeper.h"
+#include "poll-reactor.h"
 
 namespace fr { namespace agent {
 
@@ -22,6 +25,8 @@ namespace fr { namespace agent {
 
         bool available( );
     }
+
+    using gpio_reaction = std::function<bool (unsigned, std::uint64_t)>;
 
     class gpio_helper {
 
@@ -57,7 +62,13 @@ namespace fr { namespace agent {
         int value_fd( ) const;
         bool value_opened( ) const;
 
+        std::uint32_t add_reactor_action( poll_reactor &react, std::uint32_t id,
+                                          gpio_reaction cb );
+        void del_reactor_action( poll_reactor &react, std::uint32_t id );
     };
+
+
+    using gpio_helper_sptr = std::shared_ptr<gpio_helper>;
 
 }}
 

@@ -3,6 +3,7 @@
 #define FR_SUBSYS_gpio_H
 
 #include "subsystem-iface.h"
+#include "gpio-helper.h"
 
 namespace fr { namespace agent {
 
@@ -30,6 +31,10 @@ namespace subsys {
         void init( )  ;
         void start( ) ;
         void stop( )  ;
+
+        gpio_helper_sptr open_pin( std::uint32_t pin );
+        void close_pin( std::uint32_t pin );
+
     };
 
 }}}

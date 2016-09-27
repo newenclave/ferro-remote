@@ -15,7 +15,11 @@
 
 #include "gpio-helper.h"
 
+#include "vtrc-server/vtrc-channels.h"
+
 #include "vtrc-common/vtrc-closure-holder.h"
+#include "vtrc-common/vtrc-mutex-typedefs.h"
+#include "vtrc-common/vtrc-mutex-typedefs.h"
 
 #include "vtrc-stdint.h"
 #include "vtrc-atomic.h"
@@ -24,11 +28,6 @@
 #include "vtrc-bind.h"
 
 #include "vtrc-chrono.h"
-
-#include "vtrc-common/vtrc-mutex-typedefs.h"
-
-#include "vtrc-server/vtrc-channels.h"
-
 #include "errno-check.h"
 
 #define LOG(lev) log_(lev) << "[gpio] "
@@ -54,7 +53,7 @@ namespace fr { namespace agent { namespace subsys {
         using events_stub_type = sproto::events::Stub;
 
         using vserv::channels::unicast::create_event_channel;
-        using  rpc_channel_sptr = vtrc::shared_ptr<vcomm::rpc_channel>;
+        using rpc_channel_sptr = vtrc::shared_ptr<vcomm::rpc_channel>;
 
         using gpio_sptr = vtrc::shared_ptr<agent::gpio_helper>;
         using gpio_wptr = vtrc::weak_ptr<agent::gpio_helper>;
@@ -120,7 +119,9 @@ namespace fr { namespace agent { namespace subsys {
                      b != e; ++b )
                 {
                     if( b->second->value_opened( ) ) {
-                        reactor_.del_fd( b->second->value_fd( ) );
+                        b->second->del_reactor_action( reactor_.get( ),
+                                                       b->first );
+                        //reactor_.del_fd( b->second->value_fd( ) );
                     }
                 }
 
@@ -182,7 +183,8 @@ namespace fr { namespace agent { namespace subsys {
                 vtrc::uint32_t newid = next_index( );
                 vtrc::uint32_t id = request->gpio_id( );
 
-                gpio_sptr ng( vtrc::make_shared<agent::gpio_helper>( id ) );
+                gpio_sptr ng = app_->subsystem<gpio>( ).open_pin( id );
+                //gpio_sptr ng( vtrc::make_shared<agent::gpio_helper>( id ) );
 
                 if( request->exp( ) ) {
                     if( !ng->exists( ) ) {
@@ -324,11 +326,56 @@ namespace fr { namespace agent { namespace subsys {
                 { }
             };
 
-            bool value_changed( unsigned /*events*/,
+
+            bool value_changed2( unsigned value,
+                                std::uint64_t tick_count,
                                 value_data &data,
                                 vcomm::connection_iface_wptr cli )
             {
-                auto tick_count = app_->tick_count( );
+                try {
+                    vcomm::connection_iface_sptr lck( cli.lock( ) );
+                    if( !lck ) {
+                        return false;
+                    }
+
+                    gpio_sptr gpio( data.weak_gpio.lock( ) );
+
+                    bool               success = true;
+                    std::string        err;
+                    unsigned           error_code = 0;
+
+                    sproto::async_op_data       op_data;
+                    gproto::value_change_data   vdat;
+
+                    op_data.set_id( data.op_id );
+                    op_data.set_tick_count( tick_count );
+
+                    vdat.set_timepoint( tick_count );
+                    vdat.set_new_value( value );
+                    op_data.set_data( vdat.SerializeAsString( ) );
+
+                    if( !success ) {
+                        op_data.mutable_error( )->set_code( error_code );
+                        op_data.mutable_error( )->set_text( err );
+                    }
+
+                    eventor_.async_op( NULL, &op_data, NULL, NULL );
+
+                    return success;
+
+                } catch( std::exception &ex ) {
+                    LOGERR << "Failed to send GPIO event: " << ex.what( );
+                } catch( ... ) {
+                    LOGERR << "Failed to send GPIO event: ...";
+                }
+                return false;
+            }
+
+            bool value_changed( unsigned /*events*/,
+                                std::uint64_t tick_count,
+                                value_data &data,
+                                vcomm::connection_iface_wptr cli )
+            {
                 try {
                     vcomm::connection_iface_sptr lck( cli.lock( ) );
                     if( !lck ) {
@@ -374,11 +421,58 @@ namespace fr { namespace agent { namespace subsys {
                 return false;
             }
 
+#if 1
             void register_for_change(::google::protobuf::RpcController* ,
                          const ::fr::proto::gpio::register_req* request,
                          ::fr::proto::gpio::register_res* response,
                          ::google::protobuf::Closure* done) override
             {
+                namespace ph = vtrc::placeholders;
+
+                vcomm::closure_holder holder(done);
+                vtrc::uint32_t hdl(request->hdl( ).value( ));
+                gpio_sptr g( gpio_by_index( hdl ) );
+
+                agent::reaction_callback
+                        cb( vtrc::bind( &gpio_impl::value_changed2, this,
+                                         ph::_1, ph::_2,
+                                         value_data( hdl, g->value_fd( ),
+                                                     g, hdl ),
+                                         client_ ) );
+
+                g->add_reactor_action( reactor_.get( ), hdl, cb );
+                LOGDBG << "Add device to reactor; ID: " << hdl
+                       << " fd: " << g->value_fd( )
+                       ;
+                response->set_async_op_id( hdl );
+            }
+
+            void unregister( ::google::protobuf::RpcController* /*controller*/,
+                             const ::fr::proto::gpio::register_req* request,
+                             ::fr::proto::empty*                /*response*/,
+                             ::google::protobuf::Closure* done) override
+            {
+
+                vcomm::closure_holder holder(done);
+
+                gpio_sptr g( gpio_by_index( request->hdl( ).value( ) ) );
+                g->del_reactor_action( reactor_.get( ),
+                                       request->hdl( ).value( ) );
+
+                LOGDBG << "remove device from reactor; ID: "
+                       << request->hdl( ).value( )
+                       << " fd: " << g->value_fd( )
+                       ;
+            }
+
+#else
+            void register_for_change(::google::protobuf::RpcController* ,
+                         const ::fr::proto::gpio::register_req* request,
+                         ::fr::proto::gpio::register_res* response,
+                         ::google::protobuf::Closure* done) override
+            {
+                namespace ph = vtrc::placeholders;
+
                 vcomm::closure_holder holder(done);
                 vtrc::uint32_t hdl(request->hdl( ).value( ));
                 gpio_sptr g( gpio_by_index( hdl ) );
@@ -389,9 +483,9 @@ namespace fr { namespace agent { namespace subsys {
 
                 agent::reaction_callback
                         cb( vtrc::bind( &gpio_impl::value_changed, this,
-                                         vtrc::placeholders::_1,
+                                         ph::_1, ph::_2,
                                          value_data( hdl, fd, g, opid ),
-                                         client_) );
+                                         client_ ) );
                 reactor_.add_fd( fd, EPOLLET | EPOLLPRI, cb );
                 LOGDBG << "Add device to reactor; ID: " << hdl
                        << " fd: " << fd
@@ -414,6 +508,7 @@ namespace fr { namespace agent { namespace subsys {
                        << " fd: " << fd
                        ;
             }
+#endif
 
         public:
 
@@ -434,9 +529,14 @@ namespace fr { namespace agent { namespace subsys {
 
     struct gpio::impl {
 
-        application     *app_;
-        logger          &log_;
-        subsys::reactor *reactor_;
+        using gpio_helper_wptr = std::weak_ptr<gpio_helper>;
+        using gpio_map = std::map<size_t, gpio_helper_wptr>;
+
+        application         *app_;
+        logger              &log_;
+        subsys::reactor     *reactor_;
+        gpio_map             devices_;
+        vtrc::mutex          devices_lock_;
 
         impl( application *app )
             :app_(app)
@@ -452,6 +552,33 @@ namespace fr { namespace agent { namespace subsys {
         void unreg_creator( const std::string &name )
         {
             app_->unregister_service_factory( name );
+        }
+
+        gpio_helper_sptr open_pin( std::uint32_t pin )
+        {
+            vtrc::lock_guard<vtrc::mutex> lck(devices_lock_);
+            gpio_helper_sptr res;
+            auto dev = devices_.find( pin );
+            if( dev != devices_.end( ) ) {
+                res = dev->second.lock( );
+            }
+            if( !res ) {
+                res = std::make_shared<gpio_helper>( pin );
+                devices_[pin] = gpio_helper_wptr(res);
+            }
+            return res;
+        }
+
+        void close_pin( std::uint32_t pin )
+        {
+            vtrc::lock_guard<vtrc::mutex> lck(devices_lock_);
+            auto dev = devices_.find( pin );
+            if( dev != devices_.end( ) ) {
+                auto res = dev->second.lock( );
+                if( !res ) {
+                    devices_.erase( dev );
+                }
+            }
         }
 
     };
@@ -502,6 +629,16 @@ namespace fr { namespace agent { namespace subsys {
     {
         impl_->unreg_creator( gpio_impl::name( ) );
         impl_->LOGINF << "Stopped.";
+    }
+
+    gpio_helper_sptr gpio::open_pin( std::uint32_t pin )
+    {
+        return impl_->open_pin( pin );
+    }
+
+    void gpio::close_pin( std::uint32_t pin )
+    {
+        impl_->close_pin( pin );
     }
 
 }}}

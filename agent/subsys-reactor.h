@@ -37,6 +37,9 @@ namespace subsys {
         void add_fd( int fd, unsigned flags, reaction_callback cb );
         void del_fd( int fd );
 
+        poll_reactor &get( );
+        const poll_reactor &get( ) const;
+
         size_t next_op_id( );
 
     };

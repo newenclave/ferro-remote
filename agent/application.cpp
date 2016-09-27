@@ -380,7 +380,7 @@ namespace fr { namespace agent {
         return application::now( ) - s_time_point;
     }
 
-    uint64_t application::start_tick( )
+    std::uint64_t application::start_tick( )
     {
         return s_time_point;
     }
