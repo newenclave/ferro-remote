@@ -377,9 +377,9 @@ namespace fr { namespace agent {
 
     unsigned gpio_helper::value( ) const
     {
-        if( impl_->edge_ == gpio::EDGE_BOTH ) {
-            return impl_->value_;
-        }
+//        if( impl_->edge_ == gpio::EDGE_BOTH ) {
+//            return impl_->value_;
+//        }
         return impl_->value( );
     }
 

@@ -117,9 +117,9 @@ namespace fr { namespace agent { namespace subsys {
                      b != e; ++b )
                 {
                     if( b->second->value_opened( ) ) {
-                        b->second->del_reactor_action( reactor_.get( ),
-                                                       b->first );
-                        //reactor_.del_fd( b->second->value_fd( ) );
+//                        b->second->del_reactor_action( reactor_.get( ),
+//                                                       b->first );
+                        reactor_.del_fd( b->second->value_fd( ) );
                     }
                 }
 
@@ -181,8 +181,8 @@ namespace fr { namespace agent { namespace subsys {
                 vtrc::uint32_t newid = next_index( );
                 vtrc::uint32_t id = request->gpio_id( );
 
-                gpio_sptr ng = app_->subsystem<gpio>( ).open_pin( id );
-                //gpio_sptr ng( vtrc::make_shared<agent::gpio_helper>( id ) );
+                //gpio_sptr ng = app_->subsystem<gpio>( ).open_pin( id );
+                gpio_sptr ng( vtrc::make_shared<agent::gpio_helper>( id ) );
 
                 if( request->exp( ) ) {
                     if( !ng->exists( ) ) {
@@ -293,6 +293,8 @@ namespace fr { namespace agent { namespace subsys {
                 g->set_value( a );
             }
 
+
+#if 0
             void close(::google::protobuf::RpcController* /*controller*/,
                          const ::fr::proto::handle*         request,
                          ::fr::proto::empty*              /*response*/,
@@ -312,7 +314,6 @@ namespace fr { namespace agent { namespace subsys {
                 }
             }
 
-#if 1
             struct value_data {
                 vtrc::uint32_t  hdl;
                 int             fd;
@@ -413,6 +414,25 @@ namespace fr { namespace agent { namespace subsys {
             }
 
 #else
+            void close(::google::protobuf::RpcController* /*controller*/,
+                         const ::fr::proto::handle*         request,
+                         ::fr::proto::empty*              /*response*/,
+                         ::google::protobuf::Closure* done) override
+            {
+                vcomm::closure_holder holder(done);
+                vtrc::upgradable_lock ulck( gpio_lock_ );
+                gpio_map::iterator f( gpio_.find( request->value( ) ) );
+                if( f != gpio_.end( ) ) {
+                    auto g = f->second;
+                    if( g->value_opened( ) ) {
+                        //g->del_reactor_action( reactor_.get( ), f->first );
+                        reactor_.del_fd( f->second->value_fd( ) );
+                    }
+                    vtrc::upgrade_to_unique utl(ulck);
+                    gpio_.erase( f );
+                }
+            }
+
             struct value_data {
                 vtrc::uint32_t  hdl;
                 int             fd;
