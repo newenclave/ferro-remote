@@ -194,12 +194,13 @@ namespace fr { namespace agent {
                 return false;
             } else {
                 char buf[4];
+
+                lseek( value_fd_, 0, SEEK_SET );
                 int res = ::read( value_fd_, buf, sizeof(buf) );
 
                 if( -1 == res ) {
                     return false;
                 } else {
-                    lseek( value_fd_, 0, SEEK_SET );
                     value = ( buf[0] == '1' );
 //                    std::cout << res << " = " << value
 //                              << " fd " << value_fd_  << "\n";
