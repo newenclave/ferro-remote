@@ -197,7 +197,8 @@ namespace fr { namespace agent {
                 if( -1 == ::read( value_fd_, buf, sizeof(buf) ) ) {
                     return false;
                 } else {
-                    value = (buf[0] != 0);
+                    std::cout << buf << "\n";
+                    value = (buf[0] != '0');
                 }
             }
 
