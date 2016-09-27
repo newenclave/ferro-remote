@@ -146,6 +146,7 @@ namespace fr { namespace agent {
             ,own_export_(false)
             ,value_fd_(-1)
             ,edge_(0)
+            ,value_(value( ))
         { }
 
         void exp( ) const
@@ -184,6 +185,13 @@ namespace fr { namespace agent {
             } catch ( ... ) {
                 ;;;
             }
+        }
+
+        unsigned value( ) const
+        {
+            std::string pos = read_from_file( value_path_ );
+            assert( pos[0] == '0' || pos[0] == '1' );
+            return pos[0] - '0';
         }
 
         /// reactor runs handler
@@ -373,9 +381,7 @@ namespace fr { namespace agent {
         if( impl_->edge_ == gpio::EDGE_BOTH ) {
             return impl_->value_;
         }
-        std::string pos = read_from_file( impl_->value_path_ );
-        assert( pos[0] == '0' || pos[0] == '1' );
-        return pos[0] - '0';
+        return impl_->value( );
     }
 
     unsigned gpio_helper::active_low( ) const
