@@ -146,11 +146,11 @@ namespace fr { namespace agent { namespace subsys {
             iterator_map        iters_;
             vtrc::shared_mutex  iters_lock_;
 
-            vtrc::atomic<vtrc::uint32_t>  handle_;
+            subsys::reactor    &reactor_;
 
             inline vtrc::uint32_t next_index( )
             {
-                return ++handle_;
+                return reactor_.next_op_id( );
             }
 
             bfs::path path_from_request( const proto::fs::handle_path* request,
@@ -600,9 +600,9 @@ namespace fr { namespace agent { namespace subsys {
             }
 
         public:
-            proto_fs_impl( fr::agent::application * /*app*/,
+            proto_fs_impl( fr::agent::application * app,
                            vcomm::connection_iface_wptr /*cl*/ )
-                :handle_(100)
+                :reactor_(app->subsystem<subsys::reactor>( ))
             { }
 
             static const std::string &name( )
@@ -617,7 +617,6 @@ namespace fr { namespace agent { namespace subsys {
             file_map                      files_;
             vtrc::shared_mutex            files_lock_;
 
-            vtrc::atomic<vtrc::uint32_t>  index_;
             subsys::reactor              &reactor_;
 
             rpc_channel_sptr             event_channel_;
@@ -628,7 +627,6 @@ namespace fr { namespace agent { namespace subsys {
             proto_file_impl( fr::agent::application *app,
                              vcomm::connection_iface_wptr &cli)
                 :client_(cli)
-                ,index_(100)
                 ,reactor_(app->subsystem<subsys::reactor>( ))
                 ,event_channel_(create_event_channel(client_.lock( )))
                 ,events_(event_channel_.get( ))
@@ -658,7 +656,7 @@ namespace fr { namespace agent { namespace subsys {
 
             inline vtrc::uint32_t next_id( )
             {
-                return ++index_;
+                return reactor_.next_op_id( );
             }
 
         private:

@@ -93,7 +93,6 @@ namespace fr { namespace agent { namespace subsys {
             fr::agent::application              *app_;
             gpio_map                             gpio_;
             vtrc::shared_mutex                   gpio_lock_;
-            vtrc::atomic<vtrc::uint32_t>         index_;
             vtrc::common::connection_iface_wptr  client_;
             rpc_channel_sptr                     event_channel_;
             events_stub_type                     eventor_;
@@ -105,7 +104,6 @@ namespace fr { namespace agent { namespace subsys {
             gpio_impl( fr::agent::application *app,
                        vcomm::connection_iface_wptr cli )
                 :app_(app)
-                ,index_(100)
                 ,client_(cli)
                 ,event_channel_(create_event_channel(client_.lock( )))
                 ,eventor_(event_channel_.get( ))
@@ -129,7 +127,7 @@ namespace fr { namespace agent { namespace subsys {
 
             inline vtrc::uint32_t next_index( )
             {
-                return ++index_;
+                return reactor_.next_op_id( );
             }
 
             gpio_sptr gpio_by_index( vtrc::uint32_t id )
@@ -314,21 +312,19 @@ namespace fr { namespace agent { namespace subsys {
                 }
             }
 
+
+#if 1
             struct value_data {
                 vtrc::uint32_t  hdl;
                 int             fd;
                 gpio_wptr       weak_gpio;
-                size_t          op_id;
-                value_data( vtrc::uint32_t h, int f,
-                            gpio_sptr &gpio,  size_t op )
+                value_data( vtrc::uint32_t h, int f, gpio_sptr &gpio )
                     :hdl(h)
                     ,fd(f)
                     ,weak_gpio(gpio)
-                    ,op_id(op)
                 { }
             };
 
-#if 1
             bool value_changed( unsigned value,
                                 std::uint64_t tick_count,
                                 value_data &data,
@@ -349,7 +345,7 @@ namespace fr { namespace agent { namespace subsys {
                     sproto::async_op_data       op_data;
                     gproto::value_change_data   vdat;
 
-                    op_data.set_id( data.op_id );
+                    op_data.set_id( data.hdl );
                     op_data.set_tick_count( tick_count );
 
                     vdat.set_timepoint( tick_count );
@@ -387,8 +383,7 @@ namespace fr { namespace agent { namespace subsys {
                 agent::reaction_callback
                         cb( vtrc::bind( &gpio_impl::value_changed, this,
                                          ph::_1, ph::_2,
-                                         value_data( hdl, g->value_fd( ),
-                                                     g, hdl ),
+                                         value_data( hdl, g->value_fd( ), g ),
                                          client_ ) );
 
                 g->add_reactor_action( reactor_.get( ), hdl, cb );
@@ -417,6 +412,20 @@ namespace fr { namespace agent { namespace subsys {
             }
 
 #else
+            struct value_data {
+                vtrc::uint32_t  hdl;
+                int             fd;
+                gpio_wptr       weak_gpio;
+                size_t          op_id;
+                value_data( vtrc::uint32_t h, int f,
+                            gpio_sptr &gpio,  size_t op )
+                    :hdl(h)
+                    ,fd(f)
+                    ,weak_gpio(gpio)
+                    ,op_id(op)
+                { }
+            };
+
             bool value_changed( unsigned /*events*/,
                                 std::uint64_t tick_count,
                                 value_data &data,
