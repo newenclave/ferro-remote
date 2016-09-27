@@ -304,8 +304,10 @@ namespace fr { namespace agent { namespace subsys {
                 vtrc::upgradable_lock ulck( gpio_lock_ );
                 gpio_map::iterator f( gpio_.find( request->value( ) ) );
                 if( f != gpio_.end( ) ) {
-                    if( f->second->value_opened( ) ) {
-                        reactor_.del_fd( f->second->value_fd( ) );
+                    auto g = f->second;
+                    if( g->value_opened( ) ) {
+                        g->del_reactor_action( reactor_.get( ), f->first );
+                        //reactor_.del_fd( f->second->value_fd( ) );
                     }
                     vtrc::upgrade_to_unique utl(ulck);
                     gpio_.erase( f );
