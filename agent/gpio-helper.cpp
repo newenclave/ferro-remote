@@ -194,10 +194,12 @@ namespace fr { namespace agent {
                 return false;
             } else {
                 char buf[4];
-                if( -1 == ::read( value_fd_, buf, sizeof(buf) ) ) {
+                int res = ::read( value_fd_, buf, sizeof(buf) );
+                if( -1 == res ) {
                     return false;
                 } else {
-                    std::cout << buf << "\n";
+                    std::cout << res << " = " << buf << " "
+                              << value_fd_  << "\n";
                     value = (buf[0] != '0');
                 }
             }
