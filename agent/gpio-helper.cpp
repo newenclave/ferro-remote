@@ -146,7 +146,7 @@ namespace fr { namespace agent {
             ,own_export_(false)
             ,value_fd_(-1)
             ,edge_(0)
-            ,value_(value( ))
+            ,value_(!value( ))
         { }
 
         void exp( ) const
