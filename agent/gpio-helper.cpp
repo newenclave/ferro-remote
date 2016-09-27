@@ -200,9 +200,9 @@ namespace fr { namespace agent {
                     return false;
                 } else {
                     lseek( value_fd_, 0, SEEK_SET );
-                    std::cout << res << " = " << buf << " "
-                              << value_fd_  << "\n";
                     value = (buf[0] != '0');
+                    std::cout << res << " = " << value
+                              << " fd " << value_fd_  << "\n";
                 }
             }
 
@@ -218,6 +218,7 @@ namespace fr { namespace agent {
                     ++b;
                 }
             }
+            std::cout << "connections_ = " << connections_.size( ) << "\n";
             return !connections_.empty( );
         }
 
