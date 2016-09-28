@@ -278,7 +278,6 @@ namespace fr { namespace agent { namespace subsys {
                 vtrc::uint32_t id = request->gpio_id( );
 
                 gpio_sptr ng = app_->subsystem<gpio>( ).open_pin( id );
-                //gpio_sptr ng( vtrc::make_shared<agent::gpio_helper>( id ) );
 
                 if( request->exp( ) ) {
                     if( !ng->exists( ) ) {
@@ -308,7 +307,6 @@ namespace fr { namespace agent { namespace subsys {
                     auto g = f->second;
                     if( g->value_opened( ) ) {
                         g->del_reactor_action( reactor_.get( ), f->first );
-                        //reactor_.del_fd( f->second->value_fd( ) );
                     }
                     vtrc::upgrade_to_unique utl(ulck);
                     gpio_.erase( f );

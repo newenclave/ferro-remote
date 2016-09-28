@@ -251,8 +251,8 @@ namespace fr { namespace agent {
                     return false;
                 } else {
                     value = ( buf[0] == '1' );
-//                    std::cout << res << " = " << value
-//                              << " fd " << value_fd_  << "\n";
+                    std::cout << res << " = " << value
+                              << " fd " << value_fd_  << "\n";
                 }
             }
 
