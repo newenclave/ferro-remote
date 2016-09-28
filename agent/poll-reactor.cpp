@@ -178,6 +178,7 @@ namespace fr { namespace agent {
             if( f != react_.end( ) ) {
                 bool res = f->second->call_( events, ticks );
                 if( !res ) {
+                    std::cout << "No res! delete\n";
                     vtrc::upgrade_to_unique utu(slck);
                     del_fd_unsafe( fd );
                 }
