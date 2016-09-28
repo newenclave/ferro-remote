@@ -140,7 +140,7 @@ namespace fr { namespace agent {
         connection_map      connections_;
         std::mutex          connections_lock_;
         unsigned            edge_;
-        unsigned            value_;
+        //unsigned            value_;
 
         gpio_helper::queue_type     &ios_;
 
@@ -151,7 +151,7 @@ namespace fr { namespace agent {
             ,own_export_(false)
             ,value_fd_(-1)
             ,edge_(0)
-            ,value_(!value( ))
+            //,value_(!value( ))
             ,ios_(ios)
         { }
 
@@ -224,36 +224,36 @@ namespace fr { namespace agent {
         bool reactor_handler( unsigned e, std::uint64_t tick_count )
         {
             unsigned value = 0;
-            switch (edge_) {
-            case gpio::EDGE_FALLING:
-                value = 0;
-                break;
-            case gpio::EDGE_RISING:
-                value = 1;
-            default:
-                value_ = value_ ? 0 : 1;
-                value = value_;
-                break;
-            }
+//            switch (edge_) {
+//            case gpio::EDGE_FALLING:
+//                value = 0;
+//                break;
+//            case gpio::EDGE_RISING:
+//                value = 1;
+//            default:
+//                value_ = value_ ? 0 : 1;
+//                value = value_;
+//                break;
+//            }
 
             if(connections_.empty( )) {
                 return false;
             }
 
-//            if( -1 == value_fd_ ) {
-//                return false;
-//            } else {
-//                char buf[4];
+            if( -1 == value_fd_ ) {
+                return false;
+            } else {
+                char buf[4];
 
-//                lseek( value_fd_, 0, SEEK_SET );
-//                int res = ::read( value_fd_, buf, sizeof(buf) );
+                lseek( value_fd_, 0, SEEK_SET );
+                int res = ::read( value_fd_, buf, sizeof(buf) );
 
-//                if( -1 == res ) {
-//                    return false;
-//                } else {
-//                    value = ( buf[0] == '1' );
-//                }
-//            }
+                if( -1 == res ) {
+                    return false;
+                } else {
+                    value = ( buf[0] == '1' );
+                }
+            }
 
             ios_.post( [this, value, tick_count]( ){
                 send_to_all(value, tick_count);
@@ -398,9 +398,9 @@ namespace fr { namespace agent {
 
     unsigned gpio_helper::value( ) const
     {
-        if( impl_->edge_ == gpio::EDGE_BOTH ) {
-            return impl_->value_;
-        }
+//        if( impl_->edge_ == gpio::EDGE_BOTH ) {
+//            return impl_->value_;
+//        }
         return impl_->value( );
     }
 
@@ -426,7 +426,7 @@ namespace fr { namespace agent {
         char data[2] = {0};
         data[0] = char(val + '0');
         write_to_file( impl_->value_path_, data, 2 );
-        impl_->value_ = val;
+        //impl_->value_ = val;
     }
 
     void gpio_helper::set_active_low( unsigned val ) const
