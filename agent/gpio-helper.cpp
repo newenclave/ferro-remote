@@ -300,6 +300,7 @@ namespace fr { namespace agent {
 
     gpio_helper::~gpio_helper( )
     {
+        std::cout << "close " << impl_->id_ << "\n";
         delete impl_;
     }
 

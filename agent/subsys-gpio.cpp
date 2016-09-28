@@ -308,8 +308,11 @@ namespace fr { namespace agent { namespace subsys {
                     if( g->value_opened( ) ) {
                         g->del_reactor_action( reactor_.get( ), f->first );
                     }
-                    vtrc::upgrade_to_unique utl(ulck);
-                    gpio_.erase( f );
+                    {
+                        vtrc::upgrade_to_unique utl(ulck);
+                        gpio_.erase( f );
+                    }
+                    app_->subsystem<gpio>( ).close_pin( f->first );
                 }
             }
 
