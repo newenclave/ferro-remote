@@ -269,6 +269,8 @@ namespace fr { namespace agent {
 
             std::lock_guard<std::mutex> lck(connections_lock_);
 
+            add_connection( id, std::make_shared<gpio_reaction>(cb) );
+
             if( connections_.empty( ) ) {
 
                 auto cp = vtrc::bind( &impl::reactor_handler, this,
@@ -277,7 +279,6 @@ namespace fr { namespace agent {
                 react.add_fd( parent_->value_fd( ), EPOLLET | EPOLLPRI, cp );
 
             }
-            add_connection( id, std::make_shared<gpio_reaction>(cb) );
             return id;
         }
 
@@ -300,7 +301,7 @@ namespace fr { namespace agent {
 
     gpio_helper::~gpio_helper( )
     {
-        std::cout << "close " << impl_->id_ << "\n";
+        //std::cout << "close " << impl_->id_ << "\n";
         delete impl_;
     }
 

@@ -127,7 +127,6 @@ namespace fr { namespace agent {
 
         void add_fd( int fd, unsigned events, reaction_callback cb )
         {
-            std::cout << "add fd: " << fd << "\n";
             vtrc::upgradable_lock lck(react_lock_);
 
             reaction_map::iterator f(react_.find(fd));
@@ -180,11 +179,9 @@ namespace fr { namespace agent {
                 bool res = f->second->call_( events, ticks );
                 if( !res ) {
                     vtrc::upgrade_to_unique utu(slck);
-                    std::cout << "del fd: " << fd << "\n";
-                    del_fd_unsafe( fd );
+\                    del_fd_unsafe( fd );
                 }
             } else {
-                std::cout << "del poll fd: " << fd << "\n";
                 del_fd_from_epoll( poll_fd_.hdl( ), fd );
             }
         }
