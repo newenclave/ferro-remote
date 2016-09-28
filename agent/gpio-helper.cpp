@@ -185,7 +185,7 @@ namespace fr { namespace agent {
         {
             try {
                 if( -1 != value_fd_ ) {
-                    close( );
+                    close( value_fd_ );
                 }
             } catch ( ... ) {
                 ;;;
