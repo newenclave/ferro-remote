@@ -30,11 +30,14 @@
 #include "vtrc-chrono.h"
 #include "errno-check.h"
 
+
 #define LOG(lev) log_(lev) << "[gpio] "
 #define LOGINF   LOG(logger::level::info)
 #define LOGDBG   LOG(logger::level::debug)
 #define LOGERR   LOG(logger::level::error)
 #define LOGWRN   LOG(logger::level::warning)
+
+#define DOUBLE_QUEUE 1
 
 namespace fr { namespace agent { namespace subsys {
 
@@ -117,9 +120,12 @@ namespace fr { namespace agent { namespace subsys {
                      b != e; ++b )
                 {
                     if( b->second->value_opened( ) ) {
-//                        b->second->del_reactor_action( reactor_.get( ),
-//                                                       b->first );
-                        reactor_.del_fd( b->second->value_fd( ) );
+#if DOUBLE_QUEUE
+                        b->second->del_reactor_action( reactor_.get( ),
+                                                       b->first );
+#else
+//                        reactor_.del_fd( b->second->value_fd( ) );
+#endif
                     }
                 }
 
@@ -266,7 +272,8 @@ namespace fr { namespace agent { namespace subsys {
             }
 
 
-#if 1
+#if DOUBLE_QUEUE
+
             void open(::google::protobuf::RpcController* /*controller*/,
                          const ::fr::proto::gpio::open_req* request,
                          ::fr::proto::gpio::open_res* response,
@@ -338,7 +345,7 @@ namespace fr { namespace agent { namespace subsys {
                         return false;
                     }
 
-                    LOGDBG << "Value " << value << " for " << data.hdl;
+                    //LOGDBG << "Value " << value << " for " << data.hdl;
 
                     gpio_sptr gpio( data.weak_gpio.lock( ) );
 
@@ -599,9 +606,12 @@ namespace fr { namespace agent { namespace subsys {
         gpio_map             devices_;
         vtrc::mutex          devices_lock_;
 
+        gpio_helper::queue_type disp_;
+
         impl( application *app )
             :app_(app)
             ,log_(app->get_logger( ))
+            ,disp_(app->get_rpc_service( ))
         { }
 
         void reg_creator( const std::string &name,
@@ -624,8 +634,7 @@ namespace fr { namespace agent { namespace subsys {
                 res = dev->second.lock( );
             }
             if( !res ) {
-                res = std::make_shared<gpio_helper>( pin,
-                                          std::ref(app_->get_io_service( )) );
+                res = std::make_shared<gpio_helper>( pin, std::ref(disp_) );
                 devices_[pin] = gpio_helper_wptr(res);
             }
             return res;

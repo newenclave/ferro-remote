@@ -7,9 +7,7 @@
 #include "file-keeper.h"
 #include "poll-reactor.h"
 
-namespace boost { namespace asio {
-    class io_service;
-}}
+#include "boost/asio.hpp"
 
 namespace fr { namespace agent {
 
@@ -39,7 +37,9 @@ namespace fr { namespace agent {
 
     public:
 
-        gpio_helper( unsigned id, boost::asio::io_service &ios );
+        using queue_type = boost::asio::io_service::strand;
+
+        gpio_helper( unsigned id, queue_type  &ios );
         ~gpio_helper(  );
 
         bool exists( ) const;

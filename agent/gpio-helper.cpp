@@ -141,9 +141,10 @@ namespace fr { namespace agent {
         std::mutex          connections_lock_;
         unsigned            edge_;
         unsigned            value_;
-        ba::io_service     &ios_;
 
-        impl( unsigned id, ba::io_service &ios )
+        gpio_helper::queue_type     &ios_;
+
+        impl( unsigned id, gpio_helper::queue_type &ios )
             :id_(id)
             ,path_(make_gpio_path(id_))
             ,value_path_(value_path_string(id_))
@@ -251,8 +252,6 @@ namespace fr { namespace agent {
                     return false;
                 } else {
                     value = ( buf[0] == '1' );
-                    std::cout << res << " = " << value
-                              << " fd " << value_fd_  << "\n";
                 }
             }
 
@@ -296,7 +295,7 @@ namespace fr { namespace agent {
         }
     };
 
-    gpio_helper::gpio_helper( unsigned id, ba::io_service &ios )
+    gpio_helper::gpio_helper( unsigned id, queue_type &ios )
         :impl_(new impl(id, ios))
     {
         impl_->parent_ = this;
