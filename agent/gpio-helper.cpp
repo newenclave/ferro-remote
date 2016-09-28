@@ -221,7 +221,7 @@ namespace fr { namespace agent {
         /// reactor runs handler
         /// handler runs user's callback
         /// TODO: think about read/write mutex
-        bool reactor_handler( unsigned, std::uint64_t tick_count )
+        bool reactor_handler( unsigned e, std::uint64_t tick_count )
         {
             unsigned value = 0;
 //            switch (edge_) {
@@ -254,6 +254,8 @@ namespace fr { namespace agent {
                     value = ( buf[0] == '1' );
                 }
             }
+
+            std::cout << e << ": " << value << "\n";
 
             ios_.post( [this, value, tick_count]( ){
                 send_to_all(value, tick_count);

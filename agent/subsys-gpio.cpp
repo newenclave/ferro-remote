@@ -611,7 +611,7 @@ namespace fr { namespace agent { namespace subsys {
         impl( application *app )
             :app_(app)
             ,log_(app->get_logger( ))
-            ,disp_(app->get_rpc_service( ))
+            ,disp_(app->get_io_service( )) /// io!
         { }
 
         void reg_creator( const std::string &name,
