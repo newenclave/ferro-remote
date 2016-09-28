@@ -179,7 +179,7 @@ namespace fr { namespace agent {
                 bool res = f->second->call_( events, ticks );
                 if( !res ) {
                     vtrc::upgrade_to_unique utu(slck);
-\                    del_fd_unsafe( fd );
+                    del_fd_unsafe( fd );
                 }
             } else {
                 del_fd_from_epoll( poll_fd_.hdl( ), fd );
