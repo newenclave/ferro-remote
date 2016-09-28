@@ -7,6 +7,10 @@
 #include "file-keeper.h"
 #include "poll-reactor.h"
 
+namespace boost { namespace asio {
+    class io_service;
+}}
+
 namespace fr { namespace agent {
 
     namespace gpio {
@@ -35,7 +39,7 @@ namespace fr { namespace agent {
 
     public:
 
-        gpio_helper( unsigned id );
+        gpio_helper( unsigned id, boost::asio::io_service &ios );
         ~gpio_helper(  );
 
         bool exists( ) const;

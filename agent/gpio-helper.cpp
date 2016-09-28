@@ -17,13 +17,16 @@
 #include "vtrc-common/vtrc-signal-declaration.h"
 #include "vtrc-bind.h"
 
+#include "boost/asio.hpp"
+
 namespace fr { namespace agent {
 
     namespace {
 
         namespace vcomm = vtrc::common;
         namespace bsys  = boost::system;
-        namespace bsig = boost::signals2;
+        namespace bsig  = boost::signals2;
+        namespace ba    = boost::asio;
 
         using connection_sptr = std::shared_ptr<agent::gpio_reaction>;
         using connection_map  = std::map<std::uint32_t, connection_sptr>;
@@ -138,8 +141,9 @@ namespace fr { namespace agent {
         std::mutex          connections_lock_;
         unsigned            edge_;
         unsigned            value_;
+        ba::io_service     &ios_;
 
-        impl( unsigned id )
+        impl( unsigned id, ba::io_service &ios )
             :id_(id)
             ,path_(make_gpio_path(id_))
             ,value_path_(value_path_string(id_))
@@ -147,6 +151,7 @@ namespace fr { namespace agent {
             ,value_fd_(-1)
             ,edge_(0)
             ,value_(!value( ))
+            ,ios_(ios)
         { }
 
         void exp( ) const
@@ -194,42 +199,8 @@ namespace fr { namespace agent {
             return pos[0] - '0';
         }
 
-        /// reactor runs handler
-        /// handler runs user's callback
-        /// TODO: think about read/write mutex
-        bool reactor_handler( unsigned, std::uint64_t tick_count )
+        void send_to_all( unsigned value, std::uint64_t tick_count )
         {
-            unsigned value = 0;
-            switch (edge_) {
-            case gpio::EDGE_FALLING:
-                value = 0;
-                break;
-            case gpio::EDGE_RISING:
-                value = 1;
-            default:
-                value_ = value_ ? 0 : 1;
-                value = value_;
-                break;
-            }
-
-
-//            if( -1 == value_fd_ ) {
-//                return false;
-//            } else {
-//                char buf[4];
-
-//                lseek( value_fd_, 0, SEEK_SET );
-//                int res = ::read( value_fd_, buf, sizeof(buf) );
-
-//                if( -1 == res ) {
-//                    return false;
-//                } else {
-//                    value = ( buf[0] == '1' );
-////                    std::cout << res << " = " << value
-////                              << " fd " << value_fd_  << "\n";
-//                }
-//            }
-
             std::lock_guard<std::mutex> lck(connections_lock_);
 
             auto b = connections_.begin( );
@@ -242,7 +213,53 @@ namespace fr { namespace agent {
                     ++b;
                 }
             }
-            return !connections_.empty( );
+            //return !connections_.empty( );
+
+        }
+
+        /// reactor runs handler
+        /// handler runs user's callback
+        /// TODO: think about read/write mutex
+        bool reactor_handler( unsigned, std::uint64_t tick_count )
+        {
+            unsigned value = 0;
+//            switch (edge_) {
+//            case gpio::EDGE_FALLING:
+//                value = 0;
+//                break;
+//            case gpio::EDGE_RISING:
+//                value = 1;
+//            default:
+//                value_ = value_ ? 0 : 1;
+//                value = value_;
+//                break;
+//            }
+
+            if(connections_.empty( )) {
+                return false;
+            }
+
+            if( -1 == value_fd_ ) {
+                return false;
+            } else {
+                char buf[4];
+
+                lseek( value_fd_, 0, SEEK_SET );
+                int res = ::read( value_fd_, buf, sizeof(buf) );
+
+                if( -1 == res ) {
+                    return false;
+                } else {
+                    value = ( buf[0] == '1' );
+//                    std::cout << res << " = " << value
+//                              << " fd " << value_fd_  << "\n";
+                }
+            }
+
+            ios_.post( [this, value, tick_count]( ){
+                send_to_all(value, tick_count);
+            } );
+            return true;
         }
 
         std::uint32_t add_reactor_action( poll_reactor &react, std::uint32_t id,
@@ -275,8 +292,8 @@ namespace fr { namespace agent {
         }
     };
 
-    gpio_helper::gpio_helper( unsigned id )
-        :impl_(new impl(id))
+    gpio_helper::gpio_helper( unsigned id, ba::io_service &ios )
+        :impl_(new impl(id, ios))
     {
         impl_->parent_ = this;
     }

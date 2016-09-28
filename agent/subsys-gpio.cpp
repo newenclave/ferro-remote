@@ -171,34 +171,6 @@ namespace fr { namespace agent { namespace subsys {
                 if( done ) done->Run( );
             }
 
-            void open(::google::protobuf::RpcController* /*controller*/,
-                         const ::fr::proto::gpio::open_req* request,
-                         ::fr::proto::gpio::open_res* response,
-                         ::google::protobuf::Closure* done) override
-            {
-                vcomm::closure_holder holder(done);
-
-                vtrc::uint32_t newid = next_index( );
-                vtrc::uint32_t id = request->gpio_id( );
-
-                //gpio_sptr ng = app_->subsystem<gpio>( ).open_pin( id );
-                gpio_sptr ng( vtrc::make_shared<agent::gpio_helper>( id ) );
-
-                if( request->exp( ) ) {
-                    if( !ng->exists( ) ) {
-                        ng->exp( );
-                    }
-                    gpio_setup( ng, request->setup( ) );
-                }
-                response->mutable_hdl( )->set_value( newid );
-                response->set_edge_supported( ng->edge_supported( ) );
-                LOGDBG << "Open device with ID: " << id
-                       << " fd: " << ng->value_fd( )
-                          ;
-                vtrc::unique_shared_lock lck( gpio_lock_ );
-                gpio_.insert( std::make_pair( newid, ng ) );
-            }
-
             void exp(::google::protobuf::RpcController* /*controller*/,
                          const ::fr::proto::gpio::export_req* request,
                          ::fr::proto::empty*            /*response*/,
@@ -294,7 +266,36 @@ namespace fr { namespace agent { namespace subsys {
             }
 
 
-#if 0
+#if 1
+            void open(::google::protobuf::RpcController* /*controller*/,
+                         const ::fr::proto::gpio::open_req* request,
+                         ::fr::proto::gpio::open_res* response,
+                         ::google::protobuf::Closure* done) override
+            {
+                vcomm::closure_holder holder(done);
+
+                vtrc::uint32_t newid = next_index( );
+                vtrc::uint32_t id = request->gpio_id( );
+
+                gpio_sptr ng = app_->subsystem<gpio>( ).open_pin( id );
+                //gpio_sptr ng( vtrc::make_shared<agent::gpio_helper>( id ) );
+
+                if( request->exp( ) ) {
+                    if( !ng->exists( ) ) {
+                        ng->exp( );
+                    }
+                    gpio_setup( ng, request->setup( ) );
+                }
+                response->mutable_hdl( )->set_value( newid );
+                response->set_edge_supported( ng->edge_supported( ) );
+                LOGDBG << "Open device with ID: " << id
+                       << " fd: " << ng->value_fd( )
+                          ;
+                vtrc::unique_shared_lock lck( gpio_lock_ );
+                gpio_.insert( std::make_pair( newid, ng ) );
+            }
+
+
             void close(::google::protobuf::RpcController* /*controller*/,
                          const ::fr::proto::handle*         request,
                          ::fr::proto::empty*              /*response*/,
@@ -414,6 +415,34 @@ namespace fr { namespace agent { namespace subsys {
             }
 
 #else
+            void open(::google::protobuf::RpcController* /*controller*/,
+                         const ::fr::proto::gpio::open_req* request,
+                         ::fr::proto::gpio::open_res* response,
+                         ::google::protobuf::Closure* done) override
+            {
+                vcomm::closure_holder holder(done);
+
+                vtrc::uint32_t newid = next_index( );
+                vtrc::uint32_t id = request->gpio_id( );
+
+                gpio_sptr ng( vtrc::make_shared<agent::gpio_helper>( id ) );
+
+                if( request->exp( ) ) {
+                    if( !ng->exists( ) ) {
+                        ng->exp( );
+                    }
+                    gpio_setup( ng, request->setup( ) );
+                }
+                response->mutable_hdl( )->set_value( newid );
+                response->set_edge_supported( ng->edge_supported( ) );
+                LOGDBG << "Open device with ID: " << id
+                       << " fd: " << ng->value_fd( )
+                          ;
+                vtrc::unique_shared_lock lck( gpio_lock_ );
+                gpio_.insert( std::make_pair( newid, ng ) );
+            }
+
+
             void close(::google::protobuf::RpcController* /*controller*/,
                          const ::fr::proto::handle*         request,
                          ::fr::proto::empty*              /*response*/,
@@ -594,7 +623,8 @@ namespace fr { namespace agent { namespace subsys {
                 res = dev->second.lock( );
             }
             if( !res ) {
-                res = std::make_shared<gpio_helper>( pin );
+                res = std::make_shared<gpio_helper>( pin,
+                                          std::ref(app_->get_io_service( )) );
                 devices_[pin] = gpio_helper_wptr(res);
             }
             return res;
