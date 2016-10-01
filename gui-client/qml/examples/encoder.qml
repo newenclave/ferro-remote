@@ -3,11 +3,11 @@ import QtQuick.Controls 1.1
 import Fr.Client 1.0
 
 Rectangle {
-    height: test.height
-    width: test.width
-    color: "white"
+
+    color:  "white"
 
     Item {
+
         id: encoder
         property int step: step.value
         property int state: 0
@@ -65,38 +65,34 @@ Rectangle {
         Component.onCompleted: connect( "192.168.3.1:12345" )
     }
 
-//    FrClient {
-//        id: remoteClient2
-//        Component.onCompleted: connect( "192.168.3.1:12345" )
-//    }
-
     Image {
-        id: test
-        source: "/home/data/compas.png"
+        id: compas
+        source: "compas.png"
         rotation: encoder.state
+        Component.onCompleted: {
+            parent.height = compas.height
+            parent.width  = compas.width
+        }
     }
 
     SpinBox {
         id: step
-        minimumValue: -360
-        maximumValue:  360
+        minimumValue: -359
+        maximumValue:  359
         value:         1
-        anchors.left: parent.left
-        anchors.bottom: parent.bottom
-        Connections {
-            target: clear
-            onClicked: {
-                step.value = 1
-            }
+        anchors {
+            left:   parent.left
+            bottom: parent.bottom
         }
     }
 
     Button {
         id: clear
         text: "Drop"
-        anchors.right: parent.right
-        anchors.bottom: parent.bottom
-
+        anchors {
+            right: parent.right
+            bottom: parent.bottom
+        }
     }
 
     Connections {
