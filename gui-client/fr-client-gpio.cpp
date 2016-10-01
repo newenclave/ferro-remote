@@ -170,10 +170,11 @@ namespace fr { namespace declarative {
     void FrClientGpio::setDirection( DirectionType value ) const
     {
         if( value != impl_->dir_ ) {
+            impl_->dir_ = value;
+
             FR_QML_CALL_PROLOGUE
 
             impl_->iface_->set_direction( gpio_ns::direction_val2enum( value ));
-            impl_->dir_ = value;
             emit directionChanged( impl_->dir_ );
 
             FR_QML_CALL_EPILOGUE( )

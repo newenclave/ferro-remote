@@ -66,6 +66,11 @@ Rectangle {
         Component.onCompleted: connect( "192.168.3.1:12345" )
     }
 
+//    FrClient {
+//        id: remoteClient2
+//        Component.onCompleted: connect( "192.168.3.1:12345" )
+//    }
+
 
     Image {
         id: compas
