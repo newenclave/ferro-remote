@@ -9,45 +9,44 @@ Rectangle {
     Item {
 
         id: encoder
-        property int step: step.value
-        property int state: 0
-        property bool l_state: false
-        property bool r_state: false
+        property int count: 0
 
         FrClientGpio {
+            property bool up: false
             client:     remoteClient
             index:      5
             direction:  FrClientGpio.DirectIn
             edge:       FrClientGpio.EdgeBoth
-            id:         left
+            id:         pinA
             events:     true
         }
 
         FrClientGpio {
+            property bool up: false
             client:     remoteClient
             index:      4
             direction:  FrClientGpio.DirectIn
             edge:       FrClientGpio.EdgeBoth
-            id:         right
+            id:         pinB
             events:     true
         }
 
         Connections {
-            target: right
+            target: pinB
             onChangeEvent: {
-                encoder.r_state = (value != 0);
-                if( encoder.r_state && encoder.l_state ) {
-                    encoder.state = encoder.state + encoder.step;
+                pinB.up = (value != 0);
+                if( pinB.up && pinA.up ) {
+                    encoder.count = encoder.count + step.value;
                 }
             }
         }
 
         Connections {
-            target: left
+            target: pinA
             onChangeEvent: {
-                encoder.l_state = (value != 0);
-                if( encoder.l_state && encoder.r_state ) {
-                    encoder.state = encoder.state - encoder.step;
+                pinA.up = (value != 0);
+                if( pinB.up && pinA.up ) {
+                    encoder.count = encoder.count - step.value;
                 }
             }
         }
@@ -55,7 +54,7 @@ Rectangle {
         Connections {
             target: clear
             onClicked: {
-                encoder.state = 0
+                encoder.count = 0
             }
         }
     }
@@ -68,7 +67,7 @@ Rectangle {
     Image {
         id: compas
         source: "compas.png"
-        rotation: encoder.state
+        rotation: encoder.count
         Component.onCompleted: {
             parent.height = compas.height
             parent.width  = compas.width
