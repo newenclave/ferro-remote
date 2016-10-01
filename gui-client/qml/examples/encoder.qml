@@ -34,6 +34,7 @@ Rectangle {
         Connections {
             target: pinB
             onChangeEvent: {
+                console.log( "PinB value:", value, "ticks: ", interval )
                 pinB.up = (value != 0);
                 if( pinB.up && pinA.up ) {
                     encoder.count = encoder.count + step.value;
@@ -44,6 +45,7 @@ Rectangle {
         Connections {
             target: pinA
             onChangeEvent: {
+                console.log( "PinA value:", value, "ticks: ", interval )
                 pinA.up = (value != 0);
                 if( pinB.up && pinA.up ) {
                     encoder.count = encoder.count - step.value;
@@ -96,10 +98,10 @@ Rectangle {
 
     Connections {
         target: remoteClient
-        onTryConnect:   console.log( "local: I'm trying!!!" )
-        onConnected:    console.log( "local connected" )
-        onChannelReady: console.log( "local channel ready" )
-        onDisconnected: console.log( "local disconnected" )
-        onInitError:    console.log( "local init error " + message )
+        onTryConnect:   console.log( "remoteClient: I'm trying!!!" )
+        onConnected:    console.log( "remoteClient: connected" )
+        onChannelReady: console.log( "remoteClient: channel ready" )
+        onDisconnected: console.log( "remoteClient: disconnected" )
+        onInitError:    console.log( "remoteClient: init error " + message )
     }
 }
