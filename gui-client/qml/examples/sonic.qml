@@ -11,8 +11,8 @@ Rectangle {
     Item {
 
         id:sonic
-        property int tick: 0
-        property double lastDistance: 0.0
+        property real tick: 0
+        property real lastDistance: 0.0
 
         FrClientGpio {
             id:         trigger
@@ -34,11 +34,10 @@ Rectangle {
             target: echo
             onChangeEvent: {
                 //console.log( sonic.tick )
-                var inter = interval % 100000000
                 if( value == 0 ) {
-                    sonic.lastDistance = (inter - sonic.tick) / 58
+                    sonic.lastDistance = (interval - sonic.tick) / 58
                 }
-                sonic.tick = inter
+                sonic.tick = interval
             }
         }
 
