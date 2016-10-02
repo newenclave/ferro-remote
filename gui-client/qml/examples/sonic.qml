@@ -14,16 +14,19 @@ Rectangle {
         property real tick: 0
         property real lastDistance: 0.0
 
+        property int triggerId: 4
+        property int echoId:    5
+
         FrClientGpio {
             id:         trigger
-            index:      4
+            index:      sonic.triggerId
             client:     remoteClient
             direction:  FrClientGpio.DirectOut
         }
 
         FrClientGpio {
             id:         echo
-            index:      5
+            index:      sonic.echoId
             client:     remoteClient
             direction:  FrClientGpio.DirectIn
             edge:       FrClientGpio.EdgeBoth
