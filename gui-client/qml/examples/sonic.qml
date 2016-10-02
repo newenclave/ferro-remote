@@ -12,7 +12,7 @@ Rectangle {
 
         id:sonic
         property int tick: 0
-        property double last_distance: 0.0
+        property double lastDistance: 0.0
 
         FrClientGpio {
             id:         trigger
@@ -33,13 +33,10 @@ Rectangle {
         Connections {
             target: echo
             onChangeEvent: {
-                var inter = interval % 1000000
-                if( sonic.tick != 0 ) {
-                    if( value == 1 ) {
-                        /// signal was sent
-                    } else {
-                        sonic.last_distance = (inter - sonic.tick) / 58
-                    }
+                //console.log( sonic.tick )
+                var inter = interval % 100000000
+                if( value == 0 ) {
+                    sonic.lastDistance = (inter - sonic.tick) / 58
                 }
                 sonic.tick = inter
             }
@@ -67,8 +64,19 @@ Rectangle {
     }
 
     Label {
+        id: output
         font.pointSize: 21
-        text: sonic.last_distance.toString( )
+        text: sonic.lastDistance.toString( )
+        Connections {
+            target: sonic
+            onLastDistanceChanged: {
+                if( sonic.lastDistance < 0 || sonic.lastDistance > 400 ) {
+                    output.color = "red"
+                } else {
+                    output.color = "black"
+                }
+            }
+        }
     }
 
     Connections {
