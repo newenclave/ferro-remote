@@ -1,3 +1,5 @@
+#include <iostream>
+
 #include "fr-client-gpio.h"
 
 #include "client-core/interfaces/IGPIO.h"
@@ -280,10 +282,10 @@ namespace fr { namespace declarative {
         }
     }
 
-    void FrClientGpio::makePulse(quint32 value)
+    void FrClientGpio::makePulse( quint32 value )
     {
         FR_QML_CALL_PROLOGUE
-        impl_->iface_->make_pulse( value, value ? 0 : 1 );
+        impl_->iface_->make_pulse( value );
         FR_QML_CALL_EPILOGUE( )
     }
 
