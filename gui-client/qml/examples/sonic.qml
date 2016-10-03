@@ -47,7 +47,7 @@ Rectangle {
         Connections {
             target: shot
             onTriggered: {
-                sonic.tick = 0;
+                //sonic.tick = 0;
                 trigger.makePulse( 70 )
             }
         }
