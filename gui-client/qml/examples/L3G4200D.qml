@@ -16,7 +16,6 @@ Rectangle {
     Item {
         id:gyro
         property int address: 0x69
-        property int scale:   0
 
         property int xReg: 0
         property int yReg: 0
@@ -28,25 +27,18 @@ Rectangle {
             client: remoteClient
             busId: 1
             slaveAddress: gyro.address
+
             function init( )
             {
                 gyroDev.writeBytes( [
                    {0x20: 15},
                    {0x21: 0 },
                    {0x22: 8 },
-                   {0x23: gyro.scale},
+                   {0x23: 0 },
                    {0x24: 0 },
                 ] )
             }
 
-            function fixCoord( coord )
-            {
-                if( coord & 0x8000 ) {
-                    return ~(coord & 0x7fff)
-                } else {
-                    return coord
-                }
-            }
 
             function getValues( )
             {
@@ -57,7 +49,7 @@ Rectangle {
 
                 var res = gyroDev.readBytes( values )
 
-                var x, y, z, t
+                var x = 0, y = 0, z = 0, t = 0
 
                 if( (0x28 in res) && (0x29 in res)) {
                     x = (res[0x29] << 8) | res[0x28]
@@ -75,15 +67,20 @@ Rectangle {
                     t = res[0x26]
                 }
 
-                gyro.xReg       = fixCoord(x)
-                gyro.yReg       = fixCoord(y)
-                gyro.zReg       = fixCoord(z)
+                gyro.xReg       = x
+                gyro.yReg       = y
+                gyro.zReg       = z
                 gyro.tempReg    = t
 
             }
+
+        }
+
+        Connections {
+            target: gyroDev
             onReadyChanged: {
                 if( value ) {
-                    init( )
+                    gyroDev.init( )
                 }
             }
         }
@@ -138,7 +135,7 @@ Rectangle {
             Label {
                 id: xName
                 font.pointSize: values.fontSize
-                text: "Coordinates"
+                text: "Values"
                 color: "green"
             }
 
