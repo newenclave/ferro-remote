@@ -344,7 +344,7 @@ namespace fr {  namespace client { namespace core {
 
     bool client_core::has_key( ) const
     {
-        return impl_->client_->is_key_set( );
+        return impl_->client_->env( ).exists( "session_key" );
     }
 
 }}}
