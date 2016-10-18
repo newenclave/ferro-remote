@@ -69,11 +69,13 @@ namespace fr { namespace agent { namespace subsys {
             ifaddrs *p = addrs;
 
             while( p ) {
-                switch (p->ifa_addr->sa_family) {
-                case AF_INET:
-                case AF_INET6:
-                    tmp.emplace_back( p );
-                    break;
+                if( p->ifa_addr ) {
+                    switch (p->ifa_addr->sa_family) {
+                    case AF_INET:
+                    case AF_INET6:
+                        tmp.emplace_back( p );
+                        break;
+                    }
                 }
                 p = p->ifa_next;
             }
