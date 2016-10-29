@@ -560,7 +560,7 @@ namespace {
         }
         try {
             std::vector<char> data( max + 1 );
-            size_t res = m->iface_->read_file( from, &data[0], max );
+            size_t res = m->iface_->read_file( from, &data[0], max, 0 );
             ls.push( &data[0], res );
         } catch( const std::exception &ex ) {
             ls.push(  );
@@ -580,7 +580,8 @@ namespace {
 
         try {
             size_t res = m->iface_->write_file( from,
-                                                data.c_str( ), data.size( ) );
+                                                data.c_str( ),
+                                                data.size( ), 0 );
             ls.push( res );
         } catch( const std::exception &ex ) {
             ls.push(  );

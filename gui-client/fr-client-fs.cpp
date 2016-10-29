@@ -181,7 +181,8 @@ namespace fr { namespace declarative {
     }
 
     QByteArray FrClientFs::readFile( const QString &path,
-                                     unsigned maximum ) const
+                                     unsigned maximum,
+                                     quint64 from ) const
     {
         FR_QML_CALL_PROLOGUE
         if( maximum ) {
@@ -194,7 +195,7 @@ namespace fr { namespace declarative {
     }
 
     unsigned FrClientFs::writeFile( const QString &path,
-                                    const QByteArray &data ) const
+                                    const QByteArray &data, quint64 from ) const
     {
         FR_QML_CALL_PROLOGUE
         size_t r = impl_->iface_->write_file( path.toUtf8( ).constData( ),

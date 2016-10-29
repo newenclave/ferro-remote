@@ -81,10 +81,12 @@ namespace fr { namespace declarative {
         Q_INVOKABLE QObject *begin( const QString &path = QString( ) ) const;
 
         Q_INVOKABLE QByteArray readFile( const QString &path,
-                                         unsigned maximum ) const;
+                                         unsigned maximum,
+                                         quint64 from = 0 ) const;
 
         Q_INVOKABLE unsigned writeFile( const QString &path,
-                                        const QByteArray &data ) const;
+                                        const QByteArray &data,
+                                        quint64 from = 0 ) const;
 
         fr::client::interfaces::filesystem
         ::directory_iterator_impl *begin_iterate( const QString &path  ) const;

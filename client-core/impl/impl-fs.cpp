@@ -431,12 +431,14 @@ namespace filesystem {
             }
 
             size_t read_file( const std::string &path,
-                              void *data, size_t max ) const override
+                              void *data, size_t max,
+                              vtrc::uint64_t from ) const override
             {
                 fproto::read_file_req req;
                 fproto::read_file_res res;
                 req.mutable_dst( )->mutable_hdl( )->set_value( hdl_ );
                 req.mutable_dst( )->set_path( path );
+                req.mutable_from( )->set_position( from );
                 req.set_len( max );
                 client_.call( &stub_type::read_file, &req, &res );
                 size_t result = res.data( ).size( );
@@ -445,12 +447,14 @@ namespace filesystem {
             }
 
             size_t  write_file( const std::string &path,
-                                const void *data, size_t max ) const override
+                                const void *data, size_t max,
+                                vtrc::uint64_t from ) const override
             {
                 fproto::write_file_req req;
                 fproto::write_file_res res;
                 req.mutable_dst( )->mutable_hdl( )->set_value( hdl_ );
                 req.mutable_dst( )->set_path( path );
+                req.mutable_from( )->set_position( from );
                 req.set_data( data, max );
                 client_.call( &stub_type::write_file, &req, &res );
                 return res.len( );
