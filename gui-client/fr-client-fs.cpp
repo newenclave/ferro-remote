@@ -188,7 +188,7 @@ namespace fr { namespace declarative {
         if( maximum ) {
             std::vector<char> data( maximum );
             size_t r = impl_->iface_->read_file( path.toUtf8( ).constData( ),
-                                                 &data[0], maximum );
+                                                 &data[0], maximum, from );
             return QByteArray( &data[0], r );
         }
         FR_QML_CALL_EPILOGUE( QByteArray( ) )
@@ -200,7 +200,7 @@ namespace fr { namespace declarative {
         FR_QML_CALL_PROLOGUE
         size_t r = impl_->iface_->write_file( path.toUtf8( ).constData( ),
                                               data.constData( ),
-                                              data.size( ) );
+                                              data.size( ), from );
         return (unsigned)(r);
 
         FR_QML_CALL_EPILOGUE( 0 )
