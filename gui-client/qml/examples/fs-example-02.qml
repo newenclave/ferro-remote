@@ -32,7 +32,6 @@ Rectangle {
             TextField {
                 id: filePath
                 width: command.width - 80
-
             }
 
             Button {
@@ -42,7 +41,7 @@ Rectangle {
         }
 
         TextArea {
-            id: command
+            id: testField
             height: parentRect.height - 80
             width:  parentRect.width - 10
             text: ""
@@ -55,7 +54,7 @@ Rectangle {
                         if( t.toString().length === 0 ) {
                             break;
                         }
-                        command.text += t;
+                        testField.text += t;
                     }
                     f.close( )
                 }
@@ -66,7 +65,7 @@ Rectangle {
                     var f = remoteFs.openFile( filePath.text, "w" )
                     var begin = 0;
                     while( true ) {
-                        var res = f.write( command.text.slice( begin ) );
+                        var res = f.write( testField.text.slice( begin ) );
                         if( res === 0 ) break;
                         begin += res
                     }
