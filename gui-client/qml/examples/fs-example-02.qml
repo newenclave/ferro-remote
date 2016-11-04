@@ -31,7 +31,7 @@ Rectangle {
             spacing: 10
             TextField {
                 id: filePath
-                width: command.width - 80
+                width: testField.width - 80
             }
 
             Button {
@@ -49,6 +49,7 @@ Rectangle {
                 target: openFile
                 onClicked: {
                     var f = remoteFs.openFile( filePath.text, "r" )
+                    testField.text = ""
                     while( true ) {
                         var t = f.read( 4096 );
                         if( t.toString().length === 0 ) {
@@ -76,7 +77,7 @@ Rectangle {
 
         Button {
             id: saveButton
-            width:  command.width
+            width:  testField.width
             text: "Save file"
         }
     }
