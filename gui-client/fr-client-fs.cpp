@@ -8,11 +8,14 @@
 #include <iostream>
 #include <string>
 #include <functional>
+#include <memory>
 
 #include <QException>
+#include <QSharedPointer>
 
 #include "fr-qml-call-wrappers.h"
 #include "fr-client-fs-iterator.h"
+#include "fr-client-file.h"
 
 namespace fr { namespace declarative {
 
@@ -204,6 +207,16 @@ namespace fr { namespace declarative {
         return (unsigned)(r);
 
         FR_QML_CALL_EPILOGUE( 0 )
+    }
+
+    QObject *FrClientFs::openFile( const QString &path, const QString &mode )
+    {
+        std::unique_ptr<FrClientFile> inst(new FrClientFile( this ));
+        inst->setClient( client( ) );
+        inst->setPath( path );
+        inst->setMode( mode );
+        inst->open( );
+        return inst.release( );
     }
 
     iface::filesystem::directory_iterator_impl *

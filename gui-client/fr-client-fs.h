@@ -88,6 +88,9 @@ namespace fr { namespace declarative {
                                         const QByteArray &data,
                                         quint64 from = 0 ) const;
 
+        Q_INVOKABLE QObject *openFile( const QString &path,
+                                       const QString &mode );
+
         fr::client::interfaces::filesystem
         ::directory_iterator_impl *begin_iterate( const QString &path  ) const;
 
