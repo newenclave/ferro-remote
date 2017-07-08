@@ -9,10 +9,9 @@
 #include "../utils.h"
 #include "../event-container.h"
 
-#include "vtrc-common/vtrc-exception.h"
-#include "vtrc-common/vtrc-rpc-channel.h"
-#include "vtrc-bind.h"
-#include "vtrc-common/vtrc-exception.h"
+#include "vtrc/common/exception.h"
+#include "vtrc/common/rpc-channel.h"
+#include "vtrc/common/config/vtrc-bind.h"
 
 namespace fr { namespace lua { namespace m { namespace spi {
 

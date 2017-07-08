@@ -3,8 +3,8 @@
 
 #include "protocol/ferro.pb.h"
 
-#include "vtrc-common/vtrc-stub-wrapper.h"
-#include "vtrc-common/vtrc-rpc-channel.h"
+#include "vtrc/common/stub-wrapper.h"
+#include "vtrc/common/rpc-channel.h"
 
 #include "client-core/fr-client.h"
 

@@ -1,16 +1,18 @@
 #include <iostream>
 #include <set>
+#include <map>
 
-#include "vtrc-common/vtrc-delayed-call.h"
+#include "vtrc/common/delayed-call.h"
 #include "client-core/fr-discover.h"
 
-#include "boost/asio.hpp"
+#include "vtrc/common/config/vtrc-asio.h"
+#include "vtrc/common/config/vtrc-system.h"
 
-#include "vtrc-bind.h"
-#include "vtrc-memory.h"
-#include "vtrc-mutex.h"
-#include "vtrc-atomic.h"
-#include "vtrc-ref.h"
+#include "vtrc/common/config/vtrc-bind.h"
+#include "vtrc/common/config/vtrc-memory.h"
+#include "vtrc/common/config/vtrc-mutex.h"
+#include "vtrc/common/config/vtrc-atomic.h"
+#include "vtrc/common/config/vtrc-ref.h"
 
 #include "utils.h"
 
@@ -18,8 +20,8 @@ namespace fr {  namespace client { namespace core {
 
     namespace {
 
-        namespace ba = boost::asio;
-        namespace bs = boost::system;
+        namespace ba = VTRC_ASIO;
+        namespace bs = VTRC_SYSTEM;
         namespace ph = vtrc::placeholders;
 
         typedef vtrc::common::delayed_call delayed_call;

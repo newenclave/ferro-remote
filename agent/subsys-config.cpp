@@ -6,7 +6,7 @@
 #include "application.h"
 
 #include "boost/program_options.hpp"
-#include "vtrc-common/vtrc-hash-iface.h"
+#include "vtrc/common/hash-iface.h"
 
 #include "ferro-remote-config.h"
 

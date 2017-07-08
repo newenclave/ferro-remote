@@ -13,7 +13,7 @@
 #include "subsys-config.h"
 #include "subsys-logging.h"
 
-#include "vtrc-common/vtrc-hash-iface.h"
+#include "vtrc/common/hash-iface.h"
 
 #include "google/protobuf/descriptor.h"
 #include "protocol/ferro.pb.h"
@@ -21,8 +21,8 @@
 
 #include "boost/program_options.hpp"
 
-#include "vtrc-common/vtrc-closure-holder.h"
-#include "vtrc-common/vtrc-connection-list.h"
+#include "vtrc/common/closure-holder.h"
+#include "vtrc/common/connection-list.h"
 
 #include "thread-prefix.h"
 

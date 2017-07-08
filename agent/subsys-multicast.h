@@ -4,7 +4,7 @@
 #include <set>
 
 #include "subsystem-iface.h"
-#include "vtrc-common/vtrc-signal-declaration.h"
+#include "vtrc/common/signal-declaration.h"
 
 #include "boost/asio/ip/udp.hpp"
 
@@ -56,4 +56,4 @@ namespace subsys {
 
 #endif
 
-    
+

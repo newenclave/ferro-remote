@@ -5,7 +5,7 @@
 #include <string.h>
 #include <sstream>
 
-#include "vtrc-common/vtrc-exception.h"
+#include "vtrc/common/exception.h"
 
 namespace fr { namespace agent {
 

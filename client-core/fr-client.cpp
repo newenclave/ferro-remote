@@ -3,14 +3,13 @@
 
 #include "client-core/fr-client.h"
 
-#include "vtrc-client/vtrc-client.h"
-#include "vtrc-mutex.h"
-#include "vtrc-memory.h"
-#include "vtrc-bind.h"
-#include "vtrc-ref.h"
+#include "vtrc/client/client.h"
+#include "vtrc/common/config/vtrc-mutex.h"
+#include "vtrc/common/config/vtrc-memory.h"
+#include "vtrc/common/config/vtrc-bind.h"
+#include "vtrc/common/config/vtrc-ref.h"
 
-#include "vtrc-common/vtrc-mutex-typedefs.h"
-#include "vtrc-common/vtrc-closure-holder.h"
+#include "vtrc/common/closure-holder.h"
 
 #include "protocol/ferro.pb.h"
 
@@ -68,8 +67,8 @@ namespace fr {  namespace client { namespace core {
     }
 
     struct callbacks_info {
-        cb_map              acb_;
-        vtrc::shared_mutex  acb_lock_;
+        cb_map       acb_;
+        vtrc::mutex  acb_lock_;
     };
 
     typedef vtrc::weak_ptr<callbacks_info>   callbacks_info_wptr;
@@ -188,6 +187,7 @@ namespace fr {  namespace client { namespace core {
         callbacks_info_wptr cbi_;
 
     public:
+        typedef vtrc::lock_guard<vtrc::mutex> locker_type;
 
         proto_event_impl( callbacks_info_sptr &cbi )
             :cbi_(cbi)
@@ -205,7 +205,7 @@ namespace fr {  namespace client { namespace core {
                 return;
             }
 
-            vtrc::shared_lock lck( cbi->acb_lock_ );
+            locker_type lck( cbi->acb_lock_ );
             cb_map::iterator f(cbi->acb_.find( request->id( ) ));
 
             if( f != cbi->acb_.end( ) ) {
@@ -307,16 +307,15 @@ namespace fr {  namespace client { namespace core {
 
     void client_core::register_async_op( size_t id, async_op_callback_type cb )
     {
-        vtrc::unique_shared_lock lck( impl_->cbi_->acb_lock_ );
+        proto_event_impl::locker_type lck( impl_->cbi_->acb_lock_ );
         impl_->cbi_->acb_[id] = cb;
     }
 
     void client_core::unregister_async_op( size_t id )
     {
-        vtrc::upgradable_lock lck( impl_->cbi_->acb_lock_ );
+        proto_event_impl::locker_type lck( impl_->cbi_->acb_lock_ );
         cb_map::iterator f(impl_->cbi_->acb_.find(id));
         if( f != impl_->cbi_->acb_.end( ) ) {
-            vtrc::upgrade_to_unique utl(lck);
             impl_->cbi_->acb_.erase( f );
         }
     }

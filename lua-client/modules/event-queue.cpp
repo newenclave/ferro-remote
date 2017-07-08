@@ -5,8 +5,8 @@
 #include "../general-info.h"
 #include "../utils.h"
 
-#include "vtrc-common/vtrc-delayed-call.h"
-#include "vtrc-common/vtrc-pool-pair.h"
+#include "vtrc/common/delayed-call.h"
+#include "vtrc/common/pool-pair.h"
 
 namespace fr { namespace lua { namespace m { namespace event_queue {
 

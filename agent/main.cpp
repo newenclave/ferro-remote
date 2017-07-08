@@ -1,7 +1,7 @@
 #include <iostream>
 
 #include "application.h"
-#include "vtrc-common/vtrc-pool-pair.h"
+#include "vtrc/common/pool-pair.h"
 
 #include "google/protobuf/descriptor.h"
 #include "boost/program_options.hpp"

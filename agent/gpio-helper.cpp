@@ -13,8 +13,7 @@
 #include "boost/system/error_code.hpp"
 
 #include "errno-check.h"
-#include "vtrc-common/vtrc-mutex-typedefs.h"
-#include "vtrc-common/vtrc-signal-declaration.h"
+#include "vtrc/common/signal-declaration.h"
 #include "vtrc-bind.h"
 
 #include "boost/asio.hpp"
@@ -25,7 +24,7 @@ namespace fr { namespace agent {
 
         namespace vcomm = vtrc::common;
         namespace bsys  = boost::system;
-        namespace bsig  = boost::signals2;
+        namespace bsig  = vtrc::common::observer;
         namespace ba    = boost::asio;
 
         using connection_sptr = std::shared_ptr<agent::gpio_reaction>;

@@ -6,6 +6,7 @@
 #include "boost/asio/placeholders.hpp"
 #include "boost/asio/buffer.hpp"
 #include "boost/asio/strand.hpp"
+#include "boost/bind.hpp"
 
 #include "utils.h"
 
@@ -14,6 +15,8 @@
 #include "protocol/multicast.pb.h"
 
 //#include "vtrc-memory.h"
+#include "vtrc-bind.h"
+#include "vtrc-ref.h"
 
 #define LOG(lev) log_(lev) << "[mcast] "
 #define LOGINF   LOG(logger::level::info)
@@ -132,7 +135,7 @@ namespace fr { namespace agent { namespace subsys {
             fr::proto::mcast_response resp;
             resp.set_name( config_->cfgs( ).name );
             try {
-                parent_->on_request_( req, res );
+                parent_->on_request_( vtrc::ref(req), vtrc::ref(res) );
 
                 resp.set_gpio_available( res.gpio_available );
                 for( auto &ep: res.endpoints ) {
@@ -258,4 +261,4 @@ namespace fr { namespace agent { namespace subsys {
 
 }}}
 
-    
+

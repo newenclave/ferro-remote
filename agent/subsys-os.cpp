@@ -4,8 +4,8 @@
 #include "subsys-logging.h"
 
 #include "protocol/os.pb.h"
-#include "vtrc-common/vtrc-closure-holder.h"
-#include "vtrc-common/vtrc-exception.h"
+#include "vtrc/common/closure-holder.h"
+#include "vtrc/common/exception.h"
 
 #include <stdlib.h>
 #include <stdint.h>
@@ -119,4 +119,4 @@ namespace fr { namespace agent { namespace subsys {
 
 }}}
 
-    
+

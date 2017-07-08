@@ -10,7 +10,7 @@ cmake_minimum_required(VERSION 2.8)
 
 set( INTERNAL_PROJECT_NAME ferro_remote )
 
-set( CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} 
+set( CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH}
      "${CMAKE_CURRENT_SOURCE_DIR}/cmake/Modules/" )
 
 set( FR_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/include")
@@ -37,8 +37,18 @@ if( NOT VTRC_IMPORT_CMAKE )
                      WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/vtrc")
 endif( NOT VTRC_IMPORT_CMAKE )
 
+set( USE_BOOST_ASIO 1 )
+
 add_subdirectory( vtrc )
 set( VTRC_IMPORT_CMAKE "${CMAKE_CURRENT_SOURCE_DIR}/vtrc/vtrc-import.cmake")
+
+
+message( "VTRC built with standalone ASIO " ${VTRC_ASIO_STANDALONE} )
+if( ${VTRC_ASIO_STANDALONE} )
+    message( "STANDALONE ASIO enabled" )
+    add_definitions( -DASIO_STANDALONE=1 )
+    include_directories( ${ASIO_STANDALONE_DIR} )
+endif( )
 
 include( ${VTRC_IMPORT_CMAKE} )
 ######################################################################

@@ -14,9 +14,9 @@
 
 #include "subsys-config.h"
 
-#include "vtrc-server/vtrc-listener-tcp.h"
-#include "vtrc-server/vtrc-listener-local.h"
-#include "vtrc-common/vtrc-connection-iface.h"
+#include "vtrc/server/listener-tcp.h"
+#include "vtrc/server/listener-local.h"
+#include "vtrc/common/connection-iface.h"
 
 #include "vtrc-mutex.h"
 #include "vtrc-bind.h"
@@ -289,4 +289,4 @@ namespace fr { namespace agent { namespace subsys {
 
 }}}
 
-    
+

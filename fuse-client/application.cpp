@@ -12,7 +12,7 @@
 
 #include "vtrc-memory.h"
 #include "fr-client.h"
-#include "vtrc-common/vtrc-pool-pair.h"
+#include "vtrc/common/pool-pair.h"
 
 #include "boost/system/error_code.hpp"
 
@@ -20,10 +20,10 @@
 #include "interfaces/IFile.h"
 #include "interfaces/ILogger.h"
 
-#include "vtrc-common/vtrc-rpc-channel.h"
-#include "vtrc-common/vtrc-delayed-call.h"
-#include "vtrc-common/vtrc-exception.h"
-#include "vtrc-common/vtrc-hash-iface.h"
+#include "vtrc/common/rpc-channel.h"
+#include "vtrc/common/delayed-call.h"
+#include "vtrc/common/exception.h"
+#include "vtrc/common/hash-iface.h"
 
 #include "vtrc-common/protocol/vtrc-errors.pb.h"
 

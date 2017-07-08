@@ -7,7 +7,7 @@
 #include "../general-info.h"
 #include "../utils.h"
 #include "../event-container.h"
-#include "vtrc-common/vtrc-pool-pair.h"
+#include "vtrc/common/pool-pair.h"
 
 #include "boost/regex.hpp"
 #include "boost/asio/streambuf.hpp"

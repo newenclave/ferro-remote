@@ -1,10 +1,10 @@
 #ifndef FR_APPLICATION_H
 #define FR_APPLICATION_H
 
-#include "vtrc-server/vtrc-application.h"
-#include "vtrc-common/vtrc-signal-declaration.h"
-#include "vtrc-common/vtrc-pool-pair.h"
-#include "vtrc-common/vtrc-connection-iface.h"
+#include "vtrc/server/application.h"
+#include "vtrc/common/signal-declaration.h"
+#include "vtrc/common/pool-pair.h"
+#include "vtrc/common/connection-iface.h"
 
 #include "subsystem-iface.h"
 

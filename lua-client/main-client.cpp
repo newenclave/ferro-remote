@@ -10,7 +10,7 @@
 #include "event-container.h"
 #include "modules/iface.h"
 
-#include "vtrc-common/vtrc-hash-iface.h"
+#include "vtrc/common/hash-iface.h"
 
 #include "boost/system/error_code.hpp"
 #include "boost/asio.hpp"
@@ -20,6 +20,7 @@
 #include "vtrc-memory.h"
 
 #include "net-ifaces.h"
+#include "vtrc/common/config/vtrc-bind.h"
 
 namespace fr { namespace lua { namespace client {
 
@@ -214,23 +215,18 @@ namespace fr { namespace lua { namespace client {
             ccl->set_key( key );
         }
 
-        boost::asio::io_service &ios( info->tp_->get_io_service( ) );
+        VTRC_ASIO::io_service &ios( info->tp_->get_io_service( ) );
+        namespace ph = vtrc::placeholders;
 
-        ccl->on_connect_connect( ios.wrap(
-                                        client_core::on_connect_slot_type(
-                                        on_connect, info ) ) );
+        ccl->on_connect_connect( ios.wrap( vtrc::bind( on_connect, info ) ) );
 
         ccl->on_disconnect_connect( ios.wrap(
-                                        client_core::on_disconnect_slot_type(
-                                        on_disconnect, info ) ) );
+                                        vtrc::bind( on_disconnect, info ) ) );
 
-        ccl->on_ready_connect( ios.wrap(
-                                        client_core::on_ready_slot_type(
-                                        on_ready, info ) ) );
+        ccl->on_ready_connect( ios.wrap( vtrc::bind( on_ready, info ) ) );
 
-        ccl->on_init_error_connect( ios.wrap(
-                                        client_core::on_init_error_slot_type(
-                                        on_init_error, _1, info ) ) );
+        ccl->on_init_error_connect( ios.wrap( vtrc::bind( on_init_error,
+                                              ph::_1, info ) ) );
 
         info->client_core_.swap( ccl );
 

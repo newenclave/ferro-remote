@@ -15,11 +15,9 @@
 
 #include "gpio-helper.h"
 
-#include "vtrc-server/vtrc-channels.h"
+#include "vtrc/server/channels.h"
 
-#include "vtrc-common/vtrc-closure-holder.h"
-#include "vtrc-common/vtrc-mutex-typedefs.h"
-#include "vtrc-common/vtrc-mutex-typedefs.h"
+#include "vtrc/common/closure-holder.h"
 
 #include "vtrc-stdint.h"
 #include "vtrc-atomic.h"
@@ -95,12 +93,14 @@ namespace fr { namespace agent { namespace subsys {
 
             fr::agent::application              *app_;
             gpio_map                             gpio_;
-            vtrc::shared_mutex                   gpio_lock_;
+            vtrc::mutex                          gpio_lock_;
             vtrc::common::connection_iface_wptr  client_;
             rpc_channel_sptr                     event_channel_;
             events_stub_type                     eventor_;
             subsys::reactor                     &reactor_;
             logger                              &log_;
+
+            typedef vtrc::lock_guard<vtrc::mutex> locker_type;
 
         public:
 
@@ -138,7 +138,7 @@ namespace fr { namespace agent { namespace subsys {
 
             gpio_sptr gpio_by_index( vtrc::uint32_t id )
             {
-                vtrc::shared_lock slck(gpio_lock_);
+                locker_type slck(gpio_lock_);
                 gpio_map::iterator f(gpio_.find(id));
                 if( f == gpio_.end( ) ) {
                     vcomm::throw_system_error( EINVAL, "Bad GPIO handle." );
@@ -297,7 +297,7 @@ namespace fr { namespace agent { namespace subsys {
                 LOGDBG << "Open device with ID: " << id
                        << " fd: " << ng->value_fd( )
                           ;
-                vtrc::unique_shared_lock lck( gpio_lock_ );
+                locker_type lck( gpio_lock_ );
                 gpio_.insert( std::make_pair( newid, ng ) );
             }
 
@@ -308,7 +308,7 @@ namespace fr { namespace agent { namespace subsys {
                          ::google::protobuf::Closure* done) override
             {
                 vcomm::closure_holder holder(done);
-                vtrc::upgradable_lock ulck( gpio_lock_ );
+                locker_type ulck( gpio_lock_ );
                 gpio_map::iterator f( gpio_.find( request->value( ) ) );
                 if( f != gpio_.end( ) ) {
                     auto g = f->second;
@@ -316,7 +316,6 @@ namespace fr { namespace agent { namespace subsys {
                         g->del_reactor_action( reactor_.get( ), f->first );
                     }
                     {
-                        vtrc::upgrade_to_unique utl(ulck);
                         gpio_.erase( f );
                     }
                     app_->subsystem<gpio>( ).close_pin( f->first );
@@ -714,4 +713,4 @@ namespace fr { namespace agent { namespace subsys {
 
 }}}
 
-    
+

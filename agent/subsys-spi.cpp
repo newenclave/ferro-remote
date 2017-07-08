@@ -16,10 +16,10 @@
 
 #include "protocol/spi.pb.h"
 
-#include "vtrc-common/vtrc-exception.h"
-#include "vtrc-common/vtrc-mutex-typedefs.h"
-#include "vtrc-common/vtrc-closure-holder.h"
-#include "vtrc-server/vtrc-channels.h"
+#include "vtrc/common/exception.h"
+#include "vtrc/common/config/vtrc-mutex.h"
+#include "vtrc/common/closure-holder.h"
+#include "vtrc/server/channels.h"
 #include "vtrc-memory.h"
 #include "vtrc-atomic.h"
 
@@ -348,4 +348,4 @@ namespace fr { namespace agent { namespace subsys {
 
 }}}
 
-    
+

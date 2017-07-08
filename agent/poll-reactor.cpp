@@ -10,10 +10,10 @@
 
 #include "errno-check.h"
 
-#include "vtrc-common/vtrc-exception.h"
+#include "vtrc/common/exception.h"
 
-#include "vtrc-memory.h"
-#include "vtrc-common/vtrc-mutex-typedefs.h"
+#include "vtrc/common/config/vtrc-memory.h"
+#include "vtrc/common/config/vtrc-mutex.h"
 #include "file-keeper.h"
 
 namespace fr { namespace agent {
@@ -95,7 +95,8 @@ namespace fr { namespace agent {
         reaction_map   react_;
         std::uint64_t  app_start_;
 
-        mutable vtrc::shared_mutex  react_lock_;
+        mutable vtrc::mutex  react_lock_;
+        typedef vtrc::lock_guard<vtrc::mutex> locker_type;
 
         impl( std::uint64_t app_start )
             :stop_event_(create_event( ))
@@ -127,7 +128,7 @@ namespace fr { namespace agent {
 
         void add_fd( int fd, unsigned events, reaction_callback cb )
         {
-            vtrc::upgradable_lock lck(react_lock_);
+            locker_type lck(react_lock_);
 
             reaction_map::iterator f(react_.find(fd));
 
@@ -140,7 +141,6 @@ namespace fr { namespace agent {
                 int res = add_fd_to_epoll( poll_fd_.hdl( ), fd, events );
 
                 errno_error::errno_assert( -1 != res, "epoll_ctl" );
-                vtrc::upgrade_to_unique utl(lck);
                 react_.insert( std::make_pair( fd, new_react ) );
 
             } else {
@@ -153,7 +153,7 @@ namespace fr { namespace agent {
         void del_fd( int fd )
         {
             del_fd_from_epoll( poll_fd_.hdl( ), fd );
-            vtrc::unique_shared_lock lck(react_lock_);
+            locker_type lck(react_lock_);
             react_.erase( fd );
         }
 
@@ -165,13 +165,13 @@ namespace fr { namespace agent {
 
         size_t count( ) const
         {
-            vtrc::shared_lock slck(react_lock_);
+            locker_type slck(react_lock_);
             return react_.size( );
         }
 
         void make_callback( int fd, unsigned events, std::uint64_t ticks )
         {
-            vtrc::upgradable_lock slck(react_lock_);
+            locker_type slck(react_lock_);
 
             auto f( react_.find( fd ) );
 
@@ -179,7 +179,6 @@ namespace fr { namespace agent {
                 bool res = f->second->call_( events, ticks );
                 if( !res ) {
                     std::cout << "No res! delete\n";
-                    vtrc::upgrade_to_unique utu(slck);
                     del_fd_unsafe( fd );
                 }
             } else {

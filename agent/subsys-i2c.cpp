@@ -7,17 +7,17 @@
 
 #include "protocol/i2c.pb.h"
 
-#include "vtrc-common/vtrc-closure-holder.h"
-#include "vtrc-common/vtrc-exception.h"
+#include "vtrc/common/closure-holder.h"
+#include "vtrc/common/exception.h"
 
 #include "vtrc-memory.h"
 #include "vtrc-stdint.h"
 #include "vtrc-atomic.h"
+#include "vtrc-mutex.h"
 
 #include "i2c-helper.h"
 
-#include "vtrc-server/vtrc-channels.h"
-#include "vtrc-common/vtrc-mutex-typedefs.h"
+#include "vtrc/server/channels.h"
 
 #define LOG(lev) log_(lev) << "[i2c] "
 #define LOGINF   LOG(logger::level::info)
@@ -47,8 +47,10 @@ namespace fr { namespace agent { namespace subsys {
         class i2c_inst_impl: public fr::proto::i2c::instance {
 
             device_map                   devices_;
-            vtrc::shared_mutex           devices_lock_;
+            vtrc::mutex                  devices_lock_;
             vtrc::atomic<vtrc::uint32_t> index_;
+
+            typedef vtrc::lock_guard<vtrc::mutex> locker_type;
 
         public:
 
@@ -83,7 +85,7 @@ namespace fr { namespace agent { namespace subsys {
 
             i2c_sptr i2c_by_index( vtrc::uint32_t id )
             {
-                vtrc::shared_lock slck(devices_lock_);
+                locker_type slck(devices_lock_);
                 device_map::iterator f(devices_.find(id));
                 if( f == devices_.end( ) ) {
                     vcomm::throw_system_error( EINVAL, "Bad I2C handle." );
@@ -111,7 +113,7 @@ namespace fr { namespace agent { namespace subsys {
                     new_dev->set_address( slv, force );
                 }
 
-                vtrc::unique_shared_lock lck(devices_lock_);
+                locker_type lck(devices_lock_);
                 devices_.insert( std::make_pair( next_hdl, new_dev ) );
             }
 
@@ -377,7 +379,7 @@ namespace fr { namespace agent { namespace subsys {
                          ::google::protobuf::Closure* done) override
             {
                 vcomm::closure_holder holder( done );
-                vtrc::unique_shared_lock uslck(devices_lock_);
+                locker_type uslck(devices_lock_);
                 devices_.erase( request->value( ) );
             }
 
@@ -467,4 +469,4 @@ namespace fr { namespace agent { namespace subsys {
 
 }}}
 
-    
+

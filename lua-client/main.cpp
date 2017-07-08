@@ -2,10 +2,10 @@
 
 #include "fr-lua.h"
 
-#include "vtrc-common/vtrc-thread-pool.h"
-#include "vtrc-common/vtrc-pool-pair.h"
+#include "vtrc/common/thread-pool.h"
+#include "vtrc/common/pool-pair.h"
 
-#include "vtrc-client/vtrc-client.h"
+#include "vtrc/client/client.h"
 
 #include "boost/program_options.hpp"
 

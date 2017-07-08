@@ -14,7 +14,7 @@
 #include "logger.h"
 #include "utils.h"
 
-#include "vtrc-common/vtrc-delayed-call.h"
+#include "vtrc/common/delayed-call.h"
 
 #include "boost/date_time/posix_time/posix_time.hpp"
 #include "boost/algorithm/string.hpp"
@@ -22,11 +22,11 @@
 #include "protocol/logger.pb.h"
 #include "protocol/ferro.pb.h"
 
-#include "vtrc-common/vtrc-stub-wrapper.h"
-#include "vtrc-common/vtrc-closure-holder.h"
-#include "vtrc-server/vtrc-channels.h"
+#include "vtrc/common/stub-wrapper.h"
+#include "vtrc/common/closure-holder.h"
+#include "vtrc/server/channels.h"
 
-#include "vtrc-common/vtrc-delayed-call.h"
+#include "vtrc/common/delayed-call.h"
 
 #define LOG(lev) log_(lev, "logging") << "[log] "
 #define LOGINF   LOG(logger::level::info)
@@ -49,7 +49,7 @@ namespace fr { namespace agent { namespace subsys {
         using void_call    = std::function<void(void)>;
 
         const std::string subsys_name( "logging" );
-        namespace bsig   = boost::signals2;
+        namespace bsig   = vtrc::common::observer;
         namespace bpt    = boost::posix_time;
         namespace vcomm  = vtrc::common;
         namespace vserv  = vtrc::server;
@@ -516,8 +516,12 @@ namespace fr { namespace agent { namespace subsys {
         };
 
         struct output_connection {
-            bsig::scoped_connection connection_;
+            bsig::connection connection_;
             std::unique_ptr<log_output> output_;
+            ~output_connection( )
+            {
+                connection_.disconnect( );
+            }
         };
 
         using connection_map = std::map<std::string, output_connection>;
@@ -602,11 +606,13 @@ namespace fr { namespace agent { namespace subsys {
 
         void flush_all( )
         {
-            for( auto &l: connections_ ) {
+            connection_map::iterator b = connections_.begin( );
+            connection_map::iterator e = connections_.end( );
+            for( ; b!=e; ++b ) {
 //                std::cerr << l.second.output_->name( )
 //                          << ": " << l.second.output_->length( )
 //                          << "\n";
-                l.second.output_->flush( );
+                b->second.output_->flush( );
             }
         }
 
@@ -790,4 +796,4 @@ namespace fr { namespace agent { namespace subsys {
 
 }}}
 
-    
+

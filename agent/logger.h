@@ -7,7 +7,7 @@
 
 #include "common/logger.hpp"
 #include "common/noexcept.hpp"
-#include "vtrc-common/vtrc-signal-declaration.h"
+#include "vtrc/common/signal-declaration.h"
 #include "boost/date_time/posix_time/posix_time.hpp"
 
 namespace boost { namespace asio {

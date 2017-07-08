@@ -3,11 +3,11 @@
 
 #include <string>
 
-#include "vtrc-common/vtrc-pool-pair.h"
-#include "vtrc-function.h"
-#include "vtrc-common/vtrc-closure.h"
-#include "vtrc-common/vtrc-signal-declaration.h"
-#include "vtrc-common/vtrc-rpc-channel.h"
+#include "vtrc/common/pool-pair.h"
+#include "vtrc/common/config/vtrc-function.h"
+#include "vtrc/common/closure.h"
+#include "vtrc/common/signal-declaration.h"
+#include "vtrc/common/rpc-channel.h"
 
 #include "vtrc-stdint.h"
 #include "interfaces/IAsyncOperation.h"

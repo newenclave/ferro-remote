@@ -14,12 +14,12 @@
 #include <unistd.h>
 #include <utime.h>
 
-#include "vtrc-common/vtrc-closure-holder.h"
-#include "vtrc-common/vtrc-mutex-typedefs.h"
-#include "vtrc-server/vtrc-channels.h"
+#include "vtrc/common/closure-holder.h"
+#include "vtrc/server/channels.h"
+#include "vtrc/common/exception.h"
 
+#include "vtrc-mutex.h"
 #include "vtrc-atomic.h"
-#include "vtrc-common/vtrc-exception.h"
 
 #include "boost/filesystem.hpp"
 
@@ -141,12 +141,14 @@ namespace fr { namespace agent { namespace subsys {
         class proto_fs_impl: public fr::proto::fs::instance {
 
             path_map            path_;
-            vtrc::shared_mutex  path_lock_;
+            vtrc::mutex  path_lock_;
 
             iterator_map        iters_;
-            vtrc::shared_mutex  iters_lock_;
+            vtrc::mutex         iters_lock_;
 
             subsys::reactor    &reactor_;
+
+            typedef vtrc::lock_guard<vtrc::mutex> locker_type;
 
             inline vtrc::uint32_t next_index( )
             {
@@ -168,7 +170,7 @@ namespace fr { namespace agent { namespace subsys {
                     /// old path must be used
                     hdl = request->hdl( ).value( );
 
-                    vtrc::shared_lock l( path_lock_ );
+                    locker_type l( path_lock_ );
                     path_map::const_iterator f( path_.find( hdl ) );
 
                     if( f == path_.end( ) ) {
@@ -191,7 +193,7 @@ namespace fr { namespace agent { namespace subsys {
                 vtrc::uint32_t hdl;
                 bfs::path p(path_from_request( request, hdl ));
                 {
-                    vtrc::unique_shared_lock l( path_lock_ );
+                    locker_type l( path_lock_ );
                     path_.insert( std::make_pair( hdl, p ) );
                 }
                 response->mutable_hdl( )->set_value( hdl );
@@ -205,7 +207,7 @@ namespace fr { namespace agent { namespace subsys {
             {
                 vcomm::closure_holder holder(done);
 
-                vtrc::upgradable_lock ul( path_lock_ );
+                locker_type ul( path_lock_ );
 
                 vtrc::uint32_t hdl( request->hdl( ).value( ) );
 
@@ -226,7 +228,6 @@ namespace fr { namespace agent { namespace subsys {
                 p.normalize( );
                 response->set_path( p.string( ) );
                 /// set new path
-                vtrc::upgrade_to_unique utul( ul );
                 f->second = p;
             }
 
@@ -405,7 +406,7 @@ namespace fr { namespace agent { namespace subsys {
 
             bfs::directory_iterator &get_iter( vtrc::uint32_t hdl )
             {
-                vtrc::shared_lock l( iters_lock_ );
+                locker_type l( iters_lock_ );
                 return get_iter_unsafe( hdl );
             }
 
@@ -422,7 +423,7 @@ namespace fr { namespace agent { namespace subsys {
                 bfs::directory_iterator new_iterator(p);
                 vtrc::uint32_t iter_hdl = next_index( );
 
-                vtrc::unique_shared_lock usl( iters_lock_);
+                locker_type usl( iters_lock_);
                 iters_.insert( std::make_pair( iter_hdl, new_iterator ) );
                 fill_iter_info( new_iterator, iter_hdl, response );
             }
@@ -435,7 +436,7 @@ namespace fr { namespace agent { namespace subsys {
                 vcomm::closure_holder holder(done);
 
                 vtrc::uint32_t hdl( request->hdl( ).value( ) );
-                vtrc::shared_lock usl( iters_lock_ );
+                locker_type usl( iters_lock_ );
 
                 bfs::directory_iterator &iter( get_iter_unsafe( hdl ) );
                 if( iter != bfs::directory_iterator( ) ) {
@@ -469,7 +470,7 @@ namespace fr { namespace agent { namespace subsys {
                 vtrc::uint32_t new_hdl = next_index( );
                 fill_iter_info( iter, hdl, response );
 
-                vtrc::unique_shared_lock usl( iters_lock_ );
+                locker_type usl( iters_lock_ );
                 iters_.insert( std::make_pair( new_hdl, iter ) );
             }
 
@@ -481,20 +482,18 @@ namespace fr { namespace agent { namespace subsys {
                 vcomm::closure_holder holder(done);
 
                 {
-                    vtrc::upgradable_lock ul( path_lock_ );
+                    locker_type ul( path_lock_ );
                     path_map::iterator f( path_.find( request->value( ) ) );
                     if( f != path_.end( ) ) {
-                        vtrc::upgrade_to_unique uul( ul );
                         path_.erase( f );
                         return;
                     }
                 }
 
                 {
-                    vtrc::upgradable_lock ul( iters_lock_ );
+                    locker_type ul( iters_lock_ );
                     iterator_map::iterator f( iters_.find( request->value( )));
                     if( f != iters_.end( ) ) {
-                        vtrc::upgrade_to_unique uul( ul );
                         iters_.erase( f );
                     }
                 }
@@ -615,7 +614,7 @@ namespace fr { namespace agent { namespace subsys {
 
             vcomm::connection_iface_wptr  client_;
             file_map                      files_;
-            vtrc::shared_mutex            files_lock_;
+            vtrc::mutex                   files_lock_;
 
             subsys::reactor              &reactor_;
 
@@ -623,6 +622,8 @@ namespace fr { namespace agent { namespace subsys {
             stub_type                    events_;
 
         public:
+
+            typedef vtrc::lock_guard<vtrc::mutex> locker_type;
 
             proto_file_impl( fr::agent::application *app,
                              vcomm::connection_iface_wptr &cli)
@@ -641,7 +642,7 @@ namespace fr { namespace agent { namespace subsys {
 
             void destroy_all( )
             {
-                vtrc::unique_shared_lock lck( files_lock_ );
+                locker_type lck( files_lock_ );
                 for( file_map::iterator b(files_.begin( )), e(files_.end( ));
                      b!=e; ++b)
                 {
@@ -663,21 +664,21 @@ namespace fr { namespace agent { namespace subsys {
 
             void del_file( vtrc::uint32_t id )
             {
-                vtrc::unique_shared_lock lck( files_lock_ );
+                locker_type lck( files_lock_ );
                 files_.erase( id );
             }
 
             vtrc::uint32_t add_file( file_sptr &f )
             {
                 vtrc::uint32_t id = next_id( );
-                vtrc::unique_shared_lock lck( files_lock_ );
+                locker_type lck( files_lock_ );
                 files_[id] = f;
                 return id;
             }
 
             file_sptr get_file( vtrc::uint32_t id )
             {
-                vtrc::shared_lock lck( files_lock_ );
+                locker_type lck( files_lock_ );
                 file_map::iterator f( files_.find(id) );
                 if( f == files_.end( ) ) {
                     vcomm::throw_system_error( EBADF, "Bad file number." );
@@ -947,11 +948,10 @@ namespace fr { namespace agent { namespace subsys {
                          ::google::protobuf::Closure* done) override
             {
                 vcomm::closure_holder holder(done);
-                vtrc::upgradable_lock lck( files_lock_ );
+                locker_type lck( files_lock_ );
                 file_map::iterator f(files_.find( request->value( ) ));
                 if( f != files_.end( ) ) {
                     reactor_.del_fd( f->second->handle( ) );
-                    vtrc::upgrade_to_unique utl(lck);
                     files_.erase( f );
                 }
             }
@@ -1043,4 +1043,4 @@ namespace fr { namespace agent { namespace subsys {
 
 }}}
 
-    
+
