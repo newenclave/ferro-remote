@@ -23,7 +23,7 @@
 #include "vtrc/common/rpc-channel.h"
 #include "vtrc/common/delayed-call.h"
 #include "vtrc/common/exception.h"
-#include "vtrc/common/hash-iface.h"
+#include "vtrc/common/hash/iface.h"
 
 #include "vtrc-common/protocol/vtrc-errors.pb.h"
 
@@ -63,7 +63,7 @@ namespace fr { namespace fuse {
     std::string hash_key( const std::string &id, const std::string &key )
     {
         std::string key_info( id + key );
-        vcomm::hash_iface_uptr s(vcomm::hash::sha2::create256( ));
+        vcomm::hash::iface::uptr s(vcomm::hash::sha2::create256( ));
         std::string hs(s->get_data_hash( &key_info[0], key_info.size( ) ));
         return hs;
     }

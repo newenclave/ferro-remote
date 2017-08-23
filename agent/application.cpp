@@ -13,7 +13,7 @@
 #include "subsys-config.h"
 #include "subsys-logging.h"
 
-#include "vtrc/common/hash-iface.h"
+#include "vtrc/common/hash/iface.h"
 
 #include "google/protobuf/descriptor.h"
 #include "protocol/ferro.pb.h"

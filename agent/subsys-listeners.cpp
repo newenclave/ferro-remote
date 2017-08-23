@@ -14,8 +14,8 @@
 
 #include "subsys-config.h"
 
-#include "vtrc/server/listener-tcp.h"
-#include "vtrc/server/listener-local.h"
+#include "vtrc/server/listener/tcp.h"
+#include "vtrc/server/listener/local.h"
 #include "vtrc/common/connection-iface.h"
 
 #include "vtrc-mutex.h"

@@ -6,7 +6,7 @@
 #include "application.h"
 
 #include "boost/program_options.hpp"
-#include "vtrc/common/hash-iface.h"
+#include "vtrc/common/hash/iface.h"
 
 #include "ferro-remote-config.h"
 
@@ -331,8 +331,7 @@ namespace fr { namespace agent { namespace subsys {
             typedef slist::const_iterator citr;
             std::map<std::string, std::string> tmp;
 
-            vtrc::unique_ptr<vcomm::hash_iface>
-                                 s2( vcomm::hash::sha2::create256( ) );
+            vcomm::hash::iface::uptr s2( vcomm::hash::sha2::create256( ) );
 
             auto keys = vm["key"].as<slist>( );
 
