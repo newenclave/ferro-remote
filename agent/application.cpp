@@ -17,7 +17,7 @@
 
 #include "google/protobuf/descriptor.h"
 #include "protocol/ferro.pb.h"
-#include "vtrc-common/protocol/vtrc-rpc-lowlevel.pb.h"
+#include "vtrc/common/protocol/vtrc-rpc-lowlevel.pb.h"
 
 #include "boost/program_options.hpp"
 

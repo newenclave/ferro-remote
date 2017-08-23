@@ -25,7 +25,7 @@
 #include "vtrc/common/exception.h"
 #include "vtrc/common/hash/iface.h"
 
-#include "vtrc-common/protocol/vtrc-errors.pb.h"
+#include "vtrc/common/protocol/vtrc-errors.pb.h"
 
 #define FUSE_CALL_INIT \
     local_result = 0
